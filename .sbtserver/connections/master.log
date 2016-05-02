@@ -1,0 +1,7 @@
+New log file opened at Mon Apr 25 13:04:51 PDT 2016 by 28833@Matthews-iMac.local
+Taking next connection to: 57553
+New client attempting to connect on port: 57554-57553
+  Address = /10.1.10.34:57553
+This client on port 57554 has uuid 6afe58c3-a40f-46ec-a98c-bdbc8d5613bb configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-6afe58c3-a40f-46ec-a98c-bdbc8d5613bb
+Taking next connection to: 57553
