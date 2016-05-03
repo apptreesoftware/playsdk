@@ -9,7 +9,8 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= Seq(
   javaJdbc,
   cache,
-  javaWs
+  javaWs,
+  filters
 )
 
 libraryDependencies += "commons-dbutils" % "commons-dbutils" % "1.6"
