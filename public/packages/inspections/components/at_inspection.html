@@ -1,0 +1,36 @@
+<dom-module id="at-inspection">
+    <template>
+        <style>
+            .container {
+                padding: 20px;
+                overflow:scroll;
+            }
+
+            h1 {
+                @apply(--paper-font-display1);
+            }
+
+            .subhead {
+                @apply(--paper-font-subhead);
+            }
+
+            paper-button {
+                @apply(--paper-font-body1);
+            }
+
+            paper-button.save {
+                background-color: var(--paper-green-500);
+            }
+        </style>
+        <div class="container">
+            <h1>{{inspection.inspectionName}}</h1>
+            <div class="subhead">{{inspection.inspectionClass}}</div>
+            <at-attributes id="attribute-list" inspection="{{inspection}}" on-edit-attribute="handleEditAttribute"></at-attributes>
+            <paper-dialog id="editor-dialog">
+                <at-attribute-editor id="attribute-editor" on-attribute-changed="handleAttributeChanged">dialog</at-attribute-editor>
+            </paper-dialog>
+            <paper-button raised on-click="handleCreateAttribute">Create Attribute</paper-button>
+            <paper-button raised on-click="handleSave" class="save">Save</paper-button>
+        </div>
+    </template>
+</dom-module>

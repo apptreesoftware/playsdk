@@ -1,0 +1,34 @@
+<link rel="import" href="shared_styles.html">
+<dom-module id="at-attributes">
+    <template>
+        <style is="custom-style">
+            table, td, th {
+                @apply(--paper-font-common-base);
+                border: 1px solid #aeaeae;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th {
+                height: 50px;
+            }
+
+            td {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            table tr:nth-child(odd) td{
+                background-color: white;
+            }
+            table tr:nth-child(even) td{
+                background-color: #e1e1e1;
+            }
+
+        </style>
+        <div id="table-host"></div>
+    </template>
+</dom-module>

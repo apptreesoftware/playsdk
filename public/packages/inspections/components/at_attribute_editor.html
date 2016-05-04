@@ -1,0 +1,26 @@
+<dom-module id="at-attribute-editor">
+    <template>
+        <style>
+            .container {
+                width: 600px;
+                height: 600px;
+                padding: 20px;
+            }
+        </style>
+        <div class="container">
+            <h2>Edit Attribute</h2>
+            <paper-input label="Name" value="{{attributeName}}"></paper-input>
+            <paper-dropdown-menu label="Data Type">
+                <paper-listbox class="dropdown-content" selected="{{dataTypeIndex}}">
+                    <template is="dom-repeat" items="{{dataTypes}}" as="dt">
+                        <paper-item>{{dt}}</paper-item>
+                    </template>
+                </paper-listbox>
+            </paper-dropdown-menu>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm autofocus on-click="handleAccept">Accept</paper-button>
+            </div>
+        </div>
+    </template>
+</dom-module>

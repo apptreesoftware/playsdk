@@ -3,7 +3,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET         /                                 controllers.InspectionController.index
+#GET         /                                 controllers.InspectionController.index
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                     controllers.Assets.versioned(path="/public", file: Asset)
@@ -12,3 +12,5 @@ GET         /inspections                      controllers.InspectionController.g
 GET         /inspections/:inspectionID        controllers.InspectionController.getInspection(inspectionID : Long)
 POST        /inspections                      controllers.InspectionController.createInspectionConfiguration
 PUT         /inspections/:inspectionID        controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
+
+GET     /*file                                     controllers.StaticFileController.html(file)

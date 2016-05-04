@@ -8,7 +8,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import views.html.index;
+//import views.html.index;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -18,10 +18,6 @@ import java.util.concurrent.CompletionStage;
  * Copyright AppTree Software, Inc.
  */
 public class InspectionController extends Controller {
-
-    public Result index() {
-        return ok(index.render("Your new application is ready."));
-    }
 
     @Transactional
     public CompletionStage<Result> getInspections() {
