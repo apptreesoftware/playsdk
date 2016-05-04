@@ -5,7 +5,7 @@
 
 create table at_inspection_configuration (
   id                            bigserial not null,
-  name                          varchar(255),
+  inspection_name               varchar(255),
   inspection_class              varchar(255),
   constraint pk_at_inspection_configuration primary key (id)
 );
@@ -13,7 +13,7 @@ create table at_inspection_configuration (
 create table at_inspection_configuration_attribute (
   id                            bigserial not null,
   inspection_configuration_id   bigint not null,
-  name                          varchar(255),
+  attribute_name                varchar(255),
   index                         integer,
   data_type                     varchar(255),
   constraint pk_at_inspection_configuration_attribute primary key (id)
