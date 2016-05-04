@@ -17,7 +17,7 @@ public class InspectionConfiguration extends Model {
 
     @Id public long id;
     @Constraints.Required
-    public String name;
+    public String inspectionName;
     public String inspectionClass;
 
     @OneToMany(cascade= CascadeType.ALL)

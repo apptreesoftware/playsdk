@@ -15,10 +15,9 @@ import javax.persistence.Table;
 public class InspectionConfigurationAttribute {
 
     @Id public long id;
-    public String name;
+    public String attribute_name;
     public int index;
     public String dataType;
 
     public static Model.Finder<Long, InspectionConfigurationAttribute> find = new Model.Finder<>(InspectionConfigurationAttribute.class);
-
 }
