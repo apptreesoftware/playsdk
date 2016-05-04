@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += "commons-dbutils" % "commons-dbutils" % "1.6"
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
-
+libraryDependencies += "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"
 
 fork in run := false
 
