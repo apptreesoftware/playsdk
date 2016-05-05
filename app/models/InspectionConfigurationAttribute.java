@@ -18,6 +18,7 @@ public class InspectionConfigurationAttribute {
     public String attribute_name;
     public int index;
     public String dataType;
+    public String listType;
 
     public static Model.Finder<Long, InspectionConfigurationAttribute> find = new Model.Finder<>(InspectionConfigurationAttribute.class);
 }

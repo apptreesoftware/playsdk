@@ -16,6 +16,7 @@ create table at_inspection_configuration_attribute (
   attribute_name                varchar(255),
   index                         integer,
   data_type                     varchar(255),
+  list_type                     varchar(255),
   constraint pk_at_inspection_configuration_attribute primary key (id)
 );
 
