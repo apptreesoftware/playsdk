@@ -1,9 +1,9 @@
 import filters.ExampleFilter;
 import play.Environment;
 import play.Mode;
+import play.filters.cors.CORSFilter;
 import play.http.HttpFilters;
 import play.mvc.EssentialFilter;
-import play.filters.cors.CORSFilter;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 

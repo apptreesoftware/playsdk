@@ -1,4 +1,6 @@
 import com.google.inject.AbstractModule;
+import controllers.sdk.AppTree;
+import data.PriorityListDataSource;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -14,7 +16,7 @@ public class Module extends AbstractModule {
 
     @Override
     public void configure() {
-
+        AppTree.registerListDataSourceWithName("Priorities", new PriorityListDataSource());
     }
 
 }
