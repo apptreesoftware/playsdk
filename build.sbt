@@ -21,5 +21,7 @@ fork in run := false
 
 packageName in Universal := "inspections"
 
+herokuAppName in Compile := "inspections1"
+
 lazy val myProject = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean)
