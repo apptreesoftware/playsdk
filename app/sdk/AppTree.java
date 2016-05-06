@@ -1,13 +1,10 @@
-package controllers.sdk;
+package sdk;
 
 import models.sdk.Data.DataSource;
 import models.sdk.List.ListDataSource;
 
 import java.util.HashMap;
 
-/**
- * Created by alexis on 5/3/16.
- */
 public class AppTree {
     public static HashMap<String, DataSource> dataSources = new HashMap<>();
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();

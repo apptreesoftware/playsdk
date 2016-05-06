@@ -1,7 +1,11 @@
 package models.sdk.Data;
 
-import java.util.*;
 import models.sdk.Utils.ServiceParameter;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by alexis on 5/3/16.
@@ -44,17 +48,17 @@ public class ServiceConfiguration {
     }
 
     public static class Builder {
-        String mName;
+        String name;
         private List<ServiceConfigurationAttribute> attributes;
         private List<ServiceParameter> serviceFilterParameters;
-        private List<String> mDependentListEndpoints = new ArrayList<String>();
+        private List<String> dependentLists = new ArrayList<String>();
 
         /**
          * Creates a service configuration builder
          * @param serviceName The configuration name
          */
         public Builder(String serviceName) {
-            mName = serviceName;
+            name = serviceName;
         }
 
         /**
@@ -83,7 +87,7 @@ public class ServiceConfiguration {
          * @return the builder with dependent lists
          */
         public Builder withDependentListRESTPaths(List<String> dependentLists) {
-            mDependentListEndpoints = dependentLists;
+            this.dependentLists = dependentLists;
             return this;
         }
 
@@ -97,7 +101,7 @@ public class ServiceConfiguration {
             if ( (index = checkIndexUniqueness(attributes)) != -1 ) {
                 throw new InvalidServiceAttributeException("Your update attributes contain an index that is not unique: Index " + index);
             }
-            return new ServiceConfiguration(mName,attributes,serviceFilterParameters, mDependentListEndpoints);
+            return new ServiceConfiguration(name,attributes,serviceFilterParameters, dependentLists);
         }
 
         private int checkIndexUniqueness(List<ServiceConfigurationAttribute> attributes) {

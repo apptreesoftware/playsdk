@@ -125,4 +125,10 @@ public abstract class DataSource {
      * @return an DataSourceResponse
      */
     public abstract DataSourceResponse bulkUpdateDataSetItems(List<String> primaryKeys, DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException;
+
+    public DataSet newEmptyDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
+        List<ServiceConfigurationAttribute> attributes = getDataSetAttributes(authenticationInfo, parameters);
+        DataSet dataSet = new DataSet(attributes);
+        return dataSet;
+    }
 }

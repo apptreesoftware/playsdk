@@ -1,4 +1,4 @@
-package controllers.sdk;
+package controllers;
 
 import models.sdk.List.*;
 import models.sdk.Utils.AuthenticationInfo;
@@ -8,6 +8,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import sdk.*;
 
 import java.io.File;
 import java.util.concurrent.CompletableFuture;

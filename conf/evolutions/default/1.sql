@@ -3,33 +3,35 @@
 
 # --- !Ups
 
-create table at_inspection_configuration (
-  id                            bigserial not null,
-  inspection_name               varchar(255),
-  inspection_class              varchar(255),
-  constraint pk_at_inspection_configuration primary key (id)
+create table note (
+  id                            varchar(255) not null,
+  work_order_id                 bigint not null,
+  text                          varchar(255),
+  created_by                    varchar(255),
+  constraint pk_note primary key (id)
 );
 
-create table at_inspection_configuration_attribute (
-  id                            bigserial not null,
-  inspection_configuration_id   bigint not null,
-  attribute_name                varchar(255),
-  index                         integer,
-  data_type                     varchar(255),
-  list_type                     varchar(255),
-  constraint pk_at_inspection_configuration_attribute primary key (id)
+create table work_order (
+  id                            bigint not null,
+  number                        varchar(255),
+  description                   varchar(255),
+  assigned_to                   varchar(255),
+  requestor_id                  varchar(255),
+  constraint pk_work_order primary key (id)
 );
+create sequence work_order_seq;
 
-alter table at_inspection_configuration_attribute add constraint fk_at_inspection_configuration_attribute_inspection_confi_1 foreign key (inspection_configuration_id) references at_inspection_configuration (id) on delete restrict on update restrict;
-create index ix_at_inspection_configuration_attribute_inspection_confi_1 on at_inspection_configuration_attribute (inspection_configuration_id);
+alter table note add constraint fk_note_work_order_id foreign key (work_order_id) references work_order (id) on delete restrict on update restrict;
+create index ix_note_work_order_id on note (work_order_id);
 
 
 # --- !Downs
 
-alter table if exists at_inspection_configuration_attribute drop constraint if exists fk_at_inspection_configuration_attribute_inspection_confi_1;
-drop index if exists ix_at_inspection_configuration_attribute_inspection_confi_1;
+alter table note drop constraint if exists fk_note_work_order_id;
+drop index if exists ix_note_work_order_id;
 
-drop table if exists at_inspection_configuration cascade;
+drop table if exists note;
 
-drop table if exists at_inspection_configuration_attribute cascade;
+drop table if exists work_order;
+drop sequence if exists work_order_seq;
 

@@ -1,17 +1,23 @@
-package controllers.sdk;
+package controllers;
 
-import ch.qos.logback.core.net.SocketConnector;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import models.sdk.Data.ConfigurationResponse;
 import models.sdk.Data.DataSet;
 import models.sdk.Data.DataSource;
 import models.sdk.Data.DataSourceResponse;
 import models.sdk.Utils.AuthenticationInfo;
 import models.sdk.Utils.Parameters;
+
+import play.core.ObjectMapperModule;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import sdk.*;
+import sdk.serializers.DataSetModule;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -20,6 +26,12 @@ import java.util.concurrent.CompletionStage;
  */
 public class DataSetController extends Controller {
 
+    public DataSetController() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new DataSetModule());
+        Json.setObjectMapper(objectMapper);
+    }
+
     public CompletionStage<Result> getDataSet(String dataSetName) {
         Http.Request request = request();
         return CompletableFuture.supplyAsync(() -> {
@@ -27,12 +39,11 @@ public class DataSetController extends Controller {
             Parameters parameters = new Parameters(request.queryString());
             DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName);
             if ( dataSource == null ) throw new RuntimeException("Invalid Data Set");
-            return new DataSetAuthHelper(authenticationInfo, parameters, dataSource);
+            return dataSource.getDataSet(authenticationInfo, parameters);
         })
-        .thenApply(dataSetAuthHelper -> dataSetAuthHelper.dataSource.getDataSet(dataSetAuthHelper.authInfo, dataSetAuthHelper.parameters))
         .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)))
         .exceptionally(exception -> {
-            DataSourceResponse response = new DataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createDataSourceResponse();
+            DataSourceResponse response = new DataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).build();
             return ok(Json.toJson(response));
         });
     }
@@ -44,27 +55,20 @@ public class DataSetController extends Controller {
             if ( dataSource == null ) throw new RuntimeException("Invalid Data Set");
             AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
             Parameters parameters = new Parameters(request.queryString());
-            return new DataSetAuthHelper(authenticationInfo, parameters, dataSource);
+            return dataSource.getConfiguration(authenticationInfo, parameters);
         })
-        .thenApply(dataAuthHelper -> {
-            ConfigurationResponse response = dataAuthHelper.dataSource.getConfiguration(dataAuthHelper.authInfo, dataAuthHelper.parameters);
-            return ok(Json.toJson(response));
-        })
+        .thenApply(response -> ok(Json.toJson(response)))
         .exceptionally(exception -> {
             ConfigurationResponse response = new ConfigurationResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createConfigurationResponse();
             return ok(Json.toJson(response));
         });
     }
 
-    private class DataSetAuthHelper {
-        AuthenticationInfo authInfo;
-        Parameters parameters;
-        DataSource dataSource;
 
-        public DataSetAuthHelper(AuthenticationInfo authInfo, Parameters parameters, DataSource dataSource) {
-            this.authInfo = authInfo;
-            this.parameters = parameters;
-            this.dataSource = dataSource;
-        }
+    public CompletionStage<Result> createDataSetItem(String dataSetName) {
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        Map<String, String[]> bodyMap = body.asFormUrlEncoded();
+        List<Http.MultipartFormData.FilePart> files = body.getFiles();
+        return CompletableFuture.completedFuture(ok(""));
     }
 }

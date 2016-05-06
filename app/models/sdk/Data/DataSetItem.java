@@ -1,24 +1,32 @@
 package models.sdk.Data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.sdk.AttributeDataTypes.*;
-import models.sdk.DataCollection.CollectionUnitItem;
 import models.sdk.List.ListItem;
 import org.joda.time.DateTime;
+import play.libs.Json;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexis on 5/3/16.
  */
 public class DataSetItem {
-    HashMap<Integer, DataSetItemAttribute> mAttributeMap = new HashMap<Integer, DataSetItemAttribute>();
-    String mPrimaryKey;
-    String mClientKey;
-    int mMaxAttributeIndex = -1;
-    CRUDStatus mCRUDStatus = CRUDStatus.Read;
-    DataCollectionStatus mDataCollectionStatus = DataCollectionStatus.None;
+    HashMap<Integer, DataSetItemAttribute> attributeMap = new HashMap<Integer, DataSetItemAttribute>();
+    String primaryKey;
+    String clientKey;
+    int maxAttributeIndex = -1;
+    CRUDStatus crudStatus = CRUDStatus.Read;
+    DataCollectionStatus dataCollectionStatus = DataCollectionStatus.None;
+
+    @JsonIgnore
     private HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationForIndexMap;
-    WorkFlowState mWorkFlowState = WorkFlowState.None;
+    WorkFlowState workFlowState = WorkFlowState.None;
 
     public HashMap<Integer, ServiceConfigurationAttribute> getAttributeConfigurationForIndexMap() {
         return attributeConfigurationForIndexMap;
@@ -180,7 +188,7 @@ public class DataSetItem {
      * @param primaryKey The String primary key
      */
     public void setPrimaryKey(String primaryKey) {
-        mPrimaryKey = primaryKey;
+        this.primaryKey = primaryKey;
     }
 
     /**
@@ -188,7 +196,7 @@ public class DataSetItem {
      * @return
      */
     public String getPrimaryKey() {
-        return mPrimaryKey;
+        return primaryKey;
     }
 
     /**
@@ -204,21 +212,21 @@ public class DataSetItem {
      * @param status The status of the data set item
      */
     public void setCRUDStatus(CRUDStatus status) {
-        mCRUDStatus = status;
+        crudStatus = status;
     }
 
     /**
      * Returns the work flow state
      * @return
      */
-    public WorkFlowState getWorkFlowState() { return mWorkFlowState; }
+    public WorkFlowState getWorkFlowState() { return workFlowState; }
 
     /**
      * Sets the work flow state
      * @param state The work flow state of the item
      */
     public void setWorkFlowState(WorkFlowState state) {
-        mWorkFlowState = state;
+        workFlowState = state;
     }
 
     /**
@@ -226,7 +234,7 @@ public class DataSetItem {
      * @return
      */
     public CRUDStatus getCRUDStatus() {
-        return mCRUDStatus;
+        return crudStatus;
     }
 
     /**
@@ -234,7 +242,7 @@ public class DataSetItem {
      * @return
      */
     public String getClientKey() {
-        return mClientKey;
+        return clientKey;
     }
 
     /**
@@ -242,7 +250,7 @@ public class DataSetItem {
      * @param clientKey
      */
     public void setClientKey(String clientKey) {
-        mClientKey = clientKey;
+        this.clientKey = clientKey;
     }
 
     /**
@@ -250,7 +258,7 @@ public class DataSetItem {
      * @return
      */
     public DataCollectionStatus getDataCollectionStatus() {
-        return mDataCollectionStatus;
+        return dataCollectionStatus;
     }
 
     /**
@@ -258,7 +266,7 @@ public class DataSetItem {
      * @param DataCollectionStatus
      */
     public void setDataCollectionStatus(DataCollectionStatus DataCollectionStatus) {
-        mDataCollectionStatus = DataCollectionStatus;
+        dataCollectionStatus = DataCollectionStatus;
     }
 
     /**
@@ -268,7 +276,7 @@ public class DataSetItem {
      */
     public Color getColorAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getColorValue();
         }
@@ -284,7 +292,7 @@ public class DataSetItem {
         DataSetItemAttribute attribute;
         int intAttribute;
 
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             try {
                 return attribute.getIntValue();
@@ -304,7 +312,7 @@ public class DataSetItem {
         DataSetItemAttribute attribute;
         double doubleAttribute;
 
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getDoubleValue();
         }
@@ -313,7 +321,7 @@ public class DataSetItem {
 
     public long getTimeIntervalAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getLongValue();
         }
@@ -328,7 +336,7 @@ public class DataSetItem {
     public ListItem getListItemAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
 
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if (attribute != null) {
             return attribute.getListItem();
         }
@@ -342,7 +350,7 @@ public class DataSetItem {
      */
     public String getStringAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getStringValue();
         }
@@ -356,7 +364,7 @@ public class DataSetItem {
      */
     public DateTime getDateAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getDateValue();
         }
@@ -370,7 +378,7 @@ public class DataSetItem {
      */
     public DateTime getDateTimeAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getDateValue();
         }
@@ -384,7 +392,7 @@ public class DataSetItem {
      */
     public DateRange getDateRangeAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getDateRange();
         }
@@ -398,7 +406,7 @@ public class DataSetItem {
      */
     public DateTimeRange getDateTimeRangeAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return  attribute.getDateTimeRange();
         }
@@ -412,7 +420,7 @@ public class DataSetItem {
      */
     public boolean getBooleanAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if (attribute!=null) {
             return attribute.getBooleanValue();
         }else{
@@ -429,7 +437,7 @@ public class DataSetItem {
     public List<DataSetItem> getDataSetItemsAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
 
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getDataSetItems();
         }
@@ -445,7 +453,7 @@ public class DataSetItem {
         DataSetItemAttribute attribute;
         List<DataSetItem> dataSetItems;
 
-        attribute = mAttributeMap.get(attributeIndex);
+        attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             dataSetItems = attribute.getDataSetItems();
             if ( dataSetItems != null && dataSetItems.size() == 1 ) {
@@ -456,7 +464,7 @@ public class DataSetItem {
     }
 
     public Location getLocationAtIndex(int attributeIndex) {
-        DataSetItemAttribute attribute = mAttributeMap.get(attributeIndex);
+        DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getLocationValue();
         }
@@ -464,19 +472,9 @@ public class DataSetItem {
     }
 
     public Image getImageAtIndex(int attributeIndex) {
-        DataSetItemAttribute attribute = mAttributeMap.get(attributeIndex);
+        DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getImageValue();
-        }
-        return null;
-    }
-
-    public CollectionUnitItem getCollectionUnitItemAttributeAtIndex(int attributeIndex) {
-        DataSetItemAttribute attribute;
-
-        attribute = mAttributeMap.get(attributeIndex);
-        if ( attribute != null ) {
-            return attribute.getCollectionUnitItem();
         }
         return null;
     }
@@ -525,8 +523,6 @@ public class DataSetItem {
                 return "public void setDateTimeForAttributeIndex(DateTime date, int attributeIndex)";
             case Boolean:
                 return "public void setBooleanForAttributeIndex(boolean value, int attributeIndex)";
-            case CollectionUnitItem:
-                return "public void setCollectionUnitItemForAttributeIndex(ATCollectionUnitItem item, int attributeIndex)";
         }
         return null;
     }
@@ -555,8 +551,6 @@ public class DataSetItem {
                 return "public DateTime getDateTimeAttributeAtIndex(int attributeIndex)";
             case TimeInterval:
                 return "public TimeInterval getTimeIntervalAttributeAtIndex(int attributeIndex)";
-            case CollectionUnitItem:
-                return "public ATCollectionUnitItem getCollectionUnitItemAttributeAtIndex(int attributeIndex)";
         }
         return null;
     }
@@ -570,7 +564,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Color, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(value));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(value));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -583,7 +577,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Int, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(value));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(value));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -596,7 +590,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.ListItem, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(listItem));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(listItem));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -609,7 +603,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Location, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(location));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(location));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -617,7 +611,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Image, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(image));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(image));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -630,7 +624,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.String, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(value));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(value));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -643,7 +637,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Boolean, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(value));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(value));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -657,7 +651,7 @@ public class DataSetItem {
         if ( !validateGetterAttributeTypeForIndex(AttributeType.DateRange, attributeIndex) ) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(dateRange));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(dateRange));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -671,7 +665,7 @@ public class DataSetItem {
         if ( !validateGetterAttributeTypeForIndex(AttributeType.DateTimeRange, attributeIndex) ) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(dateTimeRange));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(dateTimeRange));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -684,15 +678,7 @@ public class DataSetItem {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Double, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(value));
-        updateMaxAttribute(attributeIndex);
-    }
-
-    public void setCollectionUnitItemForAttributeIndex(CollectionUnitItem item, int attributeIndex) throws InvalidAttributeValueException {
-        if ( !validateGetterAttributeTypeForIndex(AttributeType.CollectionUnitItem, attributeIndex) ) {
-            return;
-        }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(item));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(value));
         updateMaxAttribute(attributeIndex);
     }
 
@@ -700,7 +686,7 @@ public class DataSetItem {
         if(!validateGetterAttributeTypeForIndex(AttributeType.TimeInterval, attributeIndex)) {
             return;
         }
-        mAttributeMap.put(attributeIndex, new DataSetItemAttribute(timeInterval));
+        attributeMap.put(attributeIndex, new DataSetItemAttribute(timeInterval));
     }
 
     /**
@@ -713,7 +699,7 @@ public class DataSetItem {
             return;
         }
         if ( date != null ) {
-            mAttributeMap.put(attributeIndex, new DataSetItemAttribute(date,false));
+            attributeMap.put(attributeIndex, new DataSetItemAttribute(date,false));
         }
     }
 
@@ -727,7 +713,7 @@ public class DataSetItem {
             return;
         }
         if ( date != null ) {
-            mAttributeMap.put(attributeIndex, new DataSetItemAttribute(date,true));
+            attributeMap.put(attributeIndex, new DataSetItemAttribute(date,true));
         }
     }
 
@@ -736,14 +722,56 @@ public class DataSetItem {
      * @param attributeIndex
      */
     private void updateMaxAttribute(int attributeIndex) {
-        mMaxAttributeIndex = attributeIndex > mMaxAttributeIndex ? attributeIndex : mMaxAttributeIndex;
+        maxAttributeIndex = attributeIndex > maxAttributeIndex ? attributeIndex : maxAttributeIndex;
+    }
+
+    public ObjectNode toJSON() {
+        try {
+            return _toJSON(false);
+        } catch (InvalidPrimaryKeyException exception) {
+            System.out.println("Caught invalid primary key exception when primaryKeyRequired was false. THIS SHOULD NOT HAPPEN");
+        }
+        return null;
     }
 
     /**
-     * Gets the max attribute index
-     * @return
+     * Converts the data set item to a json object the primary key must be set
+     * @return json object of the data set item
+     * @throws InvalidPrimaryKeyException
      */
-    private int maxAttributeIndex() {
-        return mMaxAttributeIndex;
+    public ObjectNode toJSONWithPrimaryKey() throws InvalidPrimaryKeyException {
+        if ( primaryKey == null ) {
+            throw new InvalidPrimaryKeyException("Primary key can not be null for record: " + toJSON());
+        }
+        return _toJSON(true);
+    }
+
+    /**
+     * Converts the data set item to a json object
+     * @param primaryKeyRequired A boolean indicating whether or not the primary key of the data set item must be set
+     * @return
+     * @throws InvalidPrimaryKeyException
+     */
+    private ObjectNode _toJSON(boolean primaryKeyRequired) throws InvalidPrimaryKeyException{
+
+        ObjectNode json = Json.newObject();
+        json.put("primaryKey",primaryKey);
+        json.put("CRUDStatus", crudStatus.stringValue);
+        json.put("clientKey", clientKey);
+        json.put("recordType", getItemType().stringValue);
+        json.put("DataCollectionStatus",dataCollectionStatus.stringValue);
+        json.put("workFlowState", workFlowState.stringValue);
+
+        ArrayNode attributes = json.putArray("attributes");
+        for (Object o : attributeMap.entrySet()) {
+            Map.Entry<Integer, DataSetItemAttribute> entry = (Map.Entry) o;
+            Object value = entry.getValue().getJSONValue(primaryKeyRequired);
+            if (value instanceof ArrayNode) {
+                attributes.addAll((ArrayNode) value);
+            } else if (value instanceof String) {
+                attributes.add((String) value);
+            }
+        }
+        return json;
     }
 }

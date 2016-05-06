@@ -13,12 +13,13 @@ GET         /inspections/:inspectionID        controllers.InspectionController.g
 POST        /inspections                      controllers.InspectionController.createInspectionConfiguration
 PUT         /inspections/:inspectionID        controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
 
-GET     /*file                                     controllers.StaticFileController.html(file)
-
 #SDK Support
 
-GET     /dataSet/:dataSetName                   controllers.sdk.DataSetController.getDataSet(dataSetName: String)
-GET     /dataSet/:dataSetName/config            controllers.sdk.DataSetController.getDataConfiguration(dataSetName: String)
+GET     /dataSet/:dataSetName                   controllers.DataSetController.getDataSet(dataSetName: String)
+GET     /dataSet/:dataSetName/config            controllers.DataSetController.getDataConfiguration(dataSetName: String)
+POST    /dataSet/:dataSetName                   controllers.DataSetController.createDataSetItem(dataSetName : String)
 
-GET     /list/:listName/config                  controllers.sdk.ListController.getListConfiguration(listName: String)
-GET     /list/:listName/data                    controllers.sdk.ListController.getListData(listName: String)
+GET     /list/:listName/config                  controllers.ListController.getListConfiguration(listName: String)
+GET     /list/:listName/data                    controllers.ListController.getListData(listName: String)
+
+GET     /*file                                     controllers.StaticFileController.html(file)

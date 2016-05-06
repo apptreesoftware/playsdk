@@ -1,6 +1,9 @@
 package models.sdk.AttributeDataTypes;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.sdk.Utils.Constants;
 import org.joda.time.DateTime;
+import play.libs.Json;
 
 /**
  * Created by alexis on 5/3/16.
@@ -51,5 +54,16 @@ public class DateRange {
      */
     public void setToDate(DateTime date) {
         to = date;
+    }
+
+    public ObjectNode toJSON() {
+        ObjectNode json = Json.newObject();
+        if ( from != null ) {
+            json.put("from", Constants.AppTreeDateFormat.print(from));
+        }
+        if ( to != null ) {
+            json.put("to", Constants.AppTreeDateFormat.print(to));
+        }
+        return json;
     }
 }

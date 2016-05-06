@@ -19,7 +19,6 @@ public enum AttributeType {
     Relation("Relationship"),
     ListItem("ListItem"),
     Color("Color"),
-    CollectionUnitItem("CollectionUnitItem"),
     None("None");
 
     private String stringValue;
@@ -63,8 +62,6 @@ public enum AttributeType {
             return ListItem;
         } else if ( string.equalsIgnoreCase(Color.stringValue) ) {
             return Color;
-        } else if ( string.equalsIgnoreCase(CollectionUnitItem.stringValue) ) {
-            return CollectionUnitItem;
         } else if ( string.equalsIgnoreCase(TimeInterval.stringValue) ) {
             return TimeInterval;
         } else {

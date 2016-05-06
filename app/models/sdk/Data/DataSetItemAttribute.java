@@ -1,12 +1,14 @@
 package models.sdk.Data;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.sdk.AttributeDataTypes.*;
-import models.sdk.DataCollection.CollectionUnitItem;
 import models.sdk.List.ListItem;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import play.libs.Json;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
  */
 public class DataSetItemAttribute {
     private String stringValue;
-    private List<DataSetItem> mDataSetItems;
+    private List<DataSetItem> dataSetItems;
     private AttributeType attributeType;
     private Location location;
     private ListItem listItem;
@@ -25,7 +27,6 @@ public class DataSetItemAttribute {
     private DateTime date;
     private DateRange dateRange;
     private DateTimeRange dateTimeRange;
-    private CollectionUnitItem collectionUnitItem;
 
     public static final DateTimeFormatter AppTreeDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Etc/GMT"));
     public static final DateTimeFormatter AppTreeDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.forID("Etc/GMT"));
@@ -118,8 +119,8 @@ public class DataSetItemAttribute {
      */
     public DataSetItemAttribute(DataSetItem dataSetItem) {
         attributeType = AttributeType.Relation;
-        mDataSetItems = new ArrayList<>(1);
-        mDataSetItems.add(dataSetItem);
+        dataSetItems = new ArrayList<>(1);
+        dataSetItems.add(dataSetItem);
     }
 
     /**
@@ -128,7 +129,7 @@ public class DataSetItemAttribute {
      */
     public DataSetItemAttribute(List<DataSetItem>dataSetItems) {
         attributeType = AttributeType.Relation;
-        mDataSetItems = dataSetItems;
+        this.dataSetItems = dataSetItems;
     }
 
     /**
@@ -149,17 +150,8 @@ public class DataSetItemAttribute {
         this.image = image;
     }
 
-    /**
-     * Creates a collection unit item attribute (to be used in data collection data set items)
-     * @param item The ATCollectionUnitItem to be stored
-     */
-    public DataSetItemAttribute(CollectionUnitItem item) {
-        attributeType = AttributeType.CollectionUnitItem;
-        this.collectionUnitItem = item;
-    }
-
     public void addDataSetItem(DataSetItem dataSetItem) {
-        mDataSetItems.add(dataSetItem);
+        dataSetItems.add(dataSetItem);
     }
 
     /**
@@ -226,7 +218,7 @@ public class DataSetItemAttribute {
      * @return
      */
     public List<DataSetItem> getDataSetItems() {
-        return mDataSetItems;
+        return dataSetItems;
     }
 
     /**
@@ -257,9 +249,80 @@ public class DataSetItemAttribute {
      */
     public DateTimeRange getDateTimeRange() { return dateTimeRange; }
 
-    /**
-     * Gets the collection unit item of an attribute
-     * @return
-     */
-    public CollectionUnitItem getCollectionUnitItem() { return collectionUnitItem; }
+
+    public Object getJSONValue(boolean primaryKeyRequired) throws InvalidPrimaryKeyException {
+        switch (attributeType) {
+            case String:
+                return stringValue;
+            case Int:
+                return stringValue;
+            case Double:
+                return stringValue;
+            case TimeInterval:
+                return stringValue;
+            case ListItem:
+                if ( listItem != null && listItem.value != null) {
+                    JsonNode json = Json.toJson(listItem);
+                    return json.toString();
+                }
+                break;
+            case Date:
+                if ( date != null ) {
+                    return AppTreeDateFormat.print(date);
+                }
+                break;
+            case DateTime:
+                if ( date != null ) {
+                    return AppTreeDateTimeFormat.print(date);
+                }
+                break;
+            case Relation:
+                return getDataSetItemsJSON(primaryKeyRequired);
+            case Attachments:
+                return getDataSetItemsJSON(primaryKeyRequired);
+            case Boolean:
+                return stringValue;
+            case Color:
+                if ( color != null ) {
+                    return Json.toJson(color).toString();
+                }
+                break;
+            case Image:
+                if ( image != null ) {
+                    return Json.toJson(image).toString();
+                }
+                break;
+            case Location:
+                if ( location != null ) {
+                    return Json.toJson(location).toString();
+                }
+                break;
+            case DateRange:
+                if ( dateRange != null ) {
+                    return dateRange.toJSON().toString();
+                }
+                break;
+            case DateTimeRange:
+                if ( dateTimeRange != null ) {
+                    return dateTimeRange.toJSON().toString();
+                }
+                break;
+            default:
+                System.out.println("Unknown attribute type :" + attributeType.name());
+        }
+        return null;
+    }
+
+    private ArrayNode getDataSetItemsJSON(boolean primaryKeyRequired) throws InvalidPrimaryKeyException {
+        ArrayNode jsonArray = Json.newArray();
+
+        for ( DataSetItem dataSetItem : dataSetItems) {
+            if ( primaryKeyRequired ) {
+                jsonArray.add(dataSetItem.toJSONWithPrimaryKey());
+            } else {
+                jsonArray.add(dataSetItem.toJSON());
+            }
+        }
+        return jsonArray;
+    }
 }
