@@ -1,9 +1,9 @@
 package controllers;
 
-import models.sdk.List.*;
-import models.sdk.Utils.AuthenticationInfo;
-import models.sdk.Utils.Parameters;
-import models.sdk.Utils.Response;
+import sdk.list.*;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
+import sdk.utils.Response;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;

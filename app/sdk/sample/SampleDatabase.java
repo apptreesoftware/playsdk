@@ -1,6 +1,7 @@
 package sdk.sample;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Model;
 import sdk.sample.model.WorkOrder;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  */
 public class SampleDatabase {
     private static SampleDatabase instance = null;
+    private Model.Finder<String, WorkOrder> workOrderFinder;
 
     public static SampleDatabase getInstance() {
         if ( instance == null ) {
@@ -21,9 +23,13 @@ public class SampleDatabase {
 
     private SampleDatabase() {}
 
-    public List<WorkOrder> fetchWorkOrders() {
-        return WorkOrder.find.all();
+    public Model.Finder<String, WorkOrder> getWorkOrderFinder() {
+        if ( workOrderFinder == null ) {
+            workOrderFinder = new Model.Finder<>(WorkOrder.class);
+        }
+        return workOrderFinder;
     }
+
 
     private void createSampleData() {
         //EbeanServer server = EbeanServerFactory.create("sample");

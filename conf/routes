@@ -6,20 +6,23 @@
 #GET         /                                 controllers.InspectionController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                     controllers.Assets.versioned(path="/public", file: Asset)
+GET         /test                               controllers.TestController.testIndex
+GET         /                                   controllers.SDK.
 
-GET         /inspections                      controllers.InspectionController.getInspections
-GET         /inspections/:inspectionID        controllers.InspectionController.getInspection(inspectionID : Long)
-POST        /inspections                      controllers.InspectionController.createInspectionConfiguration
-PUT         /inspections/:inspectionID        controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
+GET         /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)
+
+GET         /inspections                        controllers.InspectionController.getInspections
+GET         /inspections/:inspectionID          controllers.InspectionController.getInspection(inspectionID : Long)
+POST        /inspections                        controllers.InspectionController.createInspectionConfiguration
+PUT         /inspections/:inspectionID          controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
 
 #SDK Support
 
-GET     /dataSet/:dataSetName                   controllers.DataSetController.getDataSet(dataSetName: String)
-GET     /dataSet/:dataSetName/config            controllers.DataSetController.getDataConfiguration(dataSetName: String)
-POST    /dataSet/:dataSetName                   controllers.DataSetController.createDataSetItem(dataSetName : String)
+GET         /dataSet/:dataSetName               controllers.DataSetController.getDataSet(dataSetName: String)
+GET         /dataSet/:dataSetName/config        controllers.DataSetController.getDataConfiguration(dataSetName: String)
+POST        /dataSet/:dataSetName               controllers.DataSetController.createDataSetItem(dataSetName : String)
 
-GET     /list/:listName/config                  controllers.ListController.getListConfiguration(listName: String)
-GET     /list/:listName/data                    controllers.ListController.getListData(listName: String)
+GET         /list/:listName/config              controllers.ListController.getListConfiguration(listName: String)
+GET         /list/:listName/data                controllers.ListController.getListData(listName: String)
 
-GET     /*file                                     controllers.StaticFileController.html(file)
+GET         /*file                              controllers.StaticFileController.html(file)

@@ -1,7 +1,7 @@
 package sdk;
 
-import models.sdk.Data.DataSource;
-import models.sdk.List.ListDataSource;
+import sdk.data.DataSource;
+import sdk.list.ListDataSource;
 
 import java.util.HashMap;
 

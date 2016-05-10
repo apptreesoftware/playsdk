@@ -1,14 +1,12 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import models.sdk.Data.ConfigurationResponse;
-import models.sdk.Data.DataSet;
-import models.sdk.Data.DataSource;
-import models.sdk.Data.DataSourceResponse;
-import models.sdk.Utils.AuthenticationInfo;
-import models.sdk.Utils.Parameters;
+import sdk.data.ConfigurationResponse;
+import sdk.data.DataSource;
+import sdk.data.DataSourceResponse;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
 
-import play.core.ObjectMapperModule;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;

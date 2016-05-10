@@ -1,10 +1,9 @@
 package data;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import models.MockDatabaseModels.Priority;
-import models.sdk.List.*;
-import models.sdk.Utils.AuthenticationInfo;
-import models.sdk.Utils.Parameters;
+import sdk.sample.model.Priority;
+import sdk.list.*;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
 
 /**
  * Created by alexis on 5/4/16.

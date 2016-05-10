@@ -1,34 +1,32 @@
 package sdk.sample;
 
-import models.sdk.Data.*;
-import models.sdk.Utils.AuthenticationInfo;
-import models.sdk.Utils.Parameters;
-import models.sdk.Utils.Response;
-import models.sdk.Utils.ServiceParameter;
-import play.libs.Json;
+import com.avaje.ebean.ExpressionList;
+import javassist.tools.reflect.Sample;
+import sdk.data.*;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
+import sdk.utils.Response;
+import sdk.utils.ServiceParameter;
 import sdk.sample.model.WorkOrder;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static sdk.sample.model.WorkOrder.*;
+
 /**
  * Created by matthew on 5/5/16.
  */
-public class WorkOrderDataSource extends DataSource {
+public class WorkOrderDataSource implements DataSource {
 
     @Override
-    public DataSourceResponse getDataSet(AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
+    public DataSourceResponse getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
 
-        List<WorkOrder> workOrders = SampleDatabase.getInstance().fetchWorkOrders();
+        List<WorkOrder> workOrders = SampleDatabase.getInstance().getWorkOrderFinder().all();
         for ( WorkOrder workOrder : workOrders ) {
             DataSetItem dataSetItem = dataSet.addNewDataSetItem();
-            dataSetItem.setPrimaryKey(workOrder.id + "");
-            dataSetItem.setStringForAttributeIndex(workOrder.id + "", IDIndex);
-            dataSetItem.setStringForAttributeIndex(workOrder.number, NumberIndex);
-            dataSetItem.setStringForAttributeIndex(workOrder.description, DescriptionIndex);
-            dataSetItem.setStringForAttributeIndex(workOrder.assignedTo, AssignedIndex);
-            dataSetItem.setStringForAttributeIndex(workOrder.requestorId, RequestorIndex);
+            workOrder.copyIntoDataSetItem(dataSetItem);
         }
         return new DataSourceResponse.Builder()
                 .setSuccess(true)
@@ -38,48 +36,86 @@ public class WorkOrderDataSource extends DataSource {
     }
 
     @Override
-    public DataSourceResponse getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) throws InvalidAttributeValueException {
-        return null;
+    public DataSourceResponse getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
+        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        WorkOrder workOrder = SampleDatabase.getInstance().getWorkOrderFinder().byId(id);
+        DataSourceResponse.Builder responseBuilder = new DataSourceResponse.Builder();
+        if ( workOrder != null ) {
+            DataSetItem item = dataSet.addNewDataSetItem();
+            workOrder.copyIntoDataSetItem(item);
+            responseBuilder.setDataSet(dataSet).setSuccess(true);
+        } else {
+            responseBuilder.setDataSet(dataSet).setSuccess(false).setMessage("Item with primary key " + id + " not found.");
+        }
+        return responseBuilder.build();
     }
 
     @Override
-    public DataSourceResponse queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
-        return null;
+    public DataSourceResponse queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        String description = queryDataItem.getStringAttributeAtIndex(DescriptionIndex);
+        String woNumber = queryDataItem.getStringAttributeAtIndex(NumberIndex);
+        ExpressionList<WorkOrder> expression = SampleDatabase.getInstance().getWorkOrderFinder().where();
+        if ( description != null ) {
+            expression.contains("description", description);
+        }
+        if ( woNumber != null ) {
+            expression.contains("number", woNumber);
+        }
+        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        expression.findEach(workOrder -> {
+            DataSetItem item = dataSet.addNewDataSetItem();
+            workOrder.copyIntoDataSetItem(item);
+        });
+        return new DataSourceResponse.Builder()
+                .setSuccess(true)
+                .setDataSet(dataSet)
+                .build();
     }
 
     @Override
-    public DataSourceResponse createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
-        return null;
+    public DataSourceResponse createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.copyFromDataSetItem(dataSetItem);
+        workOrder.insert();
+        workOrder.refresh();
+        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        DataSetItem responseItem = dataSet.addNewDataSetItem();
+        workOrder.copyIntoDataSetItem(responseItem);
+        return new DataSourceResponse.Builder().setMessage("Record Created").setDataSet(dataSet).setSuccess(true).build();
     }
 
     @Override
-    public DataSourceResponse updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
-        return null;
+    public DataSourceResponse updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        WorkOrder workOrder = SampleDatabase.getInstance().getWorkOrderFinder().byId(dataSetItem.getPrimaryKey());
+        if ( workOrder == null ) {
+            throw new RuntimeException("Record not found");
+        }
+        workOrder.copyFromDataSetItem(dataSetItem);
+        workOrder.save();
+        workOrder.refresh();
+        return getDataSetItem(authenticationInfo, workOrder.id + "", params);
     }
 
     @Override
-    public DataSourceResponse deleteDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
-        return null;
-    }
-
-    @Override
-    public String getServiceName() {
-        return "workorders";
+    public String getServiceDescription() {
+        return "Work Orders";
     }
 
     @Override
     public List<ServiceConfigurationAttribute> getDataSetAttributes(AuthenticationInfo authenticationInfo, Parameters params) {
         ArrayList<ServiceConfigurationAttribute> attributes = new ArrayList<>();
-        attributes.add(new ServiceConfigurationAttribute.Builder(IDIndex)
+        attributes.add(new ServiceConfigurationAttribute.Builder(WorkOrder.IDIndex)
                 .name("ID")
                 .build());
         attributes.add(new ServiceConfigurationAttribute.Builder(NumberIndex)
                 .name("WO Number")
+                .canSearch()
                 .build());
         attributes.add(new ServiceConfigurationAttribute.Builder(DescriptionIndex)
                 .name("Description")
                 .canUpdateAndRequired()
                 .canCreateAndRequired()
+                .canSearch()
                 .build());
         attributes.add(new ServiceConfigurationAttribute.Builder(AssignedIndex)
                 .name("AssignedTo")
@@ -93,29 +129,4 @@ public class WorkOrderDataSource extends DataSource {
                 .build());
         return attributes;
     }
-
-    @Override
-    public List<ServiceParameter> getServiceFilterParameters() {
-        return null;
-    }
-
-    @Override
-    public Response updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
-        return null;
-    }
-
-    @Override
-    public List<String> getDependentLists() {
-        return null;
-    }
-
-    @Override
-    public DataSourceResponse bulkUpdateDataSetItems(List<String> primaryKeys, DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
-        return null;
-    }
-    static int IDIndex = 0;
-    static int NumberIndex = 1;
-    static int DescriptionIndex = 2;
-    static int AssignedIndex = 3;
-    static int RequestorIndex = 4;
 }

@@ -1,10 +1,10 @@
 package data;
 
-import models.sdk.Data.*;
-import models.sdk.Utils.AuthenticationInfo;
-import models.sdk.Utils.Parameters;
-import models.sdk.Utils.Response;
-import models.sdk.Utils.ServiceParameter;
+import sdk.data.*;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
+import sdk.utils.Response;
+import sdk.utils.ServiceParameter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by alexis on 5/4/16.
  */
-public class InspectionDataSource extends DataSource {
+public class InspectionDataSource implements DataSource {
     @Override
     public DataSourceResponse getDataSet(AuthenticationInfo authenticationInfo, Parameters params) throws InvalidAttributeValueException {
         return null;
@@ -44,7 +44,7 @@ public class InspectionDataSource extends DataSource {
     }
 
     @Override
-    public String getServiceName() {
+    public String getServiceDescription() {
         return "Inspections";
     }
 
