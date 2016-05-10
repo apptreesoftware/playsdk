@@ -17,7 +17,6 @@ create table work_order (
   description                   varchar(255),
   assigned_to                   varchar(255),
   requestor_id                  varchar(255),
-  priority                      varchar(255),
   constraint pk_work_order primary key (id)
 );
 create sequence work_order_seq;

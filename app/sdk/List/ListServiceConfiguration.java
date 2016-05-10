@@ -1,5 +1,6 @@
 package sdk.list;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import sdk.utils.ServiceParameter;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class ListServiceConfiguration {
 
     ArrayList<ListServiceConfigurationAttribute> attributes = new ArrayList();
     ArrayList<ServiceParameter> serviceFilterParameters = new ArrayList();
+
+    public ArrayList<ListServiceConfigurationAttribute> getAttributes() { return this.attributes; }
 
     /**
      *
@@ -79,7 +82,7 @@ public class ListServiceConfiguration {
     }
 
 
-    public boolean canCache() {
+    public boolean getCanCache() {
         return canCache;
     }
 
@@ -87,7 +90,7 @@ public class ListServiceConfiguration {
         this.canCache = canCache;
     }
 
-    public boolean canSearch() {
+    public boolean getCanSearch() {
         return canSearch;
     }
 
@@ -103,6 +106,7 @@ public class ListServiceConfiguration {
      * Returns attribute 1 description
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute1() {
         if ( attributes.size() > 0 ) {
             return attributes.get(0);
@@ -160,6 +164,7 @@ public class ListServiceConfiguration {
      * Gets the attribute 2
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute2() {
         if ( attributes.size() > 1 ) {
             return attributes.get(1);
@@ -182,6 +187,7 @@ public class ListServiceConfiguration {
      * Gets the attribute 3
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute3() {
         if ( attributes.size() > 2 ) {
             return attributes.get(2);
@@ -204,6 +210,7 @@ public class ListServiceConfiguration {
      * Gets the attribute 4
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute4() {
         if ( attributes.size() > 3 ) {
             return attributes.get(3);
@@ -226,6 +233,7 @@ public class ListServiceConfiguration {
      * Gets the attribute 5
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute5() {
         if ( attributes.size() > 4 ) {
             return attributes.get(4);
@@ -248,6 +256,7 @@ public class ListServiceConfiguration {
      * Gets attribute 6
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute6() {
         if ( attributes.size() > 5 ) {
             return attributes.get(5);
@@ -270,6 +279,7 @@ public class ListServiceConfiguration {
      * Gets attribute 7
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute7() {
         if ( attributes.size() > 6 ) {
             return attributes.get(6);
@@ -292,6 +302,7 @@ public class ListServiceConfiguration {
      * Gets attribute 8
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute8() {
         if ( attributes.size() > 7 ) {
             return attributes.get(7);
@@ -314,6 +325,7 @@ public class ListServiceConfiguration {
      * Gets attribute 9
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute9() {
         if ( attributes.size() > 8 ) {
             return attributes.get(8);
@@ -336,6 +348,7 @@ public class ListServiceConfiguration {
      * Gets attribute 10
      * @return
      */
+    @JsonIgnore
     public ListServiceConfigurationAttribute getAttribute10() {
         if ( attributes.size() > 9 ) {
             return attributes.get(9);

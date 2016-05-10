@@ -1,19 +1,25 @@
 package sdk.list;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import sdk.utils.Response;
 
 /**
  * Created by alexis on 5/4/16.
  */
 public class ListDataSourceResponse extends Response {
-    private List records;
+    private List list;
 
     public ListDataSourceResponse(boolean success, String message, List records) {
         super(success, message);
-        this.records = records;
+        this.list = records;
     }
 
-    public List getList() { return records; }
+    @JsonIgnore
+    public List getList() { return list; }
+
+    public java.util.List<ListItem> getRecords() {
+        return list.listItems;
+    }
 
     public static class Builder {
         private boolean success;

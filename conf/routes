@@ -23,6 +23,7 @@ GET         /dataSet/:dataSetName/config        controllers.DataSetController.ge
 POST        /dataSet/:dataSetName               controllers.DataSetController.createDataSetItem(dataSetName : String)
 
 GET         /list/:listName/config              controllers.ListController.getListConfiguration(listName: String)
-GET         /list/:listName/data                controllers.ListController.getListData(listName: String)
+POST        /list/:listName/search              controllers.ListController.searchListData(listName: String)
+GET         /list/:listName                     controllers.ListController.getListData(listName: String)
 
 GET         /*file                              controllers.StaticFileController.html(file)

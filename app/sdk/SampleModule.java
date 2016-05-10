@@ -1,7 +1,7 @@
 package sdk;
 
 import com.google.inject.AbstractModule;
-import data.PriorityListDataSource;
+import sdk.sample.PriorityListDataSource;
 import sdk.sample.WorkOrderDataSource;
 
 /**

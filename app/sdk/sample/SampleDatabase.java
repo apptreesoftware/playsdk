@@ -2,6 +2,7 @@ package sdk.sample;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Model;
+import sdk.sample.model.Priority;
 import sdk.sample.model.WorkOrder;
 
 import java.util.List;
@@ -38,7 +39,6 @@ public class SampleDatabase {
         workOrder.description = "This is a sample work order";
         workOrder.number = "WO000001";
         workOrder.requestorId = "1";
-
 
         Ebean.beginTransaction();
         workOrder.insert();

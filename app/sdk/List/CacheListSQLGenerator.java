@@ -7,12 +7,13 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import play.api.Play;
 
 /**
  * Created by alexis on 5/4/16.
  */
 public class CacheListSQLGenerator {
-    static String TmpCacheDirectory = "tmp/ListCache";
+    static String TmpCacheDirectory = Play.current().path().getPath() + "/tmp";
 
     public static File generateDatabaseFromCacheListResponse(List list, String listRESTPath) throws RuntimeException {
         String filePath;
@@ -28,6 +29,7 @@ public class CacheListSQLGenerator {
         byte[] buffer = new byte[1024];
         File zipFile;
 
+        createTempDirectory();
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (Exception e) {
@@ -35,7 +37,7 @@ public class CacheListSQLGenerator {
             throw new RuntimeException("Unable to find jdbc");
         }
 
-        filePath = TmpCacheDirectory + "/" + listRESTPath + ".sqllite";
+        filePath = TmpCacheDirectory + "/" + listRESTPath + ".sqlite";
         listFile = new File(filePath);
         if ( listFile.exists() ) {
             listFile.delete();
@@ -99,16 +101,16 @@ public class CacheListSQLGenerator {
             statement.setString(2, listItem.parentID);
             statement.setInt(3, listItem.orderBy);
             statement.setString(4, listItem.value);
-            statement.setString(5, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(6, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(7, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(8, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(9, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(10, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(11, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(12, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(13, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
-            statement.setString(14, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue());
+            statement.setString(5, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue() : null);
+            statement.setString(6, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2).getStringValue() : null);
+            statement.setString(7, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_3) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_3).getStringValue() : null);
+            statement.setString(8, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_4) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_4).getStringValue() : null);
+            statement.setString(9, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_5) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_5).getStringValue() : null);
+            statement.setString(10, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_6) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_6).getStringValue() : null);
+            statement.setString(11, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_7) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_7).getStringValue() : null);
+            statement.setString(12, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_8) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_8).getStringValue() : null);
+            statement.setString(13, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_9) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_9).getStringValue() : null);
+            statement.setString(14, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_10) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_10).getStringValue() : null);
             statement.setDouble(15, listItem.latitude);
             statement.setDouble(16, listItem.longitude);
             statement.addBatch();
@@ -122,5 +124,12 @@ public class CacheListSQLGenerator {
         statement.executeBatch();
         connection.commit();
         return count;
+    }
+
+    private static void createTempDirectory() {
+        File file = new File(TmpCacheDirectory);
+        if ( !file.exists() ) {
+            file.mkdirs();
+        }
     }
 }

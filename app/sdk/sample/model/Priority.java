@@ -67,9 +67,11 @@ public class Priority {
     public Priority() {}
 
     public Priority(ListItem listItem) {
-        id = Integer.parseInt(listItem.id);
-        name = listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue();
-        description = listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2).getStringValue();
+        if ( listItem != null ) {
+            id = Integer.parseInt(listItem.id);
+            name = listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue();
+            description = listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2).getStringValue();
+        }
     }
 
     public ListItem toListItem() {
