@@ -6,7 +6,8 @@ import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
 /**
- * Created by alexis on 5/4/16.
+ * Created by Matthew Smith on 5/4/16.
+ * Copyright AppTree Software, Inc.
  */
 public class PriorityListDataSource extends ListDataSource {
     @Override
@@ -48,6 +49,6 @@ public class PriorityListDataSource extends ListDataSource {
 
     @Override
     public String getServiceName() {
-        return null;
+        return "Priority";
     }
 }
