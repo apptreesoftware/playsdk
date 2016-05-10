@@ -1,0 +1,4 @@
+# This is currently how the app is configured to test different connectors
+# When the app is deployed to an environment i.e. foo.com/ this value should
+# be updated.
+connector_host: http://localhost:9000/
