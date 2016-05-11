@@ -6,7 +6,7 @@ import 'package:rxdart/rxdart.dart' as rx;
 import 'package:autonotify_observe/autonotify_observe.dart';
 import 'package:polymer_autonotify/polymer_autonotify.dart';
 
-abstract class ObservableHelpers extends Observable {
+abstract class ObservableHelpers extends Object implements Observable {
 
   rx.Observable<PropertyChangeRecord> get _propertyChanges =>
       new rx.Observable.fromStream(this.changes)

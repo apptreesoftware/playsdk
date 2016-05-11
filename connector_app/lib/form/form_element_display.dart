@@ -1,9 +1,12 @@
+import 'package:polymer/polymer.dart';
+
 import 'package:connector_app/models/models.dart';
 
-class FormElementDisplay {
+class FormElementDisplay extends JsProxy {
   DisplayElement displayElement;
   String value;
 
+  @reflectable
   String get title {
     return displayElement.title;
   }

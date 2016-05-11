@@ -9,7 +9,7 @@ import 'package:connector_app/models/models.dart';
 import 'dart:html';
 import 'package:connector_app/form/form_element_display.dart';
 import 'package:connector_app/form/form_item/form_text_field_item.dart';
-import 'package:connector_app/form/form_item/form_item_behavior.dart';
+import 'package:connector_app/form/form_item/form_item.dart';
 
 /// [FormTextFieldItem]
 @PolymerRegister('at-form')
@@ -58,12 +58,7 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
 
     for (var display in formElementDisplays) {
       var element = document.createElement(display.templateName);
-      print('element = ${element.runtimeType}');
-      try {
-        element.formElementDisplay = display;
-      } catch(e) {
-        print("ERROR element.formElementDisplay = ${element.formElementDisplay}");
-      }
+      element.formElementDisplay = display;
       DivElement container = $$('#form-item-container');
       container.children.add(element);
     }
