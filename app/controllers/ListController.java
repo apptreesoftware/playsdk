@@ -1,18 +1,17 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import sdk.list.*;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import sdk.*;
+import sdk.AppTree;
+import sdk.list.*;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
+import sdk.utils.Response;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -22,8 +21,7 @@ import java.util.concurrent.CompletionStage;
 public class ListController extends Controller {
     public CompletionStage<Result> getListConfiguration(String listName) {
         return CompletableFuture.supplyAsync(() -> {
-            ListDataSource dataSource = AppTree.lookupListHandler(listName);
-            if ( dataSource == null ) throw new RuntimeException("Invalid List");
+            ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
             ListServiceConfiguration configuration = dataSource.getListServiceConfiguration();
             return ok(Json.toJson(configuration));
         }).exceptionally(exception -> {
@@ -35,8 +33,7 @@ public class ListController extends Controller {
     public CompletionStage<Result> getListData(String listName) {
         Http.Request request = request();
         return CompletableFuture.supplyAsync(() -> {
-            ListDataSource dataSource = AppTree.lookupListHandler(listName);
-            if ( dataSource == null ) throw new RuntimeException("Invalid List");
+            ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
             if ( !(dataSource instanceof CacheableList) ) throw new RuntimeException("This list does not support a cache response");
             AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
             Parameters parameters = new Parameters(request.queryString());
@@ -61,8 +58,7 @@ public class ListController extends Controller {
         JsonNode context = json.get("context");
         boolean barcodeSearch = json.get("barcodeSearch").booleanValue();
         return CompletableFuture.supplyAsync(() -> {
-            ListDataSource dataSource = AppTree.lookupListHandler(listName);
-            if ( dataSource == null ) throw new RuntimeException("Invalid list");
+            ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
             if ( !(dataSource instanceof SearchableList) ) throw new RuntimeException("This list does not support querying.");
             AuthenticationInfo info = new AuthenticationInfo(request.headers());
             Parameters parameters = new Parameters(request.queryString());

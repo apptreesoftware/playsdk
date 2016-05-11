@@ -11,7 +11,7 @@ import play.libs.Json;
 public class Image {
     public String imageURL;
     public String uploadKey;
-    @JsonIgnore Http.MultipartFormData.FilePart attachmentFile;
+    public @JsonIgnore Http.MultipartFormData.FilePart filePart;
 
     public Object toJSON() {
         ObjectNode json = Json.newObject();
