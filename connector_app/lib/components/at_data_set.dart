@@ -3,13 +3,13 @@ library connector_app.at_data_set;
 
 import 'dart:html';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:web_components/web_components.dart' show HtmlImport;
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:polymer/polymer.dart';
 import 'package:polymer_elements/paper_tabs.dart';
 import 'package:polymer_elements/paper_tab.dart';
-
 
 import 'package:connector_app/form/form.dart';
 import 'package:connector_app/services/services.dart';
@@ -27,15 +27,19 @@ class EndpointTestingElement extends PolymerElement with Observable {
     _datasetService = service;
   }
 
-  void ready() {
-    new rx.Observable.fromStream(this.changes)
-        .flatMap((List<ChangeRecord>changes) => new rx.Observable.fromIterable(changes))
-        .where((ChangeRecord record) => record is PropertyChangeRecord)
-        .listen((PropertyChangeRecord record) {
-          if ( record.name == "endpoint" ) {
-            _loadDataset();
-          }
-    });
+  rx.Observable<PropertyChangeRecord> get _propertyChanges =>
+      new rx.Observable.fromStream(this.changes)
+          .flatMap((List<ChangeRecord> changes) =>
+              new rx.Observable.fromIterable(changes))
+          .where((ChangeRecord record) => record is PropertyChangeRecord);
+
+  rx.Observable<PropertyChangeRecord> _propertyChangesOfType(String type) =>
+      _propertyChanges.where((record) => record.name == type);
+
+  ready() async {
+    await for (var record in _propertyChangesOfType("endpoint")) {
+      _loadDataset();
+    }
   }
 
   @observable
@@ -52,14 +56,13 @@ class EndpointTestingElement extends PolymerElement with Observable {
   EndpointTestingElement.created() : super.created();
 
   _loadDataset() {
-    if ( endpoint == null ) { return; }
-    _datasetService.getConfiguration(endpoint.url).listen(
-        (data) {
-          configuration = data;
-          updateUI();
-        },
-        onError: (error) => print(error)
-    );
+    if (endpoint == null) {
+      return;
+    }
+    _datasetService.getConfiguration(endpoint.url).listen((data) {
+      configuration = data;
+      updateUI();
+    }, onError: (error) => print(error));
   }
 
   @reflectable
