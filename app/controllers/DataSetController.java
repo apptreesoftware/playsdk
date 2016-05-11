@@ -76,7 +76,7 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request())
+        return dataSetItemFromRequest(dataSetName, request)
                 .thenApply(dataSetItem -> {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
@@ -88,7 +88,7 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request())
+        return dataSetItemFromRequest(dataSetName, request)
                 .thenApply(dataSetItem -> {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
