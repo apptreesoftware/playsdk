@@ -1,8 +1,7 @@
 part of connector_app.models;
 
 @JsonSerializable()
-class DataSetResponse extends Object
-    with _$DataSetResponseSerializerMixin, JsProxy {
+class DataSet extends Object with _$DataSetSerializerMixin, JsProxy {
 
   @reflectable
   final bool success;
@@ -13,21 +12,6 @@ class DataSetResponse extends Object
   @reflectable
   final bool showMessageAlert;
 
-  @reflectable
-  final bool authorizationError;
-
-  @reflectable
-  @JsonKey('records')
-  final DataSet dataSet;
-
-  DataSetResponse(this.success, this.message, this.showMessageAlert,
-      this.authorizationError, this.dataSet);
-
-  factory DataSetResponse.fromJson(json) => _$DataSetResponseFromJson(json);
-}
-
-@JsonSerializable()
-class DataSet extends Object with _$DataSetSerializerMixin, JsProxy {
   @reflectable
   final int totalRecords;
 
@@ -41,7 +25,7 @@ class DataSet extends Object with _$DataSetSerializerMixin, JsProxy {
   @JsonKey('records')
   final List<DataSetItem> dataSetItems;
 
-  DataSet(this.totalRecords, this.numberOfRecords, this.moreRecordsAvailable,
+  DataSet(this.success, this.message, this.showMessageAlert, this.totalRecords, this.numberOfRecords, this.moreRecordsAvailable,
       this.dataSetItems);
 
   factory DataSet.fromJson(json) => _$DataSetFromJson(json);

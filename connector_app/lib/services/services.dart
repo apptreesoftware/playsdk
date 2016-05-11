@@ -42,12 +42,11 @@ class DatasetService extends BaseService {
     var response = await client.get('$url');
     var body = response.body;
     var result = JSON.decode(body);
-    var datasetResponse = new DataSetResponse.fromJson(result);
-    return datasetResponse.dataSet;
+    var dataSet = new DataSet.fromJson(result);
+    return dataSet;
   }
 
-  Observable<List<DataSetAttribute>> getConfiguration(String baseUrl) {
-    print('getting configuration for $baseUrl');
+  Observable<List<ServiceConfigurationAttribute>> getConfiguration(String baseUrl) {
     return new Observable<http.Response>.fromFuture(client.get('$baseUrl/config'))
         .map((http.Response response) => JSON.decode(response.body))
         .map((Map json) => new DataSetConfigurationResponse.fromJson(json))

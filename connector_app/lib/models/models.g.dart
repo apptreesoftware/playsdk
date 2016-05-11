@@ -57,37 +57,13 @@ abstract class _$EndpointSerializerMixin {
 
 // **************************************************************************
 // Generator: JsonSerializableGenerator
-// Target: class DataSetResponse
-// **************************************************************************
-
-DataSetResponse _$DataSetResponseFromJson(Map json) => new DataSetResponse(
-    json['success'],
-    json['message'],
-    json['showMessageAlert'],
-    json['authorizationError'],
-    json['records'] == null ? null : new DataSet.fromJson(json['records']));
-
-abstract class _$DataSetResponseSerializerMixin {
-  bool get success;
-  String get message;
-  bool get showMessageAlert;
-  bool get authorizationError;
-  DataSet get dataSet;
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'success': success,
-        'message': message,
-        'showMessageAlert': showMessageAlert,
-        'authorizationError': authorizationError,
-        'records': dataSet
-      };
-}
-
-// **************************************************************************
-// Generator: JsonSerializableGenerator
 // Target: class DataSet
 // **************************************************************************
 
 DataSet _$DataSetFromJson(Map json) => new DataSet(
+    json['success'],
+    json['message'],
+    json['showMessageAlert'],
     json['totalRecords'],
     json['numberOfRecords'],
     json['moreRecordsAvailable'],
@@ -96,11 +72,17 @@ DataSet _$DataSetFromJson(Map json) => new DataSet(
         ?.toList());
 
 abstract class _$DataSetSerializerMixin {
+  bool get success;
+  String get message;
+  bool get showMessageAlert;
   int get totalRecords;
   int get numberOfRecords;
   bool get moreRecordsAvailable;
   List get dataSetItems;
   Map<String, dynamic> toJson() => <String, dynamic>{
+        'success': success,
+        'message': message,
+        'showMessageAlert': showMessageAlert,
         'totalRecords': totalRecords,
         'numberOfRecords': numberOfRecords,
         'moreRecordsAvailable': moreRecordsAvailable,
@@ -153,7 +135,9 @@ DataSetConfigurationResponse _$DataSetConfigurationResponseFromJson(Map json) =>
         json['showMessageAlert'],
         json['authorizationError'],
         (json['attributes'] as List)
-            ?.map((v0) => v0 == null ? null : new DataSetAttribute.fromJson(v0))
+            ?.map((v0) => v0 == null
+                ? null
+                : new ServiceConfigurationAttribute.fromJson(v0))
             ?.toList());
 
 abstract class _$DataSetConfigurationResponseSerializerMixin {
@@ -173,25 +157,27 @@ abstract class _$DataSetConfigurationResponseSerializerMixin {
 
 // **************************************************************************
 // Generator: JsonSerializableGenerator
-// Target: class DataSetAttribute
+// Target: class ServiceConfigurationAttribute
 // **************************************************************************
 
-DataSetAttribute _$DataSetAttributeFromJson(Map json) => new DataSetAttribute(
-    json['name'],
-    json['relatedService'] == null
-        ? null
-        : new ServiceConfiguration.fromJson(json['relatedService']),
-    json['attributeType'],
-    json['createRequired'],
-    json['updateRequired'],
-    json['searchRequired'],
-    json['attributeIndex'],
-    json['canUpdate'],
-    json['canCreate'],
-    json['relatedListServiceConfiguration'],
-    json['canSearch']);
+ServiceConfigurationAttribute _$ServiceConfigurationAttributeFromJson(
+        Map json) =>
+    new ServiceConfigurationAttribute(
+        json['name'],
+        json['relatedService'] == null
+            ? null
+            : new ServiceConfiguration.fromJson(json['relatedService']),
+        json['attributeType'],
+        json['createRequired'],
+        json['updateRequired'],
+        json['searchRequired'],
+        json['attributeIndex'],
+        json['canUpdate'],
+        json['canCreate'],
+        json['relatedListServiceConfiguration'],
+        json['canSearch']);
 
-abstract class _$DataSetAttributeSerializerMixin {
+abstract class _$ServiceConfigurationAttributeSerializerMixin {
   String get name;
   ServiceConfiguration get relatedService;
   String get attributeType;
@@ -245,18 +231,4 @@ abstract class _$ServiceConfigurationSerializerMixin {
         'mDependentListEndpoints': mDependentListEndpoints,
         'serviceFilterParameters': serviceFilterParameters
       };
-}
-
-// **************************************************************************
-// Generator: JsonSerializableGenerator
-// Target: class ServiceConfigurationAttribute
-// **************************************************************************
-
-ServiceConfigurationAttribute _$ServiceConfigurationAttributeFromJson(
-        Map json) =>
-    new ServiceConfigurationAttribute(json['name']);
-
-abstract class _$ServiceConfigurationAttributeSerializerMixin {
-  String get name;
-  Map<String, dynamic> toJson() => <String, dynamic>{'name': name};
 }

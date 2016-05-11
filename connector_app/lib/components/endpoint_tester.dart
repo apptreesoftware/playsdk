@@ -33,7 +33,7 @@ class EndpointTestElement extends PolymerElement
 
   @observable
   @property
-  List<DataSetAttribute> dataSetAttributes;
+  List<ServiceConfigurationAttribute> dataSetAttributes;
 
   @observable
   @property

@@ -1,0 +1,11 @@
+<dom-module id="at-endpoints">
+    <template>
+        <style>
+        </style>
+        <paper-listbox selected="0" on-selected-changed="selectedChanged">
+            <template is="dom-repeat" items="{{endpoints}}" as="endpoint">
+                <paper-item>{{endpoint.name}}</paper-item>
+            </template>
+        </paper-listbox>
+    </template>
+</dom-module>

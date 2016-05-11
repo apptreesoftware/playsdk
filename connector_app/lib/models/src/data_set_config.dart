@@ -17,7 +17,7 @@ class DataSetConfigurationResponse extends Object
   final bool authorizationError;
 
   @reflectable
-  List<DataSetAttribute> attributes;
+  List<ServiceConfigurationAttribute> attributes;
 
   DataSetConfigurationResponse(this.success, this.message,
       this.showMessageAlert, this.authorizationError, this.attributes);
@@ -27,8 +27,8 @@ class DataSetConfigurationResponse extends Object
 }
 
 @JsonSerializable()
-class DataSetAttribute extends Object
-    with _$DataSetAttributeSerializerMixin, JsProxy {
+class ServiceConfigurationAttribute extends Object
+    with _$ServiceConfigurationAttributeSerializerMixin, JsProxy implements DisplayElement {
 
   @reflectable
   final String name;
@@ -64,9 +64,27 @@ class DataSetAttribute extends Object
   @reflectable
   final bool canSearch;
 
-  DataSetAttribute(this.name, this.relatedService, this.attributeType, this.createRequired, this.updateRequired, this.searchRequired, this.attributeIndex, this.canUpdate, this.canCreate, this.relatedListServiceConfiguration, this.canSearch);
+  ServiceConfigurationAttribute(this.name, this.relatedService, this.attributeType, this.createRequired, this.updateRequired, this.searchRequired, this.attributeIndex, this.canUpdate, this.canCreate, this.relatedListServiceConfiguration, this.canSearch);
 
-  factory DataSetAttribute.fromJson(json) => _$DataSetAttributeFromJson(json);
+  factory ServiceConfigurationAttribute.fromJson(json) => _$ServiceConfigurationAttributeFromJson(json);
+
+  @override
+  bool get hidden => false;
+  @override
+  String get title => name;
+  @override
+  DisplayType get displayType {
+    switch(dataType) {
+      case DataType.Text:
+        return DisplayType.TextField;
+      default:
+        return DisplayType.TextField;
+    }
+  }
+
+  @override
+  DataType get dataType => DataTypeFromString(attributeType);
+
 }
 
 /// INCOMPLETE
@@ -91,18 +109,4 @@ class ServiceConfiguration extends Object
 
   factory ServiceConfiguration.fromJson(json) =>
       _$ServiceConfigurationFromJson(json);
-}
-
-/// INCOMPLETE
-@JsonSerializable()
-class ServiceConfigurationAttribute extends Object
-    with _$ServiceConfigurationAttributeSerializerMixin, JsProxy {
-
-  @reflectable
-  final String name;
-
-  ServiceConfigurationAttribute(this.name);
-
-  factory ServiceConfigurationAttribute.fromJson(json) =>
-      _$ServiceConfigurationAttributeFromJson(json);
 }
