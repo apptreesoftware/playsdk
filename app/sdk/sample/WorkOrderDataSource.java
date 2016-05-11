@@ -1,13 +1,10 @@
 package sdk.sample;
 
 import com.avaje.ebean.ExpressionList;
-import javassist.tools.reflect.Sample;
 import sdk.data.*;
+import sdk.sample.model.WorkOrder;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
-import sdk.utils.Response;
-import sdk.utils.ServiceParameter;
-import sdk.sample.model.WorkOrder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +17,7 @@ import static sdk.sample.model.WorkOrder.*;
 public class WorkOrderDataSource implements DataSource {
 
     @Override
-    public DataSourceResponse getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
+    public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
 
         List<WorkOrder> workOrders = SampleDatabase.getInstance().getWorkOrderFinder().all();
@@ -28,30 +25,24 @@ public class WorkOrderDataSource implements DataSource {
             DataSetItem dataSetItem = dataSet.addNewDataSetItem();
             workOrder.copyIntoDataSetItem(dataSetItem);
         }
-        return new DataSourceResponse.Builder()
-                .setSuccess(true)
-                .setDataSet(dataSet)
-                .setMessage("Sync complete")
-                .build();
+        return dataSet.withSuccessMessage("Sync complete");
     }
 
     @Override
-    public DataSourceResponse getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
+    public DataSet getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
         WorkOrder workOrder = SampleDatabase.getInstance().getWorkOrderFinder().byId(id);
-        DataSourceResponse.Builder responseBuilder = new DataSourceResponse.Builder();
         if ( workOrder != null ) {
             DataSetItem item = dataSet.addNewDataSetItem();
             workOrder.copyIntoDataSetItem(item);
-            responseBuilder.setDataSet(dataSet).setSuccess(true);
         } else {
-            responseBuilder.setDataSet(dataSet).setSuccess(false).setMessage("Item with primary key " + id + " not found.");
+            dataSet.withFailureMessage("Item with primary key " + id + " not found.");
         }
-        return responseBuilder.build();
+        return dataSet;
     }
 
     @Override
-    public DataSourceResponse queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public DataSet queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         String description = queryDataItem.getStringAttributeAtIndex(DescriptionIndex);
         String woNumber = queryDataItem.getStringAttributeAtIndex(NumberIndex);
         ExpressionList<WorkOrder> expression = SampleDatabase.getInstance().getWorkOrderFinder().where();
@@ -66,14 +57,11 @@ public class WorkOrderDataSource implements DataSource {
             DataSetItem item = dataSet.addNewDataSetItem();
             workOrder.copyIntoDataSetItem(item);
         });
-        return new DataSourceResponse.Builder()
-                .setSuccess(true)
-                .setDataSet(dataSet)
-                .build();
+        return dataSet;
     }
 
     @Override
-    public DataSourceResponse createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public DataSet createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.copyFromDataSetItem(dataSetItem);
         workOrder.insert();
@@ -81,11 +69,11 @@ public class WorkOrderDataSource implements DataSource {
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
         DataSetItem responseItem = dataSet.addNewDataSetItem();
         workOrder.copyIntoDataSetItem(responseItem);
-        return new DataSourceResponse.Builder().setMessage("Record Created").setDataSet(dataSet).setSuccess(true).build();
+        return dataSet.withSuccessMessage("Record Created");
     }
 
     @Override
-    public DataSourceResponse updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public DataSet updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = SampleDatabase.getInstance().getWorkOrderFinder().byId(dataSetItem.getPrimaryKey());
         if ( workOrder == null ) {
             throw new RuntimeException("Record not found");

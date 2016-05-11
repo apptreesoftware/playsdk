@@ -40,8 +40,7 @@ public class DataSetController extends Controller {
         })
         .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)))
         .exceptionally(exception -> {
-            DataSourceResponse response = new DataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).build();
-            return ok(Json.toJson(response));
+            return ok(Json.toJson(new Response(false, exception.getMessage())));
         });
     }
 
@@ -70,7 +69,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
-                .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)));
+                .thenApply(dataSet -> ok(Json.toJson(dataSet)));
     }
 
     public CompletionStage<Result> updateDataSetItem(String dataSetName) {
@@ -82,7 +81,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
-                .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)));
+                .thenApply(dataSet -> ok(Json.toJson(dataSet)));
     }
 
     public CompletionStage<Result> searchDataSet(String dataSetName) {
@@ -94,7 +93,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                 })
-                .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)));
+                .thenApply(dataSet -> ok(Json.toJson(dataSet)));
     }
 
     public CompletionStage<Result> getDataSetItem(String dataSetName, String primaryKey) {
@@ -104,7 +103,7 @@ public class DataSetController extends Controller {
         return CompletableFuture
                 .supplyAsync(() -> (DataSource)AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid DataSet")))
                 .thenApply(dataSource -> dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters))
-                .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)));
+                .thenApply(dataSet -> ok(Json.toJson(dataSet)));
     }
 
     private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request) {
