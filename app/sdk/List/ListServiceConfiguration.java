@@ -1,6 +1,7 @@
 package sdk.list;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
 import java.util.ArrayList;
