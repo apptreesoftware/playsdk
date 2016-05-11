@@ -11,7 +11,7 @@ import 'package:polymer_elements/paper_header_panel.dart';
 import 'package:connector_app/models/models.dart';
 import 'package:connector_app/services/services.dart';
 import 'package:connector_app/components/endpoints.dart';
-import 'package:connector_app/components/endpoint_test.dart';
+import 'package:connector_app/components/endpoint_tester.dart';
 
 /// [PaperDrawerPanel]
 /// [PaperHeaderPanel]

@@ -143,27 +143,6 @@ abstract class _$DataSetItemSerializerMixin {
 
 // **************************************************************************
 // Generator: JsonSerializableGenerator
-// Target: class DataSetConfiguration
-// **************************************************************************
-
-DataSetConfiguration _$DataSetConfigurationFromJson(Map json) =>
-    new DataSetConfiguration(
-        (json['attributes'] as List)
-            ?.map((v0) => v0 == null ? null : new DataSetAttribute.fromJson(v0))
-            ?.toList(),
-        (json['dependentLists'] as List)?.map((v0) => v0)?.toList());
-
-abstract class _$DataSetConfigurationSerializerMixin {
-  List get attributes;
-  List get dependentLists;
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'attributes': attributes,
-        'dependentLists': dependentLists
-      };
-}
-
-// **************************************************************************
-// Generator: JsonSerializableGenerator
 // Target: class DataSetConfigurationResponse
 // **************************************************************************
 
@@ -173,22 +152,22 @@ DataSetConfigurationResponse _$DataSetConfigurationResponseFromJson(Map json) =>
         json['message'],
         json['showMessageAlert'],
         json['authorizationError'],
-        json['records'] == null
-            ? null
-            : new DataSetConfiguration.fromJson(json['records']));
+        (json['attributes'] as List)
+            ?.map((v0) => v0 == null ? null : new DataSetAttribute.fromJson(v0))
+            ?.toList());
 
 abstract class _$DataSetConfigurationResponseSerializerMixin {
   bool get success;
   String get message;
   bool get showMessageAlert;
   bool get authorizationError;
-  DataSetConfiguration get configuration;
+  List get attributes;
   Map<String, dynamic> toJson() => <String, dynamic>{
         'success': success,
         'message': message,
         'showMessageAlert': showMessageAlert,
         'authorizationError': authorizationError,
-        'records': configuration
+        'attributes': attributes
       };
 }
 

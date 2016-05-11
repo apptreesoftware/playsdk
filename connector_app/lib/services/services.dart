@@ -46,11 +46,11 @@ class DatasetService extends BaseService {
     return datasetResponse.dataSet;
   }
 
-  Observable<DataSetConfiguration> getConfiguration(String baseUrl) {
+  Observable<List<DataSetAttribute>> getConfiguration(String baseUrl) {
     print('getting configuration for $baseUrl');
     return new Observable<http.Response>.fromFuture(client.get('$baseUrl/config'))
         .map((http.Response response) => JSON.decode(response.body))
         .map((Map json) => new DataSetConfigurationResponse.fromJson(json))
-        .map((DataSetConfigurationResponse r) => r.configuration);
+        .map((DataSetConfigurationResponse r) => r.attributes);
   }
 }

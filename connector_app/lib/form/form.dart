@@ -17,19 +17,19 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
 
   @observable
   @Property(observer: 'configChanged')
-  DataSetConfiguration configuration;
+  List<DataSetAttribute> dataSetAttributes;
 
   Form.created() : super.created();
 
-  static Form newInstance(DataSetConfiguration configuration, String formType) {
+  static Form newInstance(List<DataSetAttribute> configuration, String formType) {
       Form form = document.createElement("at-form");
-      form.configuration = configuration;
+      form.dataSetAttributes = configuration;
       form.formType = formType;
       return form;
   }
 
   @reflectable
   void configChanged(newConfig, oldConfig) {
-    print(configuration.attributes.length);
+    print(dataSetAttributes.length);
   }
 }

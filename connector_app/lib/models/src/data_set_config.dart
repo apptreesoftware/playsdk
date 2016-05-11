@@ -17,30 +17,13 @@ class DataSetConfigurationResponse extends Object
   final bool authorizationError;
 
   @reflectable
-  @JsonKey('records')
-  DataSetConfiguration configuration;
+  List<DataSetAttribute> attributes;
 
   DataSetConfigurationResponse(this.success, this.message,
-      this.showMessageAlert, this.authorizationError, this.configuration);
+      this.showMessageAlert, this.authorizationError, this.attributes);
 
   factory DataSetConfigurationResponse.fromJson(json) =>
       _$DataSetConfigurationResponseFromJson(json);
-}
-
-@JsonSerializable()
-class DataSetConfiguration extends Object
-    with _$DataSetConfigurationSerializerMixin, JsProxy {
-
-  @reflectable
-  final List<DataSetAttribute> attributes;
-
-  @reflectable
-  final List<String> dependentLists;
-
-  DataSetConfiguration(this.attributes, this.dependentLists);
-
-  factory DataSetConfiguration.fromJson(json) =>
-      _$DataSetConfigurationFromJson(json);
 }
 
 @JsonSerializable()

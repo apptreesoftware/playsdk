@@ -1,4 +1,4 @@
-@HtmlImport('endpoint_test.html')
+@HtmlImport('endpoint_tester.html')
 library connector_app.at_data_set;
 
 import 'dart:html';
@@ -33,7 +33,7 @@ class EndpointTestElement extends PolymerElement
 
   @observable
   @property
-  DataSetConfiguration configuration;
+  List<DataSetAttribute> dataSetAttributes;
 
   @observable
   @property
@@ -57,10 +57,10 @@ class EndpointTestElement extends PolymerElement
     Element element;
     switch (displayType) {
       case DisplayType.CreateForm:
-        element = Form.newInstance(configuration, "CREATE");
+        element = Form.newInstance(dataSetAttributes, "CREATE");
         break;
       case DisplayType.UpdateForm:
-        element = Form.newInstance(configuration, "UPDATE");
+        element = Form.newInstance(dataSetAttributes, "UPDATE");
         break;
       case DisplayType.ViewData:
         break;
@@ -76,7 +76,7 @@ class EndpointTestElement extends PolymerElement
     print('loading data set');
     if (endpoint == null) return;
     _datasetService.getConfiguration(endpoint.url).listen((data) {
-      configuration = data;
+      dataSetAttributes = data;
       updateUI();
     }, onError: (error) => print(error));
   }
