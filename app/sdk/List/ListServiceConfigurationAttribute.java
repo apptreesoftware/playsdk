@@ -7,7 +7,7 @@ import sdk.models.AttributeType;
 public class ListServiceConfigurationAttribute {
     private int attributeIndex;
     private String label;
-    private AttributeType attributeType;
+    private AttributeType attributeType = AttributeType.String;
     private ListServiceConfiguration relatedListConfiguration;
 
 
@@ -38,14 +38,16 @@ public class ListServiceConfigurationAttribute {
 
     public static class Builder {
         AttributeType mAttributeType = AttributeType.String;
-        String mAttributeDescription;
+        String attributeDescription;
+        int attributeIndex;
         private ListServiceConfiguration mRelatedList = null;
 
         /**
          * Creates the list attribute builder with the given index
          */
-        public Builder(String description) {
-            mAttributeDescription = description;
+        public Builder(int index) {
+            attributeIndex = index;
+            attributeDescription = "Attribute " + attributeIndex;
         }
 
         /**
@@ -54,7 +56,7 @@ public class ListServiceConfigurationAttribute {
          * @return
          */
         public Builder description(String description) {
-            mAttributeDescription = description;
+            attributeDescription = description;
             return this;
         }
 
@@ -189,7 +191,8 @@ public class ListServiceConfigurationAttribute {
          */
         public ListServiceConfigurationAttribute build() {
             ListServiceConfigurationAttribute attribute = new ListServiceConfigurationAttribute();
-            attribute.setLabel(mAttributeDescription);
+            attribute.setAttributeIndex(attributeIndex);
+            attribute.setLabel(attributeDescription);
             attribute.setAttributeType(mAttributeType);
             attribute.setRelatedListConfiguration(mRelatedList);
             return attribute;

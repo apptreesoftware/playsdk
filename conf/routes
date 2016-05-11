@@ -20,9 +20,14 @@ PUT         /inspections/:inspectionID          controllers.InspectionController
 
 GET         /dataSet/:dataSetName               controllers.DataSetController.getDataSet(dataSetName: String)
 GET         /dataSet/:dataSetName/config        controllers.DataSetController.getDataConfiguration(dataSetName: String)
+GET         /dataSet/:dataSetName/:primaryKey   controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
 POST        /dataSet/:dataSetName               controllers.DataSetController.createDataSetItem(dataSetName : String)
+PUT         /dataSet/:dataSetName               controllers.DataSetController.updateDataSetItem(dataSetName : String)
+POST        /dataSet/:dataSetName/search        controllers.DataSetController.searchDataSet(dataSetName : String)
+
 
 GET         /list/:listName/config              controllers.ListController.getListConfiguration(listName: String)
-GET         /list/:listName/data                controllers.ListController.getListData(listName: String)
+POST        /list/:listName/search              controllers.ListController.searchListData(listName: String)
+GET         /list/:listName                     controllers.ListController.getListData(listName: String)
 
 GET         /*file                              controllers.StaticFileController.html(file)

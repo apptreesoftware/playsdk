@@ -1,17 +1,22 @@
 package sdk.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import sdk.models.*;
-import sdk.list.ListItem;
 import org.joda.time.DateTime;
 import play.libs.Json;
+import play.mvc.Http;
+import sdk.list.ListItem;
+import sdk.models.*;
+import sdk.utils.DateUtil;
+import sdk.utils.JSON;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Created by alexis on 5/3/16.
@@ -773,5 +778,147 @@ public class DataSetItem {
             }
         }
         return json;
+    }
+
+    public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
+        primaryKey = json.path("primaryKey").textValue();
+        crudStatus = CRUDStatus.fromString(json.path("CRUDStatus").textValue());
+        dataCollectionStatus = DataCollectionStatus.fromString(json.path("DataCollectionStatus").textValue());
+        clientKey = json.path("clientKey").textValue();
+        ArrayNode attributes = (ArrayNode) json.path("attributes");
+        IntStream.range(0, attributes.size())
+                .filter(i -> !(attributes.get(i).isNull() && attributeConfigurationForIndexMap.get(i) == null))
+                .forEach(i -> {
+                    ServiceConfigurationAttribute attribute = attributeConfigurationForIndexMap.get(i);
+                    JsonNode node = attributes.get(i);
+                    switch (attribute.attributeType) {
+                        case String:
+                            setStringForAttributeIndex(node.textValue(), i);
+                            break;
+                        case Double:
+                            setDoubleForAttributeIndex(node.doubleValue(), i);
+                            break;
+                        case Int:
+                            setIntForAttributeIndex(node.intValue(), i);
+                            break;
+                        case Boolean:
+                            setBooleanForAttributeIndex(node.asText().equalsIgnoreCase("Y"), i);
+                            break;
+                        case Date:
+                            setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
+                            break;
+                        case DateTime:
+                            setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
+                            break;
+                        case TimeInterval:
+                            setTimeIntervalForAttributeIndex(node.asLong(), i);
+                            break;
+                        case DateRange:
+                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                DateRange dateRange = Json.fromJson(jsonNode, DateRange.class);
+                                if ( dateRange != null ) {
+                                    setDateRangeForAttributeIndex(dateRange, i);
+                                }
+                            });
+                            break;
+                        case DateTimeRange:
+                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                DateTimeRange dateRange = Json.fromJson(jsonNode, DateTimeRange.class);
+                                if ( dateRange != null ) {
+                                    setDateTimeRangeForAttributeIndex(dateRange, i);
+                                }
+                            });
+                            break;
+                        case Image:
+                           JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                               Image image = Json.fromJson(jsonNode, Image.class);
+                               setImageForAttributeIndex(image, i);
+                               if ( attachmentMap != null && image.uploadKey != null ) {
+                                   Http.MultipartFormData.FilePart filePart = attachmentMap.get(image.uploadKey);
+                                   if ( filePart != null ) {
+                                       image.filePart = filePart;
+                                   }
+                               }
+                           });
+                            break;
+                        case Location:
+                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                Location location = Json.fromJson(jsonNode, Location.class);
+                                setLocationForAttributeIndex(location, i);
+                            });
+                            break;
+                        case Attachments:
+                        case Relation:
+                            ArrayNode childArray = (ArrayNode) node.get(i);
+                            RelatedServiceConfiguration childService = attribute.relatedService;
+                            if ( childService == null ) { return; }
+                            List<ServiceConfigurationAttribute> childAttributes = childService.getAttributes();
+                            IntStream.range(0, childAttributes.size())
+                                    .forEach(childIndex -> {
+                                        ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
+                                        String recordType = node.path("recordType").asText();
+                                        String subClientKey = node.path("clientKey").asText();
+                                        Http.MultipartFormData.FilePart filePart = null;
+                                        if ( Type.fromString(recordType) == Type.Attachment ) {
+                                            if ( subClientKey != null && attachmentMap != null ) {
+                                                filePart = attachmentMap.get(subClientKey);
+                                            }
+                                            DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(childIndex);
+                                            subDataSetItem.updateFromJSON(childJsonNode, null);
+                                            if ( filePart != null ) {
+                                                ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
+                                            }
+                                        } else {
+                                            DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(childIndex);
+                                            subDataSetItem.updateFromJSON(childJsonNode, attachmentMap);
+                                        }
+                                    });
+                            break;
+                        case ListItem:
+                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                ListItem listItem = Json.fromJson(jsonNode, ListItem.class);
+                                setListItemForAttributeIndex(listItem, i);
+                            });
+                            break;
+                        case Color:
+                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                Color color = Json.fromJson(jsonNode, Color.class);
+                                setColorForAttributeIndex(color, i);
+                            });
+                            break;
+                    }
+                });
+
+    }
+
+    public DataSetItem addNewDataSetItemForAttributeIndex(int attributeIndex) {
+        DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
+        ServiceConfigurationAttribute configurationAttribute = attributeConfigurationForIndexMap.get(attributeIndex);
+        if ( configurationAttribute == null || configurationAttribute.relatedService == null ) {
+            throw new InvalidAttributeValueException("You have configured attribute " + attributeIndex + " as a relationship but you have not defined a related service. Please update your configuration to include a related service for this attribute.");
+        }
+
+        DataSetItem dataSetItem = new DataSetItem(configurationAttribute.relatedService.getAttributeConfigurationForIndexMap());
+        if ( attribute == null ) {
+            attribute = new DataSetItemAttribute(dataSetItem);
+            attributeMap.put(attributeIndex, attribute);
+        } else {
+            attribute.addDataSetItem(dataSetItem);
+        }
+        return dataSetItem;
+    }
+
+    public DataSetItemAttachment addNewAttachmentForAttributeIndex(int attributeIndex) throws InvalidAttributeValueException {
+        validateGetterAttributeTypeForIndex(AttributeType.Attachments, attributeIndex);
+        DataSetItemAttachment attachmentItem = new DataSetItemAttachment();
+        DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
+
+        if ( attribute == null ) {
+            attribute = new DataSetItemAttribute(attachmentItem);
+            attributeMap.put(attributeIndex, attribute);
+        } else {
+            attribute.addDataSetItem(attachmentItem);
+        }
+        return attachmentItem;
     }
 }

@@ -1,15 +1,15 @@
 package sdk.list;
 
+import sdk.data.DataSetItemAttribute;
 import sdk.models.*;
 import org.joda.time.DateTime;
 
 /**
  * Created by alexis on 5/3/16.
  */
-public class ListItemAttribute {
+public class  ListItemAttribute {
     private String stringValue;
     private Location location;
-    private ListItem listItem;
     private Color color;
     private Image image;
     private DateTime date;
@@ -35,16 +35,19 @@ public class ListItemAttribute {
     public ListItemAttribute(DateTime dateTime, boolean time) {
         attributeType = time ? AttributeType.DateTime : AttributeType.Date;
         date = dateTime;
+        stringValue = time ? date.toString(DataSetItemAttribute.AppTreeDateTimeFormat) : date.toString(DataSetItemAttribute.AppTreeDateFormat);;
     }
 
     public ListItemAttribute(DateRange range) {
         attributeType = AttributeType.DateRange;
         dateRange = range;
+        stringValue = dateRange.toJSON().toString();
     }
 
     public ListItemAttribute(DateTimeRange range) {
         attributeType = AttributeType.DateTimeRange;
         dateTimeRange = range;
+        stringValue = dateTimeRange.toJSON().toString();
     }
 
     public ListItemAttribute(String value) {
@@ -65,16 +68,13 @@ public class ListItemAttribute {
     public ListItemAttribute(Location location) {
         attributeType = AttributeType.Location;
         this.location = location;
-    }
-
-    public ListItemAttribute(ListItem listItem) {
-        attributeType = AttributeType.ListItem;
-        this.listItem = listItem;
+        stringValue = location.toJSON().toString();
     }
 
     public ListItemAttribute(Image image) {
         attributeType = AttributeType.Image;
         this.image = image;
+        stringValue = this.image.toJSON().toString();
     }
 
     /**
@@ -133,14 +133,6 @@ public class ListItemAttribute {
      */
     public Image getImageValue() {
         return image;
-    }
-
-    /**
-     * Gets the list item value of attribute
-     * @return
-     */
-    public ListItem getListItem() {
-        return listItem;
     }
 
     /**

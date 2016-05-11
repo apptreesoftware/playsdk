@@ -1,7 +1,12 @@
+import org.joda.time.DateTime;
 import org.junit.*;
 
 import play.mvc.*;
 import play.test.*;
+import sdk.list.ListItem;
+import sdk.list.ListItemAttribute;
+import sdk.models.Color;
+import sdk.models.DateRange;
 
 import static play.test.Helpers.*;
 import static org.junit.Assert.*;
@@ -20,6 +25,12 @@ public class IntegrationTest {
             browser.goTo("http://localhost:3333");
             assertTrue(browser.pageSource().contains("Your new application is ready."));
         });
+    }
+
+    @Test void testListItemOutput() {
+        //create list item
+        //turn it into json
+        //confirm the json.toString matches an expected string
     }
 
 }

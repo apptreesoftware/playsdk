@@ -4,6 +4,7 @@ import sdk.data.DataSource;
 import sdk.list.ListDataSource;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class AppTree {
     public static HashMap<String, DataSource> dataSources = new HashMap<>();
@@ -17,11 +18,11 @@ public class AppTree {
         listSources.putIfAbsent(name, dataSource);
     }
 
-    public static DataSource lookupDataSetHandler(String name) {
-        return dataSources.get(name);
+    public static Optional<DataSource> lookupDataSetHandler(String name) {
+        return Optional.ofNullable(dataSources.get(name));
     }
 
-    public static ListDataSource lookupListHandler(String name) {
-        return listSources.get(name);
+    public static Optional<ListDataSource> lookupListHandler(String name) {
+        return Optional.ofNullable(listSources.get(name));
     }
 }

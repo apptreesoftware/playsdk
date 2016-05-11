@@ -1,11 +1,14 @@
 package sdk.list;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import play.Logger;
 import sdk.models.*;
 import org.joda.time.DateTime;
 
 /**
  * Created by alexis on 5/3/16.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ListItem {
     public String id;
     public String parentID;
@@ -30,17 +33,17 @@ public class ListItem {
         return attributeConfiguration;
     }
 
-    public static int
-            ATTRIBUTE_1 = 1,
-            ATTRIBUTE_2 = 2,
-            ATTRIBUTE_3 = 3,
-            ATTRIBUTE_4 = 4,
-            ATTRIBUTE_5 = 5,
-            ATTRIBUTE_6 = 6,
-            ATTRIBUTE_7 = 7,
-            ATTRIBUTE_8 = 8,
-            ATTRIBUTE_9 = 9,
-            ATTRIBUTE_10 = 10;
+    public static final int
+            ATTRIBUTE_1 = 0,
+            ATTRIBUTE_2 = 1,
+            ATTRIBUTE_3 = 2,
+            ATTRIBUTE_4 = 3,
+            ATTRIBUTE_5 = 4,
+            ATTRIBUTE_6 = 5,
+            ATTRIBUTE_7 = 6,
+            ATTRIBUTE_8 = 7,
+            ATTRIBUTE_9 = 8,
+            ATTRIBUTE_10 = 9;
 
     public ListItem() {}
 
@@ -58,166 +61,66 @@ public class ListItem {
      * @param value The string list item attribute value
      * @param index The attribute to be set 1-10
      */
-    public void setAttributeForIndex(String value, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(value);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(value);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(value);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(value);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(value);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(value);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(value);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(value);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(value);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(value);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
+    public void setAttributeForIndex(Object value, int index) {
+        ListItemAttribute attribute;
+        if ( value instanceof String ) {
+            attribute = new ListItemAttribute((String)value);
+        } else if ( value instanceof Color ) {
+            attribute = new ListItemAttribute((Color)value);
+        } else if ( value instanceof Integer ) {
+            attribute = new ListItemAttribute((Integer) value);
+        } else if ( value instanceof Location ) {
+            attribute = new ListItemAttribute((Location) value);
+        } else if ( value instanceof DateTime ) {
+            Logger.warn("setAttributeForIndex(Object value, int index) with a value type of DateTime assumes that the date contains a time component. Use setDateAttributeAtIndex(DateTime date, boolean time) to be more explicit.");
+            attribute = new ListItemAttribute((DateTime)value, true);
+        } else if ( value instanceof DateRange ) {
+            attribute = new ListItemAttribute((DateRange) value);
+        } else if ( value instanceof DateTimeRange ) {
+            attribute = new ListItemAttribute((DateTimeRange) value);
+        } else if ( value instanceof Double ) {
+            attribute = new ListItemAttribute((Double) value);
+        } else if ( value instanceof Image ) {
+            attribute = new ListItemAttribute((Image) value);
+        } else if ( value instanceof Long ) {
+            attribute = new ListItemAttribute((Long) value);
+        } else {
+            Logger.error("List does not support a value of type " + value.getClass().getCanonicalName());
+            return;
         }
-    }
-
-    /**
-     * Sets the list item attribute
-     * @param intValue The int value
-     * @param index The attribute to be set 1-10
-     */
-    public void setAttributeForIndex(int intValue, int index) {
         switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_1:
+                attribute01 = attribute;
                 break;
-            case 2:
-                attribute02 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_2:
+                attribute02 = attribute;
                 break;
-            case 3:
-                attribute03 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_3:
+                attribute03 = attribute;
                 break;
-            case 4:
-                attribute04 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_4:
+                attribute04 = attribute;
                 break;
-            case 5:
-                attribute05 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_5:
+                attribute05 = attribute;
                 break;
-            case 6:
-                attribute06 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_6:
+                attribute06 = attribute;
                 break;
-            case 7:
-                attribute07 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_7:
+                attribute07 = attribute;
                 break;
-            case 8:
-                attribute08 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_8:
+                attribute08 = attribute;
                 break;
-            case 9:
-                attribute09 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_9:
+                attribute09 = attribute;
                 break;
-            case 10:
-                attribute10 = new ListItemAttribute(intValue);
+            case ATTRIBUTE_10:
+                attribute10 = attribute;
                 break;
             default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets the lit item attribute
-     * @param listItem The list item value
-     * @param index The attribute to be set 1-5
-     */
-    public void setAttributeForIndex(ListItem listItem, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(listItem);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(listItem);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(listItem);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(listItem);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(listItem);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(listItem);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(listItem);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(listItem);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(listItem);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(listItem);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets a boolean value for the indicated list item attribute
-     * @param boolValue the boolean value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(boolean boolValue, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(boolValue);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(boolValue);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(boolValue);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(boolValue);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(boolValue);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(boolValue);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(boolValue);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(boolValue);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(boolValue);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(boolValue);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
+                Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
         }
     }
 
@@ -227,289 +130,37 @@ public class ListItem {
      * @param time a boolean indicating if the time should be included
      * @param index the index of the attribute to be set
      */
-    public void setAttributeForIndex(DateTime date, boolean time, int index) {
+    public void setDateAttributeForIndex(DateTime date, boolean time, int index) {
         switch (index) {
-            case 1:
+            case ATTRIBUTE_1:
                 attribute01 = new ListItemAttribute(date, time);
                 break;
-            case 2:
+            case ATTRIBUTE_2:
                 attribute02 = new ListItemAttribute(date, time);
                 break;
-            case 3:
+            case ATTRIBUTE_3:
                 attribute03 = new ListItemAttribute(date, time);
                 break;
-            case 4:
+            case ATTRIBUTE_4:
                 attribute04 = new ListItemAttribute(date, time);
                 break;
-            case 5:
+            case ATTRIBUTE_5:
                 attribute05 = new ListItemAttribute(date, time);
                 break;
-            case 6:
+            case ATTRIBUTE_6:
                 attribute06 = new ListItemAttribute(date, time);
                 break;
-            case 7:
+            case ATTRIBUTE_7:
                 attribute07 = new ListItemAttribute(date, time);
                 break;
-            case 8:
+            case ATTRIBUTE_8:
                 attribute08 = new ListItemAttribute(date, time);
                 break;
-            case 9:
+            case ATTRIBUTE_9:
                 attribute09 = new ListItemAttribute(date, time);
                 break;
-            case 10:
+            case ATTRIBUTE_10:
                 attribute10 = new ListItemAttribute(date, time);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets a color attribute at the indicated index
-     * @param color an ATColor value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(Color color, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(color);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(color);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(color);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(color);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(color);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(color);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(color);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(color);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(color);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(color);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets a date range on the indicated attribute
-     * @param range the ATDateRange value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(DateRange range, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(range);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(range);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(range);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(range);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(range);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(range);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(range);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(range);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(range);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(range);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets a date time range value on the indicated attribute
-     * @param range the ATDateTimeRange value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(DateTimeRange range, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(range);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(range);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(range);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(range);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(range);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(range);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(range);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(range);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(range);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(range);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets a double at the indicated index
-     * @param doubleValue the double value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(double doubleValue, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(doubleValue);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(doubleValue);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(doubleValue);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(doubleValue);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(doubleValue);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(doubleValue);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(doubleValue);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(doubleValue);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(doubleValue);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(doubleValue);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets a location value at the indicated attribute
-     * @param location the ATLocation value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(Location location, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(location);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(location);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(location);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(location);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(location);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(location);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(location);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(location);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(location);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(location);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
-    }
-
-    /**
-     * Sets an image value at the indicated attribute
-     * @param image the ATImage value
-     * @param index the index of the attribute to be set
-     */
-    public void setAttributeForIndex(Image image, int index) {
-        switch (index) {
-            case 1:
-                attribute01 = new ListItemAttribute(image);
-                break;
-            case 2:
-                attribute02 = new ListItemAttribute(image);
-                break;
-            case 3:
-                attribute03 = new ListItemAttribute(image);
-                break;
-            case 4:
-                attribute04 = new ListItemAttribute(image);
-                break;
-            case 5:
-                attribute05 = new ListItemAttribute(image);
-                break;
-            case 6:
-                attribute06 = new ListItemAttribute(image);
-                break;
-            case 7:
-                attribute07 = new ListItemAttribute(image);
-                break;
-            case 8:
-                attribute08 = new ListItemAttribute(image);
-                break;
-            case 9:
-                attribute09 = new ListItemAttribute(image);
-                break;
-            case 10:
-                attribute10 = new ListItemAttribute(image);
                 break;
             default:
                 System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
@@ -523,29 +174,69 @@ public class ListItem {
      */
     public ListItemAttribute getAttributeForIndex(int index) {
         switch(index) {
-            case 1:
+            case ATTRIBUTE_1:
                 return attribute01;
-            case 2:
+            case ATTRIBUTE_2:
                 return attribute02;
-            case 3:
+            case ATTRIBUTE_3:
                 return attribute03;
-            case 4:
+            case ATTRIBUTE_4:
                 return attribute04;
-            case 5:
+            case ATTRIBUTE_5:
                 return attribute05;
-            case 6:
+            case ATTRIBUTE_6:
                 return attribute06;
-            case 7:
+            case ATTRIBUTE_7:
                 return attribute07;
-            case 8:
+            case ATTRIBUTE_8:
                 return attribute08;
-            case 9:
+            case ATTRIBUTE_9:
                 return attribute09;
-            case 10:
+            case ATTRIBUTE_10:
                 return attribute10;
             default:
                 System.out.println("Requesting an attribute index ( " + index + ") that is beyond the allowed attribute indexes ( 1 - 10 )");
         }
         return null;
+    }
+
+    public String getAttribute01() {
+        return attribute01 != null ? attribute01.getStringValue() : null;
+    }
+
+    public String getAttribute02() {
+        return attribute02 != null ? attribute02.getStringValue() : null;
+    }
+
+    public String getAttribute03() {
+        return attribute03 != null ? attribute03.getStringValue() : null;
+    }
+
+    public String getAttribute04() {
+        return attribute04 != null ? attribute04.getStringValue() : null;
+    }
+
+    public String getAttribute05() {
+        return attribute05 != null ? attribute05.getStringValue() : null;
+    }
+
+    public String getAttribute06() {
+        return attribute06 != null ? attribute06.getStringValue() : null;
+    }
+
+    public String getAttribute07() {
+        return attribute07 != null ? attribute07.getStringValue() : null;
+    }
+
+    public String getAttribute08() {
+        return attribute08 != null ? attribute08.getStringValue() : null;
+    }
+
+    public String getAttribute09() {
+        return attribute09 != null ? attribute09.getStringValue() : null;
+    }
+
+    public String getAttribute10() {
+        return attribute10 != null ? attribute10.getStringValue() : null;
     }
 }

@@ -1,17 +1,20 @@
 package sdk.models;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
+import play.libs.Json;
+import sdk.utils.Constants;
 
 /**
  * Created by alexis on 5/3/16.
  */
 public class Location {
-    private double latitude;
-    private double longitude;
-    private double bearing;
-    private double speed;
-    private double accuracy;
-    private double elevation;
+    private double latitude = 0;
+    private double longitude = 0;
+    private double bearing = 0;
+    private double speed = 0;
+    private double accuracy = 0;
+    private double elevation = 0;
     private DateTime timestamp;
 
     public Location() {
@@ -138,5 +141,19 @@ public class Location {
      */
     public void setTimestamp(DateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public ObjectNode toJSON() {
+        ObjectNode json = Json.newObject();
+        json.put("latitude", latitude);
+        json.put("longitude", longitude);
+        json.put("bearing", bearing);
+        json.put("speed", speed);
+        json.put("accuracy", accuracy);
+        json.put("elevation", elevation);
+        if ( timestamp != null ) {
+            json.put("timestamp", Constants.AppTreeDateTimeFormat.print(timestamp));
+        }
+        return json;
     }
 }
