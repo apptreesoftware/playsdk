@@ -92,15 +92,14 @@ public interface DataSource {
      * @param params a HashMap of the URL parameters included in the request
      * @return The configuration response
      */
-    default ConfigurationResponse getConfiguration(AuthenticationInfo authenticationInfo, Parameters params) {
+    default ServiceConfiguration getConfiguration(AuthenticationInfo authenticationInfo, Parameters params) {
         try {
-            ServiceConfiguration configuration = new ServiceConfiguration.Builder(getServiceDescription()).
+            return new ServiceConfiguration.Builder(getServiceDescription()).
                     withAttributes(getDataSetAttributes(authenticationInfo, params)).
                     withServiceFilterParameters(getServiceFilterParameters()).
                     withDependentListRESTPaths(getDependentLists()).build();
-            return new ConfigurationResponse.Builder().setSuccess(true).setMessage("").setConfiguration(configuration).createConfigurationResponse();
         } catch (Exception e) {
-            return new ConfigurationResponse.Builder().setSuccess(false).setMessage(e.getMessage()).setConfiguration(null).createConfigurationResponse();
+            return (ServiceConfiguration) new ServiceConfiguration("", null, null, null).setFailedWithMessage(e.getMessage());
         }
     }
 

@@ -1,19 +1,19 @@
 package sdk.data;
 
+import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
 /**
  * Created by alexis on 5/3/16.
  */
-public class ServiceConfiguration {
-    private String configurationName;
-    private List<ServiceConfigurationAttribute> attributes;
-    private List<String> mDependentListEndpoints;
+public class ServiceConfiguration extends Response {
+    private String name;
+    public List<ServiceConfigurationAttribute> attributes;
+    private List<String> dependentListEndpoints;
     private List<ServiceParameter> serviceFilterParameters;
 
     /**
@@ -25,33 +25,25 @@ public class ServiceConfiguration {
     /**
      * Creates a service configuration
      */
-    public ServiceConfiguration(String configurationName, List<ServiceConfigurationAttribute> attributes, List<ServiceParameter> serviceFilterParameters, List<String> dependentListEndpoints) {
-        this.configurationName = configurationName;
+    public ServiceConfiguration(String name, List<ServiceConfigurationAttribute> attributes, List<ServiceParameter> serviceFilterParameters, List<String> dependentListEndpoints) {
+        this.name = name;
         this.attributes = attributes;
         this.serviceFilterParameters = serviceFilterParameters;
-        mDependentListEndpoints = dependentListEndpoints;
+        this.dependentListEndpoints = dependentListEndpoints;
     }
 
+    public String getName() { return name; }
     public List<ServiceConfigurationAttribute> getAttributes() {
         return attributes;
     }
-
-
-    public List<String> getDependentLists() { return mDependentListEndpoints; }
-
-    private static class ServiceAttributeComparator implements Comparator<ServiceConfigurationAttribute> {
-
-        @Override
-        public int compare(ServiceConfigurationAttribute o1, ServiceConfigurationAttribute o2) {
-            return o1.getAttributeIndex() - o2.getAttributeIndex();
-        }
-    }
+    public List<String> getDependentLists() { return dependentListEndpoints; }
 
     public static class Builder {
         String name;
         private List<ServiceConfigurationAttribute> attributes;
         private List<ServiceParameter> serviceFilterParameters;
         private List<String> dependentLists = new ArrayList<String>();
+        private String message;
 
         /**
          * Creates a service configuration builder
@@ -91,6 +83,12 @@ public class ServiceConfiguration {
             return this;
         }
 
+        Builder withMessage(String message) {
+            this.message = message;
+            return this;
+        }
+
+
         /**
          * Creates a service configuration with the specified builder parameters
          * @return
@@ -99,9 +97,11 @@ public class ServiceConfiguration {
         public ServiceConfiguration build() throws InvalidServiceAttributeException {
             int index;
             if ( (index = checkIndexUniqueness(attributes)) != -1 ) {
-                throw new InvalidServiceAttributeException("Your update attributes contain an index that is not unique: Index " + index);
+                return (ServiceConfiguration) new ServiceConfiguration(this.name, null, null, null).setFailedWithMessage("Your update attributes contain an index that is not unique: Index " + index);
             }
-            return new ServiceConfiguration(name,attributes,serviceFilterParameters, dependentLists);
+            ServiceConfiguration configuration =  new ServiceConfiguration(name,attributes,serviceFilterParameters, dependentLists);
+            configuration.message = this.message;
+            return configuration;
         }
 
         private int checkIndexUniqueness(List<ServiceConfigurationAttribute> attributes) {
@@ -119,9 +119,9 @@ public class ServiceConfiguration {
         }
     }
 
-    public static class InvalidServiceAttributeException extends RuntimeException {
+    private static class InvalidServiceAttributeException extends RuntimeException {
 
-        public InvalidServiceAttributeException(String message) {
+        InvalidServiceAttributeException(String message) {
             super(message);
         }
     }

@@ -9,7 +9,8 @@ public class DataSourceResponse extends Response {
     public DataSet records;
 
     private DataSourceResponse(boolean success, String message, DataSet dataSet) {
-        super(success, message);
+        this.message = message;
+        this.success = success;
         records = dataSet;
     }
 

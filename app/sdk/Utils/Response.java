@@ -4,43 +4,24 @@ package sdk.utils;
  * Created by alexis on 5/3/16.
  */
 public class Response {
-    protected boolean success;
+    protected boolean success = true;
     protected String message;
     protected boolean showMessageAsAlert;
-    public boolean authorizationError;
 
-    /**
-     *
-     * @param success A boolean indicating whether or not the call was successful
-     * @param message A message about the call optional
-     */
+
+    public Response setFailedWithMessage(String message) {
+        setSuccess(false);
+        setMessage(message);
+        return this;
+    }
+
     public Response(boolean success, String message) {
         this.success = success;
         this.message = message;
     }
 
-    /**
-     *
-     * @return A response indicating that the call failed because it was unable to authenticate
-     */
-    public static Response withInvalidAuthentication() {
-        return new Response(false,"Invalid Authentication",true);
-    }
+    public Response() {
 
-    public void setFailedWithMessage(String message) {
-        setSuccess(false);
-        setMessage(message);
-    }
-    /**
-     *
-     * @param success A boolean indincating the success of the call
-     * @param message A message about the call
-     * @param authorizationError A boolean indicating whether there was an authorization error
-     */
-    public Response(boolean success, String message, boolean authorizationError) {
-        this.success = success;
-        this.message = message;
-        this.authorizationError = authorizationError;
     }
 
     /**
@@ -73,22 +54,6 @@ public class Response {
      */
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    /**
-     *
-     * @return A boolean indicating whether there was an authorization error
-     */
-    public boolean isAuthorizationError() {
-        return authorizationError;
-    }
-
-    /**
-     * Sets a boolean indicating whether there was an authorization error
-     * @param authorizationError
-     */
-    public void setAuthorizationError(boolean authorizationError) {
-        this.authorizationError = authorizationError;
     }
 
     /**
