@@ -11,6 +11,7 @@ import sdk.data.*;
 import sdk.serializers.DataSetModule;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
+import sdk.utils.Response;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,9 +35,7 @@ public class DataSetController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
             Parameters parameters = new Parameters(request.queryString());
-            DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> {
-                return new RuntimeException("Invalid Data Set");
-            });
+            DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
             return dataSource.getDataSet(authenticationInfo, parameters);
         })
         .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)))
@@ -56,7 +55,7 @@ public class DataSetController extends Controller {
         })
         .thenApply(response -> ok(Json.toJson(response)))
         .exceptionally(exception -> {
-            ConfigurationResponse response = new ConfigurationResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createConfigurationResponse();
+            Response response = new Response(false, exception.getMessage());
             return ok(Json.toJson(response));
         });
     }
@@ -135,6 +134,6 @@ public class DataSetController extends Controller {
     private ServiceConfiguration getServiceConfiguration(DataSource dataSource, Http.Request request) {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSource.getConfiguration(authenticationInfo, parameters).records;
+        return dataSource.getConfiguration(authenticationInfo, parameters);
     }
 }
