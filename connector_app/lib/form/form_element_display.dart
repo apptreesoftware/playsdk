@@ -4,6 +4,10 @@ class FormElementDisplay {
   DisplayElement displayElement;
   String value;
 
+  String get title {
+    return displayElement.title;
+  }
+
   int intValue() {
     return int.parse(value);
   }

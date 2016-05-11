@@ -1,11 +1,8 @@
-<dom-module id="at-endpoints">
+<dom-module id="at-textfield">
     <template>
         <style>
         </style>
-        <paper-listbox selected="0" on-selected-changed="selectedChanged">
-            <template is="dom-repeat" items="{{endpoints}}" as="endpoint">
-                <paper-item>{{endpoint.name}}</paper-item>
-            </template>
-        </paper-listbox>
+        <p>{{formElementDisplay}}</p>
+        <input type="text" />
     </template>
 </dom-module>

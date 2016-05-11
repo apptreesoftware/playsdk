@@ -73,7 +73,6 @@ class EndpointTestElement extends PolymerElement
   }
 
   _loadDataSet() {
-    print('loading data set');
     if (endpoint == null) return;
     _datasetService.getConfiguration(endpoint.url).listen((data) {
       dataSetAttributes = data;
@@ -82,7 +81,6 @@ class EndpointTestElement extends PolymerElement
   }
 
   void _handleSelectedTabChanged() {
-    print('selected tab changed');
     updateUI();
   }
 }

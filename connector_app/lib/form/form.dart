@@ -8,7 +8,10 @@ import 'package:polymer_autonotify/polymer_autonotify.dart';
 import 'package:connector_app/models/models.dart';
 import 'dart:html';
 import 'package:connector_app/form/form_element_display.dart';
+import 'package:connector_app/form/form_item/form_text_field_item.dart';
+import 'package:connector_app/form/form_item/form_item_behavior.dart';
 
+/// [FormTextFieldItem]
 @PolymerRegister('at-form')
 class Form extends PolymerElement with AutonotifyBehavior, Observable {
 
@@ -17,7 +20,7 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
   String formType;
 
   @observable
-  @Property(observer: 'configChanged')
+  @Property(observer: 'dataSetAttributesChanged')
   List<ServiceConfigurationAttribute> dataSetAttributes;
 
   List<FormElementDisplay> formElementDisplays;
@@ -32,8 +35,9 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
   }
 
   @reflectable
-  void configChanged(newConfig, oldConfig) {
+  void dataSetAttributesChanged(newConfig, oldConfig) {
     buildFormDisplayElements();
+    render();
   }
 
   void buildFormDisplayElements() {
@@ -47,10 +51,21 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
   }
 
   void render() {
+
+    if (formElementDisplays == null || formElementDisplays.isEmpty) {
+      return;
+    }
+
     for (var display in formElementDisplays) {
-      Element element = document.createElement(display.templateName);
-      this.children.add(element);
+      var element = document.createElement(display.templateName);
+      print('element = ${element.runtimeType}');
+      try {
+        element.formElementDisplay = display;
+      } catch(e) {
+        print("ERROR element.formElementDisplay = ${element.formElementDisplay}");
+      }
+      DivElement container = $$('#form-item-container');
+      container.children.add(element);
     }
   }
-
 }
