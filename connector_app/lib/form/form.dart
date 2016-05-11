@@ -7,7 +7,6 @@ import 'package:polymer_autonotify/polymer_autonotify.dart';
 
 import 'package:connector_app/models/models.dart';
 import 'dart:html';
-import 'dart:convert';
 
 @PolymerRegister('at-form')
 class Form extends PolymerElement with AutonotifyBehavior, Observable {

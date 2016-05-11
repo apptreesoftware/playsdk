@@ -1,4 +1,4 @@
-@HtmlImport('at_connector_app.html')
+@HtmlImport('connector_app.html')
 library connector_app.at_connector_app;
 
 import 'package:http/browser_client.dart';
@@ -10,13 +10,13 @@ import 'package:polymer_elements/paper_header_panel.dart';
 
 import 'package:connector_app/models/models.dart';
 import 'package:connector_app/services/services.dart';
-import 'package:connector_app/components/at_endpoints.dart';
-import 'package:connector_app/components/at_data_set.dart';
+import 'package:connector_app/components/endpoints.dart';
+import 'package:connector_app/components/endpoint_test.dart';
 
 /// [PaperDrawerPanel]
 /// [PaperHeaderPanel]
 /// [EndpointsElement]
-/// [EndpointTestingElement]
+/// [EndpointTestElement]
 @PolymerRegister('at-connector-app')
 class ConnectorAppElement extends PolymerElement {
 
@@ -47,7 +47,7 @@ class ConnectorAppElement extends PolymerElement {
     // Using a singleton for the services might make the most sense.  This would
     // allow different components to use the same services.
     var datasetService = new DatasetService(browserClient, config.connectorHost);
-    EndpointTestingElement dataSetElement = $$('#endpoint');
+    EndpointTestElement dataSetElement = $$('#endpoint');
     dataSetElement.datasetService = datasetService;
 
   }

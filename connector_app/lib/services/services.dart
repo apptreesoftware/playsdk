@@ -46,7 +46,8 @@ class DatasetService extends BaseService {
     return datasetResponse.dataSet;
   }
 
-  Stream<DataSetConfiguration> getConfiguration(String baseUrl) {
+  Observable<DataSetConfiguration> getConfiguration(String baseUrl) {
+    print('getting configuration for $baseUrl');
     return new Observable<http.Response>.fromFuture(client.get('$baseUrl/config'))
         .map((http.Response response) => JSON.decode(response.body))
         .map((Map json) => new DataSetConfigurationResponse.fromJson(json))

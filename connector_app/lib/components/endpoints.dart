@@ -1,4 +1,4 @@
-@HtmlImport('at_endpoints.html')
+@HtmlImport('endpoints.html')
 library connector_app.at_endpoints;
 
 import 'package:web_components/web_components.dart' show HtmlImport;

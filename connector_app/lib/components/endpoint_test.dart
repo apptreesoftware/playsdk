@@ -1,73 +1,53 @@
-@HtmlImport('at_data_set.html')
+@HtmlImport('endpoint_test.html')
 library connector_app.at_data_set;
 
 import 'dart:html';
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:web_components/web_components.dart' show HtmlImport;
-import 'package:rxdart/rxdart.dart' as rx;
 import 'package:polymer/polymer.dart';
 import 'package:polymer_elements/paper_tabs.dart';
 import 'package:polymer_elements/paper_tab.dart';
 
+import 'package:connector_app/utils/utils.dart';
 import 'package:connector_app/form/form.dart';
 import 'package:connector_app/services/services.dart';
 import 'package:connector_app/models/models.dart';
 import 'package:autonotify_observe/autonotify_observe.dart';
 import 'package:polymer_autonotify/polymer_autonotify.dart';
 
+enum DisplayType { CreateForm, UpdateForm, ViewData, Search }
+
 /// [PaperTab]
 /// [PaperTabs]
-@PolymerRegister('at-data-set')
-class EndpointTestingElement extends PolymerElement with Observable {
-  DatasetService _datasetService;
+@PolymerRegister('at-endpoint-tester')
+class EndpointTestElement extends PolymerElement
+    with Observable, ObservableHelpers {
 
+  DatasetService _datasetService;
   set datasetService(DatasetService service) {
     _datasetService = service;
   }
 
-  rx.Observable<PropertyChangeRecord> get _propertyChanges =>
-      new rx.Observable.fromStream(this.changes)
-          .flatMap((List<ChangeRecord> changes) =>
-              new rx.Observable.fromIterable(changes))
-          .where((ChangeRecord record) => record is PropertyChangeRecord);
-
-  rx.Observable<PropertyChangeRecord> _propertyChangesOfType(String type) =>
-      _propertyChanges.where((record) => record.name == type);
-
-  ready() async {
-    await for (var record in _propertyChangesOfType("endpoint")) {
-      _loadDataset();
-    }
-  }
-
   @observable
-  @Property()
+  @property
   Endpoint endpoint;
 
   @observable
-  @Property()
+  @property
   DataSetConfiguration configuration;
 
-  @Property(observer: 'handleSelectedTabChanged')
+  @observable
+  @property
   int selectedTabIndex = 0;
 
-  EndpointTestingElement.created() : super.created();
+  EndpointTestElement.created() : super.created();
 
-  _loadDataset() {
-    if (endpoint == null) {
-      return;
-    }
-    _datasetService.getConfiguration(endpoint.url).listen((data) {
-      configuration = data;
-      updateUI();
-    }, onError: (error) => print(error));
-  }
-
-  @reflectable
-  void handleSelectedTabChanged(int newIndex, int oldIndex) {
-    updateUI();
+  ready() {
+    var subs = [
+      propertyChangesOfType("endpoint").listen((_) => _loadDataSet()),
+      propertyChangesOfType("selectedTabIndex")
+          .listen((_) => _handleSelectedTabChanged())
+    ];
+    subscriptions.addAll(subs);
   }
 
   void updateUI() {
@@ -91,6 +71,18 @@ class EndpointTestingElement extends PolymerElement with Observable {
       container.append(element);
     }
   }
-}
 
-enum DisplayType { CreateForm, UpdateForm, ViewData, Search }
+  _loadDataSet() {
+    print('loading data set');
+    if (endpoint == null) return;
+    _datasetService.getConfiguration(endpoint.url).listen((data) {
+      configuration = data;
+      updateUI();
+    }, onError: (error) => print(error));
+  }
+
+  void _handleSelectedTabChanged() {
+    print('selected tab changed');
+    updateUI();
+  }
+}
