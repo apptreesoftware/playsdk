@@ -84,6 +84,8 @@ public class ListItem {
             attribute = new ListItemAttribute((Image) value);
         } else if ( value instanceof Long ) {
             attribute = new ListItemAttribute((Long) value);
+        } else if ( value instanceof Boolean ) {
+            attribute = new ListItemAttribute((Boolean) value);
         } else {
             Logger.error("List does not support a value of type " + value.getClass().getCanonicalName());
             return;
