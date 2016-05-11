@@ -11,12 +11,12 @@ import 'package:connector_app/models/models.dart';
 /// [PaperListbox]
 /// [PaperItem]
 @PolymerRegister('at-endpoints')
-class AtEndpoints extends PolymerElement {
+class EndpointsElement extends PolymerElement {
 
   @Property(observer: 'endpointsChanged')
   List<Endpoint> endpoints = [];
 
-  AtEndpoints.created() : super.created();
+  EndpointsElement.created() : super.created();
 
   @reflectable
   void endpointsChanged(List newEndpoints, List oldEndpoints) {

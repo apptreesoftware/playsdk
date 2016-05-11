@@ -15,10 +15,10 @@ import 'package:connector_app/components/at_data_set.dart';
 
 /// [PaperDrawerPanel]
 /// [PaperHeaderPanel]
-/// [AtEndpoints]
-/// [AtDataSet]
+/// [EndpointsElement]
+/// [EndpointTestingElement]
 @PolymerRegister('at-connector-app')
-class AtConnectorApp extends PolymerElement {
+class ConnectorAppElement extends PolymerElement {
 
   EndpointService endpointService;
 
@@ -28,7 +28,7 @@ class AtConnectorApp extends PolymerElement {
   @Property()
   Endpoint selectedEndpoint;
 
-  AtConnectorApp.created() : super.created();
+  ConnectorAppElement.created() : super.created();
 
   ready() async {
     var browserClient = new BrowserClient();
@@ -47,7 +47,7 @@ class AtConnectorApp extends PolymerElement {
     // Using a singleton for the services might make the most sense.  This would
     // allow different components to use the same services.
     var datasetService = new DatasetService(browserClient, config.connectorHost);
-    AtDataSet dataSetElement = $$('#endpoint');
+    EndpointTestingElement dataSetElement = $$('#endpoint');
     dataSetElement.datasetService = datasetService;
 
   }

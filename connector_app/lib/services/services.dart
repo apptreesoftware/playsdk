@@ -2,6 +2,7 @@ library connector_app.services;
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:rxdart/rxdart.dart';
 import 'package:yaml/yaml.dart';
 import 'package:http/http.dart' as http;
 import 'package:connector_app/models/models.dart';
@@ -37,11 +38,19 @@ class EndpointService extends BaseService {
 class DatasetService extends BaseService {
   DatasetService(http.Client client, String baseUrl) : super(client, baseUrl);
 
-  Future<DataSet> getDataset(String url) async {
+  Future<DataSet> getDataSet(String url) async {
     var response = await client.get('$url');
     var body = response.body;
     var result = JSON.decode(body);
     var datasetResponse = new DataSetResponse.fromJson(result);
     return datasetResponse.dataSet;
+  }
+
+  Stream<DataSetConfiguration> getConfiguration(String baseUrl) {
+    return new Observable<http.Response>.fromFuture(client.get('$baseUrl/config'))
+//        .tap((response) => print(response.body))
+        .map((http.Response response) => JSON.decode(response.body))
+//        .tap((response) => print(response))
+        .map((Map json) => new DataSetConfiguration.fromJson(json));
   }
 }

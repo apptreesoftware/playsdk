@@ -2,6 +2,12 @@
     <template>
         <style>
         </style>
-        <p> selected endpoint = {{endpoint.url}}</p>
+        <paper-tabs selected="{{selectedTabIndex}}">
+            <paper-tab>Create</paper-tab>
+            <paper-tab>Update</paper-tab>
+            <paper-tab>View Data</paper-tab>
+            <paper-tab>Search</paper-tab>
+        </paper-tabs>
+        <div id="content-container"></div>
     </template>
 </dom-module>

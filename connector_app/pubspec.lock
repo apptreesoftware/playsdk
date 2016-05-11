@@ -19,6 +19,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.11.0"
+  autonotify_observe:
+    description:
+      name: autonotify_observe
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+7"
   barback:
     description:
       name: barback
@@ -145,6 +151,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.3"
+  observe:
+    description:
+      ref: reflectable
+      resolved-ref: add4c1ba6339163b80cbbde3dc3a1918adb352bc
+      url: "https://github.com/dam0vm3nt/observe.git"
+    source: git
+    version: "0.13.1+2"
   package_config:
     description:
       name: package_config
@@ -169,6 +182,12 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0-rc.15"
+  polymer_autonotify:
+    description:
+      name: polymer_autonotify
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+1"
   polymer_elements:
     description:
       name: polymer_elements
