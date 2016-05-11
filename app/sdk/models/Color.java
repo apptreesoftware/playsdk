@@ -1,5 +1,9 @@
 package sdk.models;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import play.libs.Json;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -38,67 +42,39 @@ public class Color {
         this.a = 255;
     }
 
-    /**
-     *
-     * @return The int value for red
-     */
-    public int getRed() {
+    public int getR() {
         return r;
     }
 
-    /**
-     * Sets the red value
-     * @param red int value for red (0-255)
-     */
-    public void setRed(int red) {
-        this.r = red;
+    public void setR(int r) {
+        this.r = r;
     }
 
-    /**
-     *
-     * @return The int value for green
-     */
-    public int getGreen() {
+    public int getG() {
         return g;
     }
 
-    /**
-     * Sets the green value
-     * @param green an int value (0-255)
-     */
-    public void setGreen(int green) {
-        this.g = green;
+    public void setG(int g) {
+        this.g = g;
     }
 
-    /**
-     *
-     * @return The int value for blue
-     */
-    public int getBlue() {
+    public int getB() {
         return b;
     }
 
-    /**
-     * Sets the blue value
-     * @param blue an int value (0-255)
-     */
-    public void setBlue(int blue) {
-        this.b = blue;
+    public void setB(int b) {
+        this.b = b;
     }
 
-    /**
-     *
-     * @return The int value for the alpha channel
-     */
-    public int getAlpha() {
+    public int getA() {
         return a;
     }
 
-    /**
-     * Sets the alpha channel value
-     * @param alpha an int value (0-255)
-     */
-    public void setAlpha(int alpha) {
-        this.a = alpha;
+    public void setA(int a) {
+        this.a = a;
+    }
+
+    public JsonNode toJSON() {
+        return Json.toJson(this);
     }
 }
