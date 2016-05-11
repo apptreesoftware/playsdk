@@ -16,7 +16,7 @@ public interface DataSource {
      * @param params   a HashMap of the URL parameters included in the request.
      * @return The data source response that contains the list of data set items you want to return
      */
-    DataSourceResponse getDataSet(AuthenticationInfo authenticationInfo, Parameters params);
+    DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params);
 
     /***
      * @param authenticationInfo a HashMap of any authentication information that came through in the request headers from the mobile client
@@ -24,7 +24,7 @@ public interface DataSource {
      * @param params   a HashMap of the URL parameters included in the request
      * @return The data source response that contains the data set item with the requested ID
      */
-    DataSourceResponse getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params);
+    DataSet getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params);
 
     /**
      * @param queryDataItem The data set item containing the values to be searched on
@@ -32,7 +32,7 @@ public interface DataSource {
      * @param params        a HashMap of the URL parameters included in the request
      * @return The data source response that contains the list of data set items which meet the search criteria
      */
-    default DataSourceResponse queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default DataSet queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Search is not supported on this web service");
     }
 
@@ -42,15 +42,15 @@ public interface DataSource {
      * @param params      a HashMap of the URL parameters included in the request
      * @return The data source response that contains the newly created data set item
      */
-    DataSourceResponse createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params);
+    DataSet createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params);
 
     /**
      * @param dataSetItem The data set item to be updated
      * @param authenticationInfo    a HashMap of any authentication parameters that came from the request headers
      * @param params      a Hashmap of the URL parameters included in the request
-     * @return The data source response that contains the updated data set item
+     * @return The DataSet that contains a single item that represents the updated item.
      */
-    DataSourceResponse updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params);
+    DataSet updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params);
 
     /**
      * @param dataSetItem The data set item to be deleted
@@ -58,7 +58,7 @@ public interface DataSource {
      * @param params      a HashMap of the URL parameters included in the request
      * @return The data source response
      */
-    default DataSourceResponse deleteDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default Response deleteDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Delete is not supported");
     }
 
@@ -131,13 +131,12 @@ public interface DataSource {
      * @param params a Parameters object of any URL parameters from the request
      * @return an DataSourceResponse
      */
-    default DataSourceResponse bulkUpdateDataSetItems(List<String> primaryKeys, DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default DataSet bulkUpdateDataSetItems(List<String> primaryKeys, DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Bulk update is not supported by this web service");
     }
 
     default DataSet newEmptyDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
         List<ServiceConfigurationAttribute> attributes = getDataSetAttributes(authenticationInfo, parameters);
-        DataSet dataSet = new DataSet(attributes);
-        return dataSet;
+        return new DataSet(attributes);
     }
 }

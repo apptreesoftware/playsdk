@@ -3,6 +3,7 @@ package sdk.data;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
+import sdk.utils.Response;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,11 +12,10 @@ import java.util.List;
 /**
  * Created by alexis on 5/3/16.
  */
-public class DataSet {
+public class DataSet extends Response {
     private boolean moreRecordsAvailable;
     private ArrayList<DataSetItem> dataSetItems;
     private HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationForIndexMap = new HashMap<>();
-    private String message;
     private int totalRecords;
 
     /**
@@ -57,6 +57,9 @@ public class DataSet {
         totalRecords = this.totalRecords > 0 ? this.totalRecords : dataSetItems.size();
         int recordCount = dataSetItems.size();
         ObjectNode json = Json.newObject();
+        json.put("success", success);
+        json.put("message", message);
+        json.put("showMessageAsAlert", showMessageAsAlert);
         json.put("totalRecords", totalRecords);
         json.put("numberOfRecords", recordCount);
         json.put("moreRecordsAvailable", moreRecordsAvailable);
@@ -99,6 +102,17 @@ public class DataSet {
         return dataSetItems;
     }
 
+    @Override
+    public boolean isSuccess() {
+        return super.isSuccess();
+    }
+
+    @Override
+    public boolean isShowMessageAsAlert() {
+        return super.isShowMessageAsAlert();
+    }
+
+
     /**
      * Sets the number of total records
      * @param totalRecords A count of the number of data set items
@@ -111,8 +125,16 @@ public class DataSet {
         return message;
     }
 
-    public void setMessage(String message) {
+    public DataSet withSuccessMessage(String message) {
         this.message = message;
+        success = true;
+        return this;
+    }
+
+    public DataSet withFailureMessage(String message) {
+        this.message = message;
+        success = false;
+        return this;
     }
 
 }
