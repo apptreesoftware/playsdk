@@ -1,5 +1,7 @@
 package sdk.models;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -26,6 +28,7 @@ public enum AttributeType {
         this.stringValue = stringValue;
     }
 
+    @JsonValue
     public String toString() {
         return stringValue;
     }
