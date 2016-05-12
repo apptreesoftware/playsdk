@@ -1,0 +1,17 @@
+<dom-module id="at-connector-app">
+    <template>
+        <style>
+        </style>
+        <paper-drawer-panel>
+            <paper-header-panel drawer>
+                <at-endpoints
+                        endpoints="{{endpoints}}"
+                        on-selected-endpoint-changed="handleSelectedEndpointChanged"
+                ></at-endpoints>
+            </paper-header-panel>
+            <paper-header-panel main>
+                <at-endpoint-tester id="endpoint" endpoint="{{selectedEndpoint}}"></at-endpoint-tester>
+            </paper-header-panel>
+        </paper-drawer-panel>
+    </template>
+</dom-module>
