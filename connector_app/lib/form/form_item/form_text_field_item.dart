@@ -5,15 +5,10 @@ import 'package:polymer/polymer.dart';
 import 'package:web_components/web_components.dart' show HtmlImport;
 import 'form_item.dart';
 import 'package:polymer_autonotify/polymer_autonotify.dart';
-import 'package:connector_app/form/form_element_display.dart';
+import 'package:connector_app/utils/utils.dart';
 
+/// @observable
 @PolymerRegister('at-textfield')
-class FormTextFieldItem extends PolymerElement with Observable, AutonotifyBehavior, FormItem {
-
-  @property
-  @observable
-  FormElementDisplay formElementDisplay;
-
+class FormTextFieldItem extends PolymerElement with Observable, AutonotifyBehavior, FormItem, ObservableHelpers {
   FormTextFieldItem.created() : super.created();
-
 }

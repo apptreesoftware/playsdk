@@ -17,6 +17,8 @@ abstract class ObservableHelpers extends Object implements Observable {
   rx.Observable<PropertyChangeRecord> propertyChangesOfType(String type) =>
       _propertyChanges.where((record) => record.name == type);
 
+  rx.Observable<PropertyChangeRecord> allPropertyChanges() => _propertyChanges;
+
   Set<StreamSubscription> subscriptions = new Set();
 
   void detached() {
