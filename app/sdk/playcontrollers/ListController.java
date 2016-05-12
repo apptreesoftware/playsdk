@@ -1,4 +1,4 @@
-package controllers;
+package sdk.playcontrollers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;

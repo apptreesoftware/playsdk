@@ -1,4 +1,4 @@
-name := "inspections"
+name := "connector"
 
 version := "1.0-SNAPSHOT"
 
@@ -20,9 +20,9 @@ libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.8.11.2"
 
 fork in run := false
 
-packageName in Universal := "inspections"
+packageName in Universal := "connector"
 
-herokuAppName in Compile := "inspections1"
+herokuAppName in Compile := "connector"
 
-lazy val myProject = (project in file("."))
+lazy val sdk = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean)

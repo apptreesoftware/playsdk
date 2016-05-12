@@ -9,36 +9,36 @@
 GET           /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)
 
 #Testing support
-GET           /test                                    controllers.TestController.testIndex
+GET           /test                                    sdk.playcontrollers.TestController.testIndex
 
 #SDK Support
-GET           /                                        @controllers.ApplicationController.describeEndpoints
-POST          /auth/login                              controllers.AuthenticationController.login
-POST          /auth/logout                             controllers.AuthenticationController.logout
-GET           /auth/validateToken                      controllers.AuthenticationController.validateToken
+GET           /                                        @sdk.playcontrollers.ApplicationController.describeEndpoints
+POST          /auth/login                              sdk.playcontrollers.AuthenticationController.login
+POST          /auth/logout                             sdk.playcontrollers.AuthenticationController.logout
+GET           /auth/validateToken                      sdk.playcontrollers.AuthenticationController.validateToken
 
-GET           /user/userInfoKeys                       controllers.UserController.getUserInfoKeys
-GET           /user/userSources                        controllers.UserController.getUserSources
-GET           /user/:userID                            controllers.UserController.getUserInfo(userID)
-GET           /user/:userID/image                      controllers.UserController.getUserImage(userID)
-POST          /user/checkForUserInfo                   controllers.UserController.checkForUserInfo
-POST          /user/createUserEvent                    controllers.UserController.createUser
-PUT           /user/updateUserEvent                    controllers.UserController.updateUser()
-DELETE        /user/deleteUserEvent                    controllers.UserController.deleteUser()
-
-
+GET           /user/userInfoKeys                       sdk.playcontrollers.UserController.getUserInfoKeys
+GET           /user/userSources                        sdk.playcontrollers.UserController.getUserSources
+GET           /user/:userID                            sdk.playcontrollers.UserController.getUserInfo(userID)
+GET           /user/:userID/image                      sdk.playcontrollers.UserController.getUserImage(userID)
+POST          /user/checkForUserInfo                   sdk.playcontrollers.UserController.checkForUserInfo
+POST          /user/createUserEvent                    sdk.playcontrollers.UserController.createUser
+PUT           /user/updateUserEvent                    sdk.playcontrollers.UserController.updateUser()
+DELETE        /user/deleteUserEvent                    sdk.playcontrollers.UserController.deleteUser()
 
 
-GET           /dataSet/:dataSetName                    controllers.DataSetController.getDataSet(dataSetName: String)
-GET           /dataSet/:dataSetName/describe           controllers.DataSetController.getDataConfiguration(dataSetName: String)
-GET           /dataSet/:dataSetName/:primaryKey        controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
-POST          /dataSet/:dataSetName                    controllers.DataSetController.createDataSetItem(dataSetName : String)
-PUT           /dataSet/:dataSetName                    controllers.DataSetController.updateDataSetItem(dataSetName : String)
-POST          /dataSet/:dataSetName/search             controllers.DataSetController.searchDataSet(dataSetName : String)
 
 
-GET           /list/:listName/describe                 controllers.ListController.getListConfiguration(listName: String)
-POST          /list/:listName/search                   controllers.ListController.searchListData(listName: String)
-GET           /list/:listName                          controllers.ListController.getListData(listName: String)
+GET           /dataSet/:dataSetName                    sdk.playcontrollers.DataSetController.getDataSet(dataSetName: String)
+GET           /dataSet/:dataSetName/describe           sdk.playcontrollers.DataSetController.getDataConfiguration(dataSetName: String)
+GET           /dataSet/:dataSetName/:primaryKey        sdk.playcontrollers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
+POST          /dataSet/:dataSetName                    sdk.playcontrollers.DataSetController.createDataSetItem(dataSetName : String)
+PUT           /dataSet/:dataSetName                    sdk.playcontrollers.DataSetController.updateDataSetItem(dataSetName : String)
+POST          /dataSet/:dataSetName/search             sdk.playcontrollers.DataSetController.searchDataSet(dataSetName : String)
 
-GET           /*file                                   controllers.StaticFileController.html(file)
+
+GET           /list/:listName/describe                 sdk.playcontrollers.ListController.getListConfiguration(listName: String)
+POST          /list/:listName/search                   sdk.playcontrollers.ListController.searchListData(listName: String)
+GET           /list/:listName                          sdk.playcontrollers.ListController.getListData(listName: String)
+
+GET           /*file                                   sdk.playcontrollers.StaticFileController.html(file)
