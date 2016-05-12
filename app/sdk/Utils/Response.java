@@ -20,6 +20,16 @@ public class Response {
         this.message = message;
     }
 
+    public static Response fromException(Throwable throwable) {
+        return new Response(false, throwable.getMessage());
+    }
+    public static Response success() {
+        return new Response(true, null);
+    }
+    public static Response success(String message) {
+        return new Response(true, message);
+    }
+
     public Response() {
 
     }

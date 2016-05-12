@@ -7,6 +7,8 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import sdk.AppTree;
+import sdk.auth.AuthenticationSource;
+import sdk.user.UserDataSource;
 
 import javax.inject.Inject;
 
@@ -20,25 +22,37 @@ public class ApplicationController extends Controller {
     public Result describeEndpoints() {
         ObjectNode objectNode = Json.newObject();
         objectNode.put("success", true);
+        String hostURL = application.configuration().getString("host");
+
         ArrayNode records = objectNode.putArray("records");
         AppTree.dataSources.forEach((endpoint, datasource) -> {
-            ObjectNode endpointJSON = Json.newObject();
-            endpointJSON.put("endpoint", endpoint);
             String name = datasource.getServiceDescription() != null ? datasource.getServiceDescription() : endpoint;
-            endpointJSON.put("name", name);
-            endpointJSON.put("type", "data");
-            endpointJSON.put("url", application.configuration().getString("host") + "/dataSet/" + endpoint);
-            records.add(endpointJSON);
+            String url = hostURL + "/dataSet/" + endpoint;
+            addEndpoint(endpoint, name, url, "data", records);
         });
         AppTree.listSources.forEach((endpoint, datasource) -> {
-            ObjectNode endpointJSON = Json.newObject();
             String name = datasource.getServiceName() != null ? datasource.getServiceName() : endpoint;
-            endpointJSON.put("endpoint", endpoint);
-            endpointJSON.put("name", name);
-            endpointJSON.put("type", "list");
-            endpointJSON.put("url", application.configuration().getString("host") + "/list/" + endpoint);
-            records.add(endpointJSON);
+            String url = hostURL + "/list/" + endpoint;
+            addEndpoint(endpoint, name, url, "list", records);
         });
+        UserDataSource userDataSource = AppTree.getUserDataSource();
+        if ( userDataSource != null ) {
+            addEndpoint("user", "User Info", hostURL + "/user", "user info", records);
+        }
+        AuthenticationSource authenticationSource = AppTree.getAuthenticationSource();
+        if ( authenticationSource != null ) {
+            addEndpoint("auth", "Authentication", hostURL + "/auth", "authentication", records);
+        }
         return ok(objectNode.toString());
     }
+
+    private void addEndpoint(String endpoint, String name, String url, String type, ArrayNode records) {
+        ObjectNode endpointJSON = Json.newObject();
+        endpointJSON.put("endpoint", endpoint);
+        endpointJSON.put("name", name);
+        endpointJSON.put("type", type);
+        endpointJSON.put("url", url);
+        records.add(endpointJSON);
+    }
+
 }

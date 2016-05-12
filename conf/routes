@@ -6,35 +6,44 @@
 #GET         /                                 controllers.InspectionController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /test                                    controllers.TestController.testIndex
-GET         /                                        @controllers.ApplicationController.describeEndpoints
+GET           /test                                    controllers.TestController.testIndex
+GET           /                                        @controllers.ApplicationController.describeEndpoints
 
-GET         /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)
+GET           /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /inspections                             controllers.InspectionController.getInspections
-GET         /inspections/:inspectionID               controllers.InspectionController.getInspection(inspectionID : Long)
-POST        /inspections                             controllers.InspectionController.createInspectionConfiguration
-PUT         /inspections/:inspectionID               controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
+GET           /inspections                             controllers.InspectionController.getInspections
+GET           /inspections/:inspectionID               controllers.InspectionController.getInspection(inspectionID : Long)
+POST          /inspections                             controllers.InspectionController.createInspectionConfiguration
+PUT           /inspections/:inspectionID               controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
 
 #SDK Support
 
-POST        /auth/login                              controllers.AuthenticationController.login
-POST        /auth/logout                             controllers.AuthenticationController.logout
-GET         /auth/validateToken                      controllers.AuthenticationController.validateToken
+POST          /auth/login                              controllers.AuthenticationController.login
+POST          /auth/logout                             controllers.AuthenticationController.logout
+GET           /auth/validateToken                      controllers.AuthenticationController.validateToken
+
+GET           /user/userInfoKeys                       controllers.UserController.getUserInfoKeys
+GET           /user/userSources                        controllers.UserController.getUserSources
+GET           /user/:userID                            controllers.UserController.getUserInfo(userID)
+GET           /user/:userID/image                      controllers.UserController.getUserImage(userID)
+POST          /user/checkForUserInfo                   controllers.UserController.checkForUserInfo
+POST          /user/createUserEvent                    controllers.UserController.createUser
+PUT           /user/updateUserEvent                    controllers.UserController.updateUser()
+DELETE        /user/deleteUserEvent                    controllers.UserController.deleteUser()
 
 
 
 
-GET         /dataSet/:dataSetName                    controllers.DataSetController.getDataSet(dataSetName: String)
-GET         /dataSet/:dataSetName/describe           controllers.DataSetController.getDataConfiguration(dataSetName: String)
-GET         /dataSet/:dataSetName/:primaryKey        controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
-POST        /dataSet/:dataSetName                    controllers.DataSetController.createDataSetItem(dataSetName : String)
-PUT         /dataSet/:dataSetName                    controllers.DataSetController.updateDataSetItem(dataSetName : String)
-POST        /dataSet/:dataSetName/search             controllers.DataSetController.searchDataSet(dataSetName : String)
+GET           /dataSet/:dataSetName                    controllers.DataSetController.getDataSet(dataSetName: String)
+GET           /dataSet/:dataSetName/describe           controllers.DataSetController.getDataConfiguration(dataSetName: String)
+GET           /dataSet/:dataSetName/:primaryKey        controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
+POST          /dataSet/:dataSetName                    controllers.DataSetController.createDataSetItem(dataSetName : String)
+PUT           /dataSet/:dataSetName                    controllers.DataSetController.updateDataSetItem(dataSetName : String)
+POST          /dataSet/:dataSetName/search             controllers.DataSetController.searchDataSet(dataSetName : String)
 
 
-GET         /list/:listName/describe                 controllers.ListController.getListConfiguration(listName: String)
-POST        /list/:listName/search                   controllers.ListController.searchListData(listName: String)
-GET         /list/:listName                          controllers.ListController.getListData(listName: String)
+GET           /list/:listName/describe                 controllers.ListController.getListConfiguration(listName: String)
+POST          /list/:listName/search                   controllers.ListController.searchListData(listName: String)
+GET           /list/:listName                          controllers.ListController.getListData(listName: String)
 
-GET         /*file                                   controllers.StaticFileController.html(file)
+GET           /*file                                   controllers.StaticFileController.html(file)

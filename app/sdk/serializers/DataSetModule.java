@@ -13,7 +13,7 @@ import java.io.IOException;
  * Created by matthew on 5/5/16.
  */
 public class DataSetModule extends SimpleModule {
-    class DataSetJsonSerializer extends JsonSerializer<DataSet> implements ContextualDeserializer {
+    private class DataSetJsonSerializer extends JsonSerializer<DataSet> implements ContextualDeserializer {
 
         @Override
         public void serialize(DataSet value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
