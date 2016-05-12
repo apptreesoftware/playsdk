@@ -111,7 +111,7 @@ public class DataSetController extends Controller {
                 .thenApply(dataSource -> getServiceConfiguration(dataSource,request))
                 .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
                 .thenApply(dataSet -> {
-                    Http.MultipartFormData body = request().body().asMultipartFormData();
+                    Http.MultipartFormData body = request.body().asMultipartFormData();
                     Map<String, String[]> bodyMap = body.asFormUrlEncoded();
                     List<Http.MultipartFormData.FilePart> files = body.getFiles();
                     String formJSON = bodyMap.get("formJSON")[0];

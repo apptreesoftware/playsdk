@@ -1,7 +1,7 @@
 package sdk.sample;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
+import com.avaje.ebean.EbeanServer;
+import com.avaje.ebean.ExpressionFactory;
 import sdk.auth.AuthenticationSource;
 import sdk.auth.LoginResponse;
 import sdk.sample.model.Session;
@@ -18,8 +18,12 @@ import java.util.UUID;
 public class AuthenticationDataSource implements AuthenticationSource {
     @Override
     public LoginResponse login(String username, String password, AuthenticationInfo authenticationInfo) {
-        User user = SampleDatabase.getInstance().getUserFinder().where()
-                .and(Expr.eq("username", username), Expr.eq("password", password)).findUnique();
+
+        ExpressionFactory exp = SampleDatabase.getExpressionFactory();
+        User user = SampleDatabase.getServer()
+                .find(User.class).where()
+                .eq("username", username)
+                .findUnique();
         if ( user == null ) {
             return new LoginResponse.Builder().withMessage("Invalid username or password").build();
         } else {
@@ -30,10 +34,9 @@ public class AuthenticationDataSource implements AuthenticationSource {
 
     @Override
     public Response logout(AuthenticationInfo authenticationInfo) {
-        Session session = SampleDatabase.getInstance().getSessionFinder()
-                .where().eq("token", authenticationInfo.getToken()).findUnique();
+        Session session = SampleDatabase.getServer().find(Session.class).where().eq("token", authenticationInfo.getToken()).findUnique();
         if ( session != null ) {
-            SampleDatabase.getInstance().performTransaction(session::delete);
+            SampleDatabase.getInstance().performTransaction(server -> server.delete(session));
             return new Response(true, "Logout Complete");
         } else {
             return new Response(false, "Logout failed. No session exists");
@@ -42,7 +45,7 @@ public class AuthenticationDataSource implements AuthenticationSource {
 
     @Override
     public Response validateAuthenticationInfo(AuthenticationInfo authenticationInfo) {
-        Session session = SampleDatabase.getInstance().getSessionFinder()
+        Session session = SampleDatabase.getServer().find(Session.class)
                 .where().eq("token", authenticationInfo.getToken()).findUnique();
         if ( session == null ) {
             return new Response(false, "Invalid session");
@@ -55,9 +58,10 @@ public class AuthenticationDataSource implements AuthenticationSource {
         session.token = UUID.randomUUID().toString();
         session.loginDate = new Date();
         session.username = user.username;
-        Ebean.beginTransaction();
-        session.insert();
-        Ebean.endTransaction();
+        EbeanServer server = SampleDatabase.getServer();
+        server.beginTransaction();
+        server.insert(session);
+        server.commitTransaction();
         return session;
     }
 }

@@ -1,20 +1,19 @@
 package sdk.sample;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.EbeanServer;
+import com.avaje.ebean.ExpressionFactory;
 import com.avaje.ebean.Model;
-import sdk.sample.model.Priority;
 import sdk.sample.model.Session;
 import sdk.sample.model.User;
 import sdk.sample.model.WorkOrder;
-
-import java.util.List;
 
 /**
  * Created by matthew on 5/5/16.
  */
 public class SampleDatabase {
     interface Transaction {
-        void execute();
+        void execute(EbeanServer server);
     }
 
     private static SampleDatabase instance = null;
@@ -30,31 +29,22 @@ public class SampleDatabase {
         return instance;
     }
 
+    public static ExpressionFactory getExpressionFactory() {
+        return getInstance().server().getExpressionFactory();
+    }
+
+    public static EbeanServer getServer() {
+        return SampleDatabase.getInstance().server();
+    }
+
     private SampleDatabase() {}
 
-    public Model.Finder<String, WorkOrder> getWorkOrderFinder() {
-        if ( workOrderFinder == null ) {
-            workOrderFinder = new Model.Finder<>(WorkOrder.class);
-        }
-        return workOrderFinder;
-    }
-
-    public Model.Finder<String, User> getUserFinder() {
-        if ( userFinder == null ) {
-            userFinder = new Model.Finder<>(User.class);
-        }
-        return userFinder;
-    }
-
-    public Model.Finder<String, Session> getSessionFinder() {
-        if ( sessionFinder == null ) {
-            sessionFinder = new Model.Finder<>(Session.class);
-        }
-        return sessionFinder;
+    EbeanServer server() {
+        return Ebean.getServer("sample");
     }
 
     private void createSampleData() {
-        if ( getWorkOrderFinder().findRowCount() > 0 ) {
+        if ( server().find(WorkOrder.class).findRowCount() > 0 ) {
             return;
         }
         //EbeanServer server = EbeanServerFactory.create("sample");
@@ -73,16 +63,16 @@ public class SampleDatabase {
         user.phone = "1800 ATYOURSERVICE";
         user.supervisorID = 2;
         user.employeeID = "ABC123";
-
-        Ebean.beginTransaction();
-        workOrder.insert();
-        user.insert();
-        Ebean.commitTransaction();
+        EbeanServer server = Ebean.getServer("sample");
+        server.beginTransaction();
+        server.insert(workOrder);
+        server.insert(user);
+        server.commitTransaction();
     }
 
     public void performTransaction(Transaction transaction) {
-        Ebean.beginTransaction();
-        transaction.execute();
-        Ebean.endTransaction();
+        EbeanServer server = Ebean.getServer("sample");
+        transaction.execute(server);
+        server.commitTransaction();
     }
 }

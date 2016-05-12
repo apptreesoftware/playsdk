@@ -20,7 +20,7 @@ public class WorkOrderDataSource implements DataSource {
     public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
 
-        List<WorkOrder> workOrders = SampleDatabase.getInstance().getWorkOrderFinder().all();
+        List<WorkOrder> workOrders = SampleDatabase.getServer().find(WorkOrder.class).findList();
         for ( WorkOrder workOrder : workOrders ) {
             DataSetItem dataSetItem = dataSet.addNewDataSetItem();
             workOrder.copyIntoDataSetItem(dataSetItem);
@@ -31,7 +31,7 @@ public class WorkOrderDataSource implements DataSource {
     @Override
     public DataSet getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
-        WorkOrder workOrder = SampleDatabase.getInstance().getWorkOrderFinder().byId(id);
+        WorkOrder workOrder = SampleDatabase.getServer().find(WorkOrder.class,id);
         if ( workOrder != null ) {
             DataSetItem item = dataSet.addNewDataSetItem();
             workOrder.copyIntoDataSetItem(item);
@@ -45,7 +45,7 @@ public class WorkOrderDataSource implements DataSource {
     public DataSet queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         String description = queryDataItem.getStringAttributeAtIndex(DescriptionIndex);
         String woNumber = queryDataItem.getStringAttributeAtIndex(NumberIndex);
-        ExpressionList<WorkOrder> expression = SampleDatabase.getInstance().getWorkOrderFinder().where();
+        ExpressionList<WorkOrder> expression = SampleDatabase.getServer().find(WorkOrder.class).where();
         if ( description != null ) {
             expression.contains("description", description);
         }
@@ -64,8 +64,10 @@ public class WorkOrderDataSource implements DataSource {
     public DataSet createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.copyFromDataSetItem(dataSetItem);
-        workOrder.insert();
-        workOrder.refresh();
+        SampleDatabase.getInstance().performTransaction(server -> {
+            server.insert(workOrder);
+            server.refresh(workOrder);
+        });
         DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
         DataSetItem responseItem = dataSet.addNewDataSetItem();
         workOrder.copyIntoDataSetItem(responseItem);
@@ -74,13 +76,15 @@ public class WorkOrderDataSource implements DataSource {
 
     @Override
     public DataSet updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
-        WorkOrder workOrder = SampleDatabase.getInstance().getWorkOrderFinder().byId(dataSetItem.getPrimaryKey());
+        WorkOrder workOrder = SampleDatabase.getServer().find(WorkOrder.class, dataSetItem.getPrimaryKey());
         if ( workOrder == null ) {
             throw new RuntimeException("Record not found");
         }
         workOrder.copyFromDataSetItem(dataSetItem);
-        workOrder.save();
-        workOrder.refresh();
+        SampleDatabase.getInstance().performTransaction(server -> {
+           server.save(workOrder);
+            server.refresh(workOrder);
+        });
         return getDataSetItem(authenticationInfo, workOrder.id + "", params);
     }
 
