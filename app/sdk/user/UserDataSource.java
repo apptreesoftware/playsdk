@@ -1,7 +1,7 @@
 package sdk.user;
 
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdk.utilsx.AuthenticationInfo;
+import sdk.utilsx.Parameters;
 
 import java.io.InputStream;
 import java.util.List;

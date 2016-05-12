@@ -6,13 +6,11 @@ import sdk.auth.AuthenticationSource;
 import sdk.auth.LoginResponse;
 import sdk.sample.model.Session;
 import sdk.sample.model.User;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Response;
+import sdk.utilsx.AuthenticationInfo;
+import sdk.utilsx.Response;
 
 import java.util.Date;
 import java.util.UUID;
-
-import static javafx.scene.input.KeyCode.R;
 
 /**
  * Created by matthew on 5/12/16.

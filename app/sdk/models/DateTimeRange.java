@@ -1,7 +1,7 @@
 package sdk.models;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import sdk.utils.Constants;
+import sdk.utilsx.Constants;
 import org.joda.time.DateTime;
 import play.libs.Json;
 

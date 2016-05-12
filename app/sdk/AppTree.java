@@ -1,8 +1,8 @@
 package sdk;
 
 import sdk.auth.AuthenticationSource;
-import sdk.data.DataSource;
-import sdk.list.ListDataSource;
+import sdk.datax.DataSource;
+import sdk.listx.ListDataSource;
 import sdk.user.UserDataSource;
 
 import java.util.HashMap;

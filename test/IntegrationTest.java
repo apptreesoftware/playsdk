@@ -3,19 +3,11 @@ import org.joda.time.DateTime;
 import org.junit.*;
 
 import play.libs.Json;
-import play.mvc.*;
-import play.test.*;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.DataSetItemAttribute;
-import sdk.list.ListItem;
-import sdk.list.ListItemAttribute;
+import sdk.datax.DataSetItemAttribute;
+import sdk.listx.ListItem;
 import sdk.models.*;
 
-import static play.test.Helpers.*;
 import static org.junit.Assert.*;
-
-import static org.fluentlenium.core.filter.FilterConstructor.*;
 
 public class IntegrationTest {
 

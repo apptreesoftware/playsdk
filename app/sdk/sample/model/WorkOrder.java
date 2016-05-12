@@ -1,7 +1,7 @@
 package sdk.sample.model;
 
 import com.avaje.ebean.Model;
-import sdk.data.DataSetItem;
+import sdk.datax.DataSetItem;
 
 import javax.persistence.*;
 import java.util.List;

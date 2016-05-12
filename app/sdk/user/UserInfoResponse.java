@@ -1,7 +1,7 @@
 package sdk.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sdk.utils.Response;
+import sdk.utilsx.Response;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,6 +1,6 @@
 package sdk.sample.model;
 
-import sdk.list.ListItem;
+import sdk.listx.ListItem;
 
 import java.util.ArrayList;
 import java.util.List;

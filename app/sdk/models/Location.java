@@ -3,7 +3,7 @@ package sdk.models;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
 import play.libs.Json;
-import sdk.utils.Constants;
+import sdk.utilsx.Constants;
 
 /**
  * Created by alexis on 5/3/16.

@@ -6,18 +6,13 @@
 #GET         /                                 controllers.InspectionController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /test                                    controllers.TestController.testIndex
-GET           /                                        @controllers.ApplicationController.describeEndpoints
-
 GET           /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)
 
-GET           /inspections                             controllers.InspectionController.getInspections
-GET           /inspections/:inspectionID               controllers.InspectionController.getInspection(inspectionID : Long)
-POST          /inspections                             controllers.InspectionController.createInspectionConfiguration
-PUT           /inspections/:inspectionID               controllers.InspectionController.updateInspectionConfiguration(inspectionID : Long)
+#Testing support
+GET           /test                                    controllers.TestController.testIndex
 
 #SDK Support
-
+GET           /                                        @controllers.ApplicationController.describeEndpoints
 POST          /auth/login                              controllers.AuthenticationController.login
 POST          /auth/logout                             controllers.AuthenticationController.logout
 GET           /auth/validateToken                      controllers.AuthenticationController.validateToken
