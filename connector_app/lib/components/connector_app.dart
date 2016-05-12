@@ -49,7 +49,6 @@ class ConnectorAppElement extends PolymerElement {
     var datasetService = new DatasetService(browserClient, config.connectorHost);
     EndpointTestElement dataSetElement = $$('#endpoint');
     dataSetElement.datasetService = datasetService;
-
   }
 
   @reflectable

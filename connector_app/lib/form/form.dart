@@ -3,7 +3,6 @@ library connector_app.form;
 
 import 'package:web_components/web_components.dart' show HtmlImport;
 import 'package:polymer/polymer.dart';
-import 'package:polymer_autonotify/polymer_autonotify.dart';
 
 import 'package:connector_app/models/models.dart';
 import 'dart:html';
@@ -12,14 +11,13 @@ import 'package:connector_app/form/form_item/form_text_field_item.dart';
 import 'package:connector_app/form/form_item/form_item.dart';
 
 /// [FormTextFieldItem]
+/// [FormItem]
 @PolymerRegister('at-form')
-class Form extends PolymerElement with AutonotifyBehavior, Observable {
+class Form extends PolymerElement {
 
-  @observable
   @Property()
   String formType;
 
-  @observable
   @Property(observer: 'dataSetAttributesChanged')
   List<ServiceConfigurationAttribute> dataSetAttributes;
 
@@ -27,22 +25,22 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
 
   Form.created() : super.created();
 
-  static Form newInstance(List<ServiceConfigurationAttribute> configuration, String formType) {
+  static Form newInstance(List<ServiceConfigurationAttribute> attributes, String formType) {
       Form form = document.createElement("at-form");
-      form.dataSetAttributes = configuration;
-      form.formType = formType;
+      form.set('dataSetAttributes', attributes);
+      form.set('formType', formType);
       return form;
   }
 
   @reflectable
-  void dataSetAttributesChanged(newConfig, oldConfig) {
+  dataSetAttributesChanged(newConfig, oldConfig) {
     buildFormDisplayElements();
     render();
   }
 
   void buildFormDisplayElements() {
     var displays = [];
-    for ( var attribute in dataSetAttributes ) {
+    for (var attribute in dataSetAttributes) {
       FormElementDisplay formElementDisplay = new FormElementDisplay();
       formElementDisplay.displayElement = attribute;
       displays.add(formElementDisplay);
@@ -57,8 +55,8 @@ class Form extends PolymerElement with AutonotifyBehavior, Observable {
     }
 
     for (var display in formElementDisplays) {
-      var element = document.createElement(display.templateName);
-      element.formElementDisplay = display;
+      var element = document.createElement(display.templateName) as PolymerElement;
+      element.set('formElementDisplay', display);
       DivElement container = $$('#form-item-container');
       container.children.add(element);
     }

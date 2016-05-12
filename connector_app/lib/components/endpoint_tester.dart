@@ -7,48 +7,34 @@ import 'package:polymer/polymer.dart';
 import 'package:polymer_elements/paper_tabs.dart';
 import 'package:polymer_elements/paper_tab.dart';
 
-import 'package:connector_app/utils/utils.dart';
 import 'package:connector_app/form/form.dart';
 import 'package:connector_app/services/services.dart';
 import 'package:connector_app/models/models.dart';
-import 'package:autonotify_observe/autonotify_observe.dart';
-import 'package:polymer_autonotify/polymer_autonotify.dart';
 
 enum DisplayType { CreateForm, UpdateForm, ViewData, Search }
 
 /// [PaperTab]
 /// [PaperTabs]
 @PolymerRegister('at-endpoint-tester')
-class EndpointTestElement extends PolymerElement
-    with Observable, ObservableHelpers {
+class EndpointTestElement extends PolymerElement {
 
   DatasetService _datasetService;
   set datasetService(DatasetService service) {
+    print('setting dataset service to $service');
     _datasetService = service;
+    _loadDataSet();
   }
 
-  @observable
-  @property
+  @Property(observer: "endpointChanged")
   Endpoint endpoint;
 
-  @observable
-  @property
+  @Property()
   List<ServiceConfigurationAttribute> dataSetAttributes;
 
-  @observable
-  @property
+  @Property(observer: "selectedTabChanged")
   int selectedTabIndex = 0;
 
   EndpointTestElement.created() : super.created();
-
-  ready() {
-    var subs = [
-      propertyChangesOfType("endpoint").listen((_) => _loadDataSet()),
-      propertyChangesOfType("selectedTabIndex")
-          .listen((_) => _handleSelectedTabChanged())
-    ];
-    subscriptions.addAll(subs);
-  }
 
   void updateUI() {
     DisplayType displayType = DisplayType.values[selectedTabIndex];
@@ -72,15 +58,23 @@ class EndpointTestElement extends PolymerElement
     }
   }
 
+  @reflectable
+  void endpointChanged(_, __) {
+    _loadDataSet();
+  }
+
   _loadDataSet() {
     if (endpoint == null) return;
+    if (_datasetService == null) return;
+    print('loading data set');
     _datasetService.getConfiguration(endpoint.url).listen((data) {
       dataSetAttributes = data;
       updateUI();
     }, onError: (error) => print(error));
   }
 
-  void _handleSelectedTabChanged() {
+  @reflectable
+  void selectedTabChanged(_, __) {
     updateUI();
   }
 }
