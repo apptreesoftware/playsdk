@@ -1,6 +1,7 @@
 package sdk;
 
 import com.google.inject.AbstractModule;
+import sdk.sample.AuthenticationDataSource;
 import sdk.sample.PriorityListDataSource;
 import sdk.sample.WorkOrderDataSource;
 
@@ -12,5 +13,7 @@ public class SampleModule extends AbstractModule {
     protected void configure() {
         AppTree.registerListDataSourceWithName("priorities", new PriorityListDataSource());
         AppTree.registerDataSourceWithName("workorders", new WorkOrderDataSource());
+        AppTree.registerAuthenticationSource(new AuthenticationDataSource());
+
     }
 }
