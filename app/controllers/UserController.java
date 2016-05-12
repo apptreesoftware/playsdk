@@ -5,10 +5,10 @@ import play.mvc.*;
 import sdk.AppTree;
 import sdk.user.User;
 import sdk.user.UserDataSource;
-import sdk.utilsx.AuthenticationInfo;
-import sdk.utilsx.Parameters;
-import sdk.utilsx.Response;
-import sdk.utilsx.ResponseExceptionHandler;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
+import sdk.utils.Response;
+import sdk.utils.ResponseExceptionHandler;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

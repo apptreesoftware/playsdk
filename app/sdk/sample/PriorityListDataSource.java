@@ -1,11 +1,11 @@
 package sdk.sample;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import sdk.listx.*;
-import sdk.listx.List;
+import sdk.list.*;
+import sdk.list.List;
 import sdk.sample.model.Priority;
-import sdk.utilsx.AuthenticationInfo;
-import sdk.utilsx.Parameters;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
 
 import java.util.ArrayList;
 

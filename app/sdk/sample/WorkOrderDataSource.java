@@ -1,10 +1,10 @@
 package sdk.sample;
 
 import com.avaje.ebean.ExpressionList;
-import sdk.datax.*;
+import sdk.data.*;
 import sdk.sample.model.WorkOrder;
-import sdk.utilsx.AuthenticationInfo;
-import sdk.utilsx.Parameters;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;

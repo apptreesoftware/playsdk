@@ -7,7 +7,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import sdk.AppTree;
 import sdk.auth.AuthenticationSource;
-import sdk.utilsx.AuthenticationInfo;
+import sdk.utils.AuthenticationInfo;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

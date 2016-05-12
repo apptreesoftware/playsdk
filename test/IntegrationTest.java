@@ -3,8 +3,8 @@ import org.joda.time.DateTime;
 import org.junit.*;
 
 import play.libs.Json;
-import sdk.datax.DataSetItemAttribute;
-import sdk.listx.ListItem;
+import sdk.data.DataSetItemAttribute;
+import sdk.list.ListItem;
 import sdk.models.*;
 
 import static org.junit.Assert.*;

@@ -1,7 +1,7 @@
 package sdk.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sdk.utilsx.Response;
+import sdk.utils.Response;
 
 import java.util.HashMap;
 

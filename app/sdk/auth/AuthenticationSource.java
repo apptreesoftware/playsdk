@@ -1,7 +1,7 @@
 package sdk.auth;
 
-import sdk.utilsx.AuthenticationInfo;
-import sdk.utilsx.Response;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.Response;
 
 /**
  * Created by matthew on 5/12/16.
