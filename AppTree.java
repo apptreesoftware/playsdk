@@ -33,7 +33,9 @@ public class AppTree {
     public static void registerAuthenticationSource(AuthenticationSource source) {
         authenticationSource = source;
     }
-    public static AuthenticationSource getAuthenticationSource() { return authenticationSource; }
+    public static AuthenticationSource getAuthenticationSource() {
+        return authenticationSource;
+    }
 
     public static void registerUserDataSource(UserDataSource source) {
         userDataSource = source;

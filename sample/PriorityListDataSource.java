@@ -16,8 +16,8 @@ public class PriorityListDataSource implements CacheableList, SearchableList {
 
     public java.util.List<ListServiceConfigurationAttribute> getListServiceAttributes() {
         ArrayList<ListServiceConfigurationAttribute> attributes = new ArrayList<>();
-        attributes.add(new ListServiceConfigurationAttribute.Builder(0).description("Name").build());
-        attributes.add(new ListServiceConfigurationAttribute.Builder(1).description("Name").build());
+        attributes.add(new ListServiceConfigurationAttribute.Builder(0).name("Name").build());
+        attributes.add(new ListServiceConfigurationAttribute.Builder(1).name("Name").build());
         return attributes;
     }
 

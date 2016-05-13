@@ -134,7 +134,7 @@ public class DataSetItemAttribute {
 
     /**
      * Creates a list item attribute
-     * @param listItem The ATListItem to be stored
+     * @param listItem The ListItem to be stored
      */
     public DataSetItemAttribute(ListItem listItem) {
         attributeType = AttributeType.ListItem;

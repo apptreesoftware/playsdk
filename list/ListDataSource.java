@@ -1,9 +1,11 @@
 package sdk.list;
 
+import sdk.AppTreeSource;
+
 /**
  * Created by alexis on 5/4/16.
  */
-public interface ListDataSource {
+public interface ListDataSource extends AppTreeSource {
     /**
      *
      * @return A list service configuration containing the attributes of a list

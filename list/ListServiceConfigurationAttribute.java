@@ -48,14 +48,15 @@ public class ListServiceConfigurationAttribute {
         public Builder(int index) {
             attributeIndex = index;
             attributeDescription = "Attribute " + attributeIndex;
+
         }
 
         /**
-         * Sets the builder attribute description
+         * Sets the builder attribute name
          * @param description
          * @return
          */
-        public Builder description(String description) {
+        public Builder name(String description) {
             attributeDescription = description;
             return this;
         }

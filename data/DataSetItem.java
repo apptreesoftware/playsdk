@@ -12,10 +12,7 @@ import sdk.models.*;
 import sdk.utils.DateUtil;
 import sdk.utils.JSON;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -348,6 +345,15 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<ListItem> getOptionalListItemAttributeAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+        attribute = attributeMap.get(attributeIndex);
+        if (attribute != null) {
+            return java.util.Optional.of(attribute.getListItem());
+        }
+        return java.util.Optional.empty();
+    }
+
     /**
      * Gets a string attriubte at the specified index of the attribute map
      * @param attributeIndex The index to get the attribute at
@@ -376,6 +382,15 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<DateTime> getOptionalDateAttributeAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+        attribute = attributeMap.get(attributeIndex);
+        if ( attribute != null ) {
+            return Optional.of(attribute.getDateValue());
+        }
+        return Optional.empty();
+    }
+
     /**
      * Gets a date time attribute at the specified index of the attribute map
      * @param attributeIndex The index to get the attribute at
@@ -389,6 +404,16 @@ public class DataSetItem {
         }
         return null;
     }
+
+    public Optional<DateTime> getOptionalDateTimeAttributeAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+        attribute = attributeMap.get(attributeIndex);
+        if ( attribute != null ) {
+            return Optional.of(attribute.getDateValue());
+        }
+        return Optional.empty();
+    }
+
 
     /**
      * Get a date range at the specified index of the attribute map
@@ -417,6 +442,7 @@ public class DataSetItem {
         }
         return null;
     }
+
 
     /**
      * Gets a boolean attribute at the specified index of the attribute map
@@ -507,7 +533,7 @@ public class DataSetItem {
             case String:
                 return "public void setStringForAttributeIndex(String value, int attributeIndex)";
             case ListItem:
-                return "public void setListItemForAttributeIndex(ATListItem value, int attributeIndex)";
+                return "public void setListItemForAttributeIndex(ListItem value, int attributeIndex)";
             case Color:
                 return "public void setColorForAttributeIndex(ATColor value, int attributeIndex)";
             case Image:

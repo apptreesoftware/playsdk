@@ -1,8 +1,11 @@
 package sdk.data;
 
-import java.util.HashMap;
-import sdk.models.AttributeType;
 import sdk.list.ListServiceConfiguration;
+import sdk.list.ListServiceConfigurationAttribute;
+import sdk.models.AttributeType;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by alexis on 5/3/16.
@@ -224,8 +227,9 @@ public class ServiceConfigurationAttribute {
          * Sets the attribute type as list item
          * @return The builder with list item type
          */
-        public Builder asListItem(ListServiceConfiguration configuration) {
-            mRelatedListService = configuration;
+        public Builder asListItem(HashSet<ListServiceConfigurationAttribute> listAttributes) {
+            mRelatedListService = new ListServiceConfiguration("");
+            mRelatedListService.getAttributes().addAll(listAttributes);
             mAttributeType = AttributeType.ListItem;
             return this;
         }

@@ -8,6 +8,7 @@ import play.mvc.Result;
 import sdk.AppTree;
 import sdk.auth.AuthenticationSource;
 import sdk.utils.AuthenticationInfo;
+import sdk.utils.ResponseExceptionHandler;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -23,6 +24,7 @@ public class AuthenticationController extends Controller {
         if ( source == null ) {
             return CompletableFuture.completedFuture(notFound("No auth endpoint registered"));
         }
+
         JsonNode json = request().body().asJson();
         String username = json.path("username").textValue();
         String password = json.path("password").textValue();
@@ -30,7 +32,8 @@ public class AuthenticationController extends Controller {
 
         return CompletableFuture
                 .supplyAsync(() -> source.login(username, password, authenticationInfo))
-                .thenApply(loginResponse -> ok(Json.toJson(loginResponse)));
+                .thenApply(loginResponse -> ok(Json.toJson(loginResponse)))
+                .exceptionally(ResponseExceptionHandler::handleException);
     }
 
     public CompletionStage<Result> logout() {

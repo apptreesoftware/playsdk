@@ -1,5 +1,6 @@
 package sdk.data;
 
+import sdk.AppTreeSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Created by alexis on 5/3/16.
  */
-public interface DataSource {
+public interface DataSource extends AppTreeSource {
     /***
      * @param authenticationInfo A HashMap of any authentication information that came through in the request headers from the mobile client
      * @param params   a HashMap of the URL parameters included in the request.
@@ -115,7 +116,7 @@ public interface DataSource {
     }
 
     /**
-     * Returns a list of all the ATListServiceConfiguration dataSourceRestPath() endpoints this data source uses. This list is used to
+     * Returns a list of all the ListServiceConfiguration dataSourceRestPath() endpoints this data source uses. This list is used to
      * auto register the lists when they are used to create features in the builder.
      * @return
      */
