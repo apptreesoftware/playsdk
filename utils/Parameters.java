@@ -1,17 +1,41 @@
 package sdk.utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.joda.time.DateTime;
+import play.libs.Json;
 import sdk.models.DateRange;
 import sdk.models.Location;
-import org.joda.time.DateTime;
 
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by alexis on 5/3/16.
  */
 public class Parameters {
     private HashMap<String,String> parameters = new HashMap<>();
+
+    public JsonNode toJSON() {
+        ObjectNode json = Json.newObject();
+        for (Map.Entry<String, String> entry : parameters.entrySet() ) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if ( key != null && value != null ) {
+                if ( value.equalsIgnoreCase("true") ) {
+                    json.put(key, true);
+                } else if ( value.equalsIgnoreCase("false") ) {
+                    json.put(key, false);
+                } else {
+                    json.put(key, value);
+                }
+            }
+        }
+        return json;
+    }
 
     public Parameters(Map<String, String[]> parameters) {
         parameters.forEach((k,v) -> {

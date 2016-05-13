@@ -27,7 +27,7 @@ public class ApplicationController extends Controller {
         ArrayNode records = objectNode.putArray("records");
         AppTree.dataSources.forEach((endpoint, datasource) -> {
             String name = datasource.getServiceDescription() != null ? datasource.getServiceDescription() : endpoint;
-            String url = hostURL + "/dataSet/" + endpoint;
+            String url = hostURL + "/dataset/" + endpoint;
             addEndpoint(endpoint, name, url, "data", records);
         });
         AppTree.listSources.forEach((endpoint, datasource) -> {

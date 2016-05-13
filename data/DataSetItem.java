@@ -510,6 +510,27 @@ public class DataSetItem {
         return null;
     }
 
+    public List<DataSetItemAttachment> getAttachmentItemsAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+        ArrayList<DataSetItemAttachment> attachmentItems = new ArrayList<DataSetItemAttachment>();
+
+        attribute = attributeMap.get(attributeIndex);
+        if ( attribute != null ) {
+            List<DataSetItem> items = attribute.getDataSetItems();
+            if ( items != null ) {
+                for ( DataSetItem item : items ) {
+                    if ( item instanceof DataSetItemAttachment ) {
+                        DataSetItemAttachment attachmentItem = (DataSetItemAttachment)item;
+                        attachmentItems.add(attachmentItem);
+                    }
+                }
+                return attachmentItems;
+            }
+        }
+        return null;
+    }
+
+
     private boolean validateGetterAttributeTypeForIndex(AttributeType attributeType, int attributeIndex) throws InvalidAttributeValueException {
         ServiceConfigurationAttribute attributeConfig = attributeConfigurationForIndexMap.get(attributeIndex);
         if ( attributeConfig == null ) {

@@ -21,7 +21,13 @@ public class Response {
     }
 
     public static Response fromException(Throwable throwable) {
-        return new Response(false, throwable.getMessage());
+        String message = throwable.getMessage();
+        if ( message == null ) {
+            if ( throwable instanceof NullPointerException ) {
+                message = "Connector threw NullPointer exception";
+            }
+        }
+        return new Response(false, message);
     }
     public static Response success() {
         return new Response(true, null);
