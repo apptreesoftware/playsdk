@@ -39,8 +39,7 @@ public class DataSetController extends Controller {
                 .supplyAsync(() -> {
                     AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
                     Parameters parameters = new Parameters(request.queryString());
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName)
-                            .orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.getDataSet(authenticationInfo, parameters);
                 })
                 .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)))
@@ -51,8 +50,7 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         return CompletableFuture
                 .supplyAsync(() -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName)
-                            .orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
                     Parameters parameters = new Parameters(request.queryString());
                     return dataSource.getConfiguration(authenticationInfo, parameters);
@@ -68,8 +66,7 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return dataSetItemFromRequest(dataSetName, request)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName)
-                            .get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(Json.toJson(dataSet)))
@@ -82,8 +79,7 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return dataSetItemFromRequest(dataSetName, request)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName)
-                            .get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(Json.toJson(dataSet)))
@@ -96,8 +92,7 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return dataSetItemFromRequest(dataSetName, request)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName)
-                            .get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(Json.toJson(dataSet)))
@@ -109,8 +104,7 @@ public class DataSetController extends Controller {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         return CompletableFuture
-                .supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName)
-                        .orElseThrow(() -> new RuntimeException("Invalid DataSet")))
+                .supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid DataSet")))
                 .thenApply(dataSource -> dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters))
                 .thenApply(dataSet -> ok(Json.toJson(dataSet)))
                 .exceptionally(ResponseExceptionHandler::handleException);
