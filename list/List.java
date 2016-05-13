@@ -16,6 +16,10 @@ public class List {
         listItems = new ArrayList<ListItem>();
     }
 
+    public List(java.util.List<ListItem> listItems) {
+        this.listItems = new ArrayList<>(listItems);
+    }
+
     /**
      * Adds a list item
      * @param listItem The list item to add

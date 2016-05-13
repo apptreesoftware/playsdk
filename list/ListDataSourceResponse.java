@@ -18,7 +18,10 @@ public class ListDataSourceResponse extends Response {
     public List getList() { return list; }
 
     public java.util.List<ListItem> getRecords() {
-        return list.listItems;
+        if ( list != null ) {
+            return list.listItems;
+        }
+        return null;
     }
 
     public static class Builder {

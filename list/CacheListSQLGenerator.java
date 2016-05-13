@@ -99,7 +99,7 @@ public class CacheListSQLGenerator {
         for ( ListItem listItem : list.listItems ) {
             statement.setString(1, listItem.id);
             statement.setString(2, listItem.parentID);
-            statement.setInt(3, listItem.orderBy);
+            statement.setInt(3, -1);
             statement.setString(4, listItem.value);
             statement.setString(5, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue() : null);
             statement.setString(6, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2).getStringValue() : null);

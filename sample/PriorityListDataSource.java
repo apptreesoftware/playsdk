@@ -8,14 +8,16 @@ import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by alexis on 5/10/16.
  */
 public class PriorityListDataSource implements CacheableList, SearchableList {
 
-    public java.util.List<ListServiceConfigurationAttribute> getListServiceAttributes() {
-        ArrayList<ListServiceConfigurationAttribute> attributes = new ArrayList<>();
+    public Set<ListServiceConfigurationAttribute> getListServiceAttributes() {
+        HashSet<ListServiceConfigurationAttribute> attributes = new HashSet<>();
         attributes.add(new ListServiceConfigurationAttribute.Builder(0).name("Name").build());
         attributes.add(new ListServiceConfigurationAttribute.Builder(1).name("Name").build());
         return attributes;

@@ -1,6 +1,7 @@
 package sdk.list;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jetbrains.annotations.Nullable;
 import play.Logger;
 import sdk.models.*;
 import org.joda.time.DateTime;
@@ -12,7 +13,6 @@ import org.joda.time.DateTime;
 public class ListItem {
     public String id;
     public String parentID;
-    public int orderBy = -1;
     public String value;
     private ListItemAttribute attribute01;
     private ListItemAttribute attribute02;
@@ -61,34 +61,37 @@ public class ListItem {
      * @param value The string list item attribute value
      * @param index The attribute to be set 1-10
      */
-    public void setAttributeForIndex(Object value, int index) {
-        ListItemAttribute attribute;
-        if ( value instanceof String ) {
-            attribute = new ListItemAttribute((String)value);
-        } else if ( value instanceof Color ) {
-            attribute = new ListItemAttribute((Color)value);
-        } else if ( value instanceof Integer ) {
-            attribute = new ListItemAttribute((Integer) value);
-        } else if ( value instanceof Location ) {
-            attribute = new ListItemAttribute((Location) value);
-        } else if ( value instanceof DateTime ) {
-            Logger.warn("setAttributeForIndex(Object value, int index) with a value type of DateTime assumes that the date contains a time component. Use setDateAttributeAtIndex(DateTime date, boolean time) to be more explicit.");
-            attribute = new ListItemAttribute((DateTime)value, true);
-        } else if ( value instanceof DateRange ) {
-            attribute = new ListItemAttribute((DateRange) value);
-        } else if ( value instanceof DateTimeRange ) {
-            attribute = new ListItemAttribute((DateTimeRange) value);
-        } else if ( value instanceof Double ) {
-            attribute = new ListItemAttribute((Double) value);
-        } else if ( value instanceof Image ) {
-            attribute = new ListItemAttribute((Image) value);
-        } else if ( value instanceof Long ) {
-            attribute = new ListItemAttribute((Long) value);
-        } else if ( value instanceof Boolean ) {
-            attribute = new ListItemAttribute((Boolean) value);
-        } else {
-            Logger.error("List does not support a value of type " + value.getClass().getCanonicalName());
-            return;
+    public void setAttributeForIndex(@Nullable Object value, int index) {
+        ListItemAttribute attribute = null;
+
+        if ( value != null ) {
+            if ( value instanceof String ) {
+                attribute = new ListItemAttribute((String)value);
+            } else if ( value instanceof Color ) {
+                attribute = new ListItemAttribute((Color)value);
+            } else if ( value instanceof Integer ) {
+                attribute = new ListItemAttribute((Integer) value);
+            } else if ( value instanceof Location ) {
+                attribute = new ListItemAttribute((Location) value);
+            } else if ( value instanceof DateTime ) {
+                Logger.warn("setAttributeForIndex(Object value, int index) with a value type of DateTime assumes that the date contains a time component. Use setDateAttributeAtIndex(DateTime date, boolean time) to be more explicit.");
+                attribute = new ListItemAttribute((DateTime)value, true);
+            } else if ( value instanceof DateRange ) {
+                attribute = new ListItemAttribute((DateRange) value);
+            } else if ( value instanceof DateTimeRange ) {
+                attribute = new ListItemAttribute((DateTimeRange) value);
+            } else if ( value instanceof Double ) {
+                attribute = new ListItemAttribute((Double) value);
+            } else if ( value instanceof Image ) {
+                attribute = new ListItemAttribute((Image) value);
+            } else if ( value instanceof Long ) {
+                attribute = new ListItemAttribute((Long) value);
+            } else if ( value instanceof Boolean ) {
+                attribute = new ListItemAttribute((Boolean) value);
+            } else {
+                Logger.error("List does not support a value of type " + value.getClass().getCanonicalName());
+                return;
+            }
         }
         switch (index) {
             case ATTRIBUTE_1:

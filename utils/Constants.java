@@ -10,4 +10,5 @@ import org.joda.time.format.DateTimeFormatter;
 public class Constants {
     public static final DateTimeFormatter AppTreeDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Etc/GMT"));
     public static final DateTimeFormatter AppTreeDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.forID("Etc/GMT"));
+    public static final String AUTH_TOKEN_HEADER = "X-AUTH-TOKEN";
 }

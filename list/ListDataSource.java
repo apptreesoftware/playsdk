@@ -2,6 +2,9 @@ package sdk.list;
 
 import sdk.AppTreeSource;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by alexis on 5/4/16.
  */
@@ -10,7 +13,7 @@ public interface ListDataSource extends AppTreeSource {
      *
      * @return A list service configuration containing the attributes of a list
      */
-    java.util.List<ListServiceConfigurationAttribute> getListServiceAttributes();
+    Set<ListServiceConfigurationAttribute> getListServiceAttributes();
     /**
      *
      * @return the name of the list service

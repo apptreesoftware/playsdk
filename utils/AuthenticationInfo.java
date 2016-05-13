@@ -3,6 +3,8 @@ package sdk.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import static sdk.utils.Constants.AUTH_TOKEN_HEADER;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -37,6 +39,9 @@ public class AuthenticationInfo {
 
     public AuthenticationInfo(Map<String, String[]> authInfo) {
         authInfo.forEach((k, v) -> {
+            if ( k.equalsIgnoreCase(AUTH_TOKEN_HEADER) ) {
+                setToken(v[0]);
+            }
             extraAuthInfo.putIfAbsent(k, v[0]);
         });
     }

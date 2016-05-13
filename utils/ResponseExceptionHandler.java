@@ -3,6 +3,7 @@ package sdk.utils;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import sdk.exceptions.AuthorizationException;
 import sdk.exceptions.PrimaryObjectNotFoundException;
 
 /**
@@ -18,6 +19,8 @@ public class ResponseExceptionHandler {
                 return Controller.notFound(Json.toJson(Response.fromException(throwable)));
             }
             return Controller.notFound();
+        } else if ( throwable instanceof AuthorizationException) {
+            return Controller.unauthorized();
         }
         return Controller.ok(Json.toJson(Response.fromException(throwable)));
     }

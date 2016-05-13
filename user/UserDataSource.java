@@ -1,5 +1,6 @@
 package sdk.user;
 
+import sdk.AppTreeSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Created by matthew on 5/12/16.
  */
-public interface UserDataSource {
+public interface UserDataSource extends AppTreeSource {
 
     /**
      * Get the list of available user attributes that you want to provide
