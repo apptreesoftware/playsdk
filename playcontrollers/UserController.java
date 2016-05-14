@@ -150,9 +150,9 @@ public class UserController extends Controller {
 
 
     private class UserStringListResponse {
-        boolean success;
-        List<String> records;
-        String message;
+        public boolean success;
+        public List<String> records;
+        public String message;
         UserStringListResponse(boolean success, List<String> sources, String message) {
             this.success = success;
             this.records = sources;

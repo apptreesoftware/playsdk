@@ -28,12 +28,12 @@ public class ApplicationController extends Controller {
         AppTree.dataSources.forEach((endpoint, datasource) -> {
             String name = datasource.getServiceDescription() != null ? datasource.getServiceDescription() : endpoint;
             String url = hostURL + "/dataset/" + endpoint;
-            addEndpoint(endpoint, name, url, "data", records);
+            addEndpoint("dataset/" + endpoint, name, url, "data", records);
         });
         AppTree.listSources.forEach((endpoint, datasource) -> {
             String name = datasource.getServiceName() != null ? datasource.getServiceName() : endpoint;
             String url = hostURL + "/list/" + endpoint;
-            addEndpoint(endpoint, name, url, "list", records);
+            addEndpoint("list/" + endpoint, name, url, "list", records);
         });
         UserDataSource userDataSource = AppTree.getUserDataSource();
         if ( userDataSource != null ) {

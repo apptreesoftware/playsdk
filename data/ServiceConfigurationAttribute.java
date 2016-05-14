@@ -1,5 +1,6 @@
 package sdk.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
@@ -10,18 +11,20 @@ import java.util.HashSet;
 /**
  * Created by alexis on 5/3/16.
  */
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceConfigurationAttribute {
     String name;
     RelatedServiceConfiguration relatedService;
     ListServiceConfiguration relatedListService;
     AttributeType attributeType;
     HashMap<String, Object> userInfo;
-    boolean create;
-    boolean createRequired;
-    boolean update;
-    boolean updateRequired;
-    boolean search;
-    boolean searchRequired;
+    public boolean create;
+    public boolean createRequired;
+    public boolean update;
+    public boolean updateRequired;
+    public boolean search;
+    public boolean searchRequired;
 
     private int mAttributeIndex;
 
@@ -38,56 +41,6 @@ public class ServiceConfigurationAttribute {
         mAttributeIndex = attributeIndex;
         this.name = "attribute" + mAttributeIndex;
     }
-
-    public void setCanCreate(boolean canCreate) {
-        this.create = canCreate;
-    }
-
-    public void setCreateRequired(boolean createRequired) {
-        this.createRequired = createRequired;
-    }
-
-    public void setCanUpdate(boolean canUpdate) {
-        this.update = canUpdate;
-    }
-
-    public void setUpdateRequired(boolean updateRequired) {
-        this.updateRequired = updateRequired;
-    }
-
-    public void setCanSearch(boolean canSearch) {
-        this.search = canSearch;
-    }
-
-    public void setSearchRequired(boolean searchRequired) {
-        this.searchRequired = searchRequired;
-    }
-
-
-    public boolean getCanCreate(){
-        return create;
-    }
-
-    public boolean getCanUpdate(){
-        return update;
-    }
-
-    public boolean getCanSearch(){
-        return search;
-    }
-
-    public boolean getCreateRequired(){
-        return createRequired;
-    }
-
-    public boolean getUpdateRequired(){
-        return updateRequired;
-    }
-
-    public boolean getSearchRequired(){
-        return searchRequired;
-    }
-
 
     public void setUserInfoValue(String key, Object value) {
         if ( value == null ) {

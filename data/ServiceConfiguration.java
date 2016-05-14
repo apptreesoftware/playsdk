@@ -14,7 +14,7 @@ public class ServiceConfiguration extends Response {
     private String name;
     public List<ServiceConfigurationAttribute> attributes;
     private List<String> dependentListEndpoints;
-    private List<ServiceParameter> serviceFilterParameters;
+    public List<ServiceParameter> serviceFilterParameters;
 
     /**
      * Creates a service configuration
