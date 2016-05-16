@@ -7,6 +7,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import sdk.AppTree;
+import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.user.UserDataSource;
 
@@ -42,6 +43,10 @@ public class ApplicationController extends Controller {
         AuthenticationSource authenticationSource = AppTree.getAuthenticationSource();
         if ( authenticationSource != null ) {
             addEndpoint("auth", "Authentication", hostURL + "/auth", "authentication", records);
+        }
+        AttachmentDataSource attachmentDataSource = AppTree.getAttachmentDataSource();
+        if ( attachmentDataSource != null ) {
+            addEndpoint("attachment", "Attachment", hostURL + "/attachments", "Attachment", records);
         }
         return ok(objectNode.toString());
     }
