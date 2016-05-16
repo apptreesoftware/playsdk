@@ -1,5 +1,7 @@
 package sdk.sample.model;
 
+import com.avaje.ebean.Model;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -8,7 +10,7 @@ import javax.persistence.Id;
  */
 
 @Entity
-public class Note {
+public class Note extends Model {
 
     @Id public String id;
     public String text;

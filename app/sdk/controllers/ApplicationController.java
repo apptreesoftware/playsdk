@@ -1,4 +1,4 @@
-package sdk.playcontrollers;
+package sdk.controllers;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

@@ -1,0 +1,40 @@
+# Routes
+# This file defines all application sdk.routes (Higher priority sdk.routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+#GET         /                                 controllers.InspectionController.index
+
+#Testing support
+
+#SDK Support
+GET           /                                        @sdk.controllers.ApplicationController.describeEndpoints
+POST          /auth/login                              sdk.controllers.AuthenticationController.login
+POST          /auth/logout                             sdk.controllers.AuthenticationController.logout
+GET           /auth/validateToken                      sdk.controllers.AuthenticationController.validateToken
+
+GET           /user/userInfoKeys                       sdk.controllers.UserController.getUserInfoKeys
+GET           /user/userSources                        sdk.controllers.UserController.getUserSources
+GET           /user/:userID                            sdk.controllers.UserController.getUserInfo(userID)
+GET           /user/:userID/image                      sdk.controllers.UserController.getUserImage(userID)
+POST          /user/checkForUserInfo                   sdk.controllers.UserController.checkForUserInfo
+POST          /user/createUserEvent                    sdk.controllers.UserController.createUser
+PUT           /user/updateUserEvent                    sdk.controllers.UserController.updateUser()
+DELETE        /user/deleteUserEvent                    sdk.controllers.UserController.deleteUser()
+
+
+
+
+GET           /dataset/:dataSetName                    sdk.controllers.DataSetController.getDataSet(dataSetName: String)
+GET           /dataset/:dataSetName/describe           sdk.controllers.DataSetController.getDataConfiguration(dataSetName: String)
+GET           /dataset/:dataSetName/:primaryKey        sdk.controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
+POST          /dataset/:dataSetName                    sdk.controllers.DataSetController.createDataSetItem(dataSetName : String)
+PUT           /dataset/:dataSetName                    sdk.controllers.DataSetController.updateDataSetItem(dataSetName : String)
+POST          /dataset/:dataSetName/search             sdk.controllers.DataSetController.searchDataSet(dataSetName : String)
+GET           /attachments/:attachmentID                sdk.controllers.DataSetController.getAttachment(attachmentID : String)
+
+GET           /list/:listName/describe                 sdk.controllers.ListController.getListConfiguration(listName: String)
+POST          /list/:listName/search                   sdk.controllers.ListController.searchListData(listName: String)
+GET           /list/:listName                          sdk.controllers.ListController.getListData(listName: String)
+
+GET           /*file                                   sdk.controllers.StaticFileController.html(file)

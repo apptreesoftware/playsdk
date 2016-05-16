@@ -1,4 +1,4 @@
-package sdk.playcontrollers;
+package sdk.controllers;
 
 import play.libs.Json;
 import play.mvc.*;
