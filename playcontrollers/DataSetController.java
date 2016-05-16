@@ -7,6 +7,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import sdk.AppTree;
+import sdk.attachment.AttachmentDataSource;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.DataSource;
@@ -108,6 +109,19 @@ public class DataSetController extends Controller {
                 .thenApply(dataSource -> dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters))
                 .thenApply(dataSet -> ok(Json.toJson(dataSet)))
                 .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    public CompletionStage<Result> getAttachment(String attachmentID) {
+        AttachmentDataSource source = AppTree.getAttachmentDataSource();
+        if ( source == null ) {
+            return CompletableFuture.completedFuture(notFound("No attachment source provided"));
+        }
+        Http.Request request = request();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        return CompletableFuture
+                .supplyAsync(() -> source.getAttachment(attachmentID, authenticationInfo, parameters))
+                .thenApply(attachmentResponse -> ok(attachmentResponse.inputStream).withHeader("Content-Type", attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream"));
     }
 
     private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request) {

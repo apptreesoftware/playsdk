@@ -1,5 +1,6 @@
 package sdk;
 
+import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.data.DataSource;
 import sdk.list.ListDataSource;
@@ -13,6 +14,7 @@ public class AppTree {
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();
     private static AuthenticationSource authenticationSource;
     private static UserDataSource userDataSource;
+    private static AttachmentDataSource attachmentDataSource;
 
     public static void registerDataSourceWithName(String name, DataSource dataSource) {
         dataSources.putIfAbsent(name, dataSource);
@@ -42,4 +44,12 @@ public class AppTree {
     }
 
     public static UserDataSource getUserDataSource() { return userDataSource; }
+
+    public static AttachmentDataSource getAttachmentDataSource() {
+        return attachmentDataSource;
+    }
+
+    public static void setAttachmentDataSource(AttachmentDataSource attachmentDataSource) {
+        AppTree.attachmentDataSource = attachmentDataSource;
+    }
 }
