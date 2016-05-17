@@ -159,9 +159,9 @@ public class UserController extends Controller {
             this.message = message;
         }
     }
+}
 
-    private class CheckForUserRequest {
-        public String externalUserID;
-        public String source;
-    }
+class CheckForUserRequest {
+    public String externalUserID;
+    public String source;
 }
