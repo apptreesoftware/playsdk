@@ -1,5 +1,6 @@
 package sdk.list;
 
+import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 /**
  * Created by alexis on 5/3/16.
  */
-public class ListServiceConfiguration {
+public class ListServiceConfiguration extends Response {
     String listName;
     boolean includesLocation;
     boolean authenticationRequired;
