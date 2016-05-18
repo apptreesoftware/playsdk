@@ -39,8 +39,9 @@ public class LoginResponse extends Response {
     public String getUserID() {
         return userID;
     }
-    public void setUserID(String userID) {
-        this.userID = userID;
+
+    public String getUsername() {
+        return username;
     }
 
     public HashMap<String, String> getExtraHeaders() { return extraHeaders; }
