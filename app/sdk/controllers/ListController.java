@@ -12,6 +12,7 @@ import sdk.utils.Parameters;
 import sdk.utils.Response;
 
 import java.io.File;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -71,7 +72,8 @@ public class ListController extends Controller {
             if ( !(dataSource instanceof SearchableList) ) throw new RuntimeException("This list does not support querying.");
             AuthenticationInfo info = new AuthenticationInfo(request.headers());
             Parameters parameters = new Parameters(request.queryString());
-            List list = ((SearchableList)dataSource).queryList(searchTerm, barcodeSearch, context, info, parameters);
+            Map<String, Object> searchContext = Json.mapper().convertValue(context, Map.class);
+            List list = ((SearchableList)dataSource).queryList(searchTerm, barcodeSearch, searchContext, info, parameters);
             ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
             return ok(Json.toJson(response));
         }).exceptionally(exception -> {

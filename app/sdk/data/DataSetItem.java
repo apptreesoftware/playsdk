@@ -12,6 +12,7 @@ import sdk.models.*;
 import sdk.utils.DateUtil;
 import sdk.utils.JSON;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -420,6 +421,7 @@ public class DataSetItem {
      * @param attributeIndex The index to get the attribute at
      * @return date range
      */
+    @Nullable
     public DateRange getDateRangeAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
@@ -434,6 +436,7 @@ public class DataSetItem {
      * @param attributeIndex The index to get the attribute at
      * @return date time range
      */
+    @Nullable
     public DateTimeRange getDateTimeRangeAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
@@ -449,7 +452,7 @@ public class DataSetItem {
      * @param attributeIndex The index to get the attribute at
      * @return boolean
      */
-    public boolean getBooleanAttributeAtIndex(int attributeIndex) {
+    public boolean getBoolValueAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
         if (attribute!=null) {
@@ -457,7 +460,16 @@ public class DataSetItem {
         }else{
             return false;
         }
+    }
 
+    public @Nullable Boolean getBooleanValueAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+        attribute = attributeMap.get(attributeIndex);
+        if (attribute!=null) {
+            return attribute.getBooleanValue();
+        }else{
+            return null;
+        }
     }
 
     /**
@@ -465,6 +477,7 @@ public class DataSetItem {
      * @param attributeIndex The index to get the attribute at
      * @return list of data set items
      */
+    @Nullable
     public List<DataSetItem> getDataSetItemsAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
 
@@ -480,6 +493,7 @@ public class DataSetItem {
      * @param attributeIndex The index to get the attribute at
      * @return data set item
      */
+    @Nullable
     public DataSetItem getDataSetItemAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         List<DataSetItem> dataSetItems;
@@ -815,14 +829,28 @@ public class DataSetItem {
         json.put("workFlowState", workFlowState.stringValue);
 
         ArrayNode attributes = json.putArray("attributes");
-        for (Object o : attributeMap.entrySet()) {
-            Map.Entry<Integer, DataSetItemAttribute> entry = (Map.Entry) o;
-            Object value = entry.getValue().getJSONValue(primaryKeyRequired);
+        int firstNullIndex = -1;
+        for ( int i = 0; i <= 80; i++ ) {
+            DataSetItemAttribute attribute = attributeMap.get(i);
+            if ( attribute == null ) {
+                attributes.addNull();
+                if ( firstNullIndex == -1 ) {
+                    firstNullIndex = i;
+                }
+                continue;
+            }
+            Object value = attribute.getJSONValue(primaryKeyRequired);
             if (value instanceof ArrayNode) {
-                attributes.addAll((ArrayNode) value);
+                ArrayNode arrayNode = attributes.insertArray(i);
+                arrayNode.addAll((ArrayNode) value);
+                firstNullIndex = -1;
             } else if (value instanceof String) {
                 attributes.add((String) value);
+                firstNullIndex = -1;
             }
+        }
+        for ( int i = 80; i >= firstNullIndex; i-- ) {
+            attributes.remove(i);
         }
         return json;
     }
@@ -834,7 +862,7 @@ public class DataSetItem {
         clientKey = json.path("clientKey").textValue();
         ArrayNode attributes = (ArrayNode) json.path("attributes");
         IntStream.range(0, attributes.size())
-                .filter(i -> !(attributes.get(i).isNull() && attributeConfigurationForIndexMap.get(i) == null))
+                .filter(i -> !attributes.get(i).isNull() && attributeConfigurationForIndexMap.get(i) != null)
                 .forEach(i -> {
                     ServiceConfigurationAttribute attribute = attributeConfigurationForIndexMap.get(i);
                     JsonNode node = attributes.get(i);

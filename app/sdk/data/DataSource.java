@@ -43,7 +43,9 @@ public interface DataSource extends AppTreeSource {
      * @param params      a HashMap of the URL parameters included in the request
      * @return The data source response that contains the newly created data set item
      */
-    DataSet createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params);
+    default DataSet createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        throw new UnsupportedOperationException("Create is not supported on this web service");
+    }
 
     /**
      * @param dataSetItem The data set item to be updated
@@ -51,7 +53,9 @@ public interface DataSource extends AppTreeSource {
      * @param params      a Hashmap of the URL parameters included in the request
      * @return The DataSet that contains a single item that represents the updated item.
      */
-    DataSet updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params);
+    default DataSet updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        throw new UnsupportedOperationException("Update is not supported on this web service");
+    }
 
     /**
      * @param dataSetItem The data set item to be deleted

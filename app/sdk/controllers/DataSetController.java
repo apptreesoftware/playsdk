@@ -65,7 +65,7 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request)
+        return dataSetItemFromRequest(dataSetName, request, true)
                 .thenApply(dataSetItem -> {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
@@ -78,7 +78,7 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request)
+        return dataSetItemFromRequest(dataSetName, request, true)
                 .thenApply(dataSetItem -> {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
@@ -91,7 +91,7 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request)
+        return dataSetItemFromRequest(dataSetName, request, false)
                 .thenApply(dataSetItem -> {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
@@ -124,23 +124,28 @@ public class DataSetController extends Controller {
                 .thenApply(attachmentResponse -> ok(attachmentResponse.inputStream).withHeader("Content-Type", attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream"));
     }
 
-    private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request) {
+    private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request, boolean formBody) {
         return CompletableFuture.supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName)
                 .orElseThrow(() -> new RuntimeException("Invalid Data Set")))
                 .thenApply(dataSource -> getServiceConfiguration(dataSource, request))
                 .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
                 .thenApply(dataSet -> {
-                    Http.MultipartFormData body = request.body()
-                            .asMultipartFormData();
-                    Map<String, String[]> bodyMap = body.asFormUrlEncoded();
-                    List<Http.MultipartFormData.FilePart> files = body.getFiles();
-                    String formJSON = bodyMap.get("formJSON")[0];
-                    HashMap<String, Http.MultipartFormData.FilePart> attachmentMap = new HashMap<>();
-                    for (Http.MultipartFormData.FilePart file : files) {
-                        attachmentMap.put(file.getKey(), file);
+                    if ( formBody ) {
+                        Http.MultipartFormData body = request.body()
+                                .asMultipartFormData();
+                        Map<String, String[]> bodyMap = body.asFormUrlEncoded();
+                        List<Http.MultipartFormData.FilePart> files = body.getFiles();
+                        String formJSON = bodyMap.get("formJSON")[0];
+                        HashMap<String, Http.MultipartFormData.FilePart> attachmentMap = new HashMap<>();
+                        for (Http.MultipartFormData.FilePart file : files) {
+                            attachmentMap.put(file.getKey(), file);
+                        }
+                        ObjectNode json = (ObjectNode) Json.parse(formJSON);
+                        return dataSetItemForJSON(json, dataSet, attachmentMap);
+                    } else {
+                        ObjectNode json = (ObjectNode) request.body().asJson();
+                        return dataSetItemForJSON(json, dataSet, new HashMap<>());
                     }
-                    ObjectNode json = (ObjectNode) Json.parse(formJSON);
-                    return dataSetItemForJSON(json, dataSet, attachmentMap);
                 });
     }
 

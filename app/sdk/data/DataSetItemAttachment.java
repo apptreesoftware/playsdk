@@ -171,7 +171,7 @@ public class DataSetItemAttachment extends DataSetItem {
      */
 
     public Boolean isDeletable() {
-        return getBooleanAttributeAtIndex(AttachmentAttributeDeletable);
+        return getBoolValueAtIndex(AttachmentAttributeDeletable);
     }
 
     public void setIsDeletable(boolean deletable) {
@@ -183,7 +183,7 @@ public class DataSetItemAttachment extends DataSetItem {
     }
 
     public Boolean isEditable() {
-        return getBooleanAttributeAtIndex(AttachmentAttributeDeletable);
+        return getBoolValueAtIndex(AttachmentAttributeDeletable);
     }
 
     public void setIsEditable(boolean editable) {
