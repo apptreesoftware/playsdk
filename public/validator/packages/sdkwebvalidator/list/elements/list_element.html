@@ -1,0 +1,23 @@
+
+<dom-module id="at-list">
+    <style>
+        .item {
+            height: 50px;
+        }
+
+        .container {
+            overflow: scroll;
+        }
+    </style>
+    <template>
+        <div class="container">
+            <iron-list items="[[dataSetItems]]" as="item" >
+                <template>
+                    <div class="item">
+                        item [[item.item.uuid]]
+                    </div>
+                </template>
+            </iron-list>
+        </div>
+    </template>
+</dom-module>

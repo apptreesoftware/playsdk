@@ -1,0 +1,15 @@
+<dom-module id="at-form">
+    <template>
+        <style>
+            .container {
+                padding: 8px;
+            }
+
+            paper-button {
+                @apply(--paper-font-common-base);
+            }
+        </style>
+        <div id="form-item-container" class="container"></div>
+        <paper-button raised on-tap="handleSubmitButtonClicked">Submit</paper-button>
+    </template>
+</dom-module>
