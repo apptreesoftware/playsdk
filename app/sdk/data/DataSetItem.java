@@ -840,7 +840,10 @@ public class DataSetItem {
                 continue;
             }
             Object value = attribute.getJSONValue(primaryKeyRequired);
-            if (value instanceof ArrayNode) {
+            if ( value == null ) {
+                attributes.addNull();
+                if ( firstNullIndex == -1 ) { firstNullIndex = i; }
+            } else if (value instanceof ArrayNode) {
                 ArrayNode arrayNode = attributes.insertArray(i);
                 arrayNode.addAll((ArrayNode) value);
                 firstNullIndex = -1;
