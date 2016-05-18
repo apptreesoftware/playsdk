@@ -43,7 +43,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.getDataSet(authenticationInfo, parameters);
                 })
-                .thenApply(dataSourceResponse -> ok(Json.toJson(dataSourceResponse)))
+                .thenApply(dataSourceResponse -> ok(dataSourceResponse.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -70,7 +70,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
-                .thenApply(dataSet -> ok(Json.toJson(dataSet)))
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -83,7 +83,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
-                .thenApply(dataSet -> ok(Json.toJson(dataSet)))
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -96,7 +96,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                 })
-                .thenApply(dataSet -> ok(Json.toJson(dataSet)))
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -107,7 +107,7 @@ public class DataSetController extends Controller {
         return CompletableFuture
                 .supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid DataSet")))
                 .thenApply(dataSource -> dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters))
-                .thenApply(dataSet -> ok(Json.toJson(dataSet)))
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
