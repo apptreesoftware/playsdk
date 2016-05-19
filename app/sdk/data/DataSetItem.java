@@ -929,28 +929,29 @@ public class DataSetItem {
                         case Relation:
                             ArrayNode childArray = (ArrayNode) node.get(i);
                             RelatedServiceConfiguration childService = attribute.relatedService;
-                            if ( childService == null ) { return; }
-                            List<ServiceConfigurationAttribute> childAttributes = childService.getAttributes();
-                            IntStream.range(0, childAttributes.size())
-                                    .forEach(childIndex -> {
-                                        ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
-                                        String recordType = node.path("recordType").asText();
-                                        String subClientKey = node.path("clientKey").asText();
-                                        Http.MultipartFormData.FilePart filePart = null;
-                                        if ( Type.fromString(recordType) == Type.Attachment ) {
-                                            if ( subClientKey != null && attachmentMap != null ) {
-                                                filePart = attachmentMap.get(subClientKey);
+                            if ( childService != null && childArray != null && childService.getAttributes() != null ) {
+                                List<ServiceConfigurationAttribute> childAttributes = childService.getAttributes();
+                                IntStream.range(0, childAttributes.size())
+                                        .forEach(childIndex -> {
+                                            ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
+                                            String recordType = node.path("recordType").asText();
+                                            String subClientKey = node.path("clientKey").asText();
+                                            Http.MultipartFormData.FilePart filePart = null;
+                                            if (Type.fromString(recordType) == Type.Attachment) {
+                                                if (subClientKey != null && attachmentMap != null) {
+                                                    filePart = attachmentMap.get(subClientKey);
+                                                }
+                                                DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(childIndex);
+                                                subDataSetItem.updateFromJSON(childJsonNode, null);
+                                                if (filePart != null) {
+                                                    ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
+                                                }
+                                            } else {
+                                                DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(childIndex);
+                                                subDataSetItem.updateFromJSON(childJsonNode, attachmentMap);
                                             }
-                                            DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(childIndex);
-                                            subDataSetItem.updateFromJSON(childJsonNode, null);
-                                            if ( filePart != null ) {
-                                                ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
-                                            }
-                                        } else {
-                                            DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(childIndex);
-                                            subDataSetItem.updateFromJSON(childJsonNode, attachmentMap);
-                                        }
-                                    });
+                                        });
+                            }
                             break;
                         case ListItem:
                             JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
