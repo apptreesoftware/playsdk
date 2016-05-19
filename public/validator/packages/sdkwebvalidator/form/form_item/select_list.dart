@@ -5,6 +5,7 @@ import 'package:polymer/polymer.dart';
 import 'package:polymer_elements/paper_input.dart';
 import 'package:polymer_elements/paper_card.dart';
 import 'package:polymer_elements/paper_button.dart';
+import 'package:polymer_elements/paper_toggle_button.dart';
 import 'package:web_components/web_components.dart' show HtmlImport;
 import 'form_item.dart';
 import 'package:sdkwebvalidator/models/models.dart';
@@ -22,6 +23,7 @@ class SelectDisplayElement extends JsProxy {
 /// [PaperInput]
 /// [PaperCard]
 /// [PaperButton]
+/// [PaperToggleButton]
 @PolymerRegister('at-select-list')
 class SelectList extends PolymerElement with FormItem {
 
@@ -29,6 +31,7 @@ class SelectList extends PolymerElement with FormItem {
   @property List<SelectDisplayElement> displayElements = [];
   @property String formId;
   @property String formValue;
+  @property bool expand;
 
   SelectList.created() : super.created();
 
@@ -38,14 +41,31 @@ class SelectList extends PolymerElement with FormItem {
     // the value of the input will be bound to the SelectDisplayElement.
     var attributes = formElementDisplay.formElement.relatedListServiceConfiguration.attributes;
     var displays = [];
-    for (var attribute in attributes) {
-      displays.add(new SelectDisplayElement(attribute.label, '', attribute.attributeIndex));
+
+    var existingValue = formElementDisplay.value;
+    ListItem listItem;
+    if (existingValue != '') {
+      try {
+        var json = JSON.decode(existingValue);
+        listItem = new ListItem.fromJson(json);
+        set('formId', listItem.id);
+        set('formValue', listItem.value);
+      } catch(e) {
+        print('Failed to convert JSON attribute to ListItem');
+        print(existingValue);
+      }
+    }
+
+    for (var i = 0; i < attributes.length; i++) {
+      var attribute = attributes[i];
+      var value = listItem?.valueForAttributeIndex(i) ?? null;
+      displays.add(new SelectDisplayElement(attribute.label, value, attribute.attributeIndex));
     }
     set('displayElements', displays);
   }
 
-  @reflectable
-  void handleSave(_, __) {
+  String get encodedListItems {
+    // create a list item, serialize it, and set the form element display value.
     var listItem = new ListItem(formValue);
     listItem.id = formId;
     for (var element in displayElements) {
@@ -53,6 +73,6 @@ class SelectList extends PolymerElement with FormItem {
       // the configuration index to a ListItem (Dataset) index.
       listItem.setValueForAttributeIndex(element.attributeIndex + 1, element.value);
     }
-    formElementDisplay.value = JSON.encode(listItem);
+    return JSON.encode(listItem);
   }
 }

@@ -1,3 +1,4 @@
+library sdkwebvalidator.form.form_item;
 import 'package:polymer/polymer.dart';
 import 'package:sdkwebvalidator/form/form_element_display.dart';
 

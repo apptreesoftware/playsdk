@@ -1,11 +1,10 @@
 
+<link rel="import" href="../../../../packages/polymer_elements/color.html">
+<link rel="import" href="../../../../packages/polymer_elements/typography.html">
+
 <dom-module id="at-list">
     <style>
-        .item {
-            height: 50px;
-        }
-
-        .container {
+        :host {
             overflow: scroll;
         }
     </style>
@@ -13,9 +12,7 @@
         <div class="container">
             <iron-list items="[[dataSetItems]]" as="item" >
                 <template>
-                    <div class="item">
-                        item [[item.item.uuid]]
-                    </div>
+                    <list-item item="{{item}}" on-edit="handleEditListItem"></list-item>
                 </template>
             </iron-list>
         </div>

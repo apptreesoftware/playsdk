@@ -4,9 +4,13 @@
 <dom-module id="at-select-list">
     <template>
         <style>
+            :host {
+                @apply(--paper-font-common-base)
+            }
             paper-card {
                 width: 100%;
-                --paper-card-content: {
+                --paper-card-header-text: {
+                    font-size: 20px;
                 }
             }
 
@@ -29,19 +33,27 @@
             }
 
             paper-button {
-                @apply(--paper-font-common-base);
+                float: right;
+                margin: 8px
+            }
+
+            .expand {
+                position: absolute;
+                right: 14px;
             }
 
         </style>
         <div class="container">
             <paper-card heading="[[listName]]">
+                <paper-toggle-button class="expand" icon="arrow-drop-down" checked="{{expand}}">Expand</paper-toggle-button>
                 <div class="paper-card-container">
                     <paper-input label="ID" type="text" value="{{formId}}"></paper-input>
                     <paper-input label="Value" type="text" value="{{formValue}}"></paper-input>
-                    <template is="dom-repeat" items="{{displayElements}}" as="attribute">
-                        <paper-input label="[[attribute.label]]" type="text" value="{{attribute.value}}"></paper-input>
+                    <template is="dom-if" if="{{expand}}">
+                        <template is="dom-repeat" items="{{displayElements}}" as="attribute">
+                            <paper-input label="[[attribute.label]]" type="text" value="{{attribute.value}}"></paper-input>
+                        </template>
                     </template>
-                    <paper-button raised on-tap="handleSave">Save</paper-button>
                 </div>
             </paper-card>
         </div>

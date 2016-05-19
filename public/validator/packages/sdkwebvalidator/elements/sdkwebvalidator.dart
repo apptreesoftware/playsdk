@@ -107,6 +107,7 @@ class ConnectorAppElement extends PolymerElement {
   }
 
   Future<String> _loadToken() async {
+    if(useMock) return '123';
     var service = new AuthService(new BrowserClient(), settings.hostUri);
     return await service.getToken(settings.username);
   }

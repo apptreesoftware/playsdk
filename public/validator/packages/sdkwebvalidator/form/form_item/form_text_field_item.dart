@@ -19,4 +19,9 @@ class FormTextFieldItem extends PolymerElement with FormItem {
   inputValueChanged(String newValue, String oldValue) {
     formElementDisplay?.value = newValue;
   }
+
+  attached() {
+    // if we are viewing the 'update' tab we want to display existing values
+    set('inputValue', formElementDisplay.value);
+  }
 }

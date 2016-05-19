@@ -50,8 +50,10 @@ class FormElementDisplay extends JsProxy {
         return "at-textfield";
       case DisplayType.SelectList:
         return "at-select-list";
+      case DisplayType.Attachment:
+        return "at-attachment";
       case DisplayType.Relationship:
-        return "at-relationship";
+        return "at-textfield";
       default:
         return "at-hidden";
     }

@@ -5,17 +5,35 @@ class DataSetItem extends JsProxy {
   @reflectable
   String uuid = "";
 
+  @reflectable
   String serverPrimaryKey = "";
-  String recordTypeString = "RECORD";
-  int serverListOrder = 0;
-  String statusString = "READ";
-  int subItemOfAttributeIndex = -1;
-  int subItemOrderBy = 0;
-  String dataCollectionStatusString = "NONE";
-  String workFlowState = "NONE";
-  DateTime retrievalDate = new DateTime.now();
-  String typedAttributeStorage = "{}";
 
+  @reflectable
+  String recordTypeString = "RECORD";
+
+  @reflectable
+  int serverListOrder = 0;
+
+  @reflectable
+  String statusString = "READ";
+
+  @reflectable
+  int subItemOfAttributeIndex = -1;
+
+  @reflectable
+  int subItemOrderBy = 0;
+
+  @reflectable
+  String dataCollectionStatusString = "NONE";
+
+  @reflectable
+  String workFlowState = "NONE";
+
+  @reflectable
+  DateTime retrievalDate = new DateTime.now();
+
+  @reflectable
+  String typedAttributeStorage = "{}";
 
   DataSetItem parentItem;
   List<DataSetItem> subItems = [];

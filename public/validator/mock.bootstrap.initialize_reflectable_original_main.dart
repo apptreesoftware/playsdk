@@ -83,12 +83,18 @@ import 'package:sdkwebvalidator/form/form_item/form_text_field_item.dart'
 import 'package:sdkwebvalidator/form/form_item/relationship.dart' as i76;
 import 'package:polymer_elements/iron_image.dart' as i77;
 import 'package:polymer_elements/paper_card.dart' as i78;
-import 'package:sdkwebvalidator/form/form_item/select_list.dart' as i79;
-import 'package:sdkwebvalidator/form/form.dart' as i80;
-import 'package:polymer_elements/iron_list.dart' as i81;
-import 'package:sdkwebvalidator/list/elements/list_element.dart' as i82;
-import 'package:sdkwebvalidator/elements/endpoint_tester.dart' as i83;
-import 'package:sdkwebvalidator/elements/sdkwebvalidator.dart' as i84;
+import 'package:polymer_elements/iron_checked_element_behavior.dart' as i79;
+import 'package:polymer_elements/paper_checked_element_behavior.dart' as i80;
+import 'package:polymer_elements/paper_toggle_button.dart' as i81;
+import 'package:sdkwebvalidator/form/form_item/select_list.dart' as i82;
+import 'package:sdkwebvalidator/form/form_item/attachment.dart' as i83;
+import 'package:sdkwebvalidator/form/form.dart' as i84;
+import 'package:polymer_elements/iron_list.dart' as i85;
+import 'package:polymer_elements/iron_icons.dart' as i86;
+import 'package:sdkwebvalidator/list/elements/list_item.dart' as i87;
+import 'package:sdkwebvalidator/list/elements/list_element.dart' as i88;
+import 'package:sdkwebvalidator/elements/endpoint_tester.dart' as i89;
+import 'package:sdkwebvalidator/elements/sdkwebvalidator.dart' as i90;
 
 main() {
   initializers.addAll([
@@ -172,14 +178,18 @@ main() {
         const i57.PolymerRegister('at-relationship'), i76.Relationship),
     new InitEntry(const i7.CustomElementProxy('iron-image'), i77.IronImage),
     new InitEntry(const i7.CustomElementProxy('paper-card'), i78.PaperCard),
-    new InitEntry(const i57.PolymerRegister('at-select-list'), i79.SelectList),
-    new InitEntry(const i57.PolymerRegister('at-form'), i80.Form),
-    new InitEntry(const i7.CustomElementProxy('iron-list'), i81.IronList),
-    new InitEntry(const i57.PolymerRegister('at-list'), i82.ListElement),
+    new InitEntry(const i7.CustomElementProxy('paper-toggle-button'),
+        i81.PaperToggleButton),
+    new InitEntry(const i57.PolymerRegister('at-select-list'), i82.SelectList),
+    new InitEntry(const i57.PolymerRegister('at-attachment'), i83.Attachment),
+    new InitEntry(const i57.PolymerRegister('at-form'), i84.Form),
+    new InitEntry(const i7.CustomElementProxy('iron-list'), i85.IronList),
+    new InitEntry(const i57.PolymerRegister('list-item'), i87.ListItemElement),
+    new InitEntry(const i57.PolymerRegister('at-list'), i88.ListElement),
     new InitEntry(const i57.PolymerRegister('at-endpoint-tester'),
-        i83.EndpointTestElement),
+        i89.EndpointTestElement),
     new InitEntry(const i57.PolymerRegister('sdk-web-validator'),
-        i84.ConnectorAppElement),
+        i90.ConnectorAppElement),
   ]);
 
   return i0.main();

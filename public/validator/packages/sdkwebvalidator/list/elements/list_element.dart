@@ -7,22 +7,26 @@ import 'dart:async';
 import 'package:web_components/web_components.dart' show HtmlImport;
 import 'package:polymer/polymer.dart';
 import 'package:polymer_elements/iron_list.dart';
+import 'package:polymer_elements/iron_icons.dart';
 import 'package:sdkwebvalidator/models/models.dart';
 import 'package:sdkwebvalidator/services/services.dart';
 
-class ListItem<T extends JsProxy> extends JsProxy {
+import 'package:sdkwebvalidator/list/elements/list_item.dart';
+
+class ListItemVO<T extends JsProxy> extends JsProxy {
   @reflectable int index;
   @reflectable T item;
-  ListItem(this.index, this.item);
+  ListItemVO(this.index, this.item);
 }
 
 /// [IronList]
+/// [ListItemElement]
 @PolymerRegister('at-list')
 class ListElement extends PolymerElement {
   List<ServiceConfigurationAttribute> dataSetAttributes = [];
 
   @Property()
-  List<ListItem<DataSetItem>> dataSetItems;
+  List<ListItemVO<DataSetItem>> dataSetItems;
 
   Uri connectorUri;
 
@@ -48,9 +52,15 @@ class ListElement extends PolymerElement {
     var result = await service.getDataSet(connectorUri);
     var listItems = [];
     for (var i = 0; i < result.dataSetItems.length; i++) {
-      listItems.add(new ListItem(i, result.dataSetItems[i]));
+      listItems.add(new ListItemVO(i, result.dataSetItems[i]));
     }
     set('dataSetItems', listItems);
+  }
+
+  @reflectable
+  handleEditListItem(event, detail) {
+    var dataSetItem = (detail as ListItemVO).item as DataSetItem;
+    fire('item-edit', detail: dataSetItem);
   }
 
   /// Provides <iron-list> some dummy data
@@ -60,7 +70,7 @@ class ListElement extends PolymerElement {
   /// If this isn't called the iron-list component will only
   Future _hackForIronList() async {
     var items = [
-      new ListItem(0, null),
+      new ListItemVO(0, new DataSetItem()..uuid="loading"),
     ];
     set('dataSetItems', items);
     await new Future((){});

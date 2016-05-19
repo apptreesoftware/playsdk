@@ -25403,12 +25403,432 @@ Custom property | Description | Default
 
 
 
+
+<script>
+
+  /**
+   * Use `Polymer.IronCheckedElementBehavior` to implement a custom element
+   * that has a `checked` property, which can be used for validation if the
+   * element is also `required`. Element instances implementing this behavior
+   * will also be registered for use in an `iron-form` element.
+   *
+   * @demo demo/index.html
+   * @polymerBehavior Polymer.IronCheckedElementBehavior
+   */
+  Polymer.IronCheckedElementBehaviorImpl = {
+
+    properties: {
+      /**
+       * Fired when the checked state changes.
+       *
+       * @event iron-change
+       */
+
+      /**
+       * Gets or sets the state, `true` is checked and `false` is unchecked.
+       */
+      checked: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true,
+        observer: '_checkedChanged'
+      },
+
+      /**
+       * If true, the button toggles the active state with each tap or press
+       * of the spacebar.
+       */
+      toggles: {
+        type: Boolean,
+        value: true,
+        reflectToAttribute: true
+      },
+
+      /* Overriden from Polymer.IronFormElementBehavior */
+      value: {
+        type: String,
+        value: 'on',
+        observer: '_valueChanged'
+      }
+    },
+
+    observers: [
+      '_requiredChanged(required)'
+    ],
+
+    created: function() {
+      // Used by `iron-form` to handle the case that an element with this behavior
+      // doesn't have a role of 'checkbox' or 'radio', but should still only be
+      // included when the form is serialized if `this.checked === true`.
+      this._hasIronCheckedElementBehavior = true;
+    },
+
+    /**
+     * Returns false if the element is required and not checked, and true otherwise.
+     * @param {*=} _value Ignored.
+     * @return {boolean} true if `required` is false, or if `required` and `checked` are both true.
+     */
+    _getValidity: function(_value) {
+      return this.disabled || !this.required || (this.required && this.checked);
+    },
+
+    /**
+     * Update the aria-required label when `required` is changed.
+     */
+    _requiredChanged: function() {
+      if (this.required) {
+        this.setAttribute('aria-required', 'true');
+      } else {
+        this.removeAttribute('aria-required');
+      }
+    },
+
+    /**
+     * Fire `iron-changed` when the checked state changes.
+     */
+    _checkedChanged: function() {
+      this.active = this.checked;
+      this.fire('iron-change');
+    },
+
+    /**
+     * Reset value to 'on' if it is set to `undefined`.
+     */
+    _valueChanged: function() {
+      if (this.value === undefined || this.value === null) {
+        this.value = 'on';
+      }
+    }
+  };
+
+  /** @polymerBehavior Polymer.IronCheckedElementBehavior */
+  Polymer.IronCheckedElementBehavior = [
+    Polymer.IronFormElementBehavior,
+    Polymer.IronValidatableBehavior,
+    Polymer.IronCheckedElementBehaviorImpl
+  ];
+
+</script>
+
+
+
+
+
+
+
+
+<script>
+
+  /**
+   * Use `Polymer.PaperCheckedElementBehavior` to implement a custom element
+   * that has a `checked` property similar to `Polymer.IronCheckedElementBehavior`
+   * and is compatible with having a ripple effect.
+   * @polymerBehavior Polymer.PaperCheckedElementBehavior
+   */
+  Polymer.PaperCheckedElementBehaviorImpl = {
+
+    /**
+     * Synchronizes the element's checked state with its ripple effect.
+     */
+    _checkedChanged: function() {
+      Polymer.IronCheckedElementBehaviorImpl._checkedChanged.call(this);
+      if (this.hasRipple()) {
+        if (this.checked) {
+          this._ripple.setAttribute('checked', '');
+        } else {
+          this._ripple.removeAttribute('checked');
+        }
+      }
+    },
+
+    /**
+     * Synchronizes the element's `active` and `checked` state.
+     */
+    _buttonStateChanged: function() {
+      Polymer.PaperRippleBehavior._buttonStateChanged.call(this);
+      if (this.disabled) {
+        return;
+      }
+      if (this.isAttached) {
+        this.checked = this.active;
+      }
+    }
+
+  };
+
+  /** @polymerBehavior Polymer.PaperCheckedElementBehavior */
+  Polymer.PaperCheckedElementBehavior = [
+    Polymer.PaperInkyFocusBehavior,
+    Polymer.IronCheckedElementBehavior,
+    Polymer.PaperCheckedElementBehaviorImpl
+  ];
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!--
+Material design: [Switch](https://www.google.com/design/spec/components/selection-controls.html#selection-controls-switch)
+
+`paper-toggle-button` provides a ON/OFF switch that user can toggle the state
+by tapping or by dragging the switch.
+
+Example:
+
+    <paper-toggle-button></paper-toggle-button>
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-toggle-button-unchecked-bar-color` | Slider color when the input is not checked | `#000000`
+`--paper-toggle-button-unchecked-button-color` | Button color when the input is not checked | `--paper-grey-50`
+`--paper-toggle-button-unchecked-ink-color` | Selected/focus ripple color when the input is not checked | `--dark-primary-color`
+`--paper-toggle-button-checked-bar-color` | Slider button color when the input is checked | `--default-primary-color`
+`--paper-toggle-button-checked-button-color` | Button color when the input is checked | `--default-primary-color`
+`--paper-toggle-button-checked-ink-color` | Selected/focus ripple color when the input is checked | `--default-primary-color`
+`--paper-toggle-button-unchecked-bar` | Mixin applied to the slider when the input is not checked | `{}`
+`--paper-toggle-button-unchecked-button` | Mixin applied to the slider button when the input is not checked | `{}`
+`--paper-toggle-button-checked-bar` | Mixin applied to the slider when the input is checked | `{}`
+`--paper-toggle-button-checked-button` | Mixin applied to the slider button when the input is checked | `{}`
+`--paper-toggle-button-label-color` | Label color | `--primary-text-color`
+`--paper-toggle-button-label-spacing` | Spacing between the label and the button | `8px`
+
+@group Paper Elements
+@element paper-toggle-button
+@hero hero.svg
+@demo demo/index.html
+-->
+
+<dom-module id="paper-toggle-button">
+  <template strip-whitespace="">
+
+    <style>
+      :host {
+        display: inline-block;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+
+      :host([disabled]) {
+        pointer-events: none;
+      }
+
+      :host(:focus) {
+        outline:none;
+      }
+
+      .toggle-bar {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        border-radius: 8px;
+        pointer-events: none;
+        opacity: 0.4;
+        transition: background-color linear .08s;
+        background-color: var(--paper-toggle-button-unchecked-bar-color, #000000);
+        @apply(--paper-toggle-button-unchecked-bar);
+      }
+
+      .toggle-button {
+        position: absolute;
+        top: -3px;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.6);
+        transition: -webkit-transform linear .08s, background-color linear .08s;
+        transition: transform linear .08s, background-color linear .08s;
+        will-change: transform;
+        background-color: var(--paper-toggle-button-unchecked-button-color, --paper-grey-50);
+        @apply(--paper-toggle-button-unchecked-button);
+      }
+
+      .toggle-button.dragging {
+        -webkit-transition: none;
+        transition: none;
+      }
+
+      :host([checked]:not([disabled])) .toggle-bar {
+        opacity: 0.5;
+        background-color: var(--paper-toggle-button-checked-bar-color, --default-primary-color);
+        @apply(--paper-toggle-button-checked-bar);
+      }
+
+      :host([disabled]) .toggle-bar {
+        background-color: #000;
+        opacity: 0.12;
+      }
+
+      :host([checked]) .toggle-button {
+        -webkit-transform: translate(16px, 0);
+        transform: translate(16px, 0);
+      }
+
+      :host([checked]:not([disabled])) .toggle-button {
+        background-color: var(--paper-toggle-button-checked-button-color, --default-primary-color);
+        @apply(--paper-toggle-button-checked-button);
+      }
+
+      :host([disabled]) .toggle-button {
+        background-color: #bdbdbd;
+        opacity: 1;
+      }
+
+      .toggle-ink {
+        position: absolute;
+        top: -14px;
+        left: -14px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+        pointer-events: none;
+        color: var(--paper-toggle-button-unchecked-ink-color, --primary-text-color);
+      }
+
+      :host([checked]) .toggle-ink {
+        color: var(--paper-toggle-button-checked-ink-color, --default-primary-color);
+      }
+
+      .toggle-container {
+        display: inline-block;
+        position: relative;
+        width: 36px;
+        height: 14px;
+        /* The toggle button has an absolute position of -3px; The extra 1px
+        /* accounts for the toggle button shadow box. */
+        margin: 4px 1px;
+      }
+
+      .toggle-label {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        padding-left: var(--paper-toggle-button-label-spacing, 8px);
+        white-space: normal;
+        pointer-events: none;
+        color: var(--paper-toggle-button-label-color, --primary-text-color);
+      }
+    </style>
+
+    <div class="toggle-container">
+      <div id="toggleBar" class="toggle-bar"></div>
+      <div id="toggleButton" class="toggle-button"></div>
+    </div>
+
+    <div class="toggle-label"><content></content></div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'paper-toggle-button',
+
+      behaviors: [
+        Polymer.PaperCheckedElementBehavior
+      ],
+
+      hostAttributes: {
+        role: 'button',
+        'aria-pressed': 'false',
+        tabindex: 0
+      },
+
+      properties: {
+        /**
+         * Fired when the checked state changes due to user interaction.
+         *
+         * @event change
+         */
+        /**
+         * Fired when the checked state changes.
+         *
+         * @event iron-change
+         */
+      },
+
+      listeners: {
+        track: '_ontrack'
+      },
+
+      _ontrack: function(event) {
+        var track = event.detail;
+        if (track.state === 'start') {
+          this._trackStart(track);
+        } else if (track.state === 'track') {
+          this._trackMove(track);
+        } else if (track.state === 'end') {
+          this._trackEnd(track);
+        }
+      },
+
+      _trackStart: function(track) {
+        this._width = this.$.toggleBar.offsetWidth / 2;
+        /*
+         * keep an track-only check state to keep the dragging behavior smooth
+         * while toggling activations
+         */
+        this._trackChecked = this.checked;
+        this.$.toggleButton.classList.add('dragging');
+      },
+
+      _trackMove: function(track) {
+        var dx = track.dx;
+        this._x = Math.min(this._width,
+            Math.max(0, this._trackChecked ? this._width + dx : dx));
+        this.translate3d(this._x + 'px', 0, 0, this.$.toggleButton);
+        this._userActivate(this._x > (this._width / 2));
+      },
+
+      _trackEnd: function(track) {
+        this.$.toggleButton.classList.remove('dragging');
+        this.transform('', this.$.toggleButton);
+      },
+
+      // customize the element's ripple
+      _createRipple: function() {
+        this._rippleContainer = this.$.toggleButton;
+        var ripple = Polymer.PaperRippleBehavior._createRipple();
+        ripple.id = 'ink';
+        ripple.setAttribute('recenters', '');
+        ripple.classList.add('circle', 'toggle-ink');
+        return ripple;
+      }
+
+    });
+  </script>
+</dom-module>
+
+
+
+
+
+
+
+
+
+
 <dom-module id="at-select-list">
     <template>
         <style>
+            :host {
+                @apply(--paper-font-common-base)
+            }
             paper-card {
                 width: 100%;
-                --paper-card-content: {
+                --paper-card-header-text: {
+                    font-size: 20px;
                 }
             }
 
@@ -25431,33 +25851,56 @@ Custom property | Description | Default
             }
 
             paper-button {
-                @apply(--paper-font-common-base);
+                float: right;
+                margin: 8px
+            }
+
+            .expand {
+                position: absolute;
+                right: 14px;
             }
 
         </style>
         <div class="container">
             <paper-card heading="[[listName]]">
+                <paper-toggle-button class="expand" icon="arrow-drop-down" checked="{{expand}}">Expand</paper-toggle-button>
                 <div class="paper-card-container">
                     <paper-input label="ID" type="text" value="{{formId}}"></paper-input>
                     <paper-input label="Value" type="text" value="{{formValue}}"></paper-input>
-                    <template is="dom-repeat" items="{{displayElements}}" as="attribute">
-                        <paper-input label="[[attribute.label]]" type="text" value="{{attribute.value}}"></paper-input>
+                    <template is="dom-if" if="{{expand}}">
+                        <template is="dom-repeat" items="{{displayElements}}" as="attribute">
+                            <paper-input label="[[attribute.label]]" type="text" value="{{attribute.value}}"></paper-input>
+                        </template>
                     </template>
-                    <paper-button raised="" on-tap="handleSave">Save</paper-button>
                 </div>
             </paper-card>
         </div>
     </template>
-</dom-module><dom-module id="at-form">
+</dom-module><dom-module id="at-attachment">
+    <style>
+    </style>
+    <template>
+        <p>attachment</p>
+    </template>
+</dom-module>
+<dom-module id="at-form">
     <template>
         <style>
-            .container {
+
+            :host {
+                @apply(--paper-font-common-base);
+                display: block;
                 padding: 8px;
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
             }
 
             paper-button {
-                @apply(--paper-font-common-base);
+                float: right;
+                margin: 8px
             }
+
         </style>
         <div id="form-item-container" class="container"></div>
         <paper-button raised="" on-tap="handleSubmitButtonClicked">Submit</paper-button>
@@ -26789,91 +27232,6 @@ will only render 20.
 
 
 
-<dom-module id="at-list">
-    <style>
-        .item {
-            height: 50px;
-        }
-
-        .container {
-            overflow: scroll;
-        }
-    </style>
-    <template>
-        <div class="container">
-            <iron-list items="[[dataSetItems]]" as="item">
-                <template>
-                    <div class="item">
-                        item [[item.item.uuid]]
-                    </div>
-                </template>
-            </iron-list>
-        </div>
-    </template>
-</dom-module>
-
-<dom-module id="shared-styles">
-    <style>
-        :root {
-            --at-toolbar-color: var(--google-green-500);
-            --at-tab-color: var(--google-green-700);
-            --no-select: {
-                cursor: default;
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
-            };
-        }
-    </style>
-    <template>
-        <style>
-        </style>
-    </template>
-</dom-module>
-
-
-
-
-<dom-module id="at-endpoint-tester">
-    <template>
-        <style include="shared-styles">
-            paper-tabs {
-                @apply(--paper-font-common-base);
-                background-color: var(--at-tab-color);
-                color: #fff;
-            }
-
-            .container {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-            }
-
-            .content-container {
-                overflow-y: scroll;
-                padding-bottom: 30px;
-            }
-
-        </style>
-        <div class="container">
-            <div class="tab-container">
-                <paper-tabs selected="{{selectedTabIndex}}">
-                    <paper-tab>Create</paper-tab>
-                    <paper-tab>Update</paper-tab>
-                    <paper-tab>View Data</paper-tab>
-                    <paper-tab>Search</paper-tab>
-                </paper-tabs>
-            </div>
-            <div id="content-container" class="content-container"></div>
-        </div>
-    </template>
-</dom-module>
-
 
 
 <iron-iconset-svg name="icons" size="24">
@@ -27183,6 +27541,123 @@ will only render 20.
 
 
 
+<dom-module id="list-item">
+    <style>
+        :host {
+            display: block;
+            @apply(--paper-font-common-base);
+            border-style: solid;
+            border-width: 0px 0px 1px 0px;
+            border-color: var(--paper-grey-400);
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <template>
+        <div class="item">
+            <p><span class="label">UUID</span> [[item.item.uuid]]</p>
+            <p><span class="label">Primary Key</span> [[item.item.serverPrimaryKey]]</p>
+            <p><span class="label">Record Type</span> [[item.item.recordTypeString]]</p>
+            <p><span class="label">Server List Order</span> [[item.item.serverListOrder]]</p>
+            <p><span class="label">Status</span> [[item.item.statusString]]</p>
+            <p><span class="label">Sub Item Of Attribute Index</span> [[item.item.subItemOfAttributeIndex]]</p>
+            <p><span class="label">Sub Item Order By</span> [[item.item.subItemOrderBy]]</p>
+            <p><span class="label">Data Collection Status</span> [[item.item.dataCollectionStatusString]]</p>
+            <p><span class="label">Workflow State</span> [[item.item.workFlowState]]</p>
+            <p><span class="label">Retrieval Date</span> [[item.item.retrievalDate]]</p>
+            <p><span class="label">Typed Attribute Storage</span> [[item.item.typedAttributeStorage]]</p>
+            <paper-icon-button raised="" on-click="editItem" icon="create"></paper-icon-button>
+        </div>
+    </template>
+</dom-module>
+
+
+
+<dom-module id="at-list">
+    <style>
+        :host {
+            overflow: scroll;
+        }
+    </style>
+    <template>
+        <div class="container">
+            <iron-list items="[[dataSetItems]]" as="item">
+                <template>
+                    <list-item item="{{item}}" on-edit="handleEditListItem"></list-item>
+                </template>
+            </iron-list>
+        </div>
+    </template>
+</dom-module>
+
+<dom-module id="shared-styles">
+    <style>
+        :root {
+            --at-toolbar-color: var(--google-green-500);
+            --at-tab-color: var(--google-green-700);
+            --no-select: {
+                cursor: default;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+            };
+        }
+    </style>
+    <template>
+        <style>
+        </style>
+    </template>
+</dom-module>
+
+
+
+
+<dom-module id="at-endpoint-tester">
+    <template>
+        <style include="shared-styles">
+            paper-tabs {
+                @apply(--paper-font-common-base);
+                background-color: var(--at-tab-color);
+                color: #fff;
+            }
+
+            .container {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            .content-container {
+                overflow-y: scroll;
+                padding-bottom: 30px;
+            }
+
+        </style>
+        <div class="container">
+            <div class="tab-container">
+                <paper-tabs selected="{{selectedTabIndex}}">
+                    <paper-tab>Create</paper-tab>
+                    <paper-tab>Update</paper-tab>
+                    <paper-tab>View Data</paper-tab>
+                    <paper-tab>Search</paper-tab>
+                </paper-tabs>
+            </div>
+            <div id="content-container" class="content-container"></div>
+        </div>
+    </template>
+</dom-module>
+
+
 
 
 
@@ -27228,13 +27703,22 @@ will only render 20.
                 @apply(--my-no-select);
             }
 
-            .settings-content {
+            paper-menu {
                 width: 400px;
                 padding: 8px;
             }
 
             paper-button {
                 @apply(--paper-font-common-base);
+            }
+
+            paper-drawer-panel {
+                --paper-drawer-panel-drawer-container: {
+                    border-right-style: solid;
+                    border-right-color: var(--paper-grey-400);
+                    border-right-width: 1px;
+                    border-right-style: var(--paper-grey-400);
+                }
             }
 
         </style>
@@ -27247,14 +27731,12 @@ will only render 20.
                     <paper-toolbar>
                         <paper-icon-button icon="menu" paper-drawer-toggle=""></paper-icon-button>
                         <div class="title">Endpoint Testing Tool</div>
-                        <paper-menu-button class="settings-menu" horizontal-align="right">
+                        <paper-menu-button ignore-select="" class="settings-menu" horizontal-align="right">
                             <paper-icon-button icon="settings" class="dropdown-trigger"></paper-icon-button>
                             <paper-menu class="dropdown-content">
-                                <div class="settings-content">
-                                    <paper-input label="host" value="{{settings.host}}"></paper-input>
-                                    <paper-input label="username" value="{{settings.username}}"></paper-input>
-                                    <paper-button on-tap="saveSettings">Ok</paper-button>
-                                </div>
+                                <paper-input label="host" value="{{settings.host}}"></paper-input>
+                                <paper-input label="username" value="{{settings.username}}"></paper-input>
+                                <paper-button raised="" fon-tap="saveSettings">Ok</paper-button>
                             </paper-menu>
                         </paper-menu-button>
                     </paper-toolbar>

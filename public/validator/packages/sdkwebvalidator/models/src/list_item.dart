@@ -24,7 +24,7 @@ class ListItem {
     }
     
     ListItem.fromJson(Map<String, dynamic> json) {
-        this.value = json["value"].stringValue;
+        this.value = json["value"].toString();
         this.attribute01 = json["attribute01"];
         this.attribute02 = json["attribute02"];
         this.attribute03 = json["attribute03"];
@@ -36,14 +36,8 @@ class ListItem {
         this.attribute09 = json["attribute09"];
         this.attribute10 = json["attribute10"];
         this.id = json["id"];
-        var latitudeString = json["latitude"];
-        if (latitudeString != null)  {
-            this.latitude = double.parse(latitudeString);
-        }
-        var longitudeString = json["latitude"];
-        if (longitudeString != null)  {
-            this.longitude = double.parse(longitudeString);
-        }
+        this.latitude = json["latitude"];
+        this.longitude = json["latitude"];
         this.parentID = json["parentID"];
     }
     

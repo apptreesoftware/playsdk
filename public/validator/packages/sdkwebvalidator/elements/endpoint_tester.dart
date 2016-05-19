@@ -38,20 +38,23 @@ class EndpointTestElement extends PolymerElement {
 
   EndpointTestElement.created() : super.created();
 
-  void updateUI() {
+  void updateUI([DataSetItem dataSetItem]) {
     DisplayType displayType = DisplayType.values[selectedTabIndex];
     DivElement container = $$('#content-container');
     container.children.clear();
-    Element element;
+    PolymerElement element;
+
+    unlisten(element, 'item-edit', 'listElementSelected');
     switch (displayType) {
       case DisplayType.CreateForm:
         element = new Form(dataSetAttributes, "CREATE");
         break;
       case DisplayType.UpdateForm:
-        element = new Form(dataSetAttributes, "UPDATE");
+        element = new Form(dataSetAttributes, "UPDATE", dataSetItem: dataSetItem);
         break;
       case DisplayType.ViewData:
         element = new ListElement(dataSetAttributes, _datasetService, endpoint.url);
+        listen(element, 'item-edit', 'listElementSelected');
         break;
       case DisplayType.Search:
         break;
@@ -81,6 +84,14 @@ class EndpointTestElement extends PolymerElement {
   @reflectable
   void endpointChanged(_, __) {
     _loadDataSet();
+  }
+
+  @reflectable
+  listElementSelected(event, detail) {
+    if (detail is DataSetItem) {
+      set('selectedTabIndex', 1);
+      updateUI(detail);
+    }
   }
 
   _loadDataSet() {

@@ -1,6 +1,7 @@
 <link rel="import" href="../../../packages/sdkwebvalidator/elements/shared_styles.html">
 <link rel="import" href="../../../packages/polymer_elements/iron_icons.html">
 <link rel="import" href="../../../packages/polymer_elements/typography.html">
+<link rel="import" href="../../../packages/polymer_elements/color.html">
 <link rel="import" href="../../../packages/polymer_elements/iron_flex_layout.html">
 
 <dom-module id="sdk-web-validator">
@@ -19,13 +20,22 @@
                 @apply(--my-no-select);
             }
 
-            .settings-content {
+            paper-menu {
                 width: 400px;
                 padding: 8px;
             }
 
             paper-button {
                 @apply(--paper-font-common-base);
+            }
+
+            paper-drawer-panel {
+                --paper-drawer-panel-drawer-container: {
+                    border-right-style: solid;
+                    border-right-color: var(--paper-grey-400);
+                    border-right-width: 1px;
+                    border-right-style: var(--paper-grey-400);
+                }
             }
 
         </style>
@@ -41,14 +51,12 @@
                     <paper-toolbar>
                         <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
                         <div class="title">Endpoint Testing Tool</div>
-                        <paper-menu-button class="settings-menu" horizontal-align="right">
+                        <paper-menu-button ignore-select class="settings-menu" horizontal-align="right">
                             <paper-icon-button icon="settings" class="dropdown-trigger"></paper-icon-button>
                             <paper-menu class="dropdown-content">
-                                <div class="settings-content">
-                                    <paper-input label="host" value="{{settings.host}}"></paper-input>
-                                    <paper-input label="username" value="{{settings.username}}"></paper-input>
-                                    <paper-button on-tap="saveSettings">Ok</paper-button>
-                                </div>
+                                <paper-input label="host" value="{{settings.host}}"></paper-input>
+                                <paper-input label="username" value="{{settings.username}}"></paper-input>
+                                <paper-button raised fon-tap="saveSettings">Ok</paper-button>
                             </paper-menu>
                         </paper-menu-button>
                     </paper-toolbar>
