@@ -927,11 +927,10 @@ public class DataSetItem {
                             break;
                         case Attachments:
                         case Relation:
-                            ArrayNode childArray = (ArrayNode) node.get(i);
+                            ArrayNode childArray = (ArrayNode) node;
                             RelatedServiceConfiguration childService = attribute.relatedService;
                             if ( childService != null && childArray != null && childService.getAttributes() != null ) {
-                                List<ServiceConfigurationAttribute> childAttributes = childService.getAttributes();
-                                IntStream.range(0, childAttributes.size())
+                                IntStream.range(0, childArray.size())
                                         .forEach(childIndex -> {
                                             ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
                                             String recordType = node.path("recordType").asText();
@@ -941,13 +940,13 @@ public class DataSetItem {
                                                 if (subClientKey != null && attachmentMap != null) {
                                                     filePart = attachmentMap.get(subClientKey);
                                                 }
-                                                DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(childIndex);
+                                                DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(i);
                                                 subDataSetItem.updateFromJSON(childJsonNode, null);
                                                 if (filePart != null) {
                                                     ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
                                                 }
                                             } else {
-                                                DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(childIndex);
+                                                DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(i);
                                                 subDataSetItem.updateFromJSON(childJsonNode, attachmentMap);
                                             }
                                         });
