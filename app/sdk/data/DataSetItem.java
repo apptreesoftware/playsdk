@@ -929,12 +929,12 @@ public class DataSetItem {
                         case Relation:
                             ArrayNode childArray = (ArrayNode) node;
                             RelatedServiceConfiguration childService = attribute.relatedService;
-                            if ( childService != null && childArray != null && childService.getAttributes() != null ) {
+                            if ( childArray != null ) {
                                 IntStream.range(0, childArray.size())
                                         .forEach(childIndex -> {
                                             ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
-                                            String recordType = node.path("recordType").asText();
-                                            String subClientKey = node.path("clientKey").asText();
+                                            String recordType = childJsonNode.path("recordType").asText();
+                                            String subClientKey = childJsonNode.path("clientKey").asText();
                                             Http.MultipartFormData.FilePart filePart = null;
                                             if (Type.fromString(recordType) == Type.Attachment) {
                                                 if (subClientKey != null && attachmentMap != null) {
