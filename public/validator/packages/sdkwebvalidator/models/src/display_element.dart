@@ -6,5 +6,6 @@ abstract class DisplayElement {
   DisplayType get displayType;
   String get title;
   bool get hidden;
+  int get attributeIndex;
   ListServiceConfiguration get relatedListServiceConfiguration;
 }

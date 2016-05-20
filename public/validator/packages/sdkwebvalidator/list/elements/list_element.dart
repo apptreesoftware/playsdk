@@ -11,6 +11,7 @@ import 'package:polymer_elements/iron_icons.dart';
 import 'package:sdkwebvalidator/models/models.dart';
 import 'package:sdkwebvalidator/services/services.dart';
 
+import 'package:sdkwebvalidator/list/elements/list_filters.dart';
 import 'package:sdkwebvalidator/list/elements/list_item.dart';
 
 class ListItemVO<T extends JsProxy> extends JsProxy {

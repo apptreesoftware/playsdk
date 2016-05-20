@@ -2,6 +2,7 @@ library sdkwebvalidator.models;
 
 import 'dart:convert';
 
+import 'package:uuid/uuid.dart';
 import 'package:source_gen/generators/json_serializable.dart';
 import 'package:polymer/polymer.dart' show JsProxy, reflectable;
 import 'package:sdkwebvalidator/form/form_element_display.dart';

@@ -91,10 +91,13 @@ import 'package:sdkwebvalidator/form/form_item/attachment.dart' as i83;
 import 'package:sdkwebvalidator/form/form.dart' as i84;
 import 'package:polymer_elements/iron_list.dart' as i85;
 import 'package:polymer_elements/iron_icons.dart' as i86;
-import 'package:sdkwebvalidator/list/elements/list_item.dart' as i87;
-import 'package:sdkwebvalidator/list/elements/list_element.dart' as i88;
-import 'package:sdkwebvalidator/elements/endpoint_tester.dart' as i89;
-import 'package:sdkwebvalidator/elements/sdkwebvalidator.dart' as i90;
+import 'package:sdkwebvalidator/list/elements/list_filter.dart' as i87;
+import 'package:sdkwebvalidator/list/elements/list_filters.dart' as i88;
+import 'package:sdkwebvalidator/list/elements/list_item.dart' as i89;
+import 'package:sdkwebvalidator/list/elements/list_element.dart' as i90;
+import 'package:sdkwebvalidator/search/elements/search.dart' as i91;
+import 'package:sdkwebvalidator/elements/endpoint_tester.dart' as i92;
+import 'package:sdkwebvalidator/elements/sdkwebvalidator.dart' as i93;
 
 main() {
   initializers.addAll([
@@ -184,12 +187,16 @@ main() {
     new InitEntry(const i57.PolymerRegister('at-attachment'), i83.Attachment),
     new InitEntry(const i57.PolymerRegister('at-form'), i84.Form),
     new InitEntry(const i7.CustomElementProxy('iron-list'), i85.IronList),
-    new InitEntry(const i57.PolymerRegister('list-item'), i87.ListItemElement),
-    new InitEntry(const i57.PolymerRegister('at-list'), i88.ListElement),
+    new InitEntry(const i57.PolymerRegister('at-list-filter'), i87.ListFilter),
+    new InitEntry(
+        const i57.PolymerRegister('at-list-filters'), i88.ListFilters),
+    new InitEntry(const i57.PolymerRegister('list-item'), i89.ListItemElement),
+    new InitEntry(const i57.PolymerRegister('at-list'), i90.ListElement),
+    new InitEntry(const i57.PolymerRegister('at-search'), i91.SearchElement),
     new InitEntry(const i57.PolymerRegister('at-endpoint-tester'),
-        i89.EndpointTestElement),
+        i92.EndpointTestElement),
     new InitEntry(const i57.PolymerRegister('sdk-web-validator'),
-        i90.ConnectorAppElement),
+        i93.ConnectorAppElement),
   ]);
 
   return i0.main();

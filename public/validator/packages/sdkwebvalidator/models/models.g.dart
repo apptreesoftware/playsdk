@@ -113,9 +113,9 @@ ServiceConfigurationAttribute _$ServiceConfigurationAttributeFromJson(
         json['updateRequired'],
         json['searchRequired'],
         json['attributeIndex'],
-        json['canCreate'],
-        json['canUpdate'],
-        json['canSearch'],
+        json['create'],
+        json['update'],
+        json['search'],
         json['relatedListServiceConfiguration'] == null
             ? null
             : new ListServiceConfiguration.fromJson(
@@ -141,9 +141,9 @@ abstract class _$ServiceConfigurationAttributeSerializerMixin {
         'updateRequired': updateRequired,
         'searchRequired': searchRequired,
         'attributeIndex': attributeIndex,
-        'canCreate': canCreate,
-        'canUpdate': canUpdate,
-        'canSearch': canSearch,
+        'create': canCreate,
+        'update': canUpdate,
+        'search': canSearch,
         'relatedListServiceConfiguration': relatedListServiceConfiguration
       };
 }

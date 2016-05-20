@@ -39,4 +39,10 @@ class MockDatasetService implements DatasetService {
     print(JSON.encode(item));
     return new DataSetResponse(true, '', false, 1, 1, true, []);
   }
+
+  Future<DataSetResponse> searchDataSet(Uri baseUrl, DataSetItem item) async {
+    print('mock update to $baseUrl');
+    print(JSON.encode(item));
+    return new DataSetResponse(true, '', false, 1, 1, true, []);
+  }
 }

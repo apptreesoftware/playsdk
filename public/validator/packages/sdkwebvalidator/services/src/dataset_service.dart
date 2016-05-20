@@ -53,4 +53,22 @@ class DatasetService extends BaseService {
     var dataSetResponse = new DataSetResponse.fromJson(json);
     return dataSetResponse;
   }
+
+  Future<DataSetResponse> searchDataSet(Uri connectorUri, DataSetItem dataSetItem) async {
+    var queryParams = {};
+    var pathSegments = new List.from(connectorUri.pathSegments);
+    pathSegments.add('search');
+    var uri = connectorUri.replace(queryParameters: queryParams, pathSegments: pathSegments);
+
+    var headers = {
+      'X-AUTH-TOKEN': token,
+      'Content-Type': 'application/json',
+    };
+    var requestBody = JSON.encode(dataSetItem);
+    var response = await client.post(uri, headers: headers, body: requestBody);
+    var body = response.body;
+    var result = JSON.decode(body);
+    var dataSet = new DataSetResponse.fromJson(result);
+    return dataSet;
+  }
 }

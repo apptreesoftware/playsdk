@@ -63,12 +63,15 @@ class ServiceConfigurationAttribute extends Object
   final int attributeIndex;
 
   @reflectable
+  @JsonKey('create')
   final bool canCreate;
 
   @reflectable
+  @JsonKey('update')
   final bool canUpdate;
 
   @reflectable
+  @JsonKey('search')
   final bool canSearch;
 
   @reflectable

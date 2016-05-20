@@ -11,6 +11,7 @@ import 'package:sdkwebvalidator/form/form.dart';
 import 'package:sdkwebvalidator/services/services.dart';
 import 'package:sdkwebvalidator/models/models.dart';
 import 'package:sdkwebvalidator/list/elements/list_element.dart';
+import 'package:sdkwebvalidator/search/elements/search.dart';
 
 enum DisplayType { CreateForm, UpdateForm, ViewData, Search }
 
@@ -57,6 +58,7 @@ class EndpointTestElement extends PolymerElement {
         listen(element, 'item-edit', 'listElementSelected');
         break;
       case DisplayType.Search:
+        element = new SearchElement(dataSetAttributes, _datasetService, endpoint.url);
         break;
     }
     if (element != null) {

@@ -3,7 +3,7 @@ part of sdkwebvalidator.models;
 class DataSetItem extends JsProxy {
 
   @reflectable
-  String uuid = "";
+  String uuid;
 
   @reflectable
   String serverPrimaryKey = "";
@@ -39,13 +39,16 @@ class DataSetItem extends JsProxy {
   List<DataSetItem> subItems = [];
   DataSet dataSet = new DataSet();
 
-  DataSetItem();
+  DataSetItem() {
+    var uuid = new Uuid();
+    this.uuid = uuid.v4();
+  }
 
   factory DataSetItem.fromFormElementDisplays(List<FormElementDisplay> displays) {
     var result = new DataSetItem();
     for (var i = 0; i < displays.length; i++) {
       var display = displays[i];
-      result.setAttribute(display.value, i);
+      result.setAttribute(display.value, display.formElement.attributeIndex);
     }
     return result;
   }

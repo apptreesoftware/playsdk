@@ -5,11 +5,19 @@
 <dom-module id="at-list">
     <style>
         :host {
+            @apply(--paper-font-common-base);
             overflow: scroll;
+
+            display: block;
+            padding: 8px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
     </style>
     <template>
         <div class="container">
+            <at-list-filters></at-list-filters>
             <iron-list items="[[dataSetItems]]" as="item" >
                 <template>
                     <list-item item="{{item}}" on-edit="handleEditListItem"></list-item>

@@ -27541,6 +27541,39 @@ will only render 20.
 
 
 
+<dom-module id="at-list-filter">
+    <style>
+        :host {
+            display: flex;
+            justify-content:flex-start;
+            align-items: center;
+        }
+    </style>
+    <template>
+        <paper-input class="key" label="Key" value="{{filter.key}}">{{filter.key}}</paper-input>
+        <paper-input class="value" label="Value" value="{{filter.value}}">{{filter.value}}</paper-input>
+        <paper-icon-button icon="delete"></paper-icon-button>
+    </template>
+</dom-module>
+<dom-module id="at-list-filters">
+    <style>
+        :host {
+            @apply(--paper-font-common-base);
+        }
+
+        at-list-filter {
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+    </style>
+    <template>
+        <template is="dom-repeat" items="{{filters}}" as="filter">
+            <at-list-filter filter="{{filter}}"></at-list-filter>
+        </template>
+        <paper-button>Add</paper-button>
+    </template>
+</dom-module>
 <dom-module id="list-item">
     <style>
         :host {
@@ -27581,11 +27614,19 @@ will only render 20.
 <dom-module id="at-list">
     <style>
         :host {
+            @apply(--paper-font-common-base);
             overflow: scroll;
+
+            display: block;
+            padding: 8px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
     </style>
     <template>
         <div class="container">
+            <at-list-filters></at-list-filters>
             <iron-list items="[[dataSetItems]]" as="item">
                 <template>
                     <list-item item="{{item}}" on-edit="handleEditListItem"></list-item>
@@ -27594,12 +27635,30 @@ will only render 20.
         </div>
     </template>
 </dom-module>
+<dom-module id="at-search">
+    <style>
+        :host {
+            @apply(--paper-font-common-base);
+            overflow: scroll;
+
+            display: block;
+            padding: 8px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+    <template>
+        <paper-button on-tap="searchClicked">Search</paper-button>
+        <div id="form-item-container"></div>
+    </template>
+</dom-module>
 
 <dom-module id="shared-styles">
     <style>
         :root {
             --at-toolbar-color: var(--google-green-500);
-            --at-tab-color: var(--google-green-700);
+            --at-tab-color: var(--paper-blue-grey-50);
             --no-select: {
                 cursor: default;
                 -webkit-touch-callout: none;
@@ -27624,7 +27683,8 @@ will only render 20.
             paper-tabs {
                 @apply(--paper-font-common-base);
                 background-color: var(--at-tab-color);
-                color: #fff;
+                color: var(--paper-grey-900);
+                --paper-tabs-selection-bar-color: var(--paper-blue-300);
             }
 
             .container {

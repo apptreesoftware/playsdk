@@ -30,7 +30,7 @@ class SelectList extends PolymerElement with FormItem {
   @property String listName;
   @property List<SelectDisplayElement> displayElements = [];
   @property String formId;
-  @property String formValue;
+  @Property(observer: 'formValueChanged') String formValue;
   @property bool expand;
 
   SelectList.created() : super.created();
@@ -65,9 +65,13 @@ class SelectList extends PolymerElement with FormItem {
   }
 
   String get encodedListItems {
+    // avoid serializing this list item if there is no value
+    if (formValue == null || formValue == '') return null;
+
     // create a list item, serialize it, and set the form element display value.
     var listItem = new ListItem(formValue);
     listItem.id = formId;
+    listItem.value = formValue;
     for (var element in displayElements) {
       // 'value' is the 0th attribute in a ListItem.  The '+1' converts
       // the configuration index to a ListItem (Dataset) index.
@@ -75,4 +79,12 @@ class SelectList extends PolymerElement with FormItem {
     }
     return JSON.encode(listItem);
   }
+
+  @reflectable
+  formValueChanged(newValue, oldValue) {
+    if(formId == '' || formId == oldValue) {
+      set('formId', newValue);
+    }
+  }
 }
+
