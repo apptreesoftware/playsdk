@@ -81,7 +81,8 @@ public class CacheListSQLGenerator {
             sqlFileInputStream.close();
             return zipFile;
         } catch (SQLException e) {
-            throw new RuntimeException("There was a database error");
+            e.printStackTrace();
+            throw new RuntimeException(CacheListSQLGenerator.class.getCanonicalName() + " Error generating DB: " + e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException("There was an IO Exception");
         }

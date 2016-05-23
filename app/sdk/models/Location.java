@@ -5,6 +5,8 @@ import org.joda.time.DateTime;
 import play.libs.Json;
 import sdk.utils.Constants;
 
+import javax.annotation.Nullable;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -19,6 +21,18 @@ public class Location {
 
     public Location() {
 
+    }
+
+    @Nullable
+    public static Location fromLatLngString(String locationString) {
+        if ( locationString == null ) return null;
+        String components[] = locationString.split(",");
+        if ( components.length == 2 ) {
+            double lat = Double.parseDouble(components[0]);
+            double lng = Double.parseDouble(components[1]);
+            return new Location(lat, lng);
+        }
+        return null;
     }
 
     /**
