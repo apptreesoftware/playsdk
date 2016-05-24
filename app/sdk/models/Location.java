@@ -170,4 +170,9 @@ public class Location {
         }
         return json;
     }
+
+    public String getLatLngString() {
+        return String.format("%f,%f", latitude, longitude);
+    }
+
 }

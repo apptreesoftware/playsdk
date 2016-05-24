@@ -431,6 +431,10 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<DateRange> getOptionalDateRangeAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getDateRangeAttributeAtIndex(attributeIndex));
+    }
+
     /**
      * Gets a date time range at the specified index of the attribute map
      * @param attributeIndex The index to get the attribute at
@@ -446,6 +450,9 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<DateTimeRange> getOptionalDateTimeRangeAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getDateTimeRangeAttributeAtIndex(attributeIndex));
+    }
 
     /**
      * Gets a boolean attribute at the specified index of the attribute map
@@ -516,12 +523,20 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<Location> getOptionalLocationAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getLocationAtIndex(attributeIndex));
+    }
+
     public Image getImageAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getImageValue();
         }
         return null;
+    }
+
+    public Optional<Image> getOptionalImageAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getImageAtIndex(attributeIndex));
     }
 
     public List<DataSetItemAttachment> getAttachmentItemsAtIndex(int attributeIndex) {
