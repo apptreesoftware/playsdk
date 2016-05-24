@@ -37,4 +37,4 @@ GET           /list/:listName/describe                 sdk.controllers.ListContr
 POST          /list/:listName/search                   sdk.controllers.ListController.searchListData(listName: String)
 GET           /list/:listName                          sdk.controllers.ListController.getListData(listName: String)
 
-GET           /*file                                   sdk.controllers.StaticFileController.html(file)
+#GET           /*file                                   sdk.controllers.StaticFileController.html(file)
