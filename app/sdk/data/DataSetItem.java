@@ -728,10 +728,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      * @throws InvalidAttributeValueException
      */
-    public void setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
-        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateRange, attributeIndex) ) {
-            return;
-        }
+    private void setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
+//        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateRange, attributeIndex) ) {
+//            return;
+//        }
         attributeMap.put(attributeIndex, new DataSetItemAttribute(dateRange));
         updateMaxAttribute(attributeIndex);
     }
@@ -742,10 +742,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      * @throws InvalidAttributeValueException
      */
-    public void setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
-        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateTimeRange, attributeIndex) ) {
-            return;
-        }
+    private void setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
+//        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateTimeRange, attributeIndex) ) {
+//            return;
+//        }
         attributeMap.put(attributeIndex, new DataSetItemAttribute(dateTimeRange));
         updateMaxAttribute(attributeIndex);
     }
@@ -873,7 +873,7 @@ public class DataSetItem {
         return json;
     }
 
-    public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
+    public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap, boolean search) {
         primaryKey = json.path("primaryKey").textValue();
         crudStatus = CRUDStatus.fromString(json.path("CRUDStatus").textValue());
         dataCollectionStatus = DataCollectionStatus.fromString(json.path("DataCollectionStatus").textValue());
@@ -898,10 +898,28 @@ public class DataSetItem {
                             setBooleanForAttributeIndex(node.asText().equalsIgnoreCase("Y"), i);
                             break;
                         case Date:
-                            setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
+                            if ( search ) {
+                                JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                    DateRange dateRange = Json.fromJson(jsonNode, DateRange.class);
+                                    if ( dateRange != null ) {
+                                        setDateRangeForAttributeIndex(dateRange, i);
+                                    }
+                                });
+                            } else {
+                                setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
+                            }
                             break;
                         case DateTime:
-                            setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
+                            if ( search ) {
+                                JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                    DateTimeRange dateRange = Json.fromJson(jsonNode, DateTimeRange.class);
+                                    if ( dateRange != null ) {
+                                        setDateTimeRangeForAttributeIndex(dateRange, i);
+                                    }
+                                });
+                            } else {
+                                setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
+                            }
                             break;
                         case TimeInterval:
                             setTimeIntervalForAttributeIndex(node.asLong(), i);
@@ -956,13 +974,13 @@ public class DataSetItem {
                                                     filePart = attachmentMap.get(subClientKey);
                                                 }
                                                 DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(i);
-                                                subDataSetItem.updateFromJSON(childJsonNode, null);
+                                                subDataSetItem.updateFromJSON(childJsonNode, null, search);
                                                 if (filePart != null) {
                                                     ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
                                                 }
                                             } else {
                                                 DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(i);
-                                                subDataSetItem.updateFromJSON(childJsonNode, attachmentMap);
+                                                subDataSetItem.updateFromJSON(childJsonNode, attachmentMap, search);
                                             }
                                         });
                             }

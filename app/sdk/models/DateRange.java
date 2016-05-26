@@ -28,7 +28,7 @@ public class DateRange {
      *
      * @return a DateTime of the earliest date in range
      */
-    public DateTime getFromDate() {
+    public DateTime getFrom() {
         return from;
     }
 
@@ -36,7 +36,7 @@ public class DateRange {
      * Sets the earliest date in range
      * @param date DateTime
      */
-    public void setFromDate(DateTime date) {
+    public void setFrom(DateTime date) {
         from = date;
     }
 
@@ -44,7 +44,7 @@ public class DateRange {
      *
      * @return a DateTime of the latest date in range
      */
-    public DateTime getToDate() {
+    public DateTime getTo() {
         return to;
     }
 
@@ -52,7 +52,7 @@ public class DateRange {
      * Sets the latest date in range
      * @param date DateTime
      */
-    public void setToDate(DateTime date) {
+    public void setTo(DateTime date) {
         to = date;
     }
 
