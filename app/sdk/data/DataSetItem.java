@@ -889,10 +889,25 @@ public class DataSetItem {
                             setStringForAttributeIndex(node.textValue(), i);
                             break;
                         case Double:
-                            setDoubleForAttributeIndex(node.doubleValue(), i);
+                            if ( node.isTextual() ) {
+                                try {
+                                    double doubleValue  = Double.parseDouble(node.asText());
+                                    setDoubleForAttributeIndex(doubleValue, i);
+                                }
+                                catch (Exception ignored) {}
+                            } else if ( node.isDouble() ) {
+                                setDoubleForAttributeIndex(node.doubleValue(), i);
+                            }
                             break;
                         case Int:
-                            setIntForAttributeIndex(node.intValue(), i);
+                            if ( node.isTextual() ) {
+                                try {
+                                    int intValue = Integer.parseInt(node.asText());
+                                    setIntForAttributeIndex(intValue, i);
+                                } catch (Exception ignored) {}
+                            } else if ( node.isInt()) {
+                                setIntForAttributeIndex(node.intValue(), i);
+                            }
                             break;
                         case Boolean:
                             setBooleanForAttributeIndex(node.asText().equalsIgnoreCase("Y"), i);
