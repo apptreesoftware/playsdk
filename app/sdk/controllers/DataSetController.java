@@ -1,5 +1,6 @@
 package sdk.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
@@ -8,10 +9,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sdk.AppTree;
 import sdk.attachment.AttachmentDataSource;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.DataSource;
-import sdk.data.ServiceConfiguration;
+import sdk.data.*;
 import sdk.serializers.DataSetModule;
 import sdk.serializers.DateTimeModule;
 import sdk.utils.AuthenticationInfo;
@@ -69,7 +67,7 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return dataSetItemFromRequest(dataSetName, request, false)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
@@ -82,7 +80,7 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return dataSetItemFromRequest(dataSetName, request, false)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
@@ -95,7 +93,7 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return dataSetItemFromRequest(dataSetName, request, true)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
@@ -124,6 +122,22 @@ public class DataSetController extends Controller {
         return CompletableFuture
                 .supplyAsync(() -> source.getAttachment(attachmentID, authenticationInfo, parameters))
                 .thenApply(attachmentResponse -> ok(attachmentResponse.inputStream).withHeader("Content-Type", attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream"));
+    }
+
+    public CompletionStage<Result> postEvent(String dataSetName, String dataSetItemID) {
+        JsonNode json = request().body().asJson();
+        if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
+        Event event = Json.fromJson(json, Event.class);
+        Http.Request request = request();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        return CompletableFuture
+                .supplyAsync(() -> {
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+                    return dataSource.updateEventForDataSetItem(dataSetItemID, event, authenticationInfo, parameters);
+                })
+                .thenApply(response -> ok(Json.toJson(response)))
+                .exceptionally(ResponseExceptionHandler::handleException);
     }
 
     private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request, boolean search) {

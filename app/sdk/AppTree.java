@@ -3,6 +3,7 @@ package sdk;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.data.DataSource;
+import sdk.datacollection.DataCollectionSource;
 import sdk.list.ListDataSource;
 import sdk.user.UserDataSource;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
 public class AppTree {
     public static HashMap<String, DataSource> dataSources = new HashMap<>();
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();
+    public static HashMap<String, DataCollectionSource> dataCollectionSources = new HashMap<>();
     private static AuthenticationSource authenticationSource;
     private static UserDataSource userDataSource;
     private static AttachmentDataSource attachmentDataSource;
@@ -24,8 +26,16 @@ public class AppTree {
         listSources.putIfAbsent(name, dataSource);
     }
 
+    public static void registerDataCollectionSourceWithName(String name, DataCollectionSource dataCollectionSource) {
+        dataCollectionSources.putIfAbsent(name, dataCollectionSource);
+    }
+
     public static Optional<DataSource> lookupDataSetHandler(String name) {
         return Optional.ofNullable(dataSources.get(name));
+    }
+
+    public static Optional<DataCollectionSource> lookupDataCollectionHandler(String name) {
+        return Optional.ofNullable(dataCollectionSources.get(name));
     }
 
     public static Optional<ListDataSource> lookupListHandler(String name) {
