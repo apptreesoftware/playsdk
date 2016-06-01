@@ -16,7 +16,7 @@ import java.util.List;
 public class Activity {
     String id;
     List<Location> breadcrumb;
-    List<DateTimeRange> intervals;
+    List<ActivityInterval> intervals;
     ActivityState state;
 
     public enum ActivityState {
@@ -90,13 +90,13 @@ public class Activity {
      *
      * @return Returns the list of DateTimeRange intervals for this activity
      */
-    public List<DateTimeRange> getIntervals() { return this.intervals; }
+    public List<ActivityInterval> getIntervals() { return this.intervals; }
 
     /**
      * Sets the DateRangeTime intervals for this activity
      * @param intervals
      */
-    public void setIntervals(List<DateTimeRange> intervals) { this.intervals = intervals; }
+    public void setIntervals(List<ActivityInterval> intervals) { this.intervals = intervals; }
 
     /**
      *

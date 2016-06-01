@@ -15,6 +15,7 @@ import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
 import sdk.datacollection.DataCollectionSource;
 import sdk.serializers.DataSetModule;
+import sdk.serializers.DateTimeModule;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
@@ -32,9 +33,7 @@ import java.util.concurrent.CompletionStage;
 public class DataCollectionController extends Controller {
 
     public DataCollectionController() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new DataSetModule());
-        Json.setObjectMapper(objectMapper);
+
     }
 
     public CompletionStage<Result> getDataCollectionConfiguration(String endpoint) {
