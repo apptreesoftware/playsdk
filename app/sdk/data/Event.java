@@ -1,5 +1,8 @@
 package sdk.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -8,6 +11,10 @@ public class Event {
     String dataSetItemPrimaryKey;
     EventType eventType;
     Activity activity;
+
+    public Event() {
+
+    }
 
     public enum EventType {
         None("NONE"),
@@ -24,6 +31,7 @@ public class Event {
          * @param string the String value of the event type
          * @return
          */
+        @JsonCreator
         public static EventType fromString(String string) {
             if ( string.equalsIgnoreCase("NONE") ) {
                 return None;
@@ -35,6 +43,11 @@ public class Event {
                 return Viewed;
             }
             return None;
+        }
+
+        @JsonValue
+        public String value() {
+            return stringValue;
         }
     }
 

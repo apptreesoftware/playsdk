@@ -31,6 +31,11 @@ public class ApplicationController extends Controller {
             String url = hostURL + "/dataset/" + endpoint;
             addEndpoint("dataset/" + endpoint, name, url, "data", records);
         });
+        AppTree.dataCollectionSources.forEach((endpoint, dataCollectionSource) -> {
+            String name = dataCollectionSource.getServiceName() != null ? dataCollectionSource.getServiceName() : endpoint;
+            String url = hostURL + "/datacollection/" + endpoint;
+            addEndpoint("datacollection/" + endpoint, name, url, "data collection", records);
+        });
         AppTree.listSources.forEach((endpoint, datasource) -> {
             String name = datasource.getServiceName() != null ? datasource.getServiceName() : endpoint;
             String url = hostURL + "/list/" + endpoint;

@@ -1,5 +1,9 @@
 package sdk.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import sdk.models.DateTimeRange;
 import sdk.models.Location;
 
@@ -11,8 +15,8 @@ import java.util.List;
  */
 public class Activity {
     String id;
-    List<Location> breadcrumb = new ArrayList<Location>();
-    List<DateTimeRange> intervals = new ArrayList<DateTimeRange>();
+    List<Location> breadcrumb;
+    List<DateTimeRange> intervals;
     ActivityState state;
 
     public enum ActivityState {
@@ -28,6 +32,7 @@ public class Activity {
         }
 
         @Override
+        @JsonValue
         public String toString() {
             return stringValue;
         }
@@ -37,6 +42,7 @@ public class Activity {
          * @param string The name of the assessment status
          * @return
          */
+        @JsonCreator
         public static ActivityState fromString(String string) {
             string = string.toUpperCase();
             if ( string.equalsIgnoreCase(None.toString())) {
@@ -64,23 +70,21 @@ public class Activity {
      */
     public String getID() { return id; }
 
-    /**
-     * Updates the ID of the activity
-     * @param id
-     */
-    public void updateID(String id) { this.id = id; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
     /**
      *
      * @return The list of Locations for this activity
      */
+    @JsonProperty("breadcrumb")
     public List<Location> getLocationBreadCrumbs() { return this.breadcrumb; }
 
-    /**
-     * Sets the Location breadrumbs for this activity
-     * @param locationBreadCrumbs
-     */
-    public void setLocationBreadCrumbs(List<Location> locationBreadCrumbs) { this.breadcrumb = locationBreadCrumbs; }
+    @JsonProperty("breadcrumb")
+    public void setLocationBreadcrumbs(List<Location> breadcrumb) {
+        this.breadcrumb = breadcrumb;
+    }
 
     /**
      *

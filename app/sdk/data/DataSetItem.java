@@ -431,6 +431,10 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<DateRange> getOptionalDateRangeAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getDateRangeAttributeAtIndex(attributeIndex));
+    }
+
     /**
      * Gets a date time range at the specified index of the attribute map
      * @param attributeIndex The index to get the attribute at
@@ -446,6 +450,9 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<DateTimeRange> getOptionalDateTimeRangeAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getDateTimeRangeAttributeAtIndex(attributeIndex));
+    }
 
     /**
      * Gets a boolean attribute at the specified index of the attribute map
@@ -516,12 +523,20 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<Location> getOptionalLocationAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getLocationAtIndex(attributeIndex));
+    }
+
     public Image getImageAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             return attribute.getImageValue();
         }
         return null;
+    }
+
+    public Optional<Image> getOptionalImageAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getImageAtIndex(attributeIndex));
     }
 
     public List<DataSetItemAttachment> getAttachmentItemsAtIndex(int attributeIndex) {
@@ -713,10 +728,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      * @throws InvalidAttributeValueException
      */
-    public void setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
-        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateRange, attributeIndex) ) {
-            return;
-        }
+    private void setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
+//        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateRange, attributeIndex) ) {
+//            return;
+//        }
         attributeMap.put(attributeIndex, new DataSetItemAttribute(dateRange));
         updateMaxAttribute(attributeIndex);
     }
@@ -727,10 +742,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      * @throws InvalidAttributeValueException
      */
-    public void setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
-        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateTimeRange, attributeIndex) ) {
-            return;
-        }
+    private void setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
+//        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateTimeRange, attributeIndex) ) {
+//            return;
+//        }
         attributeMap.put(attributeIndex, new DataSetItemAttribute(dateTimeRange));
         updateMaxAttribute(attributeIndex);
     }
@@ -858,7 +873,7 @@ public class DataSetItem {
         return json;
     }
 
-    public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
+    public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap, boolean search) {
         primaryKey = json.path("primaryKey").textValue();
         crudStatus = CRUDStatus.fromString(json.path("CRUDStatus").textValue());
         dataCollectionStatus = DataCollectionStatus.fromString(json.path("DataCollectionStatus").textValue());
@@ -874,19 +889,52 @@ public class DataSetItem {
                             setStringForAttributeIndex(node.textValue(), i);
                             break;
                         case Double:
-                            setDoubleForAttributeIndex(node.doubleValue(), i);
+                            if ( node.isTextual() ) {
+                                try {
+                                    double doubleValue  = Double.parseDouble(node.asText());
+                                    setDoubleForAttributeIndex(doubleValue, i);
+                                }
+                                catch (Exception ignored) {}
+                            } else if ( node.isDouble() ) {
+                                setDoubleForAttributeIndex(node.doubleValue(), i);
+                            }
                             break;
                         case Int:
-                            setIntForAttributeIndex(node.intValue(), i);
+                            if ( node.isTextual() ) {
+                                try {
+                                    int intValue = Integer.parseInt(node.asText());
+                                    setIntForAttributeIndex(intValue, i);
+                                } catch (Exception ignored) {}
+                            } else if ( node.isInt()) {
+                                setIntForAttributeIndex(node.intValue(), i);
+                            }
                             break;
                         case Boolean:
                             setBooleanForAttributeIndex(node.asText().equalsIgnoreCase("Y"), i);
                             break;
                         case Date:
-                            setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
+                            if ( search ) {
+                                JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                    DateRange dateRange = Json.fromJson(jsonNode, DateRange.class);
+                                    if ( dateRange != null ) {
+                                        setDateRangeForAttributeIndex(dateRange, i);
+                                    }
+                                });
+                            } else {
+                                setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
+                            }
                             break;
                         case DateTime:
-                            setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
+                            if ( search ) {
+                                JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                    DateTimeRange dateRange = Json.fromJson(jsonNode, DateTimeRange.class);
+                                    if ( dateRange != null ) {
+                                        setDateTimeRangeForAttributeIndex(dateRange, i);
+                                    }
+                                });
+                            } else {
+                                setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
+                            }
                             break;
                         case TimeInterval:
                             setTimeIntervalForAttributeIndex(node.asLong(), i);
@@ -927,30 +975,30 @@ public class DataSetItem {
                             break;
                         case Attachments:
                         case Relation:
-                            ArrayNode childArray = (ArrayNode) node.get(i);
+                            ArrayNode childArray = (ArrayNode) node;
                             RelatedServiceConfiguration childService = attribute.relatedService;
-                            if ( childService == null ) { return; }
-                            List<ServiceConfigurationAttribute> childAttributes = childService.getAttributes();
-                            IntStream.range(0, childAttributes.size())
-                                    .forEach(childIndex -> {
-                                        ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
-                                        String recordType = node.path("recordType").asText();
-                                        String subClientKey = node.path("clientKey").asText();
-                                        Http.MultipartFormData.FilePart filePart = null;
-                                        if ( Type.fromString(recordType) == Type.Attachment ) {
-                                            if ( subClientKey != null && attachmentMap != null ) {
-                                                filePart = attachmentMap.get(subClientKey);
+                            if ( childArray != null ) {
+                                IntStream.range(0, childArray.size())
+                                        .forEach(childIndex -> {
+                                            ObjectNode childJsonNode = (ObjectNode) childArray.get(childIndex);
+                                            String recordType = childJsonNode.path("recordType").asText();
+                                            String subClientKey = childJsonNode.path("clientKey").asText();
+                                            Http.MultipartFormData.FilePart filePart = null;
+                                            if (Type.fromString(recordType) == Type.Attachment) {
+                                                if (subClientKey != null && attachmentMap != null) {
+                                                    filePart = attachmentMap.get(subClientKey);
+                                                }
+                                                DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(i);
+                                                subDataSetItem.updateFromJSON(childJsonNode, null, search);
+                                                if (filePart != null) {
+                                                    ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
+                                                }
+                                            } else {
+                                                DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(i);
+                                                subDataSetItem.updateFromJSON(childJsonNode, attachmentMap, search);
                                             }
-                                            DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(childIndex);
-                                            subDataSetItem.updateFromJSON(childJsonNode, null);
-                                            if ( filePart != null ) {
-                                                ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
-                                            }
-                                        } else {
-                                            DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(childIndex);
-                                            subDataSetItem.updateFromJSON(childJsonNode, attachmentMap);
-                                        }
-                                    });
+                                        });
+                            }
                             break;
                         case ListItem:
                             JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {

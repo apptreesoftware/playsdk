@@ -7,6 +7,7 @@ import sdk.models.AttributeType;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by alexis on 5/3/16.
@@ -180,7 +181,7 @@ public class ServiceConfigurationAttribute {
          * Sets the attribute type as list item
          * @return The builder with list item type
          */
-        public Builder asListItem(HashSet<ListServiceConfigurationAttribute> listAttributes) {
+        public Builder asListItem(Set<ListServiceConfigurationAttribute> listAttributes) {
             mRelatedListService = new ListServiceConfiguration("");
             mRelatedListService.getAttributes().addAll(listAttributes);
             mAttributeType = AttributeType.ListItem;

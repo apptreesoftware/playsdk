@@ -64,9 +64,9 @@ public class ListController extends Controller {
     public CompletionStage<Result> searchListData(String listName) {
         Http.Request request = request();
         JsonNode json = request.body().asJson();
-        String searchTerm = json.get("searchTerm").textValue();
-        JsonNode context = json.get("context");
-        boolean barcodeSearch = json.get("barcodeSearch").booleanValue();
+        String searchTerm = json.path("searchTerm").textValue();
+        JsonNode context = json.path("context");
+        boolean barcodeSearch = json.path("barcodeSearch").booleanValue();
         return CompletableFuture.supplyAsync(() -> {
             ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
             if ( !(dataSource instanceof SearchableList) ) throw new RuntimeException("This list does not support querying.");

@@ -1,5 +1,6 @@
 package sdk.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
@@ -8,11 +9,9 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sdk.AppTree;
 import sdk.attachment.AttachmentDataSource;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.DataSource;
-import sdk.data.ServiceConfiguration;
+import sdk.data.*;
 import sdk.serializers.DataSetModule;
+import sdk.serializers.DateTimeModule;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.ResponseExceptionHandler;
@@ -31,6 +30,7 @@ public class DataSetController extends Controller {
     public DataSetController() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new DataSetModule());
+        objectMapper.registerModule(new DateTimeModule());
         Json.setObjectMapper(objectMapper);
     }
 
@@ -65,9 +65,9 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, true)
+        return dataSetItemFromRequest(dataSetName, request, false)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
@@ -78,9 +78,9 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, true)
+        return dataSetItemFromRequest(dataSetName, request, false)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
@@ -91,9 +91,9 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, false)
+        return dataSetItemFromRequest(dataSetName, request, true)
                 .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).get();
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
@@ -124,13 +124,29 @@ public class DataSetController extends Controller {
                 .thenApply(attachmentResponse -> ok(attachmentResponse.inputStream).withHeader("Content-Type", attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream"));
     }
 
-    private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request, boolean formBody) {
+    public CompletionStage<Result> postEvent(String dataSetName, String dataSetItemID) {
+        JsonNode json = request().body().asJson();
+        if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
+        Event event = Json.fromJson(json, Event.class);
+        Http.Request request = request();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        return CompletableFuture
+                .supplyAsync(() -> {
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+                    return dataSource.updateEventForDataSetItem(dataSetItemID, event, authenticationInfo, parameters);
+                })
+                .thenApply(response -> ok(Json.toJson(response)))
+                .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request, boolean search) {
         return CompletableFuture.supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName)
                 .orElseThrow(() -> new RuntimeException("Invalid Data Set")))
                 .thenApply(dataSource -> getServiceConfiguration(dataSource, request))
                 .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
                 .thenApply(dataSet -> {
-                    if ( formBody ) {
+                    if ( !search ) {
                         Http.MultipartFormData body = request.body()
                                 .asMultipartFormData();
                         Map<String, String[]> bodyMap = body.asFormUrlEncoded();
@@ -141,17 +157,17 @@ public class DataSetController extends Controller {
                             attachmentMap.put(file.getKey(), file);
                         }
                         ObjectNode json = (ObjectNode) Json.parse(formJSON);
-                        return dataSetItemForJSON(json, dataSet, attachmentMap);
+                        return dataSetItemForJSON(json, dataSet,search, attachmentMap);
                     } else {
                         ObjectNode json = (ObjectNode) request.body().asJson();
-                        return dataSetItemForJSON(json, dataSet, new HashMap<>());
+                        return dataSetItemForJSON(json, dataSet,search, new HashMap<>());
                     }
                 });
     }
 
-    private DataSetItem dataSetItemForJSON(ObjectNode json, DataSet dataSet, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
+    private DataSetItem dataSetItemForJSON(ObjectNode json, DataSet dataSet, boolean search, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
         DataSetItem dataSetItem = dataSet.addNewDataSetItem();
-        dataSetItem.updateFromJSON(json, attachmentMap);
+        dataSetItem.updateFromJSON(json, attachmentMap, search);
         return dataSetItem;
     }
 
