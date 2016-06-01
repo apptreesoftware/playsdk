@@ -1,0 +1,14 @@
+<link rel="import" href="../../../../packages/polymer_elements/color.html">
+<link rel="import" href="../shared_styles.html">
+<dom-module id="at-textfield">
+    <template>
+        <style include="shared-styles">
+            :root {
+                --paper-input-container-focus-color: var(--google-green-300);
+            }
+        </style>
+        <at-card>
+            <paper-input value={{inputValue}} label="{{label}}" type="text" />
+        </at-card>
+    </template>
+</dom-module>

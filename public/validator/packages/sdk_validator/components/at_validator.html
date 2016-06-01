@@ -1,0 +1,29 @@
+<link rel="import" href="../../../packages/sdk_validator/components/shared_styles.html">
+<dom-module id="at-validator">
+    <style is="custom-style" include="shared-styles">
+        paper-toolbar {
+            @apply(--no-select);
+            background: var(--at-toolbar-color);
+        }
+    </style>
+    <template>
+        <paper-drawer-panel responsive-width="900px">
+            <paper-header-panel drawer>
+                <at-endpoint-list
+                        id="endpoint-list"
+                        endpoints=[[endpoints]]
+                        app-context="[[appContext]]"
+                        selected-endpoint="[[selectedEndpoint]]"
+                        on-endpoint-selected="endpointSelectedByUser"></at-endpoint-list>
+            </paper-header-panel>
+            <paper-header-panel main>
+                <paper-toolbar>
+                    <paper-icon-button paper-drawer-toggle icon="menu"></paper-icon-button>
+                    <div class="title">SDK Validator</div>
+                    <at-settings-button app-context="{{appContext}}" on-save="settingsSaved"></at-settings-button>
+                </paper-toolbar>
+                <at-endpoint id="endpoint" app-context="{{appContext}}" endpoint="{{selectedEndpoint}}"></at-endpoint>
+            </paper-header-panel>
+        </paper-drawer-panel>
+    </template>
+</dom-module>

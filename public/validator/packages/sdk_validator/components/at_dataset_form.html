@@ -1,0 +1,12 @@
+<link rel="import" href="shared_styles.html">
+<dom-module id="at-dataset-form">
+    <style include="shared-styles">
+        :host {
+            @apply(--at-list-container);
+        }
+    </style>
+    <template>
+        <div id="form-item-container" class="container"></div>
+        <paper-button raised on-tap="handleSubmitButtonClicked">Submit</paper-button>
+    </template>
+</dom-module>

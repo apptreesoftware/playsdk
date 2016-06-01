@@ -1,0 +1,19 @@
+<link rel="import" href="shared_styles.html">
+<dom-module id="at-settings-button">
+    <style include="shared-styles">
+        paper-menu {
+            width: 400px;
+            padding: 8px;
+        }
+    </style>
+    <template>
+        <paper-menu-button id="menu" ignore-select class="settings-menu" horizontal-align="right">
+            <paper-icon-button icon="settings" class="dropdown-trigger"></paper-icon-button>
+            <paper-menu class="dropdown-content">
+                <paper-input label="host" value="{{coreHost}}"></paper-input>
+                <paper-input label="username" value="{{username}}"></paper-input>
+                <paper-button raised on-tap="saveSettings">Ok</paper-button>
+            </paper-menu>
+        </paper-menu-button>
+    </template>
+</dom-module>

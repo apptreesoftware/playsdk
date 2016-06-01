@@ -1,0 +1,67 @@
+<dom-module id="at-list-item">
+    <style>
+        :host {
+            display: block;
+            @apply(--paper-font-common-base);
+            border-style: solid;
+            border-width: 0px 1px 1px 1px;
+            border-color: var(--paper-grey-400);
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 10px;
+            padding-right: 10px;
+            background-color: white;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        paper-icon-button {
+            float: right;
+        }
+
+        p {
+            word-wrap: break-word;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+
+        .header p {
+            flex-grow: 4;
+        }
+
+        .header paper-toggle-button {
+            flex-grow: 0;
+        }
+
+        .small {
+            --iron-icon-height: 16px;
+            --iron-icon-width: 16px;
+        }
+
+    </style>
+    <template>
+        <div class="item">
+            <div class="header">
+                <p><span class="label">Primary Key</span> [[item.item.serverPrimaryKey]]</p>
+                <paper-button raised on-click="editItem">
+                    <iron-icon class="small" icon="create"></iron-icon>
+                    Edit
+                </paper-button>
+                <paper-toggle-button checked="{{expand}}">Expand</paper-toggle-button>
+            </div>
+            <template is="dom-repeat" items="[[attributesWithValues]]" as="attribute">
+                <template is="dom-if" if="[[showAttribute(index, expand)]]">
+                    <p><span class="label">[[attribute.key]]</span> [[attribute.value]]</p>
+                </template>
+            </template>
+        </div>
+    </template>
+</dom-module>

@@ -1,0 +1,16 @@
+<dom-module id="at-attachment-item">
+    <style>
+        .flex-horizontal {
+            display:flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+    </style>
+    <template>
+        <div class="flex-horizontal">
+            <p>{{attachment}}</p>
+            <paper-icon-button icon="create" on-tap="handleEdit"></paper-icon-button>
+            <paper-icon-button icon="clear" on-tap="handleDelete"></paper-icon-button>
+        </div>
+    </template>
+</dom-module>

@@ -27,6 +27,8 @@ import 'package:analyzer/src/generated/source.dart';
 import 'package:analyzer/src/generated/utilities_collection.dart';
 import 'package:analyzer/src/generated/utilities_dart.dart';
 import 'package:analyzer/src/generated/utilities_general.dart';
+import 'package:analyzer/src/summary/idl.dart';
+import 'package:analyzer/src/task/dart.dart';
 
 /**
  * For AST nodes that could be in both the getter and setter contexts
@@ -921,6 +923,7 @@ class ClassElementImpl extends ElementImpl implements ClassElement {
    */
   static ClassElementImpl getImpl(ClassElement classElement) {
     if (classElement is ClassElementHandle) {
+      classElement.ensureActualElementComplete();
       return getImpl(classElement.actualElement);
     }
     return classElement as ClassElementImpl;
@@ -1264,11 +1267,6 @@ class CompilationUnitElementImpl extends UriReferencedElementImpl
  */
 class ConstFieldElementImpl extends FieldElementImpl with ConstVariableElement {
   /**
-   * The result of evaluating this variable's initializer.
-   */
-  EvaluationResultImpl _result;
-
-  /**
    * Initialize a newly created synthetic field element to have the given
    * [name] and [offset].
    */
@@ -1278,17 +1276,6 @@ class ConstFieldElementImpl extends FieldElementImpl with ConstVariableElement {
    * Initialize a newly created field element to have the given [name].
    */
   ConstFieldElementImpl.forNode(Identifier name) : super.forNode(name);
-
-  @override
-  DartObject get constantValue => _result?.value;
-
-  @override
-  EvaluationResultImpl get evaluationResult => _result;
-
-  @override
-  void set evaluationResult(EvaluationResultImpl result) {
-    this._result = result;
-  }
 }
 
 /**
@@ -1297,11 +1284,6 @@ class ConstFieldElementImpl extends FieldElementImpl with ConstVariableElement {
  */
 class ConstLocalVariableElementImpl extends LocalVariableElementImpl
     with ConstVariableElement {
-  /**
-   * The result of evaluating this variable's initializer.
-   */
-  EvaluationResultImpl _result;
-
   /**
    * Initialize a newly created local variable element to have the given [name]
    * and [offset].
@@ -1312,17 +1294,6 @@ class ConstLocalVariableElementImpl extends LocalVariableElementImpl
    * Initialize a newly created local variable element to have the given [name].
    */
   ConstLocalVariableElementImpl.forNode(Identifier name) : super.forNode(name);
-
-  @override
-  DartObject get constantValue => _result?.value;
-
-  @override
-  EvaluationResultImpl get evaluationResult => _result;
-
-  @override
-  void set evaluationResult(EvaluationResultImpl result) {
-    this._result = result;
-  }
 }
 
 /**
@@ -1370,9 +1341,16 @@ class ConstructorElementImpl extends ExecutableElementImpl
   ConstructorElementImpl.forNode(Identifier name) : super.forNode(name);
 
   /**
+   * Initialize using the given serialized information.
+   */
+  ConstructorElementImpl.forSerialized(UnlinkedExecutable serializedExecutable)
+      : super.forSerialized(serializedExecutable);
+
+  /**
    * Set whether this constructor represents a 'const' constructor.
    */
   void set const2(bool isConst) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.CONST, isConst);
   }
 
@@ -1383,11 +1361,17 @@ class ConstructorElementImpl extends ExecutableElementImpl
    * Set whether this constructor represents a factory method.
    */
   void set factory(bool isFactory) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.FACTORY, isFactory);
   }
 
   @override
-  bool get isConst => hasModifier(Modifier.CONST);
+  bool get isConst {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isConst;
+    }
+    return hasModifier(Modifier.CONST);
+  }
 
   @override
   bool get isDefaultConstructor {
@@ -1407,7 +1391,12 @@ class ConstructorElementImpl extends ExecutableElementImpl
   }
 
   @override
-  bool get isFactory => hasModifier(Modifier.FACTORY);
+  bool get isFactory {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isFactory;
+    }
+    return hasModifier(Modifier.FACTORY);
+  }
 
   @override
   bool get isStatic => false;
@@ -1454,11 +1443,6 @@ class ConstructorElementImpl extends ExecutableElementImpl
 class ConstTopLevelVariableElementImpl extends TopLevelVariableElementImpl
     with ConstVariableElement {
   /**
-   * The result of evaluating this variable's initializer.
-   */
-  EvaluationResultImpl _result;
-
-  /**
    * Initialize a newly created synthetic top-level variable element to have the
    * given [name] and [offset].
    */
@@ -1471,17 +1455,6 @@ class ConstTopLevelVariableElementImpl extends TopLevelVariableElementImpl
    */
   ConstTopLevelVariableElementImpl.forNode(Identifier name)
       : super.forNode(name);
-
-  @override
-  DartObject get constantValue => _result?.value;
-
-  @override
-  EvaluationResultImpl get evaluationResult => _result;
-
-  @override
-  void set evaluationResult(EvaluationResultImpl result) {
-    this._result = result;
-  }
 }
 
 /**
@@ -1495,7 +1468,7 @@ class ConstTopLevelVariableElementImpl extends TopLevelVariableElementImpl
  *
  * This class is not intended to be part of the public API for analyzer.
  */
-abstract class ConstVariableElement {
+abstract class ConstVariableElement implements ConstantEvaluationTarget {
   /**
    * If this element represents a constant variable, and it has an initializer,
    * a copy of the initializer for the constant.  Otherwise `null`.
@@ -1506,6 +1479,22 @@ abstract class ConstVariableElement {
    * initializers.
    */
   Expression constantInitializer;
+
+  @override
+  EvaluationResultImpl evaluationResult;
+
+  /**
+   * Return a representation of the value of this variable, forcing the value
+   * to be computed if it had not previously been computed, or `null` if either
+   * this variable was not declared with the 'const' modifier or if the value of
+   * this variable could not be computed because of errors.
+   */
+  DartObject computeConstantValue() {
+    if (evaluationResult == null) {
+      context?.computeResult(this, CONSTANT_VALUE);
+    }
+    return evaluationResult?.value;
+  }
 }
 
 /**
@@ -1513,11 +1502,6 @@ abstract class ConstVariableElement {
  */
 class DefaultFieldFormalParameterElementImpl
     extends FieldFormalParameterElementImpl with ConstVariableElement {
-  /**
-   * The result of evaluating this variable's initializer.
-   */
-  EvaluationResultImpl _result;
-
   /**
    * Initialize a newly created parameter element to have the given [name] and
    * [nameOffset].
@@ -1530,17 +1514,6 @@ class DefaultFieldFormalParameterElementImpl
    */
   DefaultFieldFormalParameterElementImpl.forNode(Identifier name)
       : super.forNode(name);
-
-  @override
-  DartObject get constantValue => _result?.value;
-
-  @override
-  EvaluationResultImpl get evaluationResult => _result;
-
-  @override
-  void set evaluationResult(EvaluationResultImpl result) {
-    this._result = result;
-  }
 }
 
 /**
@@ -1548,11 +1521,6 @@ class DefaultFieldFormalParameterElementImpl
  */
 class DefaultParameterElementImpl extends ParameterElementImpl
     with ConstVariableElement {
-  /**
-   * The result of evaluating this variable's initializer.
-   */
-  EvaluationResultImpl _result;
-
   /**
    * Initialize a newly created parameter element to have the given [name] and
    * [nameOffset].
@@ -1564,17 +1532,6 @@ class DefaultParameterElementImpl extends ParameterElementImpl
    * Initialize a newly created parameter element to have the given [name].
    */
   DefaultParameterElementImpl.forNode(Identifier name) : super.forNode(name);
-
-  @override
-  DartObject get constantValue => _result?.value;
-
-  @override
-  EvaluationResultImpl get evaluationResult => _result;
-
-  @override
-  void set evaluationResult(EvaluationResultImpl result) {
-    this._result = result;
-  }
 
   @override
   DefaultFormalParameter computeNode() =>
@@ -1770,6 +1727,14 @@ class ElementAnnotationImpl implements ElementAnnotation {
 
   @override
   Source get source => compilationUnit.source;
+
+  @override
+  DartObject computeConstantValue() {
+    if (evaluationResult == null) {
+      context?.computeResult(this, CONSTANT_VALUE);
+    }
+    return constantValue;
+  }
 
   @override
   String toString() => '@$element';
@@ -2121,12 +2086,13 @@ abstract class ElementImpl implements Element {
   }
 
   @override
-  Element getAncestor(Predicate<Element> predicate) {
+  Element/*=E*/ getAncestor/*<E extends Element >*/(
+      Predicate<Element> predicate) {
     Element ancestor = _enclosingElement;
     while (ancestor != null && !predicate(ancestor)) {
       ancestor = ancestor.enclosingElement;
     }
-    return ancestor;
+    return ancestor as Element/*=E*/;
   }
 
   /**
@@ -2171,7 +2137,7 @@ abstract class ElementImpl implements Element {
 
   @override
   bool isAccessibleIn(LibraryElement library) {
-    if (Identifier.isPrivateName(_name)) {
+    if (Identifier.isPrivateName(name)) {
       return library == this.library;
     }
     return true;
@@ -2411,6 +2377,11 @@ class ElementLocationImpl implements ElementLocation {
 abstract class ExecutableElementImpl extends ElementImpl
     implements ExecutableElement {
   /**
+   * The unlinked representation of the executable in the summary.
+   */
+  final UnlinkedExecutable serializedExecutable;
+
+  /**
    * A list containing all of the functions defined within this executable
    * element.
    */
@@ -2452,24 +2423,44 @@ abstract class ExecutableElementImpl extends ElementImpl
    * Initialize a newly created executable element to have the given [name] and
    * [offset].
    */
-  ExecutableElementImpl(String name, int offset) : super(name, offset);
+  ExecutableElementImpl(String name, int offset)
+      : serializedExecutable = null,
+        super(name, offset);
 
   /**
    * Initialize a newly created executable element to have the given [name].
    */
-  ExecutableElementImpl.forNode(Identifier name) : super.forNode(name);
+  ExecutableElementImpl.forNode(Identifier name)
+      : serializedExecutable = null,
+        super.forNode(name);
+
+  /**
+   * Initialize using the given serialized information.
+   */
+  ExecutableElementImpl.forSerialized(this.serializedExecutable)
+      : super(null, -1);
 
   /**
    * Set whether this executable element's body is asynchronous.
    */
   void set asynchronous(bool isAsynchronous) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.ASYNCHRONOUS, isAsynchronous);
+  }
+
+  @override
+  String get displayName {
+    if (serializedExecutable != null) {
+      return serializedExecutable.name;
+    }
+    return super.displayName;
   }
 
   /**
    * Set whether this executable element is external.
    */
   void set external(bool isExternal) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.EXTERNAL, isExternal);
   }
 
@@ -2491,6 +2482,7 @@ abstract class ExecutableElementImpl extends ElementImpl
    * Set whether this method's body is a generator.
    */
   void set generator(bool isGenerator) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.GENERATOR, isGenerator);
   }
 
@@ -2505,22 +2497,42 @@ abstract class ExecutableElementImpl extends ElementImpl
   }
 
   @override
-  bool get isAbstract => hasModifier(Modifier.ABSTRACT);
+  bool get isAbstract {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isAbstract;
+    }
+    return hasModifier(Modifier.ABSTRACT);
+  }
 
   @override
-  bool get isAsynchronous => hasModifier(Modifier.ASYNCHRONOUS);
+  bool get isAsynchronous {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isAsynchronous;
+    }
+    return hasModifier(Modifier.ASYNCHRONOUS);
+  }
 
   @override
-  bool get isExternal => hasModifier(Modifier.EXTERNAL);
+  bool get isExternal {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isExternal;
+    }
+    return hasModifier(Modifier.EXTERNAL);
+  }
 
   @override
-  bool get isGenerator => hasModifier(Modifier.GENERATOR);
+  bool get isGenerator {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isGenerator;
+    }
+    return hasModifier(Modifier.GENERATOR);
+  }
 
   @override
   bool get isOperator => false;
 
   @override
-  bool get isSynchronous => !hasModifier(Modifier.ASYNCHRONOUS);
+  bool get isSynchronous => !isAsynchronous;
 
   @override
   List<LabelElement> get labels => _labels;
@@ -2548,6 +2560,22 @@ abstract class ExecutableElementImpl extends ElementImpl
       (variable as LocalVariableElementImpl).enclosingElement = this;
     }
     this._localVariables = variables;
+  }
+
+  @override
+  String get name {
+    if (serializedExecutable != null) {
+      return serializedExecutable.name;
+    }
+    return super.name;
+  }
+
+  @override
+  int get nameOffset {
+    if (serializedExecutable != null) {
+      return serializedExecutable.nameOffset;
+    }
+    return super.nameOffset;
   }
 
   @override
@@ -2828,6 +2856,12 @@ class FunctionElementImpl extends ExecutableElementImpl
    * [offset]. This is used for function expressions, that have no name.
    */
   FunctionElementImpl.forOffset(int nameOffset) : super("", nameOffset);
+
+  /**
+   * Initialize using the given serialized information.
+   */
+  FunctionElementImpl.forSerialized(UnlinkedExecutable serializedExecutable)
+      : super.forSerialized(serializedExecutable);
 
   /**
    * Synthesize an unnamed function element that takes [parameters] and returns
@@ -3692,7 +3726,7 @@ class LibraryElementImpl extends ElementImpl implements LibraryElement {
     // represents a new back edge.  It would be sufficient to invalidate the
     // cycle information for all nodes that are between the target and the
     // node in the topological order.  For simplicity, we simply invalidate
-    // all nodes which are reachable from the the source node.
+    // all nodes which are reachable from the source node.
     // Note that in the invalidation phase, we do not cut off when we encounter
     // a node with no library cycle information, since we do not know whether
     // we are in the case where invalidation has already been performed, or we
@@ -3890,9 +3924,16 @@ class MethodElementImpl extends ExecutableElementImpl implements MethodElement {
   MethodElementImpl.forNode(Identifier name) : super.forNode(name);
 
   /**
+   * Initialize using the given serialized information.
+   */
+  MethodElementImpl.forSerialized(UnlinkedExecutable serializedExecutable)
+      : super.forSerialized(serializedExecutable);
+
+  /**
    * Set whether this method is abstract.
    */
   void set abstract(bool isAbstract) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.ABSTRACT, isAbstract);
   }
 
@@ -3922,7 +3963,12 @@ class MethodElementImpl extends ExecutableElementImpl implements MethodElement {
   }
 
   @override
-  bool get isStatic => hasModifier(Modifier.STATIC);
+  bool get isStatic {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isStatic;
+    }
+    return hasModifier(Modifier.STATIC);
+  }
 
   @override
   ElementKind get kind => ElementKind.METHOD;
@@ -3940,6 +3986,7 @@ class MethodElementImpl extends ExecutableElementImpl implements MethodElement {
    * Set whether this method is static.
    */
   void set static(bool isStatic) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.STATIC, isStatic);
   }
 
@@ -4207,7 +4254,9 @@ class MultiplyDefinedElementImpl implements MultiplyDefinedElement {
   AstNode computeNode() => null;
 
   @override
-  Element getAncestor(Predicate<Element> predicate) => null;
+  Element/*=E*/ getAncestor/*<E extends Element >*/(
+          Predicate<Element> predicate) =>
+      null;
 
   @override
   String getExtendedDisplayName(String shortName) {
@@ -4603,6 +4652,13 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
   PropertyAccessorElementImpl.forNode(Identifier name) : super.forNode(name);
 
   /**
+   * Initialize using the given serialized information.
+   */
+  PropertyAccessorElementImpl.forSerialized(
+      UnlinkedExecutable serializedExecutable)
+      : super.forSerialized(serializedExecutable);
+
+  /**
    * Initialize a newly created synthetic property accessor element to be
    * associated with the given [variable].
    */
@@ -4617,6 +4673,7 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
    * Set whether this accessor is abstract.
    */
   void set abstract(bool isAbstract) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.ABSTRACT, isAbstract);
   }
 
@@ -4636,10 +4693,21 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
     return variable.setter;
   }
 
+  @override
+  String get displayName {
+    if (serializedExecutable != null && isSetter) {
+      String name = serializedExecutable.name;
+      assert(name.endsWith('='));
+      return name.substring(0, name.length - 1);
+    }
+    return super.displayName;
+  }
+
   /**
    * Set whether this accessor is a getter.
    */
   void set getter(bool isGetter) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.GETTER, isGetter);
   }
 
@@ -4654,13 +4722,29 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
   }
 
   @override
-  bool get isGetter => hasModifier(Modifier.GETTER);
+  bool get isGetter {
+    if (serializedExecutable != null) {
+      return serializedExecutable.kind == UnlinkedExecutableKind.getter;
+    }
+    return hasModifier(Modifier.GETTER);
+  }
 
   @override
-  bool get isSetter => hasModifier(Modifier.SETTER);
+  bool get isSetter {
+    if (serializedExecutable != null) {
+      return serializedExecutable.kind == UnlinkedExecutableKind.setter;
+    }
+    return hasModifier(Modifier.SETTER);
+  }
 
   @override
-  bool get isStatic => hasModifier(Modifier.STATIC);
+  bool get isStatic {
+    if (serializedExecutable != null) {
+      return serializedExecutable.isStatic ||
+          variable is TopLevelVariableElement;
+    }
+    return hasModifier(Modifier.STATIC);
+  }
 
   @override
   ElementKind get kind {
@@ -4672,6 +4756,9 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
 
   @override
   String get name {
+    if (serializedExecutable != null) {
+      return serializedExecutable.name;
+    }
     if (isSetter) {
       return "${super.name}=";
     }
@@ -4682,6 +4769,7 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
    * Set whether this accessor is a setter.
    */
   void set setter(bool isSetter) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.SETTER, isSetter);
   }
 
@@ -4689,6 +4777,7 @@ class PropertyAccessorElementImpl extends ExecutableElementImpl
    * Set whether this accessor is static.
    */
   void set static(bool isStatic) {
+    assert(serializedExecutable == null);
     setModifier(Modifier.STATIC, isStatic);
   }
 
@@ -4948,7 +5037,7 @@ abstract class VariableElementImpl extends ElementImpl
   Expression get constantInitializer => null;
 
   @override
-  DartObject get constantValue => null;
+  DartObject get constantValue => evaluationResult?.value;
 
   /**
    * Return the result of evaluating this variable's initializer as a
@@ -5019,6 +5108,9 @@ abstract class VariableElementImpl extends ElementImpl
     buffer.write(" ");
     buffer.write(displayName);
   }
+
+  @override
+  DartObject computeConstantValue() => null;
 
   @override
   void visitChildren(ElementVisitor visitor) {

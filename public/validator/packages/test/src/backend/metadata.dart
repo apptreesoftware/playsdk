@@ -5,7 +5,7 @@
 import 'dart:collection';
 
 import 'package:boolean_selector/boolean_selector.dart';
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart' hide mapMap, mergeMaps;
 
 import '../frontend/skip.dart';
 import '../frontend/timeout.dart';
@@ -58,7 +58,7 @@ class Metadata {
       Map<String, dynamic> onPlatform) {
     if (onPlatform == null) return {};
 
-    var result = {};
+    var result = <PlatformSelector, Metadata>{};
     onPlatform.forEach((platform, metadata) {
       if (metadata is Timeout || metadata is Skip) {
         metadata = [metadata];

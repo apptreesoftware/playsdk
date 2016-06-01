@@ -1,0 +1,27 @@
+<link rel="import" href="../../../packages/sdk_validator/components/shared_styles.html">
+<link rel="import" href="../../../packages/polymer_elements/typography.html">
+<link rel="import" href="../../../packages/polymer_elements/color.html">
+<dom-module id="at-endpoint">
+    <style include="shared-styles">
+
+        .container {
+            background-color: var(--paper-grey-50);
+        }
+
+        paper-tabs {
+            @apply(--paper-font-common-base);
+            background-color: var(--at-tab-color);
+            color: var(--paper-grey-900);
+            --paper-tabs-selection-bar-color: var(--paper-green-300);
+        }
+    </style>
+    <template>
+        <paper-tabs selected="{{selectedTabIndex}}">
+            <paper-tab>Create</paper-tab>
+            <paper-tab>Update</paper-tab>
+            <paper-tab>View Data</paper-tab>
+            <paper-tab>Search</paper-tab>
+        </paper-tabs>
+        <div class="container" id="form-container"></div>
+    </template>
+</dom-module>

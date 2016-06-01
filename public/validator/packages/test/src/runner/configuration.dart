@@ -5,7 +5,7 @@
 import 'dart:io';
 
 import 'package:boolean_selector/boolean_selector.dart';
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart' hide mapMap, mergeMaps;
 import 'package:glob/glob.dart';
 import 'package:path/path.dart' as p;
 
@@ -280,7 +280,7 @@ class Configuration {
       Iterable<String> chosenPresets,
       BooleanSelector includeTags,
       BooleanSelector excludeTags,
-      Iterable addTags,
+      Iterable<String> addTags,
       Map<BooleanSelector, Configuration> tags,
       Map<PlatformSelector, Configuration> onPlatform,
       Map<String, Configuration> presets}) {
@@ -311,7 +311,8 @@ class Configuration {
         addTags: addTags,
 
         // Make sure we pass [chosenPresets] to the child configurations as
-        // well. This ensures that 
+        // well. This ensures that tags and platforms can have preset-specific
+        // behavior.
         tags: _withChosenPresets(tags, chosenPresets),
         onPlatform: _withChosenPresets(onPlatform, chosenPresets),
         presets: _withChosenPresets(presets, chosenPresets));
@@ -374,7 +375,7 @@ class Configuration {
           Iterable<String> chosenPresets,
           BooleanSelector includeTags,
           BooleanSelector excludeTags,
-          Iterable addTags,
+          Iterable<String> addTags,
           Map<BooleanSelector, Configuration> tags,
           Map<PlatformSelector, Configuration> onPlatform,
           Map<String, Configuration> presets})
@@ -426,16 +427,16 @@ class Configuration {
   ///
   /// If [input] is `null` or empty, this returns `null`. Otherwise, it returns
   /// `input.toList()`.
-  static List _list(Iterable input) {
+  static List/*<T>*/ _list/*<T>*/(Iterable/*<T>*/ input) {
     if (input == null) return null;
-    input = new List.unmodifiable(input);
-    if (input.isEmpty) return null;
-    return input;
+    var list = new List/*<T>*/.unmodifiable(input);
+    if (list.isEmpty) return null;
+    return list;
   }
 
-  /// Returns an modifiable copy of [input] or an empty unmodifiable map.
-  static Map _map(Map input) {
-    if (input == null) return const {};
+  /// Returns an unmodifiable copy of [input] or an empty unmodifiable map.
+  static Map/*<K, V>*/ _map/*<K, V>*/(Map/*<K, V>*/ input) {
+    if (input == null || input.isEmpty) return const {};
     return new Map.unmodifiable(input);
   }
 
@@ -511,7 +512,7 @@ class Configuration {
       Iterable<String> chosenPresets,
       BooleanSelector includeTags,
       BooleanSelector excludeTags,
-      Iterable addTags,
+      Iterable<String> addTags,
       Map<BooleanSelector, Configuration> tags,
       Map<PlatformSelector, Configuration> onPlatform,
       Map<String, Configuration> presets}) {
