@@ -1,0 +1,52 @@
+<link rel="import" href="../shared_styles.html">
+<dom-module id="at-card">
+    <style include="shared-styles">
+        :host {
+            @apply(--paper-font-common-base);
+        }
+
+        paper-card {
+            width: 100%;
+            --paper-card-header-text: {
+                font-size: 20px;
+            }
+        }
+
+        .container {
+            padding-bottom: 1px;
+            background-color: var(--paper-grey-400);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .paper-card-container {
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            background-color: white;
+        }
+
+        h2 {
+            @apply(--paper-font-common-base);
+            font-weight: normal;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-left: 20px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-right: 4px;
+        }
+    </style>
+    <template>
+        <div class="container">
+            <div class="paper-card-container">
+                <template is="dom-if" if="[[hasHeading]]">
+                    <h2>[[heading]]</h2>
+                </template>
+                <content></content>
+            </div>
+        </div>
+    </template>
+</dom-module>

@@ -1,0 +1,17 @@
+<link rel="import" href="../../../packages/polymer_elements/color.html">
+<link rel="import" href="../../../packages/polymer_elements/typography.html">
+<link rel="import" href="shared_styles.html">
+
+<dom-module id="at-dataset-view">
+    <style include="shared-styles">
+        :host {
+            @apply(--paper-font-common-base);
+            overflow: scroll;
+            @apply(--at-list-container);
+        }
+    </style>
+    <template>
+        <at-list-filters on-submit="handleFilterSubmit"></at-list-filters>
+        <div id="result-container"></div>
+    </template>
+</dom-module>

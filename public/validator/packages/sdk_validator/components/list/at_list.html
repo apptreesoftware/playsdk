@@ -1,0 +1,13 @@
+<dom-module id="at-list">
+    <style>
+    </style>
+    <template>
+        <iron-list id="iron-list" items="[[dataSetItems]]" as="item" >
+            <template>
+                <at-list-item item="[[item]]"
+                              on-edit="handleEditListItem"
+                              on-expand="redrawIronList"></at-list-item>
+            </template>
+        </iron-list>
+    </template>
+</dom-module>

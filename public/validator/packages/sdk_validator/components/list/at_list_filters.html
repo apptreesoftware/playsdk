@@ -1,0 +1,13 @@
+<dom-module id="at-list-filters">
+    <style>
+    </style>
+    <template>
+        <at-card heading="Filters">
+            <template is="dom-repeat" items="{{filters}}" as="filter">
+                <at-list-filter filter="{{filter}}" on-remove="handleRemoveFilter"></at-list-filter>
+            </template>
+            <paper-button raised on-tap="handleAddFilter">Add Filter</paper-button>
+            <paper-button raised on-tap="handleFilterSubmit">Search</paper-button>
+        </at-card>
+    </template>
+</dom-module>

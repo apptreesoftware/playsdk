@@ -11,4 +11,9 @@ public class StaticFileController extends Controller {
         File file = new File(path);
         return ok(file, true);
     }
+
+    public Result tester(String path) {
+        File file = new File("sdk/public/validator/" + path);
+        return ok(file, true);
+    }
 }

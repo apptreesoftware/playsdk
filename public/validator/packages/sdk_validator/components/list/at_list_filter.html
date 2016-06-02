@@ -1,0 +1,14 @@
+<dom-module id="at-list-filter">
+    <style>
+        :host {
+            display: flex;
+            justify-content:flex-start;
+            align-items: center;
+        }
+    </style>
+    <template>
+        <paper-input class="key" label="Key" value="{{filter.key}}">{{filter.key}}</paper-input>
+        <paper-input class="value" label="Value" value="{{filter.value}}">{{filter.value}}</paper-input>
+        <paper-icon-button icon="clear" on-tap="handleRemoveClicked"></paper-icon-button>
+    </template>
+</dom-module>

@@ -50,4 +50,4 @@ GET           /list/:listName/describe                                          
 POST          /list/:listName/search                                                      sdk.controllers.ListController.searchListData(listName: String)
 GET           /list/:listName                                                             sdk.controllers.ListController.getListData(listName: String)
 
-#GET           /*file                                   sdk.controllers.StaticFileController.html(file)
+GET            /tester/*file                            sdk.controllers.StaticFileController.tester(file)
