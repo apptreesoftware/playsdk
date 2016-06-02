@@ -1,10 +1,11 @@
 package sdk.list;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.jetbrains.annotations.Nullable;
 import play.Logger;
 import sdk.models.*;
 import org.joda.time.DateTime;
+
+import javax.annotation.Nullable;
 
 /**
  * Created by alexis on 5/3/16.
