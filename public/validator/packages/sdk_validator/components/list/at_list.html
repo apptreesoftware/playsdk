@@ -1,5 +1,17 @@
+<link rel="import" href="../../../../packages/polymer_elements/iron_flex_layout.html">
 <dom-module id="at-list">
     <style>
+        :host {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        iron-list {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <template>
         <iron-list id="iron-list" items="[[dataSetItems]]" as="item" >

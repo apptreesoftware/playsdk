@@ -104,10 +104,13 @@ import 'package:sdk_validator/components/list/at_list_filters.dart' as i96;
 import 'package:sdk_validator/components/list/at_list.dart' as i97;
 import 'package:sdk_validator/components/at_dataset_view.dart' as i98;
 import 'package:sdk_validator/components/at_dataset_search.dart' as i99;
-import 'package:sdk_validator/components/at_list_view.dart' as i100;
-import 'package:sdk_validator/components/at_list_search.dart' as i101;
-import 'package:sdk_validator/components/at_endpoint.dart' as i102;
-import 'package:sdk_validator/components/at_validator.dart' as i103;
+import 'package:sdk_validator/components/list/at_list_list.dart' as i100;
+import 'package:sdk_validator/components/at_list_view.dart' as i101;
+import 'package:sdk_validator/components/search/at_list_search_context.dart'
+    as i102;
+import 'package:sdk_validator/components/at_list_search.dart' as i103;
+import 'package:sdk_validator/components/at_endpoint.dart' as i104;
+import 'package:sdk_validator/components/at_validator.dart' as i105;
 
 main() {
   initializers.addAll([
@@ -216,11 +219,14 @@ main() {
         const i67.PolymerRegister('at-dataset-view'), i98.AtDatasetView),
     new InitEntry(
         const i67.PolymerRegister('at-dataset-search'), i99.AtDatasetSearch),
-    new InitEntry(const i67.PolymerRegister('at-list-view'), i100.AtListView),
+    new InitEntry(const i67.PolymerRegister('at-list-list'), i100.AtListList),
+    new InitEntry(const i67.PolymerRegister('at-list-view'), i101.AtListView),
+    new InitEntry(const i67.PolymerRegister('at-list-search-context'),
+        i102.AtListSearchContext),
     new InitEntry(
-        const i67.PolymerRegister('at-list-search'), i101.AtListSearch),
-    new InitEntry(const i67.PolymerRegister('at-endpoint'), i102.AtEndpoint),
-    new InitEntry(const i67.PolymerRegister('at-validator'), i103.AtValidator),
+        const i67.PolymerRegister('at-list-search'), i103.AtListSearch),
+    new InitEntry(const i67.PolymerRegister('at-endpoint'), i104.AtEndpoint),
+    new InitEntry(const i67.PolymerRegister('at-validator'), i105.AtValidator),
   ]);
 
   return i0.main();

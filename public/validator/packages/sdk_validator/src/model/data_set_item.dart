@@ -220,6 +220,10 @@ class DataSetItem {
     subItems.add(subItem);
   }
 
+  void removeSubItemAt(int index) {
+    subItems.removeAt(index);
+  }
+
   String get status {
     var crudStatus = this.statusString;
     if (crudStatus != null) {

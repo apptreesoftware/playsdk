@@ -1,0 +1,14 @@
+<dom-module id="at-list-search-context">
+    <style>
+        :host {
+            display: flex;
+            justify-content:flex-start;
+            align-items: center;
+        }
+    </style>
+    <template>
+        <paper-input class="key" label="Key" value="{{context.key}}">{{context.key}}</paper-input>
+        <paper-input class="value" label="Value" value="{{context.value}}">{{context.value}}</paper-input>
+        <paper-icon-button icon="clear" on-tap="handleRemoveClicked"></paper-icon-button>
+    </template>
+</dom-module>

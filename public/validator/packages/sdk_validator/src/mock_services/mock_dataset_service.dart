@@ -20,6 +20,13 @@ class MockDatasetService implements DatasetService {
     return response.attributes;
   }
 
+  Future<List<ListServiceConfigurationAttribute>> getListConfiguration(
+      Uri baseUri) async {
+    var json = JSON.decode(mockListConfiguration);
+    var response = new ListServiceConfigurationResponse.fromJson(json);
+    return response.attributes;
+  }
+
   Future<DataSetResponse> sendCreate(Uri baseUrl, DataSetItem item) async {
     print('mock create to $baseUrl');
     print(JSON.encode(item));
@@ -38,7 +45,13 @@ class MockDatasetService implements DatasetService {
     return new DataSetResponse(true, '', false, 1, 1, true, []);
   }
 
-  Future<ListResponse> getList(Uri connectorUri, [Map<String, String> filters]) async {
+  Future<ListResponse> getList(Uri connectorUri) async {
+    var json = JSON.decode('{}');
+    var dataSet = new DataSetResponse.fromJson(json);
+    return dataSet;
+  }
+
+  Future<ListResponse> searchList(Uri endpointUri, SearchListData searchListData) async {
     var json = JSON.decode('{}');
     var dataSet = new DataSetResponse.fromJson(json);
     return dataSet;

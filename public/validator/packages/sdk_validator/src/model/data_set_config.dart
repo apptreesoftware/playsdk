@@ -132,6 +132,15 @@ class ListServiceConfiguration extends Object
 }
 
 @JsonSerializable()
+class ListServiceConfigurationResponse extends Object with _$ListServiceConfigurationResponseSerializerMixin {
+  final bool success;
+  final List<ListServiceConfigurationAttribute> attributes;
+  ListServiceConfigurationResponse(this.success, this.attributes);
+  factory ListServiceConfigurationResponse.fromJson(json) =>
+      _$ListServiceConfigurationResponseFromJson(json);
+}
+
+@JsonSerializable()
 class ListServiceConfigurationAttribute extends Object
     with _$ListServiceConfigurationAttributeSerializerMixin {
   final int attributeIndex;

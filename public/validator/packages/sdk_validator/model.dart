@@ -19,5 +19,6 @@ part 'src/model/display_element.dart';
 part 'src/model/list_response.dart';
 part 'src/model/attachment_attribute_index.dart';
 part 'src/model/record_type.dart';
+part 'src/model/search_list_data.dart';
 
 part 'package:sdk_validator/model.g.dart';

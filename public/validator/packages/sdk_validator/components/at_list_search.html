@@ -1,7 +1,38 @@
+<link rel="import" href="../../../packages/polymer_elements/iron_flex_layout.html">
 <dom-module id="at-list-search">
-    <style>
+    <style include="shared-styles">
+        :host {
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-fit);
+            @apply(--paper-font-common-base);
+        }
+
+        .form-container {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-container {
+            @apply(--layout-flex-auto);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
     </style>
     <template>
-        <p>list search</p>
+        <div id="form-container" class="form-container">
+            <paper-input label="Search Text" value="{{searchText}}"></paper-input>
+            <paper-toggle-button checked="{{barcode}}">Barcode</paper-toggle-button>
+            <template is="dom-repeat" items="[[searchContexts]]" as="context">
+                <at-list-search-context context="[[context]]" on-remove="removeListSearchContext"></at-list-search-context>
+            </template>
+            <paper-button raised on-tap="addListSearchContext">Add Search Context</paper-button>
+            <paper-button raised on-tap="submitForm">Submit</paper-button>
+        </div>
+        <div><p>[[status]]</p></div>
+        <div id="result-container" class="result-container">
+            <at-list-list id="list-list"></at-list-list>
+        </div>
     </template>
 </dom-module>

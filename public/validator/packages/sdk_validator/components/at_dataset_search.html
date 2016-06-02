@@ -1,14 +1,39 @@
+<link rel="import" href="../../../packages/polymer_elements/iron_flex_layout.html">
 <link rel="import" href="shared_styles.html">
 <dom-module id="at-dataset-search">
     <style include="shared-styles">
         :host {
             @apply(--paper-font-common-base);
-            @apply(--at-list-container);
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-fit);
+        }
+
+        .status {
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+        }
+
+        .form-container {
+            @apply(--layout-flex-auto);
+            @apply(--layout-self-stretch);
+            width: 100%;
+            position: relative;
             overflow: scroll;
+        }
+
+        .result-container {
+            @apply(--layout-flex-auto);
+            @apply(--layout-self-stretch);
+            width: 100%;
+            position:relative;
         }
     </style>
     <template>
-        <div id="form-container"></div>
-        <div id="result-container"></div>
+        <div class="status"><paper-button raised on-tap="toggleView">[[toggleText]]</paper-button></div>
+        <div class="status"><p>[[status]]</p></div>
+        <div id="form-container" class="form-container" hidden="[[showingResults]]"></div>
+        <div id="result-container" class="result-container" hidden$="[[!showingResults]]"></div>
     </template>
 </dom-module>

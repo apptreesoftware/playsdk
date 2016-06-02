@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:web_components/web_components.dart' show HtmlImport;
 import 'package:polymer/polymer.dart';
+import 'package:polymer_elements/paper_button.dart';
 
 import 'package:sdk_validator/app_context.dart';
 import 'package:sdk_validator/view_models.dart';
@@ -24,6 +25,11 @@ class AtDatasetSearch extends PolymerElement {
 
   PolymerElement _form;
   Set<StreamSubscription> _subscriptions = new Set();
+
+  @property String toggleText = "Show Results";
+  @property bool showingResults = false;
+
+  List<DataSetItem> lastResult = [];
 
   AtDatasetSearch.created() : super.created();
 
@@ -45,6 +51,7 @@ class AtDatasetSearch extends PolymerElement {
     listen(_form, 'search', 'handleSearch');
     container.children.clear();
     container.children.add(_form);
+    set('status', 'nothing loaded yet');
   }
 
   detached() {
@@ -54,16 +61,28 @@ class AtDatasetSearch extends PolymerElement {
   }
 
   @reflectable
+  toggleView(e, d) {
+    set('showingResults', !showingResults);
+    if (showingResults) {
+      set('toggleText', 'Show Form');
+      _showDataSetItems(lastResult);
+    } else {
+      set('toggleText', 'Show Results');
+    }
+  }
+
+  @reflectable
   handleSearch(DataSetItem dataSetItem) async {
-    _showLoading();
+    set('status', 'loading');
     var result = await _appContext.datasetService
         .searchDataSet(_endpoint.url, dataSetItem);
     if (result.success == false) {
       set('dataSetItems', []);
-      _showFailureMessage(result);
+      set('status', result.message);
       return;
     }
-    _showDataSetItems(result.dataSetItems);
+    set('status', 'done loading');
+    lastResult = result.dataSetItems;
   }
 
   @reflectable
@@ -71,19 +90,10 @@ class AtDatasetSearch extends PolymerElement {
     fire('edit-list-item', detail: detail);
   }
 
-  _showFailureMessage(DataSetResponse r) =>
-      _showText("Failed to load dataset:\n${JSON.encode(r)}");
-
   _showDataSetItems(List<DataSetItem> ds) {
     var list = new AtList(_attributes, ds);
     listen(list, 'on-edit-list-item', 'handleEditListItem');
     _showElement(list);
-  }
-
-  _showLoading() => _showText("Loading...");
-
-  _showText(String text) {
-    _showElement(new ParagraphElement()..text = text);
   }
 
   _showElement(Element elem) {
