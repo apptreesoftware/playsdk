@@ -1,5 +1,6 @@
 <link rel="import" href="../../../packages/polymer_elements/color.html">
 <link rel="import" href="../../../packages/polymer_elements/typography.html">
+<link rel="import" href="../../../packages/polymer_elements/iron_flex_layout.html">
 <dom-module id="shared-styles">
     <style is="custom-style">
         :root {
@@ -18,11 +19,12 @@
             --paper-input-container-color: var(--paper-grey-500);
 
             --at-list-container: {
-                   display: block;
-                   padding: 8px;
-                   max-width: 960px;
-                   margin-left: auto;
-                   margin-right: auto;
+                @apply(--layout-fit);
+                display: block;
+                padding: 8px;
+                max-width: 960px;
+                margin-left: auto;
+                margin-right: auto;
             };
         }
     </style>

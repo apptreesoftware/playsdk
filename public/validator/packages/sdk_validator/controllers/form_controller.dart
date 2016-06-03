@@ -31,6 +31,7 @@ class FormController implements FormDelegate {
   }
 
   List<ServiceConfigurationAttribute> get serviceConfigAttributesForDisplay {
+    if (_attributes == null || _attributes.isEmpty) return [];
     List<ServiceConfigurationAttribute> result;
     switch (_formType) {
       case FormType.create:

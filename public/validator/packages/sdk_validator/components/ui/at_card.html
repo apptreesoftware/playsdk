@@ -1,8 +1,10 @@
 <link rel="import" href="../shared_styles.html">
+<link rel="import" href="../../../../packages/polymer_elements/iron_flex_layout.html">
 <dom-module id="at-card">
     <style include="shared-styles">
         :host {
             @apply(--paper-font-common-base);
+            z-index: 0;
         }
 
         paper-card {
@@ -13,8 +15,6 @@
         }
 
         .container {
-            padding-bottom: 1px;
-            background-color: var(--paper-grey-400);
             margin-left: auto;
             margin-right: auto;
         }
@@ -25,27 +25,36 @@
             padding-top: 5px;
             padding-bottom: 5px;
             background-color: white;
+
+            @apply(--layout);
+            @apply(--layout-horizontal);
+            @apply(--layout-start);
         }
 
-        h2 {
+        .content-container {
+            @apply(--layout-flex-6);
+        }
+
+        .left-label {
+            word-wrap: break-word;
+            width: 60px;
+            overflow: hidden;
             @apply(--paper-font-common-base);
             font-weight: normal;
-            font-size: 16px;
-            margin-top: 0;
-            margin-bottom: 0;
-            padding-left: 20px;
-            padding-top: 4px;
-            padding-bottom: 4px;
-            padding-right: 4px;
+            font-size: 13px;
+            margin-right: 8px;
+            margin-top: 24px;
         }
     </style>
     <template>
         <div class="container">
             <div class="paper-card-container">
                 <template is="dom-if" if="[[hasHeading]]">
-                    <h2>[[heading]]</h2>
+                    <div class="left-label">[[heading]]</div>
                 </template>
-                <content></content>
+                <div class="content-container">
+                    <content></content>
+                </div>
             </div>
         </div>
     </template>

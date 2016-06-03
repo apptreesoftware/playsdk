@@ -11,16 +11,10 @@ import 'dart:async';
 import 'package:sdk_validator/model.dart';
 import 'at_attachment_item.dart';
 
-
-// CRUDStatus
-// 1. attachment was not changed => READ
-// 2. attachment was created => CREATE
-// 3. attachment was updated => UPDATE
-
 @PolymerRegister('at-attachment')
 class AtAttachment extends PolymerElement with AtFormItemBehavior {
   @Property()
-  String image;
+  String title;
 
   @Property()
   String note;
@@ -30,6 +24,8 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
 
   @Property()
   String upload;
+  bool _uploadIsImage = false;
+  @property String uploadStatus = 'no uploads happening';
 
   @Property()
   List<String> attachments = [];
@@ -81,6 +77,7 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
   @reflectable
   deleteAttachment(CustomEvent e, int index) {
     set('attachments', new List.from(attachments)..removeAt(index));
+    datasetItem.removeSubItemAt(index);
   }
 
   @reflectable
@@ -102,45 +99,38 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
 
   _saveAttachment() {
     String newAttachmentLabel;
-    if (image != null && image != '') {
-      _clearAttachments(currentlyEditingSubItem);
-      newAttachmentLabel = image;
+
+    if (title != null && title != '') {
       currentlyEditingSubItem.setAttribute(
-          image, AttachmentAttributeIndex.image);
-    } else if (note != null && note != '') {
-      _clearAttachments(currentlyEditingSubItem);
-      newAttachmentLabel = note;
+          title, AttachmentAttributeIndex.title);
+    }
+
+    if (note != null && note != '') {
       currentlyEditingSubItem.setAttribute(note, AttachmentAttributeIndex.text);
     } else if (url != null && url != '') {
-      _clearAttachments(currentlyEditingSubItem);
-      newAttachmentLabel = url;
       currentlyEditingSubItem.setAttribute(url, AttachmentAttributeIndex.link);
     } else if (upload != null && upload != '') {
-      _clearAttachments(currentlyEditingSubItem);
-      newAttachmentLabel = 'file';
-      currentlyEditingSubItem.setAttribute(
-          upload, AttachmentAttributeIndex.file);
-    }
-    if (newAttachmentLabel != null) {
-      if (!datasetItem.subItems.contains(currentlyEditingSubItem)) {
-        var newAttachments = new List.from(attachments)
-          ..add(newAttachmentLabel);
-        set('attachments', newAttachments);
-        datasetItem.addSubItem(currentlyEditingSubItem);
+      if (_uploadIsImage) {
+        currentlyEditingSubItem.setAttribute(
+            upload, AttachmentAttributeIndex.image);
       } else {
-        set('attachments', _createAttachments(datasetItem));
-        if (currentlyEditingSubItem.status == 'READ') {
-          currentlyEditingSubItem.status = 'UPDATE';
-        }
+        currentlyEditingSubItem.setAttribute(
+            upload, AttachmentAttributeIndex.file);
       }
     }
-  }
 
-  static void _clearAttachments(DataSetItem item) {
-    item.setAttribute(null, AttachmentAttributeIndex.image);
-    item.setAttribute(null, AttachmentAttributeIndex.text);
-    item.setAttribute(null, AttachmentAttributeIndex.link);
-    item.setAttribute(null, AttachmentAttributeIndex.file);
+    newAttachmentLabel = title;
+    if (!datasetItem.subItems.contains(currentlyEditingSubItem)) {
+      var newAttachments = new List.from(attachments)
+        ..add(newAttachmentLabel);
+      set('attachments', newAttachments);
+      datasetItem.addSubItem(currentlyEditingSubItem);
+    } else {
+      set('attachments', _createAttachments(datasetItem));
+      if (currentlyEditingSubItem.status == 'READ') {
+        currentlyEditingSubItem.status = 'UPDATE';
+      }
+    }
   }
 
   static List<String> _createAttachments(DataSetItem item) {
@@ -151,8 +141,13 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
     return result;
   }
 
+  static bool _isImage(String filename) {
+    var regexp = new RegExp(r"\.(jpe?g|png|gif|bmp)$");
+    return regexp.hasMatch(filename);
+  }
+
   static String _attachmentValue(DataSetItem item) {
-    return item.valueForAttributeIndex(AttachmentAttributeIndex.image) ??
+    return item.valueForAttributeIndex(AttachmentAttributeIndex.title) ??
         item.valueForAttributeIndex(AttachmentAttributeIndex.text) ??
         item.valueForAttributeIndex(AttachmentAttributeIndex.link) ??
         item.valueForAttributeIndex(AttachmentAttributeIndex.file);
@@ -161,9 +156,9 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
   void _populateFormValues() {
     if (currentlyEditingSubItem == null) return;
     set(
-        'image',
+        'title',
         currentlyEditingSubItem
-            .valueForAttributeIndex(AttachmentAttributeIndex.image));
+            .valueForAttributeIndex(AttachmentAttributeIndex.title));
     set(
         'note',
         currentlyEditingSubItem
@@ -179,7 +174,9 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
   }
 
   void _clearFormValues() {
-    set('image', null);
+    var upload = $$('#upload') as InputElement;
+    upload.value = '';
+    set('title', null);
     set('note', null);
     set('url', null);
     set('upload', null);
@@ -193,10 +190,13 @@ class AtAttachment extends PolymerElement with AtFormItemBehavior {
       final file = files[0];
       final reader = new FileReader();
       reader.onLoadEnd.listen((e) {
-        // result format is: data:text/plain;base64,{base64 data}
-        // ',' is not in the set of base64 characters
-        upload = reader.result.toString().split(',').elementAt(1);
+         // result format is: data:text/plain;base64,{base64 data}
+         // ',' is not in the set of base64 characters
+         upload = reader.result.toString().split(',').elementAt(1);
+        _uploadIsImage = _isImage(file.name);
+        set('uploadStatus', 'upload complete');
       });
+      set('uploadStatus', 'uploading...');
       reader.readAsDataUrl(file);
     }
   }

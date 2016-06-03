@@ -24,6 +24,8 @@ class AtDatasetView extends PolymerElement {
   EndpointDisplay _endpoint;
   List<ServiceConfigurationAttribute> _serviceAttributes;
 
+  @property String status;
+
   AtDatasetView.created() : super.created();
 
   factory AtDatasetView(
@@ -38,7 +40,7 @@ class AtDatasetView extends PolymerElement {
   }
 
   attached() {
-    _showNoData();
+    set('status', 'nothing loaded yet');
   }
 
   @reflectable
@@ -52,32 +54,22 @@ class AtDatasetView extends PolymerElement {
   }
 
   _loadDataSet(Map<String, String> filters) async {
-    _showLoading();
+    set('status', 'loading');
     var result =
         await _context.datasetService.getDataSet(_endpoint.url, filters);
     if (result.success == false) {
       set('dataSetItems', []);
-      _showFailureMessage(result);
+      set('status', result.message);
       return;
     }
+    set('status', 'done loading');
     _showDataSetItems(result.dataSetItems);
   }
-
-  _showFailureMessage(DataSetResponse r) =>
-      _showText("Failed to load dataset:\n${JSON.encode(r)}");
 
   _showDataSetItems(List<DataSetItem> ds) {
     var list = new AtList(_serviceAttributes, ds);
     listen(list, 'on-edit-list-item', 'handleEditListItem');
     _showElement(list);
-  }
-
-  _showLoading() => _showText("Loading...");
-
-  _showNoData() => _showText("No Data");
-
-  _showText(String text) {
-    _showElement(new ParagraphElement()..text = text);
   }
 
   _showElement(Element elem) {

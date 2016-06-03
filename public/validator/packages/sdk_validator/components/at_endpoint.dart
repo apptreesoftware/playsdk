@@ -35,6 +35,7 @@ class AtEndpoint extends PolymerElement implements Routable {
   int selectedTabIndex;
 
   List<ServiceConfigurationAttribute> _serviceConfigurationAttributes;
+  List<ListServiceConfigurationAttribute> _listServiceConfigurationAttributes;
 
   Route _route;
   PolymerElement _formElement;
@@ -72,7 +73,7 @@ class AtEndpoint extends PolymerElement implements Routable {
     if (selectedTabIndex == null) return;
     var displayType = DisplayType.values[selectedTabIndex];
 
-    if (_serviceConfigurationAttributes == null) {
+    if (_serviceConfigurationAttributes == null && _listServiceConfigurationAttributes == null) {
       var loadingElem = new ParagraphElement()..text = 'loading...';
       container.append(loadingElem);
       return;
@@ -96,7 +97,7 @@ class AtEndpoint extends PolymerElement implements Routable {
               appContext, _serviceConfigurationAttributes, endpoint);
         } else if (endpoint.type == 'list') {
           _formElement = new AtListView(
-              appContext, _serviceConfigurationAttributes, endpoint);
+              appContext, _listServiceConfigurationAttributes, endpoint);
         }
 
         // might be cleaner if done using the @Listen annotation
@@ -108,7 +109,7 @@ class AtEndpoint extends PolymerElement implements Routable {
               appContext, _serviceConfigurationAttributes, endpoint.wrapped);
         } else if (endpoint.type == 'list') {
           _formElement = new AtListSearch(
-              appContext, _serviceConfigurationAttributes, endpoint);
+              appContext, _listServiceConfigurationAttributes, endpoint);
         }
 
         listen(_formElement, 'edit-list-item', 'handleListItemEdit');
@@ -128,9 +129,15 @@ class AtEndpoint extends PolymerElement implements Routable {
 
   Future _loadServiceConfigurationAttributes() async {
     if (endpoint == null) return;
-    var response =
-        await appContext.datasetService.getConfiguration(endpoint.url);
-    _serviceConfigurationAttributes = response;
+    if (endpoint.type == 'data') {
+      var response =
+      await appContext.datasetService.getConfiguration(endpoint.url);
+      _serviceConfigurationAttributes = response;
+    } else if (endpoint.type == 'list') {
+      var response =
+      await appContext.datasetService.getListConfiguration(endpoint.url);
+      _listServiceConfigurationAttributes = response;
+    }
     updateUI();
   }
 

@@ -40,7 +40,6 @@ const String _tag = 'at-dataset-form';
 @PolymerRegister(_tag)
 class AtDatasetForm extends PolymerElement {
   FormDelegate _delegate;
-
   AtDatasetForm.created() : super.created();
 
   factory AtDatasetForm(FormDelegate delegate) {

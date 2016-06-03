@@ -24101,6 +24101,11 @@ style this element.
 
 
 
+
+
+
+
+
 <dom-module id="shared-styles">
     <style is="custom-style">
         :root {
@@ -24119,11 +24124,12 @@ style this element.
             --paper-input-container-color: var(--paper-grey-500);
 
             --at-list-container: {
-                   display: block;
-                   padding: 8px;
-                   max-width: 960px;
-                   margin-left: auto;
-                   margin-right: auto;
+                @apply(--layout-fit);
+                display: block;
+                padding: 8px;
+                max-width: 960px;
+                margin-left: auto;
+                margin-right: auto;
             };
         }
     </style>
@@ -26237,10 +26243,12 @@ Custom property | Description | Default
 
 
 
+
 <dom-module id="at-card">
     <style include="shared-styles">
         :host {
             @apply(--paper-font-common-base);
+            z-index: 0;
         }
 
         paper-card {
@@ -26251,8 +26259,6 @@ Custom property | Description | Default
         }
 
         .container {
-            padding-bottom: 1px;
-            background-color: var(--paper-grey-400);
             margin-left: auto;
             margin-right: auto;
         }
@@ -26263,27 +26269,36 @@ Custom property | Description | Default
             padding-top: 5px;
             padding-bottom: 5px;
             background-color: white;
+
+            @apply(--layout);
+            @apply(--layout-horizontal);
+            @apply(--layout-start);
         }
 
-        h2 {
+        .content-container {
+            @apply(--layout-flex-6);
+        }
+
+        .left-label {
+            word-wrap: break-word;
+            width: 60px;
+            overflow: hidden;
             @apply(--paper-font-common-base);
             font-weight: normal;
-            font-size: 16px;
-            margin-top: 0;
-            margin-bottom: 0;
-            padding-left: 20px;
-            padding-top: 4px;
-            padding-bottom: 4px;
-            padding-right: 4px;
+            font-size: 13px;
+            margin-right: 8px;
+            margin-top: 24px;
         }
     </style>
     <template>
         <div class="container">
             <div class="paper-card-container">
                 <template is="dom-if" if="[[hasHeading]]">
-                    <h2>[[heading]]</h2>
+                    <div class="left-label">[[heading]]</div>
                 </template>
-                <content></content>
+                <div class="content-container">
+                    <content></content>
+                </div>
             </div>
         </div>
     </template>
@@ -26342,7 +26357,7 @@ Custom property | Description | Default
                 --paper-input-container-focus-color: var(--google-green-300);
             }
         </style>
-        <at-card>
+        <at-card heading="{{label}}">
             <paper-input value="{{inputValue}}" label="{{label}}" type="text">
         </paper-input></at-card>
     </template>
@@ -26787,10 +26802,11 @@ element.
             <paper-dialog id="modal">
                 <h2>Add Attachment</h2>
                 <p>Do not enter multiple values</p>
-                <paper-input label="image" value="{{image}}"></paper-input>
+                <paper-input label="title" value="{{title}}"></paper-input>
                 <paper-input label="note" value="{{note}}"></paper-input>
                 <paper-input label="url" value="{{url}}"></paper-input>
                 <input id="upload" type="file" label="file">
+                <p>[[uploadStatus]]</p>
                 <paper-button raised="" id="cancel-attachment" dialog-confirm="" autofocus="">Cancel</paper-button>
                 <paper-button raised="" id="save-attachment" dialog-confirm="" autofocus="">Ok</paper-button>
             </paper-dialog>
@@ -26798,11 +26814,31 @@ element.
     </template>
 </dom-module>
 
+
+
 <dom-module id="at-dataset-form">
     <style include="shared-styles">
-        :host {
-            @apply(--at-list-container);
+        :host{
+            @apply(--layout);
+            @apply(--layout-vertical);
+            background-color: white;
         }
+        paper-button {
+            @apply(--layout-self-center);
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width: 90%;
+            --paper-button-ink-color: var(--paper-green-a100);
+            background-color: var(--paper-green-400);
+        }
+        paper-button:hover {
+            background-color: var(--paper-green-300);
+        }
+
+        .container {
+            @apply(--layout-flex-auto);
+        }
+
     </style>
     <template>
         <div id="form-item-container" class="container"></div>
@@ -28141,7 +28177,7 @@ will only render 20.
             display: block;
             @apply(--paper-font-common-base);
             border-style: solid;
-            border-width: 0px 1px 1px 1px;
+            border-width: 0px 0px 1px 0px;
             border-color: var(--paper-grey-400);
             padding-top: 5px;
             padding-bottom: 5px;
@@ -28229,8 +28265,20 @@ will only render 20.
         </at-card>
     </template>
 </dom-module>
+
 <dom-module id="at-list">
     <style>
+        :host {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        iron-list {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
     </style>
     <template>
         <iron-list id="iron-list" items="[[dataSetItems]]" as="item">
@@ -28244,73 +28292,224 @@ will only render 20.
 
 
 
+
 <dom-module id="at-dataset-view">
     <style include="shared-styles">
         :host {
             @apply(--paper-font-common-base);
-            overflow: scroll;
-            @apply(--at-list-container);
+            @apply(--layout-fit);
+            @apply(--layout);
+            @apply(--layout-vertical);
+        }
+        .result-container {
+            @apply(--layout-flex-auto);
+            position: relative;
         }
     </style>
     <template>
         <at-list-filters on-submit="handleFilterSubmit"></at-list-filters>
-        <div id="result-container"></div>
+        <div><p>[[status]]</p></div>
+        <div id="result-container" class="result-container"></div>
     </template>
 </dom-module>
+
 
 <dom-module id="at-dataset-search">
     <style include="shared-styles">
         :host {
             @apply(--paper-font-common-base);
-            @apply(--at-list-container);
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-fit);
+        }
+
+        .status {
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-center);
+        }
+
+        .form-container {
+            @apply(--layout-flex-auto);
+            @apply(--layout-self-stretch);
+            width: 100%;
+            position: relative;
             overflow: scroll;
+        }
+
+        .result-container {
+            @apply(--layout-flex-auto);
+            @apply(--layout-self-stretch);
+            width: 100%;
+            position:relative;
         }
     </style>
     <template>
-        <div id="form-container"></div>
-        <div id="result-container"></div>
+        <div class="status"><paper-button raised="" on-tap="toggleView">[[toggleText]]</paper-button></div>
+        <div class="status"><p>[[status]]</p></div>
+        <div id="form-container" class="form-container" hidden="[[showingResults]]"></div>
+        <div id="result-container" class="result-container" hidden$="[[!showingResults]]"></div>
     </template>
 </dom-module>
+
+<dom-module id="at-list-list">
+    <style>
+        :host {
+            @apply(--layout-fit);
+        }
+
+        iron-list {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        iron-list::-webkit-scrollbar {
+            z-index: 1000;
+        }
+
+        .attribute-label {
+            font-weight:bold;
+        }
+    </style>
+    <template>
+        <iron-list id="iron-list" items="[[listItems]]" as="item">
+            <template>
+                <at-card>
+                    <template is="dom-repeat" items="[[serviceAttributes]]" as="attribute" index-as="index">
+                        <p><span class="attribute-label">[[attribute.name]]</span> [[listItemValue(item, index)]]</p>
+                    </template>
+                </at-card>
+            </template>
+        </iron-list>
+    </template>
+</dom-module>
+
+
 <dom-module id="at-list-view">
     <style>
+        :host {
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-fit);
+            @apply(--paper-font-common-base);
+        }
+
+        .result-container {
+            @apply(--layout-flex-auto);
+            position: relative;
+        }
+
+        .submit-container {
+            @apply(--layout);
+            @apply(--layout-vertical);
+        }
+        .submit-container paper-button {
+            @apply(--layout-self-center);
+            width: 90%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
     </style>
     <template>
-        <p>list view</p>
-        <paper-button raised="" on-tap="handleSubmit">Submit</paper-button>
-        <div id="result-container"></div>
+        <div class="submit-container">
+            <paper-button raised="" on-tap="handleSubmit">Submit</paper-button>
+        </div>
+        <div>
+            <p>[[status]]</p>
+        </div>
+        <div class="result-container">
+            <at-list-list id="list-list"></at-list-list>
+        </div>
     </template>
 </dom-module>
-<dom-module id="at-list-search">
+<dom-module id="at-list-search-context">
     <style>
+        :host {
+            display: flex;
+            justify-content:flex-start;
+            align-items: center;
+        }
     </style>
     <template>
-        <p>list search</p>
+        <paper-input class="key" label="Key" value="{{context.key}}">{{context.key}}</paper-input>
+        <paper-input class="value" label="Value" value="{{context.value}}">{{context.value}}</paper-input>
+        <paper-icon-button icon="clear" on-tap="handleRemoveClicked"></paper-icon-button>
     </template>
 </dom-module>
+
+<dom-module id="at-list-search">
+    <style include="shared-styles">
+        :host {
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-fit);
+            @apply(--paper-font-common-base);
+        }
+
+        .form-container {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-container {
+            @apply(--layout-flex-auto);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+    </style>
+    <template>
+        <div id="form-container" class="form-container">
+            <paper-input label="Search Text" value="{{searchText}}"></paper-input>
+            <paper-toggle-button checked="{{barcode}}">Barcode</paper-toggle-button>
+            <template is="dom-repeat" items="[[searchContexts]]" as="context">
+                <at-list-search-context context="[[context]]" on-remove="removeListSearchContext"></at-list-search-context>
+            </template>
+            <paper-button raised="" on-tap="addListSearchContext">Add Search Context</paper-button>
+            <paper-button raised="" on-tap="submitForm">Submit</paper-button>
+        </div>
+        <div><p>[[status]]</p></div>
+        <div id="result-container" class="result-container">
+            <at-list-list id="list-list"></at-list-list>
+        </div>
+    </template>
+</dom-module>
+
 
 
 
 <dom-module id="at-endpoint">
     <style include="shared-styles">
+        :host {
+            @apply(--layout);
+            @apply(--layout-vertical);
+            @apply(--layout-fit);
+        }
 
         .container {
             background-color: var(--paper-grey-50);
+            @apply(--layout-flex-auto);
+            position: relative;
+            overflow: scroll;
         }
 
         paper-tabs {
-            @apply(--paper-font-common-base);
             background-color: var(--at-tab-color);
             color: var(--paper-grey-900);
+            @apply(--paper-font-common-base);
             --paper-tabs-selection-bar-color: var(--paper-green-300);
         }
     </style>
     <template>
-        <paper-tabs selected="{{selectedTabIndex}}">
-            <paper-tab>Create</paper-tab>
-            <paper-tab>Update</paper-tab>
-            <paper-tab>View Data</paper-tab>
-            <paper-tab>Search</paper-tab>
-        </paper-tabs>
+        <div>
+            <paper-tabs selected="{{selectedTabIndex}}">
+                <paper-tab>Create</paper-tab>
+                <paper-tab>Update</paper-tab>
+                <paper-tab>View Data</paper-tab>
+                <paper-tab>Search</paper-tab>
+            </paper-tabs>
+        </div>
         <div class="container" id="form-container"></div>
     </template>
 </dom-module>

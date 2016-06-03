@@ -233,6 +233,28 @@ abstract class _$ListServiceConfigurationSerializerMixin {
 
 // **************************************************************************
 // Generator: JsonSerializableGenerator
+// Target: class ListServiceConfigurationResponse
+// **************************************************************************
+
+ListServiceConfigurationResponse _$ListServiceConfigurationResponseFromJson(
+        Map json) =>
+    new ListServiceConfigurationResponse(
+        json['success'],
+        (json['attributes'] as List)
+            ?.map((v0) => v0 == null
+                ? null
+                : new ListServiceConfigurationAttribute.fromJson(v0))
+            ?.toList());
+
+abstract class _$ListServiceConfigurationResponseSerializerMixin {
+  bool get success;
+  List get attributes;
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{'success': success, 'attributes': attributes};
+}
+
+// **************************************************************************
+// Generator: JsonSerializableGenerator
 // Target: class ListServiceConfigurationAttribute
 // **************************************************************************
 
@@ -304,5 +326,24 @@ abstract class _$ListResponseSerializerMixin {
         'message': message,
         'showMessageAsAlert': showMessageAsAlert,
         'records': records
+      };
+}
+
+// **************************************************************************
+// Generator: JsonSerializableGenerator
+// Target: class SearchListData
+// **************************************************************************
+
+SearchListData _$SearchListDataFromJson(Map json) => new SearchListData(
+    json['searchTerm'], json['barcodeSearch'], json['context']);
+
+abstract class _$SearchListDataSerializerMixin {
+  String get searchTerm;
+  bool get barcodeSearch;
+  Map get context;
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'searchTerm': searchTerm,
+        'barcodeSearch': barcodeSearch,
+        'context': context
       };
 }

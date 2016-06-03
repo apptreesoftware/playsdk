@@ -13,10 +13,11 @@
             <paper-dialog id="modal">
                 <h2>Add Attachment</h2>
                 <p>Do not enter multiple values</p>
-                <paper-input label="image" value="{{image}}"></paper-input>
+                <paper-input label="title" value="{{title}}"></paper-input>
                 <paper-input label="note" value="{{note}}"></paper-input>
                 <paper-input label="url" value="{{url}}"></paper-input>
                 <input id="upload" type="file" label="file" />
+                <p>[[uploadStatus]]</p>
                 <paper-button raised id="cancel-attachment" dialog-confirm autofocus>Cancel</paper-button>
                 <paper-button raised id="save-attachment" dialog-confirm autofocus>Ok</paper-button>
             </paper-dialog>

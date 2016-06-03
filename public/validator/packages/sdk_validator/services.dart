@@ -2,7 +2,6 @@ library sdk_validator.services;
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:rxdart/rxdart.dart';
 import 'package:yaml/yaml.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdk_validator/model.dart';
