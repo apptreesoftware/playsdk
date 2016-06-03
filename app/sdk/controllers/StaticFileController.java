@@ -16,4 +16,9 @@ public class StaticFileController extends Controller {
         File file = new File("sdk/public/validator/" + path);
         return ok(file, true);
     }
+
+    public Result isRunningPage() {
+        File file = new File("sdk/public/validate.html");
+        return ok(file, true);
+    }
 }

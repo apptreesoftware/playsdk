@@ -46,8 +46,9 @@ POST          /datacollection/:endpoint/:sessionID/submit                       
 
 GET           /attachments/:attachmentID                                                  sdk.controllers.DataSetController.getAttachment(attachmentID : String)
 
-GET           /list/:listName/describe                                                    sdk.controllers.ListController.getListConfiguration(listName: String)
-POST          /list/:listName/search                                                      sdk.controllers.ListController.searchListData(listName: String)
-GET           /list/:listName                                                             sdk.controllers.ListController.getListData(listName: String)
+GET           /list/:listName/describe        sdk.controllers.ListController.getListConfiguration(listName: String)
+POST          /list/:listName/search          sdk.controllers.ListController.searchListData(listName: String)
+GET           /list/:listName                 sdk.controllers.ListController.getListData(listName: String)
 
-GET            /tester/*file                            sdk.controllers.StaticFileController.tester(file)
+GET            /tester/*file                  sdk.controllers.StaticFileController.tester(file)
+GET             /validate                     sdk.controllers.StaticFileController.isRunningPage
