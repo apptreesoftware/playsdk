@@ -3,6 +3,7 @@ package sdk.controllers;
 import play.libs.Json;
 import play.mvc.*;
 import sdk.AppTree;
+import sdk.ValidateRequestAction;
 import sdk.user.User;
 import sdk.user.UserDataSource;
 import sdk.utils.AuthenticationInfo;
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Created by matthew on 5/12/16.
  */
+@With({ValidateRequestAction.class})
 public class UserController extends Controller {
     public CompletionStage<Result> getUserInfo(String userID) {
         UserDataSource dataSource = AppTree.getUserDataSource();

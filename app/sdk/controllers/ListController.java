@@ -5,7 +5,9 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import sdk.AppTree;
+import sdk.ValidateRequestAction;
 import sdk.list.*;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -19,6 +21,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Created by alexis on 5/4/16.
  */
+@With({ValidateRequestAction.class})
 public class ListController extends Controller {
     public CompletionStage<Result> getListConfiguration(String listName) {
         return CompletableFuture.supplyAsync(() -> {

@@ -7,7 +7,9 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import sdk.AppTree;
+import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
 import sdk.data.*;
 import sdk.serializers.DataSetModule;
@@ -25,6 +27,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Created by alexis on 5/3/16.
  */
+@With({ValidateRequestAction.class})
 public class DataSetController extends Controller {
 
     public DataSetController() {

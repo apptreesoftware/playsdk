@@ -6,7 +6,9 @@ import play.Application;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.With;
 import sdk.AppTree;
+import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.user.UserDataSource;
@@ -16,6 +18,7 @@ import javax.inject.Inject;
 /**
  * Created by matthew on 5/10/16.
  */
+@With({ValidateRequestAction.class})
 public class ApplicationController extends Controller {
 
     @Inject Application application;

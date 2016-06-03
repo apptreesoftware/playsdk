@@ -1,5 +1,6 @@
 package sdk;
 
+import play.Play;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.data.DataSource;
@@ -61,5 +62,13 @@ public class AppTree {
 
     public static void setAttachmentDataSource(AttachmentDataSource attachmentDataSource) {
         AppTree.attachmentDataSource = attachmentDataSource;
+    }
+
+    public static boolean needsAPIKeyValidation() {
+        return Play.application().configuration().getBoolean("apptree.crypto.validate");
+    }
+
+    public static String getApplicationSecret() {
+        return Play.application().configuration().getString("play.crypto.secret");
     }
 }

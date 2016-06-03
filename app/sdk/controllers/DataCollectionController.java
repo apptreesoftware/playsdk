@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
-import play.mvc.BodyParser;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
+import play.mvc.*;
 import sdk.AppTree;
+import sdk.ValidateRequestAction;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.Event;
@@ -30,11 +28,9 @@ import java.util.concurrent.CompletionStage;
 /**
  * Created by Matthew on 5/24/2016.
  */
+
+@With({ValidateRequestAction.class})
 public class DataCollectionController extends Controller {
-
-    public DataCollectionController() {
-
-    }
 
     public CompletionStage<Result> getDataCollectionConfiguration(String endpoint) {
         Http.Request request = request();
