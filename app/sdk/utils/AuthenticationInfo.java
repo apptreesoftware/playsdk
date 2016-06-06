@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static sdk.utils.Constants.AUTH_TOKEN_HEADER;
+import static sdk.utils.Constants.USERNAME_TOKEN_HEADER;
 
 /**
  * Created by alexis on 5/3/16.
  */
 public class AuthenticationInfo {
     private String token;
+    private String userID;
     private HashMap<String, String> extraAuthInfo = new HashMap<String,String>();
 
     public String getToken() {
@@ -18,6 +20,14 @@ public class AuthenticationInfo {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     /***
@@ -41,8 +51,11 @@ public class AuthenticationInfo {
         authInfo.forEach((k, v) -> {
             if ( k.equalsIgnoreCase(AUTH_TOKEN_HEADER) ) {
                 setToken(v[0]);
+            } else if ( k.equalsIgnoreCase(USERNAME_TOKEN_HEADER) ) {
+                setUserID(v[0]);
+            } else {
+                extraAuthInfo.putIfAbsent(k, v[0]);
             }
-            extraAuthInfo.putIfAbsent(k, v[0]);
         });
     }
 }
