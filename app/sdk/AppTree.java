@@ -1,5 +1,7 @@
 package sdk;
 
+import com.sun.org.apache.xerces.internal.impl.dv.xs.BooleanDV;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import play.Play;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
@@ -65,7 +67,11 @@ public class AppTree {
     }
 
     public static boolean needsAPIKeyValidation() {
-        return Play.application().configuration().getBoolean("apptree.crypto.validate");
+        Boolean bool = Play.application().configuration().getBoolean("apptree.crypto.validate");
+        if ( bool == null ) {
+            throw new RuntimeException("apptree.crypto.validate has not been defined in your application.conf");
+        }
+        return bool;
     }
 
     public static String getApplicationSecret() {
