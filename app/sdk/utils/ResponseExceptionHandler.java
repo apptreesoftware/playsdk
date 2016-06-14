@@ -25,7 +25,7 @@ public class ResponseExceptionHandler {
         return Controller.ok(Json.toJson(Response.fromException(throwable)));
     }
 
-    private static Throwable findRootCause(Throwable throwable) {
+    public static Throwable findRootCause(Throwable throwable) {
         Throwable childCause = throwable;
         while ( childCause.getCause() != null ) {
             childCause = childCause.getCause();

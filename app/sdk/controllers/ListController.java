@@ -12,6 +12,7 @@ import sdk.list.*;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
+import sdk.utils.ResponseExceptionHandler;
 
 import java.io.File;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class ListController extends Controller {
             }
         }).exceptionally(exception -> {
             if ( json ) {
+                exception = ResponseExceptionHandler.findRootCause(exception);
                 ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
                 return ok(Json.toJson(response));
             } else {
