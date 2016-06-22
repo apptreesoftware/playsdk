@@ -2,7 +2,6 @@ package sdk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import play.Logger;
-import play.api.ApplicationLoader;
 import play.api.inject.guice.GuiceApplicationBuilder;
 import play.api.inject.guice.GuiceApplicationLoader;
 import play.libs.Json;
