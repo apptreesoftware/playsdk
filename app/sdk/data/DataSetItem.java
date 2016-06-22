@@ -306,6 +306,20 @@ public class DataSetItem {
         return 0;
     }
 
+    public Optional<Integer> getOptionalIntAttributeAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+
+        attribute = attributeMap.get(attributeIndex);
+        if ( attribute != null ) {
+            try {
+                return Optional.ofNullable(attribute.getIntValue());
+            }  catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
+    }
+
     /**
      * Gets a double at the specified index of the attribute map
      * @param attributeIndex The index of the attribute
@@ -313,13 +327,30 @@ public class DataSetItem {
      */
     public double getDoubleAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        double doubleAttribute;
 
         attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
-            return attribute.getDoubleValue();
+            try {
+                return attribute.getDoubleValue();
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
         return 0;
+    }
+
+    public Optional<Double> getOptionalDoubleAttributeAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+
+        attribute = attributeMap.get(attributeIndex);
+        if ( attribute != null ) {
+            try {
+                return Optional.ofNullable(attribute.getDoubleValue());
+            }  catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     public long getTimeIntervalAttributeAtIndex(int attributeIndex) {
