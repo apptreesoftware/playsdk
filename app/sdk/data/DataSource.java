@@ -116,7 +116,7 @@ public interface DataSource extends AppTreeSource {
      * @param params a Parameters object of any URL parameters from the request
      */
     default Response updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new UnsupportedOperationException("Bulk update is not supported by this web service");
+        throw new UnsupportedOperationException("Event update is not supported by this web service");
     }
 
     /**
@@ -131,7 +131,7 @@ public interface DataSource extends AppTreeSource {
     /**
      * This will update a list of data set items according to the given data set item
      * @param primaryKeys a list of data set item IDs to update
-     * @param dataSetItem the data set item values used to update
+     * @param dataSetItem the data set item values used to update. IMPORTANT: Only the attributes that are getting bulk updated will be included.
      * @param authenticationInfo a HashMap of any authentication parameters sent in the request
      * @param params a Parameters object of any URL parameters from the request
      * @return an DataSourceResponse

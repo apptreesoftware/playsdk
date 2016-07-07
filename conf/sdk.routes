@@ -28,6 +28,7 @@ GET           /dataset/:dataSetName/describe                                    
 GET           /dataset/:dataSetName/:primaryKey                                           sdk.controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
 POST          /dataset/:dataSetName                                                       sdk.controllers.DataSetController.createDataSetItem(dataSetName : String)
 PUT           /dataset/:dataSetName                                                       sdk.controllers.DataSetController.updateDataSetItem(dataSetName : String)
+PUT           /dataset/:dataSetName/bulk                                                  sdk.controllers.DataSetController.bulkUpdate(dataSetName : String)
 POST          /dataset/:dataSetName/search                                                sdk.controllers.DataSetController.searchDataSet(dataSetName : String)
 POST          /dataset/:dataSetName/:dataSetID/event                                      sdk.controllers.DataSetController.postEvent(dataSetName, dataSetID)
 

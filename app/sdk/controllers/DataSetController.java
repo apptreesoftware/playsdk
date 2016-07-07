@@ -2,12 +2,14 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import scala.util.parsing.json.JSONArray;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
@@ -18,6 +20,7 @@ import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.ResponseExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +93,27 @@ public class DataSetController extends Controller {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
+    public CompletionStage<Result> bulkUpdate(String dataSetName) {
+        Http.Request request = request();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        Http.MultipartFormData body = request.body().asMultipartFormData();
+        Map<String, String[]> bodyMap = body.asFormUrlEncoded();
+        String recordsJSONArray = bodyMap.get("records")[0];
+        ArrayNode idsArray = (ArrayNode) Json.parse(recordsJSONArray);
+        List<String> ids = new ArrayList<>();
+        for ( JsonNode node : idsArray ) {
+            ids.add(node.asText());
+        }
+        return dataSetItemFromRequest(dataSetName, request, false)
+                .thenApply(dataSetItem -> {
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+                    return dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters);
+                })
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
     public CompletionStage<Result> searchDataSet(String dataSetName) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
@@ -150,8 +174,7 @@ public class DataSetController extends Controller {
                 .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
                 .thenApply(dataSet -> {
                     if ( !search ) {
-                        Http.MultipartFormData body = request.body()
-                                .asMultipartFormData();
+                        Http.MultipartFormData body = request.body().asMultipartFormData();
                         Map<String, String[]> bodyMap = body.asFormUrlEncoded();
                         List<Http.MultipartFormData.FilePart> files = body.getFiles();
                         String formJSON = bodyMap.get("formJSON")[0];
