@@ -69,15 +69,15 @@ public class Priority {
     public Priority(ListItem listItem) {
         if ( listItem != null ) {
             id = Integer.parseInt(listItem.id);
-            name = listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue();
-            description = listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2).getStringValue();
+            name = listItem.getAttributeForIndex(0).getStringValue();
+            description = listItem.getAttributeForIndex(1).getStringValue();
         }
     }
 
     public ListItem toListItem() {
         ListItem listItem = new ListItem(String.valueOf(id));
-        listItem.setAttributeForIndex(name, ListItem.ATTRIBUTE_1);
-        listItem.setAttributeForIndex(description, ListItem.ATTRIBUTE_2);
+        listItem.setAttributeForIndex(name, 0);
+        listItem.setAttributeForIndex(description, 1);
         return listItem;
     }
 }
