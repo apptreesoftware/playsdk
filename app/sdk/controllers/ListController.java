@@ -32,6 +32,8 @@ public class ListController extends Controller {
     @Inject
     WSClient wsClient;
 
+    Executor executor = Executors.newFixedThreadPool(10);
+
     public CompletionStage<Result> getListConfiguration(String listName) {
         return CompletableFuture.supplyAsync(() -> {
             ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
@@ -84,7 +86,7 @@ public class ListController extends Controller {
 
     public void generateListDataResponse(CacheableList dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters, String listName) {
         CompletableFuture.
-                supplyAsync(() -> dataSource.getList(authenticationInfo, parameters))
+                supplyAsync(() -> dataSource.getList(authenticationInfo, parameters), executor)
                 .thenApply(list -> {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
                     WSRequest request = wsClient.url(callbackURL);
