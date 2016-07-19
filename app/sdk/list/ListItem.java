@@ -6,10 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.inject.Singleton;
+import org.joda.time.DateTime;
 import play.Logger;
 import sdk.models.*;
-import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -27,6 +26,7 @@ public class ListItem {
     private HashMap<Integer, ListItemAttribute> itemAttributes = new HashMap<>();
     public double latitude;
     public double longitude;
+    private int maxAttributeIndex = -1;
 
     private ListServiceConfiguration attributeConfiguration;
 
@@ -84,6 +84,7 @@ public class ListItem {
             }
         }
         itemAttributes.put(index, attribute);
+        maxAttributeIndex = maxAttributeIndex > index ? maxAttributeIndex : index;
     }
 
     /**
@@ -96,6 +97,7 @@ public class ListItem {
         if ( index > 79 || index < 0 ) Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
 
         itemAttributes.put(index, new ListItemAttribute(date, time));
+        maxAttributeIndex = maxAttributeIndex > index ? maxAttributeIndex : index;
     }
 
     /**
@@ -116,7 +118,7 @@ public class ListItem {
             gen.writeStringField("value", value.value);
             gen.writeNumberField("latitude", value.latitude);
             gen.writeNumberField("longitude", value.longitude);
-            for ( int i = 0; i < 80; i++ ) {
+            for ( int i = 0; i <= value.maxAttributeIndex; i++ ) {
                 ListItemAttribute attribute = value.getAttributeForIndex(i);
                 if ( attribute != null ) {
                     if ( i < 10 ) {

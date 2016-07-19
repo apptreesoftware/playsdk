@@ -12,4 +12,6 @@ public class Constants {
     public static final DateTimeFormatter AppTreeDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.forID("Etc/GMT"));
     public static final String AUTH_TOKEN_HEADER = "X-AUTH-TOKEN";
     public static final String USERNAME_TOKEN_HEADER = "X-USERNAME";
+    public static final String CORE_CALLBACK_URL = "X-CALLBACK-URL";
+    public static final String CORE_CALLBACK_ERROR = "X-CALLBACK-ERROR";
 }
