@@ -90,13 +90,15 @@ public class ListController extends Controller {
                 .thenApply(list -> {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
                     WSRequest request = wsClient.url(callbackURL);
+                    request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
                     return request.post(sqlFile);
                 })
                 .exceptionally(throwable -> {
                     WSRequest request = wsClient.url(callbackURL);
                     Throwable unwrappedException = ResponseExceptionHandler.findRootCause(throwable);
                     String message = unwrappedException.getMessage() != null ? unwrappedException.getMessage() : "List generation failed with exception " + throwable.toString();
-                    request.setHeader(Constants.CORE_CALLBACK_ERROR, message);
+                    request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
+                    request.setHeader(Constants.CORE_CALLBACK_MESSAGE, message);
                     return request.post("");
         });
     }

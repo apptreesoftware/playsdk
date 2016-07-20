@@ -13,5 +13,10 @@ public class Constants {
     public static final String AUTH_TOKEN_HEADER = "X-AUTH-TOKEN";
     public static final String USERNAME_TOKEN_HEADER = "X-USERNAME";
     public static final String CORE_CALLBACK_URL = "X-CALLBACK-URL";
-    public static final String CORE_CALLBACK_ERROR = "X-CALLBACK-ERROR";
+    public static final String CORE_CALLBACK_TYPE = "X-CALLBACK-TYPE";
+    public static final String CORE_CALLBACK_MESSAGE = "X-CALLBACK-MESSAGE";
+
+    public static final String CORE_CALLBACK_TYPE_SUCCESS = "SUCCESS";
+    public static final String CORE_CALLBACK_TYPE_WARNING = "WARNING";
+    public static final String CORE_CALLBACK_TYPE_ERROR = "ERROR";
 }

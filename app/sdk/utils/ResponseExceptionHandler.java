@@ -1,6 +1,7 @@
 package sdk.utils;
 
 import play.libs.Json;
+import play.libs.ws.WSRequest;
 import play.mvc.Controller;
 import play.mvc.Result;
 import sdk.exceptions.AuthorizationException;
@@ -23,6 +24,23 @@ public class ResponseExceptionHandler {
             return Controller.unauthorized();
         }
         return Controller.ok(Json.toJson(Response.fromException(throwable)));
+    }
+
+    public static void updateCallbackWithException(WSRequest request, Throwable throwable) {
+        String message = "";
+        if ( throwable instanceof PrimaryObjectNotFoundException ) {
+            if ( throwable.getMessage() != null ) {
+                message = Response.fromException(throwable).getMessage();
+            } else {
+                message = "The data you are trying to access can not be found";
+            }
+        } else if ( throwable instanceof AuthorizationException ) {
+            message = "Authorization Failed";
+        } else {
+            message = Response.fromException(throwable).getMessage();
+        }
+        request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
+        request.setHeader(Constants.CORE_CALLBACK_MESSAGE,  message);
     }
 
     public static Throwable findRootCause(Throwable throwable) {
