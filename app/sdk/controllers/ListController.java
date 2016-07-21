@@ -15,6 +15,7 @@ import sdk.list.*;
 import sdk.utils.*;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -62,7 +63,10 @@ public class ListController extends Controller {
 
             if ( callbackURL != null ) {
                 generateListDataResponse((CacheableList) dataSource, callbackURL, authenticationInfo, parameters, listName);
-                return ok("");
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("async", true);
+                map.put("callback", callbackURL);
+                return ok(Json.toJson(map));
             } else {
                 List list = ((CacheableList)dataSource).getList(authenticationInfo, parameters);
                 if ( json ) {

@@ -62,7 +62,10 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     if ( callbackURL != null ) {
                         generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
-                        return ok("");
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("async", true);
+                        map.put("callback", callbackURL);
+                        return ok(Json.toJson(map));
                     } else {
                         DataSet dataSet = dataSource.getDataSet(authenticationInfo, parameters);
                         return ok(dataSet.toJSON());
@@ -81,7 +84,10 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     if ( callbackURL != null ) {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
-                        return ok("");
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("async", true);
+                        map.put("callback", callbackURL);
+                        return ok(Json.toJson(map));
                     } else {
                         DataSet dataSet = dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                         return ok(dataSet.toJSON());
