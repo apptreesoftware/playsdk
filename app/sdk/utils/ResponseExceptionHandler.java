@@ -13,31 +13,35 @@ import sdk.exceptions.PrimaryObjectNotFoundException;
  */
 public class ResponseExceptionHandler {
     public static Result handleException(Throwable throwable) {
+        return handleException(throwable, false);
+    }
+
+    public static Result handleException(Throwable throwable, boolean async) {
         throwable = findRootCause(throwable);
         throwable.printStackTrace();
         if ( throwable instanceof PrimaryObjectNotFoundException) {
             if ( throwable.getMessage() != null ) {
-                return Controller.notFound(Json.toJson(Response.fromException(throwable)));
+                return Controller.notFound(Json.toJson(Response.fromException(throwable, async)));
             }
             return Controller.notFound();
         } else if ( throwable instanceof AuthorizationException) {
             return Controller.unauthorized();
         }
-        return Controller.ok(Json.toJson(Response.fromException(throwable)));
+        return Controller.ok(Json.toJson(Response.fromException(throwable, async)));
     }
 
     public static void updateCallbackWithException(WSRequest request, Throwable throwable) {
         String message = "";
         if ( throwable instanceof PrimaryObjectNotFoundException ) {
             if ( throwable.getMessage() != null ) {
-                message = Response.fromException(throwable).getMessage();
+                message = Response.fromException(throwable, true).getMessage();
             } else {
                 message = "The data you are trying to access can not be found";
             }
         } else if ( throwable instanceof AuthorizationException ) {
             message = "Authorization Failed";
         } else {
-            message = Response.fromException(throwable).getMessage();
+            message = Response.fromException(throwable, true).getMessage();
         }
         request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
         request.setHeader(Constants.CORE_CALLBACK_MESSAGE,  message);

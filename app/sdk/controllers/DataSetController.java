@@ -13,17 +13,13 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import scala.util.parsing.json.JSONArray;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
 import sdk.data.*;
 import sdk.serializers.DataSetModule;
 import sdk.serializers.DateTimeModule;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Constants;
-import sdk.utils.Parameters;
-import sdk.utils.ResponseExceptionHandler;
+import sdk.utils.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,16 +58,13 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     if ( callbackURL != null ) {
                         generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
-                        HashMap<String, Object> map = new HashMap<>();
-                        map.put("async", true);
-                        map.put("callback", callbackURL);
-                        return ok(Json.toJson(map));
+                        return ok(Json.toJson(Response.asyncSuccess()));
                     } else {
                         DataSet dataSet = dataSource.getDataSet(authenticationInfo, parameters);
                         return ok(dataSet.toJSON());
                     }
                 })
-                .exceptionally(ResponseExceptionHandler::handleException);
+                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
     public CompletionStage<Result> searchDataSet(String dataSetName) {
@@ -84,16 +77,13 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     if ( callbackURL != null ) {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
-                        HashMap<String, Object> map = new HashMap<>();
-                        map.put("async", true);
-                        map.put("callback", callbackURL);
-                        return ok(Json.toJson(map));
+                        return ok(Json.toJson(Response.asyncSuccess()));
                     } else {
                         DataSet dataSet = dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                         return ok(dataSet.toJSON());
                     }
                 })
-                .exceptionally(ResponseExceptionHandler::handleException);
+                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
 
@@ -118,7 +108,7 @@ public class DataSetController extends Controller {
     }
 
     private CompletionStage<WSResponse> sendDataSetResponse(DataSet dataSet, String callbackURL) {
-        WSRequest request = wsClient.url(callbackURL);
+         WSRequest request = wsClient.url(callbackURL);
         if ( dataSet.isSuccess() ) {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
         } else {

@@ -7,6 +7,7 @@ public class Response {
     protected boolean success = true;
     protected String message;
     protected boolean showMessageAsAlert;
+    protected boolean async = false;
 
 
     public Response setFailedWithMessage(String message) {
@@ -20,18 +21,25 @@ public class Response {
         this.message = message;
     }
 
-    public static Response fromException(Throwable throwable) {
+    public Response(boolean success, String message, boolean async) {
+        this.success = success;
+        this.message = message;
+        this.async = async;
+    }
+
+    public static Response fromException(Throwable throwable, boolean async) {
         String message = throwable.getMessage();
         if ( message == null ) {
             if ( throwable instanceof NullPointerException ) {
                 message = "Connector threw NullPointer exception";
             }
         }
-        return new Response(false, message);
+        return new Response(false, message, async);
     }
     public static Response success() {
         return new Response(true, null);
     }
+    public static Response asyncSuccess() { return new Response(true, null, true); }
     public static Response success(String message) {
         return new Response(true, message);
     }
@@ -86,5 +94,13 @@ public class Response {
      */
     public void setShowMessageAsAlert(boolean showMessageAsAlert) {
         this.showMessageAsAlert = showMessageAsAlert;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public void setAsync(boolean async) {
+        this.async = async;
     }
 }

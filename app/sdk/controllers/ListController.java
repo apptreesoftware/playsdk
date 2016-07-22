@@ -2,6 +2,7 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -15,7 +16,6 @@ import sdk.list.*;
 import sdk.utils.*;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -63,10 +63,7 @@ public class ListController extends Controller {
 
             if ( callbackURL != null ) {
                 generateListDataResponse((CacheableList) dataSource, callbackURL, authenticationInfo, parameters, listName);
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("async", true);
-                map.put("callback", callbackURL);
-                return ok(Json.toJson(map));
+                return ok(Json.toJson(Response.asyncSuccess()));
             } else {
                 List list = ((CacheableList)dataSource).getList(authenticationInfo, parameters);
                 if ( json ) {
@@ -78,7 +75,9 @@ public class ListController extends Controller {
                 }
             }
         }).exceptionally(exception -> {
-            if ( json ) {
+            if ( callbackURL != null ) {
+                return ok(Json.toJson(Response.fromException(exception, true)));
+            } else if ( json ) {
                 exception = ResponseExceptionHandler.findRootCause(exception);
                 ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
                 return ok(Json.toJson(response));
@@ -88,17 +87,19 @@ public class ListController extends Controller {
         });
     }
 
-    public void generateListDataResponse(CacheableList dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters, String listName) {
+    private void generateListDataResponse(CacheableList dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters, String listName) {
         CompletableFuture.
                 supplyAsync(() -> dataSource.getList(authenticationInfo, parameters), executor)
                 .thenApply(list -> {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
                     WSRequest request = wsClient.url(callbackURL);
+                    Logger.debug("Sending data back to " + callbackURL);
                     request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
                     return request.post(sqlFile);
                 })
                 .exceptionally(throwable -> {
                     WSRequest request = wsClient.url(callbackURL);
+                    Logger.debug("Sending error back to " + callbackURL);
                     Throwable unwrappedException = ResponseExceptionHandler.findRootCause(throwable);
                     String message = unwrappedException.getMessage() != null ? unwrappedException.getMessage() : "List generation failed with exception " + throwable.toString();
                     request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
