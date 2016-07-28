@@ -19,6 +19,7 @@ public enum AttributeType {
     Location("Location"),
     Attachments("Attachments"),
     Relation("Relationship"),
+    SingleRelationship("SingleRelationship"),
     ListItem("ListItem"),
     Color("Color"),
     None("None");
@@ -61,6 +62,8 @@ public enum AttributeType {
             return Attachments;
         } else if ( string.equalsIgnoreCase(Relation.stringValue) ) {
             return Relation;
+        } else if ( string.equalsIgnoreCase(SingleRelationship.stringValue) ) {
+            return SingleRelationship;
         } else if ( string.equalsIgnoreCase(ListItem.stringValue) ) {
             return ListItem;
         } else if ( string.equalsIgnoreCase(Color.stringValue) ) {

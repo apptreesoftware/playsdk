@@ -1056,7 +1056,7 @@ public class DataSetItem {
         }
 
         DataSetItem dataSetItem = new DataSetItem(configurationAttribute.relatedService.getAttributeConfigurationForIndexMap());
-        if ( attribute == null ) {
+        if ( attribute == null || configurationAttribute.attributeType == AttributeType.SingleRelationship ) {
             attribute = new DataSetItemAttribute(dataSetItem);
             attributeMap.put(attributeIndex, attribute);
         } else {

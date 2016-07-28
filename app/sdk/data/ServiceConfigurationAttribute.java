@@ -6,7 +6,6 @@ import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -203,6 +202,12 @@ public class ServiceConfigurationAttribute {
          */
         public Builder asRelationship(RelatedServiceConfiguration relatedService) {
             mAttributeType = AttributeType.Relation;
+            mRelatedService = relatedService;
+            return this;
+        }
+
+        public Builder asSingleRelationship(RelatedServiceConfiguration relatedService) {
+            mAttributeType = AttributeType.SingleRelationship;
             mRelatedService = relatedService;
             return this;
         }
