@@ -20,6 +20,7 @@ public class DataSetItemAttachment extends DataSetItem {
     private static int AttachmentAttributeFile = 7;
     private static int AttachmentAttributeEditable = 8;
     private static int AttachmentAttributeDeletable = 9;
+    private static int AttachmentAttributeThumbnail = 10;
 
     Http.MultipartFormData.FilePart attachmentFileItem;
     private static HashMap<Integer, ServiceConfigurationAttribute> configurationAttributeMap = new HashMap<Integer, ServiceConfigurationAttribute>();
@@ -33,6 +34,7 @@ public class DataSetItemAttachment extends DataSetItem {
         configurationAttributeMap.put(AttachmentAttributeFile, new ServiceConfigurationAttribute.Builder(AttachmentAttributeFile).build());
         configurationAttributeMap.put(AttachmentAttributeEditable, new ServiceConfigurationAttribute.Builder(AttachmentAttributeEditable).asBool().build());
         configurationAttributeMap.put(AttachmentAttributeDeletable, new ServiceConfigurationAttribute.Builder(AttachmentAttributeDeletable).asBool().build());
+        configurationAttributeMap.put(AttachmentAttributeThumbnail, new ServiceConfigurationAttribute.Builder(AttachmentAttributeThumbnail).build());
     }
 
 
@@ -139,10 +141,29 @@ public class DataSetItemAttachment extends DataSetItem {
     }
 
     /**
+     * Sets the thumbnail attachment URL used when the attachment is a file
+     * @param thumbnailAttachmentURL The url for the attachment stream
+     */
+    public void setThumbnailAttachmentURL(String thumbnailAttachmentURL) {
+        try {
+            setStringForAttributeIndex(thumbnailAttachmentURL, AttachmentAttributeThumbnail);
+        } catch (InvalidAttributeValueException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Gets the attachment URL used when the attachment is a file
      */
     public String getFileAttachmentURL() {
         return getStringAttributeAtIndex(AttachmentAttributeFile);
+    }
+
+    /**
+     * Gets the thumbnail URL used when the attachment is a file
+     */
+    public String getThumbnailAttachmentURL() {
+        return getStringAttributeAtIndex(AttachmentAttributeThumbnail);
     }
 
     /**

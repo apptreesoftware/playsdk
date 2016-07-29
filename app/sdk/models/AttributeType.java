@@ -18,6 +18,7 @@ public enum AttributeType {
     Image("Image"),
     Location("Location"),
     Attachments("Attachments"),
+    File("File"),
     Relation("Relationship"),
     ListItem("ListItem"),
     Color("Color"),
@@ -59,6 +60,8 @@ public enum AttributeType {
             return Location;
         } else if ( string.equalsIgnoreCase(Attachments.stringValue) ) {
             return Attachments;
+        } else if ( string.equalsIgnoreCase(File.stringValue) ) {
+            return File;
         } else if ( string.equalsIgnoreCase(Relation.stringValue) ) {
             return Relation;
         } else if ( string.equalsIgnoreCase(ListItem.stringValue) ) {

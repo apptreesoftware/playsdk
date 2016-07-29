@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Http;
@@ -486,6 +487,25 @@ public class DataSetItem {
     }
 
     /**
+     * Gets a date time range at the specified index of the attribute map
+     * @param attributeIndex The index to get the attribute at
+     * @return date time range
+     */
+    @Nullable
+    public File getFileAttributeAtIndex(int attributeIndex) {
+        DataSetItemAttribute attribute;
+        attribute = attributeMap.get(attributeIndex);
+        if ( attribute != null ) {
+            return  attribute.getFile();
+        }
+        return null;
+    }
+
+    public Optional<File> getOptionalFileAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getFileAttributeAtIndex(attributeIndex));
+    }
+
+    /**
      * Gets a boolean attribute at the specified index of the attribute map
      * @param attributeIndex The index to get the attribute at
      * @return boolean
@@ -635,6 +655,8 @@ public class DataSetItem {
                 return "public void setDateTimeForAttributeIndex(DateTime date, int attributeIndex)";
             case Boolean:
                 return "public void setBooleanForAttributeIndex(boolean value, int attributeIndex)";
+            case File:
+                return "public void setFileForAttributeIndex(File file, int attributeIndex)";
         }
         return null;
     }
@@ -663,6 +685,8 @@ public class DataSetItem {
                 return "public DateTime getDateTimeAttributeAtIndex(int attributeIndex)";
             case TimeInterval:
                 return "public TimeInterval getTimeIntervalAttributeAtIndex(int attributeIndex)";
+            case File:
+                return "public File getFileAttributeAtIndex(int attributeIndex)";
         }
         return null;
     }
@@ -826,6 +850,20 @@ public class DataSetItem {
         }
         if ( date != null ) {
             attributeMap.put(attributeIndex, new DataSetItemAttribute(date,true));
+        }
+    }
+
+    /**
+     * Sets a file value at the specified index of the attribute map
+     * @param file The file to set
+     * @param attributeIndex The index of the attribute
+     */
+    public void setFileForAttributeIndex(File file, int attributeIndex) throws InvalidAttributeValueException {
+        if (!validateGetterAttributeTypeForIndex(AttributeType.File, attributeIndex)) {
+            return;
+        }
+        if ( file != null ) {
+            attributeMap.put(attributeIndex, new DataSetItemAttribute(file));
         }
     }
 
@@ -1030,6 +1068,14 @@ public class DataSetItem {
                                             }
                                         });
                             }
+                            break;
+                        case File:
+                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                File file = Json.fromJson(jsonNode, File.class);
+                                if ( file != null ) {
+                                    setFileForAttributeIndex(file, i);
+                                }
+                            });
                             break;
                         case ListItem:
                             JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {

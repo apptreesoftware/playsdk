@@ -298,6 +298,15 @@ public class ServiceConfigurationAttribute {
             return this;
         }
 
+        /**
+         * Sets the attribute type as file
+         * @return the builder with file type
+         */
+        public Builder asFile() {
+            mAttributeType = AttributeType.File;
+            return this;
+        }
+
         public Builder asTimeInterval() {
             mAttributeType = AttributeType.TimeInterval;
             return this;

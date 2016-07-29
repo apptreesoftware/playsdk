@@ -27,6 +27,7 @@ public class DataSetItemAttribute {
     private DateTime date;
     private DateRange dateRange;
     private DateTimeRange dateTimeRange;
+    private File file;
 
     public static final DateTimeFormatter AppTreeDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(DateTimeZone.forID("Etc/GMT"));
     public static final DateTimeFormatter AppTreeDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").withZone(DateTimeZone.forID("Etc/GMT"));
@@ -75,6 +76,15 @@ public class DataSetItemAttribute {
     DataSetItemAttribute(DateRange range) {
         attributeType = AttributeType.DateRange;
         this.dateRange = range;
+    }
+
+    /**
+     * Creates a file attribute
+     * @param file the File to be stored
+     */
+    DataSetItemAttribute(File file) {
+        attributeType = AttributeType.File;
+        this.file = file;
     }
 
     /**
@@ -244,6 +254,12 @@ public class DataSetItemAttribute {
     public DateRange getDateRange() { return dateRange; }
 
     /**
+     * Gets the file value of an attribute
+     * @return
+     */
+    public File getFile() { return file; }
+
+    /**
      * Gets the date time range value of an attribute
      * @return
      */
@@ -305,6 +321,11 @@ public class DataSetItemAttribute {
             case DateTimeRange:
                 if ( dateTimeRange != null ) {
                     return dateTimeRange.toJSON().toString();
+                }
+                break;
+            case File:
+                if ( file != null ) {
+                    return file.toJSON().toString();
                 }
                 break;
             default:
