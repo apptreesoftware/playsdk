@@ -369,6 +369,10 @@ public class DataSetItem {
         return null;
     }
 
+    public Optional<String> getOptionalStringAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getStringAttributeAtIndex(attributeIndex));
+    }
+
     /**
      * Gets a date attribute at the specified index of the attribute map
      * @param attributeIndex The index to get the attribute at
