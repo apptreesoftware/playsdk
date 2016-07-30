@@ -21,10 +21,7 @@ import sdk.serializers.DataSetModule;
 import sdk.serializers.DateTimeModule;
 import sdk.utils.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
@@ -201,7 +198,13 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         return CompletableFuture
                 .supplyAsync(() -> source.getAttachment(attachmentID, authenticationInfo, parameters))
-                .thenApply(attachmentResponse -> ok(attachmentResponse.inputStream).withHeader("Content-Type", attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream"));
+                .thenApply(attachmentResponse -> {
+                    String mimeType = attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream";
+                    String filename = attachmentResponse.fileName != null ? attachmentResponse.fileName : UUID.randomUUID().toString();
+                    return ok(attachmentResponse.inputStream)
+                            .withHeader("Filename", filename )
+                            .withHeader("Content-Type", mimeType);
+                });
     }
 
     public CompletionStage<Result> postEvent(String dataSetName, String dataSetItemID) {
