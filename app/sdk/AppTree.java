@@ -1,7 +1,5 @@
 package sdk;
 
-import com.sun.org.apache.xerces.internal.impl.dv.xs.BooleanDV;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import play.Play;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
