@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-. ../connector_env.config
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. ${CURRENT_DIR}/../connector_env.config
 
 PID_FILE="${DEPLOY_LOCATION}/RUNNING_PID"
 if [ -f ${PID_FILE} ]

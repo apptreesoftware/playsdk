@@ -2,8 +2,13 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import play.libs.Json;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -14,21 +19,27 @@ import sdk.attachment.AttachmentDataSource;
 import sdk.data.*;
 import sdk.serializers.DataSetModule;
 import sdk.serializers.DateTimeModule;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.ResponseExceptionHandler;
+import sdk.utils.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by alexis on 5/3/16.
  */
 @With({ValidateRequestAction.class})
 public class DataSetController extends Controller {
+
+    @Inject
+    WSClient wsClient;
+
+    Executor executor = Executors.newFixedThreadPool(10);
 
     public DataSetController() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -39,16 +50,74 @@ public class DataSetController extends Controller {
 
     public CompletionStage<Result> getDataSet(String dataSetName) {
         Http.Request request = request();
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
         return CompletableFuture
                 .supplyAsync(() -> {
                     AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
                     Parameters parameters = new Parameters(request.queryString());
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    return dataSource.getDataSet(authenticationInfo, parameters);
+                    if ( callbackURL != null ) {
+                        generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
+                        return ok(Json.toJson(Response.asyncSuccess()));
+                    } else {
+                        DataSet dataSet = dataSource.getDataSet(authenticationInfo, parameters);
+                        return ok(dataSet.toJSON());
+                    }
                 })
-                .thenApply(dataSourceResponse -> ok(dataSourceResponse.toJSON()))
-                .exceptionally(ResponseExceptionHandler::handleException);
+                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
+
+    public CompletionStage<Result> searchDataSet(String dataSetName) {
+        Http.Request request = request();
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        return dataSetItemFromRequest(dataSetName, request, true)
+                .thenApply(dataSetItem -> {
+                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+                    if ( callbackURL != null ) {
+                        generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
+                        return ok(Json.toJson(Response.asyncSuccess()));
+                    } else {
+                        DataSet dataSet = dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
+                        return ok(dataSet.toJSON());
+                    }
+                })
+                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
+    }
+
+
+    private void generateDataSourceResponse(DataSource dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        CompletableFuture.supplyAsync(() -> dataSource.getDataSet(authenticationInfo, parameters))
+                .thenApply(dataSet -> sendDataSetResponse(dataSet, callbackURL))
+                .exceptionally(throwable -> {
+                    WSRequest request = wsClient.url(callbackURL);
+                    ResponseExceptionHandler.updateCallbackWithException(request, throwable);
+                    return request.post("");
+                });
+    }
+
+    private void generateDataSourceSearchResponse(DataSource dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        CompletableFuture.supplyAsync(() -> dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters))
+                .thenApply(dataSet -> sendDataSetResponse(dataSet, callbackURL))
+                .exceptionally(throwable -> {
+                    WSRequest request = wsClient.url(callbackURL);
+                    ResponseExceptionHandler.updateCallbackWithException(request, throwable);
+                    return request.post("");
+                });
+    }
+
+    private CompletionStage<WSResponse> sendDataSetResponse(DataSet dataSet, String callbackURL) {
+         WSRequest request = wsClient.url(callbackURL);
+        if ( dataSet.isSuccess() ) {
+            request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
+        } else {
+            request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_WARNING);
+            request.setHeader(Constants.CORE_CALLBACK_MESSAGE, dataSet.getMessage() != null ? dataSet.getMessage() : "");
+        }
+        return request.post(dataSet.toJSON());
+    }
+
 
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         Http.Request request = request();
@@ -90,14 +159,22 @@ public class DataSetController extends Controller {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
-    public CompletionStage<Result> searchDataSet(String dataSetName) {
+    public CompletionStage<Result> bulkUpdate(String dataSetName) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, true)
+        Http.MultipartFormData body = request.body().asMultipartFormData();
+        Map<String, String[]> bodyMap = body.asFormUrlEncoded();
+        String recordsJSONArray = bodyMap.get("records")[0];
+        ArrayNode idsArray = (ArrayNode) Json.parse(recordsJSONArray);
+        List<String> ids = new ArrayList<>();
+        for ( JsonNode node : idsArray ) {
+            ids.add(node.asText());
+        }
+        return dataSetItemFromRequest(dataSetName, request, false)
                 .thenApply(dataSetItem -> {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
+                    return dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters);
                 })
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
@@ -150,8 +227,7 @@ public class DataSetController extends Controller {
                 .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
                 .thenApply(dataSet -> {
                     if ( !search ) {
-                        Http.MultipartFormData body = request.body()
-                                .asMultipartFormData();
+                        Http.MultipartFormData body = request.body().asMultipartFormData();
                         Map<String, String[]> bodyMap = body.asFormUrlEncoded();
                         List<Http.MultipartFormData.FilePart> files = body.getFiles();
                         String formJSON = bodyMap.get("formJSON")[0];

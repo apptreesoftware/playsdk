@@ -77,4 +77,8 @@ public class AppTree {
     public static String getApplicationSecret() {
         return Play.application().configuration().getString("play.crypto.secret");
     }
+
+    public static String getHost() {
+        return Play.application().configuration().getString("host");
+    }
 }

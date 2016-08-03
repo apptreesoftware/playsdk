@@ -1,5 +1,6 @@
 package sdk.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
 import play.libs.Json;
@@ -171,6 +172,7 @@ public class Location {
         return json;
     }
 
+    @JsonIgnore
     public String getLatLngString() {
         return String.format("%f,%f", latitude, longitude);
     }

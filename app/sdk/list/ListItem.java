@@ -1,50 +1,40 @@
 package sdk.list;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.joda.time.DateTime;
 import play.Logger;
 import sdk.models.*;
-import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Created by alexis on 5/3/16.
  */
+@JsonSerialize(using = ListItem.ListItemSerializer.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ListItem {
     public String id;
     public String parentID;
     public String value;
-    private ListItemAttribute attribute01;
-    private ListItemAttribute attribute02;
-    private ListItemAttribute attribute03;
-    private ListItemAttribute attribute04;
-    private ListItemAttribute attribute05;
-    private ListItemAttribute attribute06;
-    private ListItemAttribute attribute07;
-    private ListItemAttribute attribute08;
-    private ListItemAttribute attribute09;
-    private ListItemAttribute attribute10;
+    private HashMap<Integer, ListItemAttribute> itemAttributes = new HashMap<>();
     public double latitude;
     public double longitude;
+    private int maxAttributeIndex = -1;
 
     private ListServiceConfiguration attributeConfiguration;
 
     public ListServiceConfiguration getConfiguration() {
         return attributeConfiguration;
     }
-
-    public static final int
-            ATTRIBUTE_1 = 0,
-            ATTRIBUTE_2 = 1,
-            ATTRIBUTE_3 = 2,
-            ATTRIBUTE_4 = 3,
-            ATTRIBUTE_5 = 4,
-            ATTRIBUTE_6 = 5,
-            ATTRIBUTE_7 = 6,
-            ATTRIBUTE_8 = 7,
-            ATTRIBUTE_9 = 8,
-            ATTRIBUTE_10 = 9;
 
     public ListItem() {}
 
@@ -65,6 +55,7 @@ public class ListItem {
     public void setAttributeForIndex(@Nullable Object value, int index) {
         ListItemAttribute attribute = null;
 
+        if ( index > 79 || index < 0 ) Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
         if ( value != null ) {
             if ( value instanceof String ) {
                 attribute = new ListItemAttribute((String)value);
@@ -94,40 +85,8 @@ public class ListItem {
                 return;
             }
         }
-        switch (index) {
-            case ATTRIBUTE_1:
-                attribute01 = attribute;
-                break;
-            case ATTRIBUTE_2:
-                attribute02 = attribute;
-                break;
-            case ATTRIBUTE_3:
-                attribute03 = attribute;
-                break;
-            case ATTRIBUTE_4:
-                attribute04 = attribute;
-                break;
-            case ATTRIBUTE_5:
-                attribute05 = attribute;
-                break;
-            case ATTRIBUTE_6:
-                attribute06 = attribute;
-                break;
-            case ATTRIBUTE_7:
-                attribute07 = attribute;
-                break;
-            case ATTRIBUTE_8:
-                attribute08 = attribute;
-                break;
-            case ATTRIBUTE_9:
-                attribute09 = attribute;
-                break;
-            case ATTRIBUTE_10:
-                attribute10 = attribute;
-                break;
-            default:
-                Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
+        itemAttributes.put(index, attribute);
+        maxAttributeIndex = maxAttributeIndex > index ? maxAttributeIndex : index;
     }
 
     /**
@@ -137,40 +96,10 @@ public class ListItem {
      * @param index the index of the attribute to be set
      */
     public void setDateAttributeForIndex(DateTime date, boolean time, int index) {
-        switch (index) {
-            case ATTRIBUTE_1:
-                attribute01 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_2:
-                attribute02 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_3:
-                attribute03 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_4:
-                attribute04 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_5:
-                attribute05 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_6:
-                attribute06 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_7:
-                attribute07 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_8:
-                attribute08 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_9:
-                attribute09 = new ListItemAttribute(date, time);
-                break;
-            case ATTRIBUTE_10:
-                attribute10 = new ListItemAttribute(date, time);
-                break;
-            default:
-                System.out.println("The index you specified (" + index + ") is beyond the allowed number of attributes ( 1 - 10 )");
-        }
+        if ( index > 79 || index < 0 ) Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
+
+        itemAttributes.put(index, new ListItemAttribute(date, time));
+        maxAttributeIndex = maxAttributeIndex > index ? maxAttributeIndex : index;
     }
 
     /**
@@ -179,70 +108,29 @@ public class ListItem {
      * @return
      */
     public ListItemAttribute getAttributeForIndex(int index) {
-        switch(index) {
-            case ATTRIBUTE_1:
-                return attribute01;
-            case ATTRIBUTE_2:
-                return attribute02;
-            case ATTRIBUTE_3:
-                return attribute03;
-            case ATTRIBUTE_4:
-                return attribute04;
-            case ATTRIBUTE_5:
-                return attribute05;
-            case ATTRIBUTE_6:
-                return attribute06;
-            case ATTRIBUTE_7:
-                return attribute07;
-            case ATTRIBUTE_8:
-                return attribute08;
-            case ATTRIBUTE_9:
-                return attribute09;
-            case ATTRIBUTE_10:
-                return attribute10;
-            default:
-                System.out.println("Requesting an attribute index ( " + index + ") that is beyond the allowed attribute indexes ( 1 - 10 )");
+        return itemAttributes.get(index);
+    }
+
+    static class ListItemSerializer extends JsonSerializer<ListItem> {
+
+        @Override
+        public void serialize(ListItem value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeStringField("id", value.id);
+            gen.writeStringField("value", value.value);
+            gen.writeNumberField("latitude", value.latitude);
+            gen.writeNumberField("longitude", value.longitude);
+            for ( int i = 0; i <= value.maxAttributeIndex; i++ ) {
+                ListItemAttribute attribute = value.getAttributeForIndex(i);
+                if ( attribute != null ) {
+                    if ( i < 10 ) {
+                        gen.writeStringField("attribute0" + (i + 1), attribute.getStringValue());
+                    } else {
+                        gen.writeStringField("attribute" + (i + 1), attribute.getStringValue());
+                    }
+                }
+            }
+            gen.writeEndObject();
         }
-        return null;
-    }
-
-    public String getAttribute01() {
-        return attribute01 != null ? attribute01.getStringValue() : null;
-    }
-
-    public String getAttribute02() {
-        return attribute02 != null ? attribute02.getStringValue() : null;
-    }
-
-    public String getAttribute03() {
-        return attribute03 != null ? attribute03.getStringValue() : null;
-    }
-
-    public String getAttribute04() {
-        return attribute04 != null ? attribute04.getStringValue() : null;
-    }
-
-    public String getAttribute05() {
-        return attribute05 != null ? attribute05.getStringValue() : null;
-    }
-
-    public String getAttribute06() {
-        return attribute06 != null ? attribute06.getStringValue() : null;
-    }
-
-    public String getAttribute07() {
-        return attribute07 != null ? attribute07.getStringValue() : null;
-    }
-
-    public String getAttribute08() {
-        return attribute08 != null ? attribute08.getStringValue() : null;
-    }
-
-    public String getAttribute09() {
-        return attribute09 != null ? attribute09.getStringValue() : null;
-    }
-
-    public String getAttribute10() {
-        return attribute10 != null ? attribute10.getStringValue() : null;
     }
 }

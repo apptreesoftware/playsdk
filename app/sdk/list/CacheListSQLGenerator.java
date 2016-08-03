@@ -49,19 +49,15 @@ public class CacheListSQLGenerator {
                     "ID VARCHAR(32) PRIMARY KEY NOT NULL," +
                     "PARENT_ID VARCHAR (500)," +
                     "ITEM_ORDER INT," +
-                    "VALUE VARCHAR(500)," +
-                    "ATTRIBUTE01 VARCHAR(500)," +
-                    "ATTRIBUTE02 VARCHAR(500)," +
-                    "ATTRIBUTE03 VARCHAR(500)," +
-                    "ATTRIBUTE04 VARCHAR(500)," +
-                    "ATTRIBUTE05 VARCHAR(500)," +
-                    "ATTRIBUTE06 VARCHAR(500)," +
-                    "ATTRIBUTE07 VARCHAR(500)," +
-                    "ATTRIBUTE08 VARCHAR(500)," +
-                    "ATTRIBUTE09 VARCHAR(500)," +
-                    "ATTRIBUTE10 VARCHAR(500)," +
-                    "LATITUDE REAL," +
-                    "LONGITUDE REAL);";
+                    "VALUE VARCHAR(500),";
+            for ( int i = 1; i < 81; i++ ) {
+                if ( i < 10 ) {
+                    createTableSQL += "ATTRIBUTE0" + i + " VARCHAR(500),";
+                } else {
+                    createTableSQL += "ATTRIBUTE" + i + " VARCHAR(500),";
+                }
+            }
+            createTableSQL += "LATITUDE REAL, LONGITUDE REAL);";
             statement.executeUpdate(createTableSQL);
             statement.close();
             System.gc();
@@ -94,7 +90,7 @@ public class CacheListSQLGenerator {
         int count = 0;
         ListItem item;
 
-        sql = "INSERT INTO LIST_ITEM values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        sql = "INSERT INTO LIST_ITEM values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         statement = connection.prepareStatement(sql);
         connection.setAutoCommit(false);
         for ( ListItem listItem : list.listItems ) {
@@ -102,18 +98,13 @@ public class CacheListSQLGenerator {
             statement.setString(2, listItem.parentID);
             statement.setInt(3, -1);
             statement.setString(4, listItem.value);
-            statement.setString(5, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_1).getStringValue() : null);
-            statement.setString(6, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_2).getStringValue() : null);
-            statement.setString(7, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_3) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_3).getStringValue() : null);
-            statement.setString(8, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_4) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_4).getStringValue() : null);
-            statement.setString(9, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_5) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_5).getStringValue() : null);
-            statement.setString(10, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_6) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_6).getStringValue() : null);
-            statement.setString(11, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_7) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_7).getStringValue() : null);
-            statement.setString(12, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_8) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_8).getStringValue() : null);
-            statement.setString(13, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_9) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_9).getStringValue() : null);
-            statement.setString(14, listItem.getAttributeForIndex(ListItem.ATTRIBUTE_10) != null ? listItem.getAttributeForIndex(ListItem.ATTRIBUTE_10).getStringValue() : null);
-            statement.setDouble(15, listItem.latitude);
-            statement.setDouble(16, listItem.longitude);
+            int counter = 5;
+            while ( counter < 85 ) {
+                statement.setString(counter, listItem.getAttributeForIndex(counter - 5) != null ? listItem.getAttributeForIndex(counter - 5).getStringValue() : null);
+                counter++;
+            }
+            statement.setDouble(85, listItem.latitude);
+            statement.setDouble(86, listItem.longitude);
             statement.addBatch();
             count++;
             if ( count % 5000 == 0 ) {
