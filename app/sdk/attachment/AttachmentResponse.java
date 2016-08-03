@@ -10,9 +10,11 @@ import java.io.InputStream;
 public class AttachmentResponse {
     public InputStream inputStream;
     public String contentType;
+    public String fileName;
 
-    public AttachmentResponse(InputStream inputStream, String contentType) {
+    public AttachmentResponse(InputStream inputStream, String contentType, String fileName) {
         this.inputStream = inputStream;
         this.contentType = contentType;
+        this.fileName = fileName;
     }
 }
