@@ -25,7 +25,7 @@ public class CallbackLogger {
             Logger.error(String.format("CALLBACK COULD NOT BE SENT to %s. Network Exception Occurred - %s", callbackURL, callbackThrowable.toString()), callbackThrowable);
         } else {
             if (response.getStatus() == 200) {
-                Logger.error(String.format("CALLBACK SENT to %s successfully", callbackURL));
+                Logger.debug(String.format("CALLBACK SENT to %s successfully", callbackURL));
             } else {
                 Logger.error(String.format("CALLBACK COULD NOT BE SENT to %s. Reason: %s : %s\n%s", callbackURL, response.getStatus(), response.getStatusText(), response.getBody()));
             }
