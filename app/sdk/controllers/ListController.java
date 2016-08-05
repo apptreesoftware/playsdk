@@ -22,6 +22,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static sdk.utils.CallbackLogger.logCallbackInfo;
+import static sdk.utils.CallbackLogger.logExceptionCallback;
 import static sdk.utils.Constants.CORE_CALLBACK_URL;
 
 /**
@@ -93,9 +95,12 @@ public class ListController extends Controller {
                 .thenApply(list -> {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
                     WSRequest request = wsClient.url(callbackURL);
-                    Logger.debug("Sending data back to " + callbackURL);
                     request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
-                    return request.post(sqlFile);
+                    return request
+                            .post(sqlFile)
+                            .whenComplete((wsResponse, throwable) -> {
+                                logCallbackInfo(wsResponse, throwable, callbackURL);
+                            });
                 })
                 .exceptionally(throwable -> {
                     WSRequest request = wsClient.url(callbackURL);
@@ -104,7 +109,11 @@ public class ListController extends Controller {
                     String message = unwrappedException.getMessage() != null ? unwrappedException.getMessage() : "List generation failed with exception " + throwable.toString();
                     request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
                     request.setHeader(Constants.CORE_CALLBACK_MESSAGE, message);
-                    return request.post("");
+                    return request
+                            .post("")
+                            .whenComplete((wsResponse, callbackThrowable) -> {
+                                logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
+                            });
         });
     }
 

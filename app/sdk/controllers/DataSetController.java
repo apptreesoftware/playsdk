@@ -27,6 +27,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static sdk.utils.CallbackLogger.logCallbackInfo;
+import static sdk.utils.CallbackLogger.logExceptionCallback;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -85,22 +88,26 @@ public class DataSetController extends Controller {
 
 
     private void generateDataSourceResponse(DataSource dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        CompletableFuture.supplyAsync(() -> dataSource.getDataSet(authenticationInfo, parameters))
-                .thenApply(dataSet -> sendDataSetResponse(dataSet, callbackURL))
-                .exceptionally(throwable -> {
-                    WSRequest request = wsClient.url(callbackURL);
-                    ResponseExceptionHandler.updateCallbackWithException(request, throwable);
-                    return request.post("");
+        CompletableFuture
+                .supplyAsync(() -> dataSource.getDataSet(authenticationInfo, parameters))
+                .whenComplete((dataSet, throwable) -> {
+                    if ( throwable != null ) {
+                        sendDataSetExceptionCallback(throwable, callbackURL);
+                    } else {
+                        sendDataSetResponse(dataSet, callbackURL);
+                    }
                 });
     }
 
     private void generateDataSourceSearchResponse(DataSource dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        CompletableFuture.supplyAsync(() -> dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters))
-                .thenApply(dataSet -> sendDataSetResponse(dataSet, callbackURL))
-                .exceptionally(throwable -> {
-                    WSRequest request = wsClient.url(callbackURL);
-                    ResponseExceptionHandler.updateCallbackWithException(request, throwable);
-                    return request.post("");
+        CompletableFuture
+                .supplyAsync(() -> dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters))
+                .whenComplete((dataSet, throwable) -> {
+                    if ( throwable != null ) {
+                        sendDataSetExceptionCallback(throwable, callbackURL);
+                    } else {
+                        sendDataSetResponse(dataSet, callbackURL);
+                    }
                 });
     }
 
@@ -112,9 +119,21 @@ public class DataSetController extends Controller {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_WARNING);
             request.setHeader(Constants.CORE_CALLBACK_MESSAGE, dataSet.getMessage() != null ? dataSet.getMessage() : "");
         }
-        return request.post(dataSet.toJSON());
+        return request
+                .post(dataSet.toJSON())
+                .whenComplete((wsResponse, throwable) -> {
+                    logCallbackInfo(wsResponse, throwable, callbackURL);
+        });
     }
 
+    private void sendDataSetExceptionCallback(Throwable throwable, String callbackURL) {
+        WSRequest request = wsClient.url(callbackURL);
+        ResponseExceptionHandler.updateCallbackWithException(request, throwable);
+        request.post("")
+                .whenComplete((wsResponse, callbackThrowable) -> {
+                    logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
+                });
+    }
 
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         Http.Request request = request();
