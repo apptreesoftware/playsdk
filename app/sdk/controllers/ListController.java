@@ -78,13 +78,24 @@ public class ListController extends Controller {
             }
         }).exceptionally(exception -> {
             if ( callbackURL != null ) {
-                return ok(Json.toJson(Response.fromException(exception, true)));
+                throw new RuntimeException(exception);
             } else if ( json ) {
                 exception = ResponseExceptionHandler.findRootCause(exception);
                 ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
                 return ok(Json.toJson(response));
             } else {
                 return internalServerError().withHeader("ListError", exception.getMessage());
+            }
+        }).whenComplete((result, throwable) -> {
+            if ( throwable != null ) {
+                WSRequest callbackRequest = wsClient.url(callbackURL);
+                Logger.debug("Sending error back to " + callbackURL);
+                ResponseExceptionHandler.updateCallbackWithException(callbackRequest, throwable);
+                callbackRequest
+                        .execute("POST")
+                        .whenComplete((wsResponse, callbackThrowable) -> {
+                            logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
+                        });
             }
         });
     }
@@ -105,12 +116,9 @@ public class ListController extends Controller {
                 .exceptionally(throwable -> {
                     WSRequest request = wsClient.url(callbackURL);
                     Logger.debug("Sending error back to " + callbackURL);
-                    Throwable unwrappedException = ResponseExceptionHandler.findRootCause(throwable);
-                    String message = unwrappedException.getMessage() != null ? unwrappedException.getMessage() : "List generation failed with exception " + throwable.toString();
-                    request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
-                    request.setHeader(Constants.CORE_CALLBACK_MESSAGE, message);
+                    ResponseExceptionHandler.updateCallbackWithException(request, throwable);
                     return request
-                            .post("")
+                            .execute("POST")
                             .whenComplete((wsResponse, callbackThrowable) -> {
                                 logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
                             });

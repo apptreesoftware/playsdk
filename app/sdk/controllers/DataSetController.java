@@ -117,7 +117,9 @@ public class DataSetController extends Controller {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
         } else {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_WARNING);
-            request.setHeader(Constants.CORE_CALLBACK_MESSAGE, dataSet.getMessage() != null ? dataSet.getMessage() : "");
+            ObjectNode json = Json.newObject();
+            json.put(Constants.CORE_CALLBACK_MESSAGE, dataSet.getMessage() != null ? dataSet.getMessage() : "");
+            request.setBody(json);
         }
         return request
                 .post(dataSet.toJSON())
@@ -127,12 +129,14 @@ public class DataSetController extends Controller {
     }
 
     private void sendDataSetExceptionCallback(Throwable throwable, String callbackURL) {
-        WSRequest request = wsClient.url(callbackURL);
-        ResponseExceptionHandler.updateCallbackWithException(request, throwable);
-        request.post("")
-                .whenComplete((wsResponse, callbackThrowable) -> {
-                    logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
-                });
+        CompletableFuture.runAsync(() -> {
+            WSRequest request = wsClient.url(callbackURL);
+            ResponseExceptionHandler.updateCallbackWithException(request, throwable);
+            request.execute("POST")
+                    .whenComplete((wsResponse, callbackThrowable) -> {
+                        logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
+                    });
+        });
     }
 
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {

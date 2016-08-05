@@ -1,5 +1,6 @@
 package sdk.utils;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
 import play.libs.ws.WSRequest;
 import play.mvc.Controller;
@@ -44,7 +45,9 @@ public class ResponseExceptionHandler {
             message = Response.fromException(throwable, true).getMessage();
         }
         request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
-        request.setHeader(Constants.CORE_CALLBACK_MESSAGE,  message);
+        ObjectNode json = Json.newObject();
+        json.put(Constants.CORE_CALLBACK_MESSAGE, message);
+        request.setBody(json);
     }
 
     public static Throwable findRootCause(Throwable throwable) {
