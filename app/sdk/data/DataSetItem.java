@@ -520,7 +520,7 @@ public class DataSetItem {
      * @return list of data set items
      */
     @Nullable
-    public List<DataSetItem> getDataSetItemsAtIndex(int attributeIndex) {
+    public List<DataSetItem>  getDataSetItemsAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
 
         attribute = attributeMap.get(attributeIndex);
@@ -1010,6 +1010,7 @@ public class DataSetItem {
                             break;
                         case Attachments:
                         case Relation:
+                        case SingleRelationship:
                             ArrayNode childArray = (ArrayNode) node;
                             RelatedServiceConfiguration childService = attribute.relatedService;
                             if ( childArray != null ) {
