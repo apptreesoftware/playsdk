@@ -42,10 +42,6 @@ public class DataSetController extends Controller {
     Executor executor = Executors.newFixedThreadPool(10);
 
     public DataSetController() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new DataSetModule());
-        objectMapper.registerModule(new DateTimeModule());
-        Json.setObjectMapper(objectMapper);
     }
 
     public CompletionStage<Result> getDataSet(String dataSetName) {
@@ -58,7 +54,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     if ( callbackURL != null ) {
                         generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
-                        return ok(Json.toJson(Response.asyncSuccess()));
+                        return ok(JsonUtils.toJson(Response.asyncSuccess()));
                     } else {
                         DataSet dataSet = dataSource.getDataSet(authenticationInfo, parameters);
                         return ok(dataSet.toJSON());
@@ -77,7 +73,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     if ( callbackURL != null ) {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
-                        return ok(Json.toJson(Response.asyncSuccess()));
+                        return ok(JsonUtils.toJson(Response.asyncSuccess()));
                     } else {
                         DataSet dataSet = dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
                         return ok(dataSet.toJSON());
@@ -148,7 +144,7 @@ public class DataSetController extends Controller {
                     Parameters parameters = new Parameters(request.queryString());
                     return dataSource.getConfiguration(authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -233,7 +229,7 @@ public class DataSetController extends Controller {
     public CompletionStage<Result> postEvent(String dataSetName, String dataSetItemID) {
         JsonNode json = request().body().asJson();
         if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
-        Event event = Json.fromJson(json, Event.class);
+        Event event = JsonUtils.fromJson(json, Event.class);
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
@@ -242,7 +238,7 @@ public class DataSetController extends Controller {
                     DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.updateEventForDataSetItem(dataSetItemID, event, authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 

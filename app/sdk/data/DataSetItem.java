@@ -10,7 +10,7 @@ import play.mvc.Http;
 import sdk.list.ListItem;
 import sdk.models.*;
 import sdk.utils.DateUtil;
-import sdk.utils.JSON;
+import sdk.utils.JsonUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -949,8 +949,8 @@ public class DataSetItem {
                             break;
                         case Date:
                             if ( search ) {
-                                JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                    DateRange dateRange = Json.fromJson(jsonNode, DateRange.class);
+                                JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                    DateRange dateRange = JsonUtils.fromJson(jsonNode, DateRange.class);
                                     if ( dateRange != null ) {
                                         setDateRangeForAttributeIndex(dateRange, i);
                                     }
@@ -961,8 +961,8 @@ public class DataSetItem {
                             break;
                         case DateTime:
                             if ( search ) {
-                                JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                    DateTimeRange dateRange = Json.fromJson(jsonNode, DateTimeRange.class);
+                                JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                    DateTimeRange dateRange = JsonUtils.fromJson(jsonNode, DateTimeRange.class);
                                     if ( dateRange != null ) {
                                         setDateTimeRangeForAttributeIndex(dateRange, i);
                                     }
@@ -975,24 +975,24 @@ public class DataSetItem {
                             setTimeIntervalForAttributeIndex(node.asLong(), i);
                             break;
                         case DateRange:
-                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                DateRange dateRange = Json.fromJson(jsonNode, DateRange.class);
+                            JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                DateRange dateRange = JsonUtils.fromJson(jsonNode, DateRange.class);
                                 if ( dateRange != null ) {
                                     setDateRangeForAttributeIndex(dateRange, i);
                                 }
                             });
                             break;
                         case DateTimeRange:
-                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                DateTimeRange dateRange = Json.fromJson(jsonNode, DateTimeRange.class);
+                            JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                DateTimeRange dateRange = JsonUtils.fromJson(jsonNode, DateTimeRange.class);
                                 if ( dateRange != null ) {
                                     setDateTimeRangeForAttributeIndex(dateRange, i);
                                 }
                             });
                             break;
                         case Image:
-                           JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                               Image image = Json.fromJson(jsonNode, Image.class);
+                           JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                               Image image = JsonUtils.fromJson(jsonNode, Image.class);
                                setImageForAttributeIndex(image, i);
                                if ( attachmentMap != null && image.uploadKey != null ) {
                                    Http.MultipartFormData.FilePart filePart = attachmentMap.get(image.uploadKey);
@@ -1003,8 +1003,8 @@ public class DataSetItem {
                            });
                             break;
                         case Location:
-                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                Location location = Json.fromJson(jsonNode, Location.class);
+                            JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                Location location = JsonUtils.fromJson(jsonNode, Location.class);
                                 setLocationForAttributeIndex(location, i);
                             });
                             break;
@@ -1037,14 +1037,14 @@ public class DataSetItem {
                             }
                             break;
                         case ListItem:
-                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                ListItem listItem = Json.fromJson(jsonNode, ListItem.class);
+                            JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                ListItem listItem = JsonUtils.fromJson(jsonNode, ListItem.class);
                                 setListItemForAttributeIndex(listItem, i);
                             });
                             break;
                         case Color:
-                            JSON.parseOptional(node.textValue()).ifPresent(jsonNode -> {
-                                Color color = Json.fromJson(jsonNode, Color.class);
+                            JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
+                                Color color = JsonUtils.fromJson(jsonNode, Color.class);
                                 setColorForAttributeIndex(color, i);
                             });
                             break;

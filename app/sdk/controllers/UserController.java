@@ -6,10 +6,7 @@ import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.user.User;
 import sdk.user.UserDataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
-import sdk.utils.ResponseExceptionHandler;
+import sdk.utils.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +26,7 @@ public class UserController extends Controller {
         Parameters parameters = new Parameters(request().queryString());
         return CompletableFuture
                 .supplyAsync(() -> dataSource.getUserInfo(userID, authenticationInfo, parameters))
-                .thenApply(userInfo -> ok(Json.toJson(userInfo)))
+                .thenApply(userInfo -> ok(JsonUtils.toJson(userInfo)))
                 .exceptionally(ResponseExceptionHandler::handleException);
 
     }
@@ -61,7 +58,7 @@ public class UserController extends Controller {
                     }
                     return response;
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -74,7 +71,7 @@ public class UserController extends Controller {
         return CompletableFuture
                 .supplyAsync(() -> dataSource.getUserInfoKeys(authenticationInfo))
                 .thenApply(sources -> new UserStringListResponse(true, sources, null))
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -84,12 +81,12 @@ public class UserController extends Controller {
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound("No user data source has been provided"));
         }
-        CheckForUserRequest infoRequest = Json.fromJson(request().body().asJson(), CheckForUserRequest.class);
+        CheckForUserRequest infoRequest = JsonUtils.fromJson(request().body().asJson(), CheckForUserRequest.class);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request().headers());
         Parameters parameters = new Parameters(request().queryString());
         return CompletableFuture
                 .supplyAsync(() -> dataSource.checkForUser(infoRequest.externalUserID, infoRequest.source, authenticationInfo, parameters))
-                .thenApply(userInfoResponse -> ok(Json.toJson(userInfoResponse)))
+                .thenApply(userInfoResponse -> ok(JsonUtils.toJson(userInfoResponse)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -102,12 +99,12 @@ public class UserController extends Controller {
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound("No user data source has been provided"));
         }
-        User user = Json.fromJson(request.body().asJson(), User.class);
+        User user = JsonUtils.fromJson(request.body().asJson(), User.class);
         return CompletableFuture
                 .runAsync(() -> {
                     dataSource.createUserEvent(user, authenticationInfo, parameters);
                 })
-                .thenApply(value -> ok(Json.toJson(Response.success())))
+                .thenApply(value -> ok(JsonUtils.toJson(Response.success())))
                 .exceptionally(ResponseExceptionHandler::handleException);
 
     }
@@ -121,12 +118,12 @@ public class UserController extends Controller {
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound("No user data source has been provided"));
         }
-        User user = Json.fromJson(request.body().asJson(), User.class);
+        User user = JsonUtils.fromJson(request.body().asJson(), User.class);
         return CompletableFuture
                 .runAsync(() -> {
                     dataSource.updateUserEvent(user, authenticationInfo, parameters);
                 })
-                .thenApply(value -> ok(Json.toJson(Response.success())))
+                .thenApply(value -> ok(JsonUtils.toJson(Response.success())))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -139,12 +136,12 @@ public class UserController extends Controller {
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound("No user data source has been provided"));
         }
-        User user = Json.fromJson(request.body().asJson(), User.class);
+        User user = JsonUtils.fromJson(request.body().asJson(), User.class);
         return CompletableFuture
                 .runAsync(() -> {
                     dataSource.deleteUserEvent(user, authenticationInfo, parameters);
                 })
-                .thenApply(value -> ok(Json.toJson(Response.success())))
+                .thenApply(value -> ok(JsonUtils.toJson(Response.success())))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 

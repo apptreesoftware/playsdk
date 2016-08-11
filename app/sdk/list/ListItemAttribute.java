@@ -4,6 +4,7 @@ import play.libs.Json;
 import sdk.data.DataSetItemAttribute;
 import sdk.models.*;
 import org.joda.time.DateTime;
+import sdk.utils.JsonUtils;
 
 /**
  * Created by alexis on 5/3/16.
@@ -26,7 +27,7 @@ public class  ListItemAttribute {
     public ListItemAttribute(Color color) {
         attributeType = AttributeType.Color;
         this.color = color;
-        this.stringValue = Json.toJson(this.color).toString();
+        this.stringValue = JsonUtils.toJson(this.color).toString();
     }
 
     public ListItemAttribute(boolean boolValue) {

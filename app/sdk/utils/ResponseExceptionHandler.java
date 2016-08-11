@@ -22,13 +22,13 @@ public class ResponseExceptionHandler {
         throwable.printStackTrace();
         if ( throwable instanceof PrimaryObjectNotFoundException) {
             if ( throwable.getMessage() != null ) {
-                return Controller.notFound(Json.toJson(Response.fromException(throwable, async)));
+                return Controller.notFound(JsonUtils.toJson(Response.fromException(throwable, async)));
             }
             return Controller.notFound();
         } else if ( throwable instanceof AuthorizationException) {
             return Controller.unauthorized();
         }
-        return Controller.ok(Json.toJson(Response.fromException(throwable, async)));
+        return Controller.ok(JsonUtils.toJson(Response.fromException(throwable, async)));
     }
 
     public static void updateCallbackWithException(WSRequest request, Throwable throwable) {

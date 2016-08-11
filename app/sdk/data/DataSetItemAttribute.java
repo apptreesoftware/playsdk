@@ -9,6 +9,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.libs.Json;
+import sdk.utils.JsonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -262,7 +263,7 @@ public class DataSetItemAttribute {
                 return stringValue;
             case ListItem:
                 if ( listItem != null && listItem.value != null) {
-                    JsonNode json = Json.toJson(listItem);
+                    JsonNode json = JsonUtils.toJson(listItem);
                     return json.toString();
                 }
                 break;
@@ -284,17 +285,17 @@ public class DataSetItemAttribute {
                 return stringValue;
             case Color:
                 if ( color != null ) {
-                    return Json.toJson(color).toString();
+                    return JsonUtils.toJson(color).toString();
                 }
                 break;
             case Image:
                 if ( image != null ) {
-                    return Json.toJson(image).toString();
+                    return JsonUtils.toJson(image).toString();
                 }
                 break;
             case Location:
                 if ( location != null ) {
-                    return Json.toJson(location).toString();
+                    return JsonUtils.toJson(location).toString();
                 }
                 break;
             case DateRange:

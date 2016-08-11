@@ -8,6 +8,7 @@ import play.mvc.Result;
 import sdk.AppTree;
 import sdk.auth.AuthenticationSource;
 import sdk.utils.AuthenticationInfo;
+import sdk.utils.JsonUtils;
 import sdk.utils.ResponseExceptionHandler;
 
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +33,7 @@ public class AuthenticationController extends Controller {
 
         return CompletableFuture
                 .supplyAsync(() -> source.login(username, password, authenticationInfo))
-                .thenApply(loginResponse -> ok(Json.toJson(loginResponse)))
+                .thenApply(loginResponse -> ok(JsonUtils.toJson(loginResponse)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -45,7 +46,7 @@ public class AuthenticationController extends Controller {
 
         return CompletableFuture
                 .supplyAsync(() -> source.logout(authenticationInfo))
-                .thenApply(response -> ok(Json.toJson(response)));
+                .thenApply(response -> ok(JsonUtils.toJson(response)));
     }
 
     public CompletionStage<Result> validateToken() {
@@ -57,6 +58,6 @@ public class AuthenticationController extends Controller {
 
         return CompletableFuture
                 .supplyAsync(() -> source.validateAuthenticationInfo(authenticationInfo))
-                .thenApply(response -> ok(Json.toJson(response)));
+                .thenApply(response -> ok(JsonUtils.toJson(response)));
     }
 }

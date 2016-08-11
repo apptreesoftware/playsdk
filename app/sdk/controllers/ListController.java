@@ -41,10 +41,10 @@ public class ListController extends Controller {
         return CompletableFuture.supplyAsync(() -> {
             ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
             ListServiceConfiguration configuration = dataSource.getListServiceConfiguration();
-            return ok(Json.toJson(configuration));
+            return ok(JsonUtils.toJson(configuration));
         }).exceptionally(exception -> {
             Response response = new Response(false, exception.getMessage());
-            return ok(Json.toJson(response));
+            return ok(JsonUtils.toJson(response));
         });
     }
 
@@ -65,12 +65,12 @@ public class ListController extends Controller {
 
             if ( callbackURL != null ) {
                 generateListDataResponse((CacheableList) dataSource, callbackURL, authenticationInfo, parameters, listName);
-                return ok(Json.toJson(Response.asyncSuccess()));
+                return ok(JsonUtils.toJson(Response.asyncSuccess()));
             } else {
                 List list = ((CacheableList)dataSource).getList(authenticationInfo, parameters);
                 if ( json ) {
                     ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
-                    return ok(Json.toJson(response));
+                    return ok(JsonUtils.toJson(response));
                 } else {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
                     return ok(sqlFile);
@@ -82,7 +82,7 @@ public class ListController extends Controller {
             } else if ( json ) {
                 exception = ResponseExceptionHandler.findRootCause(exception);
                 ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
-                return ok(Json.toJson(response));
+                return ok(JsonUtils.toJson(response));
             } else {
                 return internalServerError().withHeader("ListError", exception.getMessage());
             }
@@ -139,10 +139,10 @@ public class ListController extends Controller {
             Map<String, Object> searchContext = Json.mapper().convertValue(context, Map.class);
             List list = ((SearchableList)dataSource).queryList(searchTerm, barcodeSearch, searchContext, info, parameters);
             ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
-            return ok(Json.toJson(response));
+            return ok(JsonUtils.toJson(response));
         }).exceptionally(exception -> {
             ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
-            return ok(Json.toJson(response));
+            return ok(JsonUtils.toJson(response));
         });
     }
 }

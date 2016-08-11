@@ -14,10 +14,7 @@ import sdk.data.ServiceConfiguration;
 import sdk.datacollection.DataCollectionSource;
 import sdk.serializers.DataSetModule;
 import sdk.serializers.DateTimeModule;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
-import sdk.utils.ResponseExceptionHandler;
+import sdk.utils.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +38,7 @@ public class DataCollectionController extends Controller {
                     DataCollectionSource dataSource = AppTree.lookupDataCollectionHandler(endpoint).orElseThrow(() -> new RuntimeException("No data collection handler exists for " + endpoint));
                     return dataSource.getConfiguration(authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -72,7 +69,7 @@ public class DataCollectionController extends Controller {
                     return dataSource.startDataCollectionSession(inspectionItemID, authenticationInfo, parameters);
                 })
                 .thenApply(StartResponse::new)
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -85,7 +82,7 @@ public class DataCollectionController extends Controller {
                     DataCollectionSource dataSource = AppTree.lookupDataCollectionHandler(endpoint).orElseThrow(() -> new RuntimeException("No data collection handler exists for " + endpoint));
                     return dataSource.cancelDataCollection(sessionID, authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -98,7 +95,7 @@ public class DataCollectionController extends Controller {
                     DataCollectionSource dataSource = AppTree.lookupDataCollectionHandler(endpoint).orElseThrow(() -> new RuntimeException("No data collection handler exists for " + endpoint));
                     return dataSource.endDataCollection(sessionID, authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -111,7 +108,7 @@ public class DataCollectionController extends Controller {
                     DataCollectionSource dataSource = AppTree.lookupDataCollectionHandler(endpoint).orElseThrow(() -> new RuntimeException("No data collection handler exists for " + endpoint));
                     return dataSource.saveDataCollection(sessionID, authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -131,7 +128,7 @@ public class DataCollectionController extends Controller {
     public CompletionStage<Result> postEvent(String endpoint, String dataSetItemID) {
         JsonNode json = request().body().asJson();
         if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
-        Event event = Json.fromJson(json, Event.class);
+        Event event = JsonUtils.fromJson(json, Event.class);
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
@@ -140,7 +137,7 @@ public class DataCollectionController extends Controller {
                     DataCollectionSource dataSource = AppTree.lookupDataCollectionHandler(endpoint).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     return dataSource.updateEventForDataSetItem(dataSetItemID, event, authenticationInfo, parameters);
                 })
-                .thenApply(response -> ok(Json.toJson(response)))
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
