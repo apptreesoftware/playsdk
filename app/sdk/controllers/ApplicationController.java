@@ -1,5 +1,7 @@
 package sdk.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.Application;
@@ -23,7 +25,7 @@ public class ApplicationController extends Controller {
 
     @Inject Application application;
 
-    public Result describeEndpoints() {
+    public Result describeEndpoints() throws JsonProcessingException {
         ObjectNode objectNode = Json.newObject();
         objectNode.put("success", true);
         String hostURL = application.configuration().getString("host");
@@ -56,7 +58,7 @@ public class ApplicationController extends Controller {
         if ( attachmentDataSource != null ) {
             addEndpoint("attachment", "Attachment", hostURL + "/attachments", "Attachment", records);
         }
-        return ok(objectNode.toString());
+        return ok(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(objectNode));
     }
 
     private void addEndpoint(String endpoint, String name, String url, String type, ArrayNode records) {
