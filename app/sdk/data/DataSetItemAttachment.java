@@ -20,6 +20,8 @@ public class DataSetItemAttachment extends DataSetItem {
     private static int AttachmentAttributeFile = 7;
     private static int AttachmentAttributeEditable = 8;
     private static int AttachmentAttributeDeletable = 9;
+    private static int AttachmentAttributeMimeType = 10;
+    private static int AttachmentAttributeFileName = 11;
 
     Http.MultipartFormData.FilePart attachmentFileItem;
     private static HashMap<Integer, ServiceConfigurationAttribute> configurationAttributeMap = new HashMap<Integer, ServiceConfigurationAttribute>();
@@ -33,6 +35,8 @@ public class DataSetItemAttachment extends DataSetItem {
         configurationAttributeMap.put(AttachmentAttributeFile, new ServiceConfigurationAttribute.Builder(AttachmentAttributeFile).build());
         configurationAttributeMap.put(AttachmentAttributeEditable, new ServiceConfigurationAttribute.Builder(AttachmentAttributeEditable).asBool().build());
         configurationAttributeMap.put(AttachmentAttributeDeletable, new ServiceConfigurationAttribute.Builder(AttachmentAttributeDeletable).asBool().build());
+        configurationAttributeMap.put(AttachmentAttributeMimeType, new ServiceConfigurationAttribute.Builder(AttachmentAttributeMimeType).build());
+        configurationAttributeMap.put(AttachmentAttributeFileName, new ServiceConfigurationAttribute.Builder(AttachmentAttributeFileName).build());
     }
 
 
@@ -192,6 +196,22 @@ public class DataSetItemAttachment extends DataSetItem {
         } catch (InvalidAttributeValueException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setMimeType(String mimeType) {
+        setStringForAttributeIndex(mimeType, AttachmentAttributeMimeType);
+    }
+
+    public String getMimeType() {
+        return getStringAttributeAtIndex(AttachmentAttributeMimeType);
+    }
+
+    public void setFileName(String fileName) {
+        setStringForAttributeIndex(fileName, AttachmentAttributeFileName);
+    }
+
+    public String getFileName() {
+        return getStringAttributeAtIndex(AttachmentAttributeFileName);
     }
 
     public Type getItemType() {
