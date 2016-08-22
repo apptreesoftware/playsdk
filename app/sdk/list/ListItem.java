@@ -97,8 +97,11 @@ public class ListItem {
      */
     public void setDateAttributeForIndex(DateTime date, boolean time, int index) {
         if ( index > 79 || index < 0 ) Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
-
-        itemAttributes.put(index, new ListItemAttribute(date, time));
+        ListItemAttribute attribute = null;
+        if ( date != null ) {
+            attribute =  new ListItemAttribute(date, time);
+        }
+        itemAttributes.put(index, attribute);
         maxAttributeIndex = maxAttributeIndex > index ? maxAttributeIndex : index;
     }
 
