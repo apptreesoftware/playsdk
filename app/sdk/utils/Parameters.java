@@ -43,6 +43,10 @@ public class Parameters {
         });
     }
 
+    public Map<String, String> toMap() {
+        return parameters;
+    }
+
     public void addEntriesFromHashMap(HashMap<String,String> map) {
         this.parameters.putAll(map);
     }

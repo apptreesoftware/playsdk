@@ -1,5 +1,6 @@
 package sdk;
 
+import play.Configuration;
 import play.Play;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
@@ -79,4 +80,6 @@ public class AppTree {
     public static String getHost() {
         return Play.application().configuration().getString("host");
     }
+
+    public static Configuration getConfiguration() { return Play.application().configuration(); }
 }
