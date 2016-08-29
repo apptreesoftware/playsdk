@@ -26,8 +26,8 @@ public class ListItem {
     public String parentID;
     public String value;
     private HashMap<Integer, ListItemAttribute> itemAttributes = new HashMap<>();
-    public double latitude;
-    public double longitude;
+    public double latitude = -1000;
+    public double longitude = -1000;
     private int maxAttributeIndex = -1;
 
     private ListServiceConfiguration attributeConfiguration;
@@ -121,8 +121,12 @@ public class ListItem {
             gen.writeStartObject();
             gen.writeStringField("id", value.id);
             gen.writeStringField("value", value.value);
-            gen.writeNumberField("latitude", value.latitude);
-            gen.writeNumberField("longitude", value.longitude);
+            if (value.latitude != -1000) {
+                gen.writeNumberField("latitude", value.latitude);
+            }
+            if (value.longitude != -1000) {
+                gen.writeNumberField("longitude", value.longitude);
+            }
             for ( int i = 0; i <= value.maxAttributeIndex; i++ ) {
                 ListItemAttribute attribute = value.getAttributeForIndex(i);
                 if ( attribute != null ) {
