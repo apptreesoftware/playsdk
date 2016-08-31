@@ -55,7 +55,6 @@ public class ListController extends Controller {
             useJSON = true;
         }
         String callbackURL = request.getHeader(CORE_CALLBACK_URL);
-
         final boolean json = useJSON;
         return CompletableFuture.supplyAsync(() -> {
             ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
@@ -64,7 +63,7 @@ public class ListController extends Controller {
             Parameters parameters = new Parameters(request.queryString());
 
             if ( callbackURL != null ) {
-                generateListDataResponse((CacheableList) dataSource, callbackURL, authenticationInfo, parameters, listName);
+                generateListDataResponse((CacheableList) dataSource, callbackURL, authenticationInfo, parameters);
                 return ok(JsonUtils.toJson(Response.asyncSuccess()));
             } else {
                 List list = ((CacheableList)dataSource).getList(authenticationInfo, parameters);
@@ -72,7 +71,7 @@ public class ListController extends Controller {
                     ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
                     return ok(JsonUtils.toJson(response));
                 } else {
-                    File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
+                    File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
                     return ok(sqlFile);
                 }
             }
@@ -100,11 +99,11 @@ public class ListController extends Controller {
         });
     }
 
-    private void generateListDataResponse(CacheableList dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters, String listName) {
+    private void generateListDataResponse(CacheableList dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
         CompletableFuture.
                 supplyAsync(() -> dataSource.getList(authenticationInfo, parameters), executor)
                 .thenApply(list -> {
-                    File sqlFile = CacheListSQLGenerator.generateDatabaseFromCacheListResponse(list, listName);
+                    File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
                     WSRequest request = wsClient.url(callbackURL);
                     request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
                     return request

@@ -1,21 +1,25 @@
 package sdk.list;
 
+import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
+import play.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import play.api.Play;
 
 /**
  * Created by alexis on 5/4/16.
  */
 public class CacheListSQLGenerator {
-    static String TmpCacheDirectory = Play.current().path().getPath() + "/tmp";
 
-    public static File generateDatabaseFromCacheListResponse(List list, String listRESTPath) throws RuntimeException {
+    public static File generateDatabaseForList(List list) throws RuntimeException {
         String filePath;
         File listFile;
         Connection connection;
@@ -28,8 +32,8 @@ public class CacheListSQLGenerator {
         int length;
         byte[] buffer = new byte[1024];
         File zipFile;
-
-        createTempDirectory();
+        String fileName = UUID.randomUUID().toString();
+        ensureTempDirectoryExists();
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (Exception e) {
@@ -37,7 +41,7 @@ public class CacheListSQLGenerator {
             throw new RuntimeException("Unable to find jdbc");
         }
 
-        filePath = TmpCacheDirectory + "/" + listRESTPath + ".sqlite";
+        filePath = getTemporaryDirectoryPath() + File.separator + fileName + ".sqlite";
         listFile = new File(filePath);
         if ( listFile.exists() ) {
             listFile.delete();
@@ -62,7 +66,7 @@ public class CacheListSQLGenerator {
             statement.close();
             System.gc();
             parseListResponse(list, connection);
-            outputPath = TmpCacheDirectory + "/" + listRESTPath + ".zip";
+            outputPath = getTemporaryDirectoryPath() + File.separator + fileName + ".zip";
             sqlFileInputStream = new FileInputStream(listFile);
             fileOutputStream = new FileOutputStream(outputPath);
             zipOutputStream = new ZipOutputStream(fileOutputStream);
@@ -81,6 +85,8 @@ public class CacheListSQLGenerator {
             throw new RuntimeException(CacheListSQLGenerator.class.getCanonicalName() + " Error generating DB: " + e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException("There was an IO Exception");
+        } finally {
+            cleanup();
         }
     }
 
@@ -88,7 +94,6 @@ public class CacheListSQLGenerator {
         String sql;
         PreparedStatement statement;
         int count = 0;
-        ListItem item;
 
         sql = "INSERT INTO LIST_ITEM values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         statement = connection.prepareStatement(sql);
@@ -118,10 +123,36 @@ public class CacheListSQLGenerator {
         return count;
     }
 
-    private static void createTempDirectory() {
-        File file = new File(TmpCacheDirectory);
+    private static String getTemporaryDirectoryPath() {
+        String tmpDir = FileUtils.getTempDirectoryPath();
+        if (!tmpDir.endsWith(File.separator) ) {
+            tmpDir += File.separator;
+        }
+        return tmpDir + "com.apptreesoftware.revolution" + File.separator + "lists";
+    }
+
+    private static File getTemporaryDirectory() {
+        File file = new File(getTemporaryDirectoryPath());
         if ( !file.exists() ) {
             file.mkdirs();
         }
+        return file;
+    }
+
+    private static void ensureTempDirectoryExists() {
+        getTemporaryDirectory();
+    }
+
+    private static void cleanup() {
+        File[] files = getTemporaryDirectory().listFiles();
+        if ( files == null ) return;
+        java.util.List<File> fileList = Arrays.asList(files);
+        fileList.forEach(file -> {
+            if ( FileUtils.isFileOlder(file, DateTime.now().minusMinutes(10).getMillis()) ) {
+                if (!file.delete()) {
+                    Logger.debug("Could not delete temp file " + file.getPath());
+                }
+            }
+        });
     }
 }
