@@ -15,6 +15,16 @@ import play.api.Play;
 public class CacheListSQLGenerator {
     static String TmpCacheDirectory = Play.current().path().getPath() + "/tmp";
 
+    public static void deleteTempFiles(String listRestPath) {
+        String filePath = TmpCacheDirectory + "/" + listRestPath + ".sqlite";
+        File listFile = new File(filePath);
+        if ( listFile.exists() ) listFile.delete();
+
+        filePath = TmpCacheDirectory + "/" + listRestPath + ".zip";
+        listFile = new File(filePath);
+        if ( listFile.exists() ) listFile.delete();
+    }
+
     public static File generateDatabaseFromCacheListResponse(List list, String listRESTPath) throws RuntimeException {
         String filePath;
         File listFile;
