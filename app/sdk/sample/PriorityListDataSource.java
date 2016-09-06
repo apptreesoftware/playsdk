@@ -1,9 +1,9 @@
 package sdk.sample;
 
-import sdk.list.CacheableList;
+import sdk.datasources.base.CacheableList;
 import sdk.list.List;
 import sdk.list.ListServiceConfigurationAttribute;
-import sdk.list.SearchableList;
+import sdk.datasources.base.SearchableList;
 import sdk.sample.model.Priority;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;

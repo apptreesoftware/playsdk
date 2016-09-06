@@ -1,5 +1,7 @@
-package sdk.list;
+package sdk.datasources.base;
 
+import sdk.list.List;
+import sdk.datasources.ListDataSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
@@ -8,6 +10,5 @@ import sdk.utils.Parameters;
  */
 public interface CacheableList extends ListDataSource {
     List getList(AuthenticationInfo authenticationInfo, Parameters params);
-
     boolean isListContentGlobal();
 }

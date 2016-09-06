@@ -1,7 +1,6 @@
 package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
@@ -17,15 +16,13 @@ import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
 import sdk.data.*;
-import sdk.serializers.DataSetModule;
-import sdk.serializers.DateTimeModule;
+import sdk.datasources.DataSourceBase;
+import sdk.datasources.DataSource_Internal;
 import sdk.utils.*;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static sdk.utils.CallbackLogger.logCallbackInfo;
 import static sdk.utils.CallbackLogger.logExceptionCallback;
@@ -37,9 +34,7 @@ import static sdk.utils.CallbackLogger.logExceptionCallback;
 public class DataSetController extends Controller {
 
     @Inject
-    WSClient wsClient;
-
-    Executor executor = Executors.newFixedThreadPool(10);
+    private WSClient wsClient;
 
     public DataSetController() {
     }
@@ -47,20 +42,19 @@ public class DataSetController extends Controller {
     public CompletionStage<Result> getDataSet(String dataSetName) {
         Http.Request request = request();
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
-        return CompletableFuture
-                .supplyAsync(() -> {
-                    AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-                    Parameters parameters = new Parameters(request.queryString());
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    if ( callbackURL != null ) {
-                        generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
-                        return ok(JsonUtils.toJson(Response.asyncSuccess()));
-                    } else {
-                        DataSet dataSet = dataSource.getDataSet(authenticationInfo, parameters);
-                        return ok(dataSet.toJSON());
-                    }
-                })
-                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
+
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if ( callbackURL != null ) {
+            generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
+            return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+        } else {
+            return dataSource.getDataSet(authenticationInfo,parameters)
+                    .thenApply(dataSet -> ok(dataSet.toJSON()))
+                    .exceptionally(ResponseExceptionHandler::handleException);
+        }
     }
 
     public CompletionStage<Result> searchDataSet(String dataSetName) {
@@ -68,24 +62,23 @@ public class DataSetController extends Controller {
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, true)
-                .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        return dataSetItemFromRequest(dataSource, request, true)
+                .thenCompose(dataSetItem -> {
                     if ( callbackURL != null ) {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
-                        return ok(JsonUtils.toJson(Response.asyncSuccess()));
+                        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        DataSet dataSet = dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters);
-                        return ok(dataSet.toJSON());
+                        return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
 
-    private void generateDataSourceResponse(DataSource dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        CompletableFuture
-                .supplyAsync(() -> dataSource.getDataSet(authenticationInfo, parameters))
+    private void generateDataSourceResponse(DataSource_Internal dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+                dataSource.getDataSet(authenticationInfo, parameters)
                 .whenComplete((dataSet, throwable) -> {
                     if ( throwable != null ) {
                         sendDataSetExceptionCallback(throwable, callbackURL);
@@ -95,9 +88,8 @@ public class DataSetController extends Controller {
                 });
     }
 
-    private void generateDataSourceSearchResponse(DataSource dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        CompletableFuture
-                .supplyAsync(() -> dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters))
+    private void generateDataSourceSearchResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+             dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters)
                 .whenComplete((dataSet, throwable) -> {
                     if ( throwable != null ) {
                         sendDataSetExceptionCallback(throwable, callbackURL);
@@ -137,9 +129,11 @@ public class DataSetController extends Controller {
 
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         Http.Request request = request();
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
         return CompletableFuture
                 .supplyAsync(() -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
                     Parameters parameters = new Parameters(request.queryString());
                     return dataSource.getConfiguration(authenticationInfo, parameters);
@@ -153,11 +147,11 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, false)
-                .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters);
-                })
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
+        return dataSetItemFromRequest(dataSource, request, false)
+                .thenCompose(dataSetItem -> dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -166,11 +160,11 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return dataSetItemFromRequest(dataSetName, request, false)
-                .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters);
-                })
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
+        return dataSetItemFromRequest(dataSource, request, false)
+                .thenCompose(dataSetItem -> dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -179,6 +173,9 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
         Http.MultipartFormData body = request.body().asMultipartFormData();
         Map<String, String[]> bodyMap = body.asFormUrlEncoded();
         String recordsJSONArray = bodyMap.get("records")[0];
@@ -187,11 +184,8 @@ public class DataSetController extends Controller {
         for ( JsonNode node : idsArray ) {
             ids.add(node.asText());
         }
-        return dataSetItemFromRequest(dataSetName, request, false)
-                .thenApply(dataSetItem -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    return dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters);
-                })
+        return dataSetItemFromRequest(dataSource, request, false)
+                .thenCompose(dataSetItem -> dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -200,9 +194,10 @@ public class DataSetController extends Controller {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return CompletableFuture
-                .supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid DataSet")))
-                .thenApply(dataSource -> dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters))
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
+        return dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters)
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -229,23 +224,20 @@ public class DataSetController extends Controller {
     public CompletionStage<Result> postEvent(String dataSetName, String dataSetItemID) {
         JsonNode json = request().body().asJson();
         if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
         Event event = JsonUtils.fromJson(json, Event.class);
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return CompletableFuture
-                .supplyAsync(() -> {
-                    DataSource dataSource = AppTree.lookupDataSetHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
-                    return dataSource.updateEventForDataSetItem(dataSetItemID, event, authenticationInfo, parameters);
-                })
+        return dataSource.updateEventForDataSetItem(dataSetItemID, event, authenticationInfo, parameters)
                 .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
-    private CompletionStage<DataSetItem> dataSetItemFromRequest(String dataSetName, Http.Request request, boolean search) {
-        return CompletableFuture.supplyAsync(() -> (DataSource) AppTree.lookupDataSetHandler(dataSetName)
-                .orElseThrow(() -> new RuntimeException("Invalid Data Set")))
-                .thenApply(dataSource -> getServiceConfiguration(dataSource, request))
+    private CompletionStage<DataSetItem> dataSetItemFromRequest(DataSource_Internal dataSource, Http.Request request, boolean search) {
+                return CompletableFuture.supplyAsync(() -> getServiceConfiguration(dataSource, request))
                 .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
                 .thenApply(dataSet -> {
                     if ( !search ) {
@@ -272,7 +264,7 @@ public class DataSetController extends Controller {
         return dataSetItem;
     }
 
-    private ServiceConfiguration getServiceConfiguration(DataSource dataSource, Http.Request request) {
+    private ServiceConfiguration getServiceConfiguration(DataSource_Internal dataSource, Http.Request request) {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         return dataSource.getConfiguration(authenticationInfo, parameters);

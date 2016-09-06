@@ -1,20 +1,20 @@
 package sdk;
 
+import org.jetbrains.annotations.Nullable;
 import play.Configuration;
 import play.Play;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
-import sdk.data.DataSource;
+import sdk.datasources.*;
 import sdk.datacollection.DataCollectionSource;
 import sdk.inspection.InspectionSource;
-import sdk.list.ListDataSource;
-import sdk.user.UserDataSource;
+import sdk.datasources.base.UserDataSource;
 
 import java.util.HashMap;
 import java.util.Optional;
 
 public class AppTree {
-    public static HashMap<String, DataSource> dataSources = new HashMap<>();
+    public static HashMap<String, DataSourceBase> dataSources = new HashMap<>();
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();
     public static HashMap<String, DataCollectionSource> dataCollectionSources = new HashMap<>();
     public static HashMap<String, InspectionSource> inspectionSources = new HashMap<>();
@@ -23,7 +23,7 @@ public class AppTree {
     private static UserDataSource userDataSource;
     private static AttachmentDataSource attachmentDataSource;
 
-    public static void registerDataSourceWithName(String name, DataSource dataSource) {
+    public static void registerDataSourceWithName(String name, DataSourceBase dataSource) {
         dataSources.putIfAbsent(name, dataSource);
     }
 
@@ -35,8 +35,13 @@ public class AppTree {
         dataCollectionSources.putIfAbsent(name, dataCollectionSource);
     }
 
-    public static Optional<DataSource> lookupDataSetHandler(String name) {
-        return Optional.ofNullable(dataSources.get(name));
+    @Nullable
+    public static DataSource_Internal lookupDataSetHandler(String name) {
+        DataSourceBase dataSourceBase = dataSources.get(name);
+        if ( dataSourceBase == null ) {
+            return null;
+        }
+        return new DataSource_Internal(dataSourceBase);
     }
 
     public static void registerInspectionSource(String name, InspectionSource inspectionSource) {
@@ -51,8 +56,12 @@ public class AppTree {
         return Optional.ofNullable(dataCollectionSources.get(name));
     }
 
-    public static Optional<ListDataSource> lookupListHandler(String name) {
-        return Optional.ofNullable(listSources.get(name));
+    public static Optional<ListDataSource_Internal> lookupListHandler(String name) {
+        ListDataSource dataSource = listSources.get(name);
+        if ( dataSource != null ) {
+            return Optional.of(new ListDataSource_Internal(dataSource));
+        }
+        return Optional.empty();
     }
 
     public static void registerAuthenticationSource(AuthenticationSource source) {
@@ -66,7 +75,12 @@ public class AppTree {
         userDataSource = source;
     }
 
-    public static UserDataSource getUserDataSource() { return userDataSource; }
+    public static UserDataSource_Internal getUserDataSource_internal() {
+        if (userDataSource == null) {
+            return null;
+        }
+        return new UserDataSource_Internal(userDataSource);
+    }
 
     public static AttachmentDataSource getAttachmentDataSource() {
         return attachmentDataSource;

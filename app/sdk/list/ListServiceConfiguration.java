@@ -5,16 +5,14 @@ import sdk.utils.ServiceParameter;
 
 import java.util.ArrayList;
 
-/**
- * Created by alexis on 5/3/16.
- */
+
 public class ListServiceConfiguration extends Response {
     String listName;
     boolean includesLocation;
-    boolean authenticationRequired;
+    public boolean authenticationRequired;
     int userIDIndex = -1;
-    boolean canCache;
-    boolean canSearch;
+    public boolean canCache;
+    public boolean canSearch;
 
     ArrayList<ListServiceConfigurationAttribute> attributes = new ArrayList();
     ArrayList<ServiceParameter> serviceFilterParameters = new ArrayList();
@@ -117,4 +115,6 @@ public class ListServiceConfiguration extends Response {
     public void setAuthenticationRequired(boolean authenticationRequired) {
         this.authenticationRequired = authenticationRequired;
     }
+
+
 }

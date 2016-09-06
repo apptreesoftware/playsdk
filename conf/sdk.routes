@@ -14,7 +14,6 @@ POST          /auth/logout                                                      
 GET           /auth/validateToken                                                         sdk.controllers.AuthenticationController.validateToken
 
 GET           /user/userInfoKeys                                                          sdk.controllers.UserController.getUserInfoKeys
-GET           /user/userSources                                                           sdk.controllers.UserController.getUserSources
 GET           /user/:userID                                                               sdk.controllers.UserController.getUserInfo(userID)
 GET           /user/:userID/image                                                         sdk.controllers.UserController.getUserImage(userID)
 POST          /user/checkForUserInfo                                                      sdk.controllers.UserController.checkForUserInfo
