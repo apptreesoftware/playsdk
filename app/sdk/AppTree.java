@@ -20,7 +20,7 @@ public class AppTree {
     public static HashMap<String, InspectionSource> inspectionSources = new HashMap<>();
 
     private static AuthenticationSource authenticationSource;
-    private static UserDataSource userDataSource;
+    private static UserDataSource_Internal userDataSource;
     private static AttachmentDataSource attachmentDataSource;
 
     public static void registerDataSourceWithName(String name, DataSourceBase dataSource) {
@@ -72,14 +72,17 @@ public class AppTree {
     }
 
     public static void registerUserDataSource(UserDataSource source) {
-        userDataSource = source;
+        userDataSource = new UserDataSource_Internal(source);
+    }
+    public static void registerUserDataSource(sdk.datasources.rx.UserDataSource source) {
+        userDataSource = new UserDataSource_Internal(source);
+    }
+    public static void registerUserDataSource(sdk.datasources.future.UserDataSource source) {
+        userDataSource = new UserDataSource_Internal(source);
     }
 
     public static UserDataSource_Internal getUserDataSource_internal() {
-        if (userDataSource == null) {
-            return null;
-        }
-        return new UserDataSource_Internal(userDataSource);
+        return userDataSource;
     }
 
     public static AttachmentDataSource getAttachmentDataSource() {

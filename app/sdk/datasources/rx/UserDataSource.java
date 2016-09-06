@@ -19,7 +19,7 @@ public interface UserDataSource extends AppTreeSource {
      * Get the list of available user attributes that you want to provide
      * @return List of Strings representing the attributes you want to provide. These values will be available in the builder.
      */
-    public abstract Observable<List<String>> getUserInfoKeys(AuthenticationInfo authenticationInfo);
+    Observable<List<String>> getUserInfoKeys(AuthenticationInfo authenticationInfo);
 
     /**
      * Get the user information given a userID. This is your opportunity to return user attributes like email, phone number etc.
@@ -29,13 +29,13 @@ public interface UserDataSource extends AppTreeSource {
      * @return a ATUserInfoResponse containing information about the requested user
      */
 
-    public abstract Observable<UserInfoResponse> getUserInfo(String userID, AuthenticationInfo authenticationInfo, Parameters params);
+    Observable<UserInfoResponse> getUserInfo(String userID, AuthenticationInfo authenticationInfo, Parameters params);
 
     /***
      * Get the users 'avatar' image
      * @return an InputStream for the users image data. JPG an PNG are supported by the client.
      */
-    public abstract Observable<InputStream> getUserImage();
+    Observable<InputStream> getUserImage();
 
     /**
      * Checks to see if a user exists and returns the user information
@@ -45,7 +45,7 @@ public interface UserDataSource extends AppTreeSource {
      * @param params any additional url parameters
      * @return an ATUserInfoResponse containing information about the requested user
      */
-    public abstract Observable<UserInfoResponse> checkForUser(String userID, String source, AuthenticationInfo authenticationInfo, Parameters params);
+    Observable<UserInfoResponse> checkForUser(String userID, String source, AuthenticationInfo authenticationInfo, Parameters params);
 
     /**
      * A notification that a user has been created in the portal
@@ -53,7 +53,9 @@ public interface UserDataSource extends AppTreeSource {
      * @param authenticationInfo authentication information
      * @param params any additional url parameters
      */
-    public abstract Observable<Void> createUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params);
+    default Observable<Void> createUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params) {
+        return Observable.error(new UnsupportedOperationException("This data source does not support user creation"));
+    }
 
     /**
      * A notification that a user has been updated in the portal
@@ -61,7 +63,9 @@ public interface UserDataSource extends AppTreeSource {
      * @param authenticationInfo authentication information
      * @param params any additional url parameters
      */
-    public abstract Observable<Void> updateUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params);
+    default Observable<Void> updateUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params) {
+        return Observable.error(new UnsupportedOperationException("This data source does not support user updating"));
+    }
 
     /**
      * A notification that a user has been deleted in the portal
@@ -69,5 +73,7 @@ public interface UserDataSource extends AppTreeSource {
      * @param authenticationInfo authentication information
      * @param params any additional url parameters
      */
-    public abstract Observable<Void> deleteUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params);
+    default Observable<Void> deleteUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params) {
+        return Observable.error(new UnsupportedOperationException("This data source does not support user deletion"));
+    }
 }
