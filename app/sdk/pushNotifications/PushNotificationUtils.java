@@ -1,9 +1,8 @@
 package sdk.pushNotifications;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.inject.Inject;
-import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
+import sdk.AppTreeSource;
 import sdk.utils.Constants;
 import sdk.utils.JsonUtils;
 
@@ -14,9 +13,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Created by alexis on 9/7/16.
  */
-public class PushNotificationUtils {
-    @Inject WSClient wsClient;
-
+public class PushNotificationUtils implements AppTreeSource {
     private String coreURL;
     private static String defaultCoreURL = "https://services1.apptreesoftware.com";
     private static PushNotificationUtils instance;
@@ -39,7 +36,7 @@ public class PushNotificationUtils {
     }
 
     private CompletionStage<PushNotificationResponse> sendPushNotification(PushRequest pushRequest, String applicationAPIKey, String appID) {
-        WSRequest request = wsClient.url(coreURL).setRequestTimeout(300000);
+        WSRequest request = getWSClient().url(String.format("%s/pushNotification/sendConnectorPush", coreURL)).setRequestTimeout(300000);
         request.setHeader(Constants.APPLICATION_API_KEY_HEADER, applicationAPIKey);
         request.setHeader(Constants.APP_ID_HEADER, appID);
         request.setMethod("POST");
