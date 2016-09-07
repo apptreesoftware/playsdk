@@ -7,7 +7,7 @@ import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.datasources.*;
 import sdk.datacollection.DataCollectionSource;
-import sdk.inspection.InspectionSource;
+import sdk.datasources.base.InspectionSource;
 import sdk.datasources.base.UserDataSource;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class AppTree {
     public static HashMap<String, DataSourceBase> dataSources = new HashMap<>();
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();
     public static HashMap<String, DataCollectionSource> dataCollectionSources = new HashMap<>();
-    public static HashMap<String, InspectionSource> inspectionSources = new HashMap<>();
+    public static HashMap<String, InspectionSourceBase> inspectionSources = new HashMap<>();
 
     private static AuthenticationSource authenticationSource;
     private static UserDataSource_Internal userDataSource;
@@ -44,12 +44,16 @@ public class AppTree {
         return new DataSource_Internal(dataSourceBase);
     }
 
-    public static void registerInspectionSource(String name, InspectionSource inspectionSource) {
+    public static void registerInspectionSource(String name, InspectionSourceBase inspectionSource) {
         inspectionSources.putIfAbsent(name, inspectionSource);
     }
 
-    public static Optional<InspectionSource> lookupInspectionHandler(String name) {
-        return Optional.ofNullable(inspectionSources.get(name));
+    public static InspectionSource_Internal lookupInspectionHandler(String name) {
+        InspectionSourceBase inspectionSourceBase = inspectionSources.get(name);
+        if ( inspectionSourceBase == null ) {
+            return null;
+        }
+        return new InspectionSource_Internal(inspectionSourceBase);
     }
 
     public static Optional<DataCollectionSource> lookupDataCollectionHandler(String name) {

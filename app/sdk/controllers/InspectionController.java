@@ -6,8 +6,9 @@ import play.mvc.Result;
 import sdk.AppTree;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
+import sdk.datasources.InspectionSource_Internal;
 import sdk.inspection.InspectionConfiguration;
-import sdk.inspection.InspectionSource;
+import sdk.datasources.base.InspectionSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.JsonUtils;
 import sdk.utils.Parameters;
@@ -24,9 +25,13 @@ import java.util.concurrent.CompletionStage;
 public class InspectionController extends Controller {
     public CompletionStage<Result> getConfiguration(String dataSetName) {
         Http.Request request = request();
+        InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
+        if ( dataSource == null ) {
+            return CompletableFuture.completedFuture(notFound());
+        }
+
         return CompletableFuture
                 .supplyAsync(() -> {
-                    InspectionSource dataSource = AppTree.lookupInspectionHandler(dataSetName).orElseThrow(() -> new RuntimeException("Invalid Data Set"));
                     AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
                     Parameters parameters = new Parameters(request.queryString());
                     List<ServiceConfigurationAttribute> searchAttributes = dataSource.getInspectionSearchAttributes(authenticationInfo, parameters);
