@@ -1,6 +1,7 @@
 package sdk.datasources;
 
 import sdk.AppTreeSource;
+import sdk.data.DataSet;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -19,4 +20,9 @@ public interface InspectionSourceBase extends AppTreeSource {
     }
 
     String getServiceName();
+
+    default DataSet newEmptyInspectionDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
+        List<ServiceConfigurationAttribute> attributes = getInspectionItemAttributes(authenticationInfo, parameters);
+        return new DataSet(attributes);
+    }
 }

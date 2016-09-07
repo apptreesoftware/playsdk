@@ -21,7 +21,7 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         this.dataSource = dataSource;
     }
 
-    CompletableFuture<DataSet> startInspection(DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public CompletableFuture<DataSet> startInspection(DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
             return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).startInspection(inspectionSearchDataSetItem, authenticationInfo, parameters));
         } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
@@ -33,7 +33,7 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
-    CompletableFuture<DataSet> completeInspection(DataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public CompletableFuture<DataSet> completeInspection(DataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
             return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).completeInspection(completedDataSet, authenticationInfo, parameters));
         } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
@@ -45,7 +45,7 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
-    CompletableFuture<DataSet> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public CompletableFuture<DataSet> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
             return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters));
         } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {

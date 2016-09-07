@@ -2,39 +2,31 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.inject.Inject;
 import play.libs.Json;
-import play.libs.ws.WSClient;
-import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
-import sdk.data.*;
-import sdk.datasources.DataSourceBase;
+import sdk.data.DataSetItem;
+import sdk.data.Event;
+import sdk.data.ServiceConfiguration;
 import sdk.datasources.DataSource_Internal;
 import sdk.utils.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
-import static sdk.utils.CallbackLogger.logCallbackInfo;
-import static sdk.utils.CallbackLogger.logExceptionCallback;
 
 /**
  * Created by alexis on 5/3/16.
  */
 @With({ValidateRequestAction.class})
-public class DataSetController extends Controller {
-
-    @Inject
-    private WSClient wsClient;
+public class DataSetController extends DataController {
 
     public DataSetController() {
     }
@@ -64,7 +56,8 @@ public class DataSetController extends Controller {
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
-        return dataSetItemFromRequest(dataSource, request, true)
+        return getServiceConfiguration(dataSource, request)
+                .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, true))
                 .thenCompose(dataSetItem -> {
                     if ( callbackURL != null ) {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
@@ -99,34 +92,6 @@ public class DataSetController extends Controller {
                 });
     }
 
-    private CompletionStage<WSResponse> sendDataSetResponse(DataSet dataSet, String callbackURL) {
-         WSRequest request = wsClient.url(callbackURL);
-        if ( dataSet.isSuccess() ) {
-            request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
-        } else {
-            request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_WARNING);
-            ObjectNode json = Json.newObject();
-            json.put(Constants.CORE_CALLBACK_MESSAGE, dataSet.getMessage() != null ? dataSet.getMessage() : "");
-            request.setBody(json);
-        }
-        return request
-                .post(dataSet.toJSON())
-                .whenComplete((wsResponse, throwable) -> {
-                    logCallbackInfo(wsResponse, throwable, callbackURL);
-        });
-    }
-
-    private void sendDataSetExceptionCallback(Throwable throwable, String callbackURL) {
-        CompletableFuture.runAsync(() -> {
-            WSRequest request = wsClient.url(callbackURL);
-            ResponseExceptionHandler.updateCallbackWithException(request, throwable);
-            request.execute("POST")
-                    .whenComplete((wsResponse, callbackThrowable) -> {
-                        logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
-                    });
-        });
-    }
-
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         Http.Request request = request();
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
@@ -150,7 +115,8 @@ public class DataSetController extends Controller {
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
 
-        return dataSetItemFromRequest(dataSource, request, false)
+        return getServiceConfiguration(dataSource, request)
+                .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
@@ -163,7 +129,8 @@ public class DataSetController extends Controller {
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
 
-        return dataSetItemFromRequest(dataSource, request, false)
+        return getServiceConfiguration(dataSource, request)
+                .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
@@ -184,7 +151,8 @@ public class DataSetController extends Controller {
         for ( JsonNode node : idsArray ) {
             ids.add(node.asText());
         }
-        return dataSetItemFromRequest(dataSource, request, false)
+        return getServiceConfiguration(dataSource, request)
+                .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
@@ -236,37 +204,11 @@ public class DataSetController extends Controller {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
-    private CompletionStage<DataSetItem> dataSetItemFromRequest(DataSource_Internal dataSource, Http.Request request, boolean search) {
-                return CompletableFuture.supplyAsync(() -> getServiceConfiguration(dataSource, request))
-                .thenApply(serviceConfiguration -> new DataSet(serviceConfiguration.getAttributes()))
-                .thenApply(dataSet -> {
-                    if ( !search ) {
-                        Http.MultipartFormData body = request.body().asMultipartFormData();
-                        Map<String, String[]> bodyMap = body.asFormUrlEncoded();
-                        List<Http.MultipartFormData.FilePart> files = body.getFiles();
-                        String formJSON = bodyMap.get("formJSON")[0];
-                        HashMap<String, Http.MultipartFormData.FilePart> attachmentMap = new HashMap<>();
-                        for (Http.MultipartFormData.FilePart file : files) {
-                            attachmentMap.put(file.getKey(), file);
-                        }
-                        ObjectNode json = (ObjectNode) Json.parse(formJSON);
-                        return dataSetItemForJSON(json, dataSet,search, attachmentMap);
-                    } else {
-                        ObjectNode json = (ObjectNode) request.body().asJson();
-                        return dataSetItemForJSON(json, dataSet,search, new HashMap<>());
-                    }
-                });
-    }
-
-    private DataSetItem dataSetItemForJSON(ObjectNode json, DataSet dataSet, boolean search, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
-        DataSetItem dataSetItem = dataSet.addNewDataSetItem();
-        dataSetItem.updateFromJSON(json, attachmentMap, search);
-        return dataSetItem;
-    }
-
-    private ServiceConfiguration getServiceConfiguration(DataSource_Internal dataSource, Http.Request request) {
-        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-        Parameters parameters = new Parameters(request.queryString());
-        return dataSource.getConfiguration(authenticationInfo, parameters);
+    private CompletionStage<ServiceConfiguration> getServiceConfiguration(DataSource_Internal dataSource, Http.Request request) {
+        return CompletableFuture.supplyAsync(() -> {
+            AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+            Parameters parameters = new Parameters(request.queryString());
+            return dataSource.getConfiguration(authenticationInfo, parameters);
+        });
     }
 }
