@@ -1,5 +1,6 @@
 package sdk.datasources;
 
+import rx.Observable;
 import sdk.datasources.base.CacheableList;
 import sdk.list.List;
 import sdk.list.ListServiceConfiguration;
@@ -56,7 +57,14 @@ public class ListDataSource_Internal extends BaseSource_Internal {
             return ((sdk.datasources.future.SearchableList)dataSource).queryList(queryText, barcodeSearch, searchParameters, authenticationInfo, params);
         }
         else if ( dataSource instanceof sdk.datasources.rx.SearchableList ) {
-            return observableToFuture(((sdk.datasources.rx.SearchableList)dataSource).queryList(queryText, barcodeSearch, searchParameters, authenticationInfo, params));
+            try {
+                Observable<List> observable = ((sdk.datasources.rx.SearchableList)dataSource).queryList(queryText, barcodeSearch, searchParameters, authenticationInfo, params);
+                return observableToFuture(observable);
+            } catch (Exception e) {
+                CompletableFuture<List> future = new CompletableFuture<>();
+                future.completeExceptionally(e);
+                return future;
+            }
         }
         throw new RuntimeException("Data source does not support searching lists");
     }

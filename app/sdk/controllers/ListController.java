@@ -126,9 +126,10 @@ public class ListController extends Controller {
                     ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
                     return ok(JsonUtils.toJson(response));
                 })
-                .exceptionally(exception -> {
-                    ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
-                    return ok(JsonUtils.toJson(response));
-                });
+                .exceptionally(ResponseExceptionHandler::handleException);
+//                .exceptionally(exception -> {
+//                    ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
+//                    return ok(JsonUtils.toJson(response));
+//                });
     }
 }
