@@ -14,6 +14,7 @@ import sdk.models.*;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * Created by alexis on 5/3/16.
@@ -110,8 +111,72 @@ public class ListItem {
      * @param index The attribute to get 0-9
      * @return
      */
+
+    @Deprecated
     public ListItemAttribute getAttributeForIndex(int index) {
         return itemAttributes.get(index);
+    }
+
+    public String getStringAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if ( attribute != null ) {
+            return attribute.getStringValue();
+        }
+        return null;
+    }
+
+    public Optional<String> getOptionalStringAttributeForIndex(int index) {
+        return Optional.ofNullable(getStringAttributeForIndex(index));
+    }
+
+    public int getIntAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if ( attribute != null ) {
+            return attribute.getIntValue();
+        }
+        return 0;
+    }
+
+    public Optional<Integer> getOptionalIntAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if ( attribute != null ) {
+            return Optional.of(attribute.getIntValue());
+        }
+        return Optional.empty();
+    }
+
+    public double getDoubleAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if ( attribute != null ) {
+            return attribute.getDoubleValue();
+        }
+        return 0;
+    }
+
+    public Optional<Double> getOptionalDoubleAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if ( attribute != null ) {
+            return Optional.of(attribute.getDoubleValue());
+        }
+        return Optional.empty();
+    }
+
+    public boolean getBoolAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        return attribute != null && attribute.getBooleanValue();
+    }
+
+    public Optional<Boolean> getOptionalBoolAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if ( attribute != null ) {
+            return Optional.of(attribute.getBooleanValue());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<DateTime> getDateTimeAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        return Optional.ofNullable(attribute.getDateValue());
     }
 
     static class ListItemSerializer extends JsonSerializer<ListItem> {
