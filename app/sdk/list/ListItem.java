@@ -82,8 +82,7 @@ public class ListItem {
             } else if ( value instanceof Boolean ) {
                 attribute = new ListItemAttribute((Boolean) value);
             } else {
-                Logger.error("List does not support a value of type " + value.getClass().getCanonicalName());
-                return;
+                throw new UnsupportedOperationException("List does not support a value of type " + value.getClass().getCanonicalName());
             }
         }
         itemAttributes.put(index, attribute);
@@ -107,7 +106,7 @@ public class ListItem {
     }
 
     /**
-     * REturns the attribute
+     * Returns the attribute
      * @param index The attribute to get 0-9
      * @return
      */
@@ -123,6 +122,18 @@ public class ListItem {
             return attribute.getStringValue();
         }
         return null;
+    }
+
+    public void setStringForAttributeIndex(String value, int index) {
+        setAttributeForIndex(value, index);
+    }
+
+    public void setIntForAttributeIndex(int value, int index) {
+        setAttributeForIndex(value, index);
+    }
+
+    public void setColorForAttributeIndex(Color color, int index) {
+        setAttributeForIndex(color, index);
     }
 
     public Optional<String> getOptionalStringAttributeForIndex(int index) {
