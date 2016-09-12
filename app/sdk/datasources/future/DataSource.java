@@ -68,7 +68,7 @@ public interface DataSource extends DataSourceBase {
      * @param params a Parameters object of any URL parameters from the request
      */
     default CompletableFuture<Response> updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new UnsupportedOperationException("Event update is not supported by this web service");
+        return CompletableFuture.completedFuture(Response.success());
     }
 
     /**
