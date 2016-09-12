@@ -1,12 +1,14 @@
 package sdk.datasources;
 
 import sdk.AppTreeSource;
-import sdk.data.*;
+import sdk.data.DataSet;
+import sdk.data.ServiceConfiguration;
+import sdk.data.ServiceConfigurationAttribute;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
-import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,10 +26,10 @@ public interface DataSourceBase extends AppTreeSource {
      * Return the configuration attributes you want to use for creating a DataSetItem
      *
      * @param authenticationInfo
-     * @param params
+     * @param parameters
      * @return a List of service attributes
      */
-    List<ServiceConfigurationAttribute> getDataSetAttributes(AuthenticationInfo authenticationInfo, Parameters params);
+    Collection<ServiceConfigurationAttribute> getDataSetAttributes(AuthenticationInfo authenticationInfo, Parameters parameters);
 
     /**
      * Return any parameters that can be used to filter or modify how the service should behave. The builder read these in and allow the user to modify how the service behaves.
@@ -65,7 +67,7 @@ public interface DataSourceBase extends AppTreeSource {
 
 
     default DataSet newEmptyDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
-        List<ServiceConfigurationAttribute> attributes = getDataSetAttributes(authenticationInfo, parameters);
+        Collection<ServiceConfigurationAttribute> attributes = getDataSetAttributes(authenticationInfo, parameters);
         return new DataSet(attributes);
     }
 }

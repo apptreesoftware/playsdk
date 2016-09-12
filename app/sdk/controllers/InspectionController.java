@@ -10,7 +10,7 @@ import sdk.datasources.InspectionSource_Internal;
 import sdk.inspection.InspectionConfiguration;
 import sdk.utils.*;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -68,8 +68,8 @@ public class InspectionController extends DataController {
         return CompletableFuture.supplyAsync(() -> {
             AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
             Parameters parameters = new Parameters(request.queryString());
-            List<ServiceConfigurationAttribute> searchAttributes = dataSource.getInspectionSearchAttributes(authenticationInfo, parameters);
-            List<ServiceConfigurationAttribute> inspectionAttributes = dataSource.getInspectionItemAttributes(authenticationInfo, parameters);
+            Collection<ServiceConfigurationAttribute> searchAttributes = dataSource.getInspectionSearchAttributes(authenticationInfo, parameters);
+            Collection<ServiceConfigurationAttribute> inspectionAttributes = dataSource.getInspectionItemAttributes(authenticationInfo, parameters);
             if (searchAttributes == null || inspectionAttributes == null ) {
                 throw new RuntimeException("You must implement getInspectionSearchAttributes and getInspectionSearchAttributes");
             }

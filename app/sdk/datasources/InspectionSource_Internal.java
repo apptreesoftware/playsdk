@@ -7,7 +7,7 @@ import sdk.datasources.base.InspectionSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -57,10 +57,10 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
-    public List<ServiceConfigurationAttribute> getInspectionItemAttributes(AuthenticationInfo authenticationInfo, Parameters params) {
+    public Collection<ServiceConfigurationAttribute> getInspectionItemAttributes(AuthenticationInfo authenticationInfo, Parameters params) {
         return dataSource.getInspectionItemAttributes(authenticationInfo, params);
     }
-    public List<ServiceConfigurationAttribute> getInspectionSearchAttributes(AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public Collection<ServiceConfigurationAttribute> getInspectionSearchAttributes(AuthenticationInfo authenticationInfo, Parameters parameters) {
         return dataSource.getInspectionSearchAttributes(authenticationInfo, parameters);
     }
 

@@ -3,9 +3,7 @@ package sdk.data;
 import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by alexis on 5/3/16.
@@ -25,9 +23,9 @@ public class ServiceConfiguration extends Response {
     /**
      * Creates a service configuration
      */
-    public ServiceConfiguration(String name, List<ServiceConfigurationAttribute> attributes, List<ServiceParameter> serviceFilterParameters, List<String> dependentListEndpoints) {
+    public ServiceConfiguration(String name, Collection<ServiceConfigurationAttribute> attributes, List<ServiceParameter> serviceFilterParameters, List<String> dependentListEndpoints) {
         this.name = name;
-        this.attributes = attributes;
+        this.attributes = new ArrayList<>(attributes);
         this.serviceFilterParameters = serviceFilterParameters;
         this.dependentListEndpoints = dependentListEndpoints;
     }
@@ -40,7 +38,7 @@ public class ServiceConfiguration extends Response {
 
     public static class Builder {
         String name;
-        private List<ServiceConfigurationAttribute> attributes;
+        private Collection<ServiceConfigurationAttribute> attributes;
         private List<ServiceParameter> serviceFilterParameters;
         private List<String> dependentLists = new ArrayList<String>();
         private String message;
@@ -58,7 +56,7 @@ public class ServiceConfiguration extends Response {
          * @param attributes The attributes used to update/view a data set item in this service
          * @return The builder with update attributes
          */
-        public Builder withAttributes(List<ServiceConfigurationAttribute> attributes) {
+        public Builder withAttributes(Collection<ServiceConfigurationAttribute> attributes) {
             this.attributes = attributes;
             return this;
         }
@@ -104,7 +102,7 @@ public class ServiceConfiguration extends Response {
             return configuration;
         }
 
-        private int checkIndexUniqueness(List<ServiceConfigurationAttribute> attributes) {
+        private int checkIndexUniqueness(Collection<ServiceConfigurationAttribute> attributes) {
             if ( attributes == null ) {
                 return -1;
             }
