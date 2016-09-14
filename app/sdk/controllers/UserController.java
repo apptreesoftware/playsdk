@@ -6,6 +6,7 @@ import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.user.User;
 import sdk.user.UserDataSource;
+import sdk.user.UserInfoKey;
 import sdk.utils.*;
 
 import java.util.List;
@@ -70,7 +71,7 @@ public class UserController extends Controller {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request().headers());
         return CompletableFuture
                 .supplyAsync(() -> dataSource.getUserInfoKeys(authenticationInfo))
-                .thenApply(sources -> new UserStringListResponse(true, sources, null))
+                .thenApply(sources -> new UserInfoKeyListResponse(true, sources, null))
                 .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -153,6 +154,17 @@ public class UserController extends Controller {
         public List<String> records;
         public String message;
         UserStringListResponse(boolean success, List<String> sources, String message) {
+            this.success = success;
+            this.records = sources;
+            this.message = message;
+        }
+    }
+
+    private class UserInfoKeyListResponse {
+        public boolean success;
+        public List<UserInfoKey> records;
+        public String message;
+        UserInfoKeyListResponse(boolean success, List<UserInfoKey> sources, String message) {
             this.success = success;
             this.records = sources;
             this.message = message;

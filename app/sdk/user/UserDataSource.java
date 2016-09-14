@@ -16,7 +16,7 @@ public interface UserDataSource extends AppTreeSource {
      * Get the list of available user attributes that you want to provide
      * @return List of Strings representing the attributes you want to provide. These values will be available in the builder.
      */
-    public abstract List<String> getUserInfoKeys(AuthenticationInfo authenticationInfo);
+    public abstract List<UserInfoKey> getUserInfoKeys(AuthenticationInfo authenticationInfo);
 
     /**
      * Get the user information given a userID. This is your opportunity to return user attributes like email, phone number etc.
