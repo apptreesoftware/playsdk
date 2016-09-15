@@ -10,7 +10,8 @@ public class UserInfoKey {
     public String id;
     public AttributeType attributeType;
 
-    public UserInfoKey(String name, AttributeType attributeType) {
+    public UserInfoKey(String id, String name, AttributeType attributeType) {
+        this.id = id;
         this.name = name;
         this.attributeType = attributeType;
     }
