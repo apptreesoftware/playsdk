@@ -7,6 +7,7 @@ import sdk.models.AttributeType;
  */
 public class UserInfoKey {
     public String name;
+    public String id;
     public AttributeType attributeType;
 
     public UserInfoKey(String name, AttributeType attributeType) {
