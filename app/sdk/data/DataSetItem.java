@@ -182,7 +182,7 @@ public class DataSetItem {
      * Creates an DataSetItem using the configuration attributes provided. The service attributes passed in will be used to validate what data is being set on this DataSetItem.
      * @param attributeConfigurationMap The service configuration attributes to use for validation. This should come from your DataSource getViewUpdateServiceAttributes, getCreateServiceAttributes, or getSearchServiceAttributes depending on what this DataSetItem is being used for.
      */
-    DataSetItem(HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationMap) {
+    public DataSetItem(HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationMap) {
         this.attributeConfigurationForIndexMap = attributeConfigurationMap;
     }
 
