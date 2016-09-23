@@ -1,5 +1,6 @@
 package sdk.controllers;
 
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import sdk.AppTree;
@@ -31,6 +32,7 @@ public class InspectionController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
+    @BodyParser.Of(BodyParser.Json.class)
     public CompletionStage<Result> startInspection(String dataSetName) {
         Http.Request request = request();
         InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);

@@ -2,10 +2,10 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
-import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Http;
 import sdk.data.DataSet;
@@ -70,9 +70,9 @@ public abstract class DataController extends Controller {
         });
     }
 
-    CompletionStage<WSResponse> sendDataSetResponse(DataSet dataSet, String callbackURL) {
+    void sendDataSetResponse(DataSet dataSet, String callbackURL) {
         WSRequest request = wsClient.url(callbackURL);
-        if ( dataSet.isSuccess() ) {
+        if (dataSet.isSuccess()) {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
         } else {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_WARNING);
@@ -80,10 +80,16 @@ public abstract class DataController extends Controller {
             json.put(Constants.CORE_CALLBACK_MESSAGE, dataSet.getMessage() != null ? dataSet.getMessage() : "");
             request.setBody(json);
         }
-        return request
-                .post(dataSet.toJSON())
-                .whenComplete((wsResponse, throwable) -> {
-                    logCallbackInfo(wsResponse, throwable, callbackURL);
-                });
+        try {
+            ObjectNode json = dataSet.toJSON();
+            Logger.debug(String.format("Async response: %s\n%s", callbackURL, json.toString()));
+            Logger.debug(json.toString());
+            request.post(json)
+                    .whenComplete((wsResponse, throwable) -> {
+                        logCallbackInfo(wsResponse, throwable, callbackURL);
+                    });
+        } catch (Exception e) {
+            sendDataSetExceptionCallback(e, callbackURL);
+        }
     }
 }

@@ -43,7 +43,7 @@ POST          /datacollection/:endpoint/:sessionID/event                        
 POST          /datacollection/:endpoint/:sessionID/submit                                 sdk.controllers.DataCollectionController.submit(endpoint, sessionID)
 
 GET           /inspection/:endpoint/describe                                              sdk.controllers.InspectionController.getConfiguration(endpoint)
-POST          /inspection/:endpoint/search                                                sdk.controllers.InspectionController.startInspection(endpoint)
+POST          /inspection/:endpoint/start                                                sdk.controllers.InspectionController.startInspection(endpoint)
 
 GET           /attachments/:attachmentID                                                  sdk.controllers.DataSetController.getAttachment(attachmentID : String)
 
