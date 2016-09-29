@@ -109,7 +109,6 @@ public class DataSetController extends DataController {
     }
 
     @With({ValidateRequestAction.class})
-    @With({ValidateRequestAction.class})
     public CompletionStage<Result> createDataSetItem(String dataSetName) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
@@ -124,7 +123,6 @@ public class DataSetController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
-    @With({ValidateRequestAction.class})
     @With({ValidateRequestAction.class})
     public CompletionStage<Result> updateDataSetItem(String dataSetName) {
         Http.Request request = request();
