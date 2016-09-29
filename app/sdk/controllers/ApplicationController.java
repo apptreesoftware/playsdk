@@ -11,7 +11,8 @@ import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
-import sdk.user.UserDataSource;
+import sdk.datasources.UserDataSource_Internal;
+import sdk.datasources.base.UserDataSource;
 
 import javax.inject.Inject;
 
@@ -44,7 +45,12 @@ public class ApplicationController extends Controller {
             String url = hostURL + "/list/" + endpoint;
             addEndpoint("list/" + endpoint, name, url, "list", records);
         });
-        UserDataSource userDataSource = AppTree.getUserDataSource();
+        AppTree.inspectionSources.forEach((endpoint, datasource) -> {
+            String name = datasource.getServiceName() != null ? datasource.getServiceName() : endpoint;
+            String url = hostURL + "/inspection/" + endpoint;
+            addEndpoint("inspection/" + endpoint, name, url, "inspection", records);
+        });
+        UserDataSource_Internal userDataSource = AppTree.getUserDataSource_internal();
         if ( userDataSource != null ) {
             addEndpoint("user", "User Info", hostURL + "/user", "user info", records);
         }

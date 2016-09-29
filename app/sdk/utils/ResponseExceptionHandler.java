@@ -5,6 +5,7 @@ import play.libs.Json;
 import play.libs.ws.WSRequest;
 import play.mvc.Controller;
 import play.mvc.Result;
+import rx.exceptions.OnErrorThrowable;
 import sdk.exceptions.AuthorizationException;
 import sdk.exceptions.PrimaryObjectNotFoundException;
 
@@ -18,7 +19,10 @@ public class ResponseExceptionHandler {
     }
 
     public static Result handleException(Throwable throwable, boolean async) {
-        throwable = findRootCause(throwable);
+        Throwable rootCause = findRootCause(throwable, Integer.MAX_VALUE);
+        if ( rootCause instanceof OnErrorThrowable.OnNextValue ) {
+            throwable = findRootCause(throwable, 1);
+        }
         throwable.printStackTrace();
         if ( throwable instanceof PrimaryObjectNotFoundException) {
             if ( throwable.getMessage() != null ) {
@@ -51,9 +55,15 @@ public class ResponseExceptionHandler {
     }
 
     public static Throwable findRootCause(Throwable throwable) {
+        return findRootCause(throwable, Integer.MAX_VALUE);
+    }
+
+    public static Throwable findRootCause(Throwable throwable, int depth) {
         Throwable childCause = throwable;
-        while ( childCause.getCause() != null ) {
+        int counter = 0;
+        while ( childCause.getCause() != null && counter < depth ) {
             childCause = childCause.getCause();
+            counter++;
         }
         return childCause;
     }

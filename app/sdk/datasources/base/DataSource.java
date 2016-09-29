@@ -1,17 +1,19 @@
-package sdk.data;
+package sdk.datasources.base;
 
-import sdk.AppTreeSource;
+import sdk.data.DataSet;
+import sdk.data.DataSetItem;
+import sdk.data.Event;
+import sdk.datasources.DataSourceBase;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
-import sdk.utils.ServiceParameter;
 
 import java.util.List;
 
 /**
- * Created by alexis on 5/3/16.
+ * Created by matthew on 9/6/16.
  */
-public interface DataSource extends AppTreeSource {
+public interface DataSource extends DataSourceBase {
     /***
      * @param authenticationInfo A HashMap of any authentication information that came through in the request headers from the mobile client
      * @param params   a HashMap of the URL parameters included in the request.
@@ -58,57 +60,6 @@ public interface DataSource extends AppTreeSource {
     }
 
     /**
-     * @param dataSetItem The data set item to be deleted
-     * @param authenticationInfo    a HashMap of any authentication parameters that came from the request headers
-     * @param params      a HashMap of the URL parameters included in the request
-     * @return The data source response
-     */
-    default Response deleteDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new UnsupportedOperationException("Delete is not supported");
-    }
-
-    /**
-     * Return the human readable name you want to provide for this service
-     *
-     * @return
-     */
-    public abstract String getServiceDescription();
-
-    /**
-     * Return the configuration attributes you want to use for creating a DataSetItem
-     *
-     * @param authenticationInfo
-     * @param params
-     * @return a List of service attributes
-     */
-    List<ServiceConfigurationAttribute> getDataSetAttributes(AuthenticationInfo authenticationInfo, Parameters params);
-
-    /**
-     * Return any parameters that can be used to filter or modify how the service should behave. The builder read these in and allow the user to modify how the service behaves.
-     * An example of this is if you want a single service that will return either all events or events only assigned to a given user.
-     * You could specify a filter parameter as myEventsOnly = true/false. By specifying this parameter, the user could modify the true/false value in the builder and you would receive
-     * the parameter as part of the urlParams HashMap in the get/create/update calls.
-     * @return a list of ATServiceParameters that this web service supports
-     */
-    default List<ServiceParameter> getServiceFilterParameters() { return null; }
-    /**
-     *
-     * @param authenticationInfo a HashMap of any authentication parameters that came from the request headers
-     * @param params a HashMap of the URL parameters included in the request
-     * @return The configuration response
-     */
-    default ServiceConfiguration getConfiguration(AuthenticationInfo authenticationInfo, Parameters params) {
-        try {
-            return new ServiceConfiguration.Builder(getServiceDescription()).
-                    withAttributes(getDataSetAttributes(authenticationInfo, params)).
-                    withServiceFilterParameters(getServiceFilterParameters()).
-                    withDependentListRESTPaths(getDependentLists()).build();
-        } catch (Exception e) {
-            return (ServiceConfiguration) new ServiceConfiguration("", null, null, null).setFailedWithMessage(e.getMessage());
-        }
-    }
-
-    /**
      *
      * @param dataSetItemID the data set item ID that the event is related to
      * @param event the ATEvent object
@@ -116,16 +67,7 @@ public interface DataSource extends AppTreeSource {
      * @param params a Parameters object of any URL parameters from the request
      */
     default Response updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new UnsupportedOperationException("Event update is not supported by this web service");
-    }
-
-    /**
-     * Returns a list of all the ListServiceConfiguration dataSourceRestPath() endpoints this data source uses. This list is used to
-     * auto register the lists when they are used to create features in the builder.
-     * @return
-     */
-    default List<String> getDependentLists() {
-        return null;
+        return Response.success();
     }
 
     /**
@@ -138,10 +80,5 @@ public interface DataSource extends AppTreeSource {
      */
     default DataSet bulkUpdateDataSetItems(List<String> primaryKeys, DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Bulk update is not supported by this web service");
-    }
-
-    default DataSet newEmptyDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
-        List<ServiceConfigurationAttribute> attributes = getDataSetAttributes(authenticationInfo, parameters);
-        return new DataSet(attributes);
     }
 }

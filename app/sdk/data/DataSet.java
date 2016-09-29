@@ -6,8 +6,8 @@ import play.libs.Json;
 import sdk.utils.Response;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by alexis on 5/3/16.
@@ -21,7 +21,7 @@ public class DataSet extends Response {
     /**
      * Creates a data set with an empty set list of data set items
      */
-    public DataSet(List<ServiceConfigurationAttribute> configurationAttributes) {
+    public DataSet(Collection<ServiceConfigurationAttribute> configurationAttributes) {
         dataSetItems = new ArrayList<>();
         if (configurationAttributes!=null) {
             for (ServiceConfigurationAttribute attribute : configurationAttributes) {

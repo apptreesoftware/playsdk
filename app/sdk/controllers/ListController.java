@@ -12,6 +12,10 @@ import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
+import sdk.datasources.ListDataSource;
+import sdk.datasources.ListDataSource_Internal;
+import sdk.datasources.base.CacheableList;
+import sdk.datasources.base.SearchableList;
 import sdk.list.*;
 import sdk.utils.*;
 
@@ -35,11 +39,9 @@ public class ListController extends Controller {
     @Inject
     WSClient wsClient;
 
-    Executor executor = Executors.newFixedThreadPool(10);
-
     public CompletionStage<Result> getListConfiguration(String listName) {
         return CompletableFuture.supplyAsync(() -> {
-            ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
+            ListDataSource_Internal dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
             ListServiceConfiguration configuration = dataSource.getListServiceConfiguration();
             return ok(JsonUtils.toJson(configuration));
         }).exceptionally(exception -> {
@@ -51,57 +53,41 @@ public class ListController extends Controller {
     public CompletionStage<Result> getListData(String listName) {
         Http.Request request = request();
         boolean useJSON = false;
-        if ( request.getQueryString("json") != null && request.getQueryString("json").equalsIgnoreCase("true") ) {
+        if (request.getQueryString("json") != null && request.getQueryString("json").equalsIgnoreCase("true")) {
             useJSON = true;
         }
         String callbackURL = request.getHeader(CORE_CALLBACK_URL);
         final boolean json = useJSON;
-        return CompletableFuture.supplyAsync(() -> {
-            ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
-            if ( !(dataSource instanceof CacheableList) ) throw new RuntimeException("This list does not support a cache response");
-            AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-            Parameters parameters = new Parameters(request.queryString());
-
-            if ( callbackURL != null ) {
-                generateListDataResponse((CacheableList) dataSource, callbackURL, authenticationInfo, parameters);
-                return ok(JsonUtils.toJson(Response.asyncSuccess()));
-            } else {
-                List list = ((CacheableList)dataSource).getList(authenticationInfo, parameters);
-                if ( json ) {
-                    ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
-                    return ok(JsonUtils.toJson(response));
-                } else {
-                    File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
-                    return ok(sqlFile);
-                }
-            }
-        }).exceptionally(exception -> {
-            if ( callbackURL != null ) {
-                throw new RuntimeException(exception);
-            } else if ( json ) {
-                exception = ResponseExceptionHandler.findRootCause(exception);
-                ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
-                return ok(JsonUtils.toJson(response));
-            } else {
-                return internalServerError().withHeader("ListError", exception.getMessage());
-            }
-        }).whenComplete((result, throwable) -> {
-            if ( throwable != null ) {
-                WSRequest callbackRequest = wsClient.url(callbackURL);
-                Logger.debug("Sending error back to " + callbackURL);
-                ResponseExceptionHandler.updateCallbackWithException(callbackRequest, throwable);
-                callbackRequest
-                        .execute("POST")
-                        .whenComplete((wsResponse, callbackThrowable) -> {
-                            logExceptionCallback(wsResponse, throwable, callbackThrowable, callbackURL);
-                        });
-            }
-        });
+        ListDataSource_Internal dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        if (callbackURL != null) {
+            generateListDataResponse(dataSource, callbackURL, authenticationInfo, parameters);
+            return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+        } else {
+            return dataSource.getList(authenticationInfo, parameters)
+                    .thenApply(list -> {
+                        if (json) {
+                            ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
+                            return ok(JsonUtils.toJson(response));
+                        } else {
+                            File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
+                            return ok(sqlFile);
+                        }
+                    }).exceptionally(exception -> {
+                        if (json) {
+                            exception = ResponseExceptionHandler.findRootCause(exception);
+                            ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
+                            return ok(JsonUtils.toJson(response));
+                        } else {
+                            return internalServerError().withHeader("ListError", exception.getMessage());
+                        }
+                    });
+        }
     }
 
-    private void generateListDataResponse(CacheableList dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        CompletableFuture.
-                supplyAsync(() -> dataSource.getList(authenticationInfo, parameters), executor)
+    private void generateListDataResponse(ListDataSource_Internal dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.getList(authenticationInfo, parameters)
                 .thenApply(list -> {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
                     WSRequest request = wsClient.url(callbackURL);
@@ -130,18 +116,20 @@ public class ListController extends Controller {
         String searchTerm = json.path("searchTerm").textValue();
         JsonNode context = json.path("context");
         boolean barcodeSearch = json.path("barcodeSearch").booleanValue();
-        return CompletableFuture.supplyAsync(() -> {
-            ListDataSource dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
-            if ( !(dataSource instanceof SearchableList) ) throw new RuntimeException("This list does not support querying.");
-            AuthenticationInfo info = new AuthenticationInfo(request.headers());
-            Parameters parameters = new Parameters(request.queryString());
-            Map<String, Object> searchContext = Json.mapper().convertValue(context, Map.class);
-            List list = ((SearchableList)dataSource).queryList(searchTerm, barcodeSearch, searchContext, info, parameters);
-            ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
-            return ok(JsonUtils.toJson(response));
-        }).exceptionally(exception -> {
-            ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
-            return ok(JsonUtils.toJson(response));
-        });
+        Map<String, Object> searchContext = Json.mapper().convertValue(context, Map.class);
+        ListDataSource_Internal dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
+        AuthenticationInfo info = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+
+        return dataSource.queryList(searchTerm, barcodeSearch, searchContext, info, parameters)
+                .thenApply(list -> {
+                    ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
+                    return ok(JsonUtils.toJson(response));
+                })
+                .exceptionally(ResponseExceptionHandler::handleException);
+//                .exceptionally(exception -> {
+//                    ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
+//                    return ok(JsonUtils.toJson(response));
+//                });
     }
 }

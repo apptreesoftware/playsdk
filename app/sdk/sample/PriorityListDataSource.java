@@ -1,9 +1,9 @@
 package sdk.sample;
 
-import sdk.list.CacheableList;
+import sdk.datasources.base.CacheableList;
 import sdk.list.List;
 import sdk.list.ListServiceConfigurationAttribute;
-import sdk.list.SearchableList;
+import sdk.datasources.base.SearchableList;
 import sdk.sample.model.Priority;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -27,9 +27,7 @@ public class PriorityListDataSource implements CacheableList, SearchableList {
     @Override
     public List queryList(String queryText, boolean barcodeSearch, Map<String, Object> context, AuthenticationInfo authenticationInfo, Parameters params) {
         List list = new List();
-        Priority.priorities.stream().filter(priority -> (priority.id + "").contains(queryText) || priority.name.toLowerCase().contains(queryText.toLowerCase()) || priority.description.toLowerCase().contains(queryText.toLowerCase())).forEach(priority -> {
-            list.addListItem(priority.toListItem());
-        });
+        Priority.priorities.stream().filter(priority -> (priority.id + "").contains(queryText) || priority.name.toLowerCase().contains(queryText.toLowerCase()) || priority.description.toLowerCase().contains(queryText.toLowerCase())).forEach(priority -> list.addListItem(priority.toListItem()));
         return list;
     }
 

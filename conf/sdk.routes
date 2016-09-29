@@ -14,7 +14,6 @@ POST          /auth/logout                                                      
 GET           /auth/validateToken                                                         sdk.controllers.AuthenticationController.validateToken
 
 GET           /user/userInfoKeys                                                          sdk.controllers.UserController.getUserInfoKeys
-GET           /user/userSources                                                           sdk.controllers.UserController.getUserSources
 GET           /user/:userID                                                               sdk.controllers.UserController.getUserInfo(userID)
 GET           /user/:userID/image                                                         sdk.controllers.UserController.getUserImage(userID)
 POST          /user/checkForUserInfo                                                      sdk.controllers.UserController.checkForUserInfo
@@ -43,13 +42,14 @@ GET           /datacollection/:endpoint/:sessionID/:dataSetID/searchForDataSetIt
 POST          /datacollection/:endpoint/:sessionID/event                                  sdk.controllers.DataCollectionController.postEvent(endpoint, sessionID)
 POST          /datacollection/:endpoint/:sessionID/submit                                 sdk.controllers.DataCollectionController.submit(endpoint, sessionID)
 
-
+GET           /inspection/:endpoint/describe                                              sdk.controllers.InspectionController.getConfiguration(endpoint)
+POST          /inspection/:endpoint/start                                                sdk.controllers.InspectionController.startInspection(endpoint)
 
 GET           /attachments/:attachmentID                                                  sdk.controllers.DataSetController.getAttachment(attachmentID : String)
 
-GET           /list/:listName/describe        sdk.controllers.ListController.getListConfiguration(listName: String)
-POST          /list/:listName/search          sdk.controllers.ListController.searchListData(listName: String)
-GET           /list/:listName                 sdk.controllers.ListController.getListData(listName: String)
+GET           /list/:listName/describe                                                    sdk.controllers.ListController.getListConfiguration(listName: String)
+POST          /list/:listName/search                                                      sdk.controllers.ListController.searchListData(listName: String)
+GET           /list/:listName                                                             sdk.controllers.ListController.getListData(listName: String)
 
-GET            /tester/*file                  sdk.controllers.StaticFileController.tester(file)
-GET             /validate                     sdk.controllers.StaticFileController.isRunningPage
+GET           /tester/*file                                                               sdk.controllers.StaticFileController.tester(file)
+GET           /validate                                                                   sdk.controllers.StaticFileController.isRunningPage
