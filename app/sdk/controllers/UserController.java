@@ -47,7 +47,7 @@ public class UserController extends Controller {
         }
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request().headers());
         return dataSource.getUserKeys(authenticationInfo)
-                .thenApply(sources -> new UserStringListResponse(true, sources, null))
+                         .thenApply(sources -> new UserInfoKeyListResponse(true, sources, null))
                 .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -119,6 +119,17 @@ public class UserController extends Controller {
         public String message;
 
         UserStringListResponse(boolean success, List<String> sources, String message) {
+            this.success = success;
+            this.records = sources;
+            this.message = message;
+        }
+    }
+
+    private class UserInfoKeyListResponse {
+        public boolean success;
+        public List<UserInfoKey> records;
+        public String message;
+        UserInfoKeyListResponse(boolean success, List<UserInfoKey> sources, String message) {
             this.success = success;
             this.records = sources;
             this.message = message;
