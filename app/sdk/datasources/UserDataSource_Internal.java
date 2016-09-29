@@ -3,6 +3,7 @@ package sdk.datasources;
 import rx.Observable;
 import sdk.datasources.rx.UserDataSource;
 import sdk.user.User;
+import sdk.user.UserInfoKey;
 import sdk.user.UserInfoResponse;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -29,7 +30,7 @@ public class UserDataSource_Internal extends BaseSource_Internal {
     }
     public UserDataSource_Internal(sdk.datasources.future.UserDataSource dataSource) { this.futureUserDataSource = dataSource; }
 
-    public CompletableFuture<List<String>> getUserKeys(AuthenticationInfo authenticationInfo) {
+    public CompletableFuture<List<UserInfoKey>> getUserKeys(AuthenticationInfo authenticationInfo) {
         if ( rxUserDataSource != null ) {
             return observableToFuture(rxUserDataSource.getUserInfoKeys(authenticationInfo));
         } else if ( userDataSource != null ) {

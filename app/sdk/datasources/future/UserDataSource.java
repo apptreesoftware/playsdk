@@ -3,6 +3,7 @@ package sdk.datasources.future;
 import rx.Observable;
 import sdk.AppTreeSource;
 import sdk.user.User;
+import sdk.user.UserInfoKey;
 import sdk.user.UserInfoResponse;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -19,7 +20,7 @@ public abstract class UserDataSource implements AppTreeSource {
      * Get the list of available user attributes that you want to provide
      * @return List of Strings representing the attributes you want to provide. These values will be available in the builder.
      */
-    public abstract CompletableFuture<List<String>> getUserInfoKeys(AuthenticationInfo authenticationInfo);
+    public abstract CompletableFuture<List<UserInfoKey>> getUserInfoKeys(AuthenticationInfo authenticationInfo);
 
     /**
      * Get the user information given a userID. This is your opportunity to return user attributes like email, phone number etc.

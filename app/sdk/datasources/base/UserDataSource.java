@@ -3,6 +3,7 @@ package sdk.datasources.base;
 import rx.Observable;
 import sdk.AppTreeSource;
 import sdk.user.User;
+import sdk.user.UserInfoKey;
 import sdk.user.UserInfoResponse;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
