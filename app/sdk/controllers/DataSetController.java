@@ -25,12 +25,12 @@ import java.util.concurrent.CompletionStage;
 /**
  * Created by alexis on 5/3/16.
  */
-@With({ValidateRequestAction.class})
 public class DataSetController extends DataController {
 
     public DataSetController() {
     }
 
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> getDataSet(String dataSetName) {
         Http.Request request = request();
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
@@ -49,6 +49,7 @@ public class DataSetController extends DataController {
         }
     }
 
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> searchDataSet(String dataSetName) {
         Http.Request request = request();
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
@@ -107,7 +108,8 @@ public class DataSetController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
-
+    @With({ValidateRequestAction.class})
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> createDataSetItem(String dataSetName) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
@@ -122,6 +124,8 @@ public class DataSetController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
+    @With({ValidateRequestAction.class})
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> updateDataSetItem(String dataSetName) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
@@ -136,6 +140,7 @@ public class DataSetController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> bulkUpdate(String dataSetName) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
@@ -158,6 +163,7 @@ public class DataSetController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> getDataSetItem(String dataSetName, String primaryKey) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
@@ -189,6 +195,7 @@ public class DataSetController extends DataController {
                 });
     }
 
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> postEvent(String dataSetName, String dataSetItemID) {
         JsonNode json = request().body().asJson();
         if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
