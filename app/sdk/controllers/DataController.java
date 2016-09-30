@@ -1,5 +1,7 @@
 package sdk.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import play.Logger;
@@ -12,8 +14,10 @@ import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
 import sdk.utils.Constants;
+import sdk.utils.JsonUtils;
 import sdk.utils.ResponseExceptionHandler;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +54,25 @@ public abstract class DataController extends Controller {
                         ObjectNode json = (ObjectNode) request.body().asJson();
                         return dataSetItemForJSON(json, dataSet,search, new HashMap<>());
                     }
+                });
+    }
+
+    protected CompletionStage<DataSet> dataSetFromRequest(ServiceConfiguration configuration, Http.Request request, boolean search) {
+        return CompletableFuture
+                .supplyAsync(() -> new DataSet(configuration.getAttributes()))
+                .thenApply(dataSet -> {
+                    JsonNode jsonNode = request.body().asJson();
+                    dataSet.setTotalRecords(jsonNode.get("totalRecords").asInt(0));
+                    JsonNode records = jsonNode.get("records");
+                    if ( records != null && records.isArray() ) {
+                        for ( JsonNode dataSetItemNode : records ) {
+                            if ( dataSetItemNode.isArray() ) {
+                                dataSetItemNode = dataSetItemNode.get(0);
+                            }
+                            dataSetItemForJSON((ObjectNode)dataSetItemNode, dataSet, search, null);
+                        }
+                    }
+                    return dataSet;
                 });
     }
 

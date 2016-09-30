@@ -4,6 +4,7 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import sdk.AppTree;
+import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
@@ -53,6 +54,41 @@ public class InspectionController extends DataController {
                     }
                 })
                 .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> completeInspection(String dataSetName) {
+        System.out.println("The complete call has reached the connector");
+        Http.Request request = request();
+        InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
+        if ( dataSource == null ) {
+            return CompletableFuture.completedFuture(notFound());
+        }
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        return getConfiguration(dataSource, request)
+                .thenCompose(inspectionConfiguration -> dataSetFromRequestWithoutAttachments(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
+                .thenCompose(dataSet -> {
+                    if ( callbackURL != null ) {
+                        completeInspection(dataSource, dataSet, callbackURL, authenticationInfo, parameters);
+                        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+                    } else {
+                        return dataSource.completeInspection(dataSet, authenticationInfo, parameters).thenApply(returnDataSet -> ok(returnDataSet.toJSON()));
+                    }
+                })
+                .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    private void completeInspection(InspectionSource_Internal dataSource, DataSet completedDataSet, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.completeInspection(completedDataSet, authenticationInfo, parameters)
+                .whenComplete((dataSet, throwable) -> {
+                    if ( throwable != null ) {
+                        sendDataSetExceptionCallback(throwable, callbackURL);
+                    } else {
+                        sendDataSetResponse(dataSet, callbackURL);
+                    }
+                });
     }
 
     private void generateInspection(InspectionSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
