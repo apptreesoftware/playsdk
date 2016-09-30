@@ -57,7 +57,7 @@ public abstract class DataController extends Controller {
                 });
     }
 
-    protected CompletionStage<DataSet> dataSetFromRequestWithoutAttachments(ServiceConfiguration configuration, Http.Request request, boolean search) {
+    protected CompletionStage<DataSet> dataSetFromRequest(ServiceConfiguration configuration, Http.Request request, boolean search) {
         return CompletableFuture
                 .supplyAsync(() -> new DataSet(configuration.getAttributes()))
                 .thenApply(dataSet -> {
