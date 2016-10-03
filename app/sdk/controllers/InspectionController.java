@@ -68,7 +68,7 @@ public class InspectionController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         return getConfiguration(dataSource, request)
-                .thenCompose(inspectionConfiguration -> dataSetFromRequestWithoutAttachments(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
+                .thenCompose(inspectionConfiguration -> dataSetFromRequest(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
                 .thenCompose(dataSet -> {
                     if ( callbackURL != null ) {
                         completeInspection(dataSource, dataSet, callbackURL, authenticationInfo, parameters);
