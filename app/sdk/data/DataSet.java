@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
 import sdk.utils.Response;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +31,15 @@ public class DataSet extends Response {
         }
     }
 
+    @Nullable
+    ServiceConfigurationAttribute getAttributeConfigurationForIndex(int index) {
+        return attributeConfigurationForIndexMap.get(index);
+    }
+
+    public Collection<ServiceConfigurationAttribute> getConfigurationAttributes() {
+        return attributeConfigurationForIndexMap.values();
+    }
+
     /***
      * Creates a new ATDataSetItem and adds it to the data set.
      * @return The newly created data set item
@@ -40,12 +50,13 @@ public class DataSet extends Response {
         return item;
     }
 
-    /**
-     * Removes a data set item
-     * @param dataSetItem The data set item to be removed
-     */
-    public void removeDataSetItem(DataSetItem dataSetItem) {
-        dataSetItems.remove(dataSetItem);
+    public void add(DataSetItem dataSetItem) {
+
+        dataSetItem.validateAttributes();
+        dataSetItems.add(dataSetItem);
+    }
+
+    private void validateDataSetItem(DataSetItem dataSetItem) {
     }
 
     /**

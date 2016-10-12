@@ -20,24 +20,16 @@ import java.util.stream.IntStream;
  * Created by alexis on 5/3/16.
  */
 public class DataSetItem {
-    HashMap<Integer, DataSetItemAttribute> attributeMap = new HashMap<Integer, DataSetItemAttribute>();
+    private HashMap<Integer, DataSetItemAttribute> attributeMap = new HashMap<Integer, DataSetItemAttribute>();
     String primaryKey;
-    String clientKey;
-    int maxAttributeIndex = -1;
-    CRUDStatus crudStatus = CRUDStatus.Read;
-    DataCollectionStatus dataCollectionStatus = DataCollectionStatus.None;
+    private String clientKey;
+    private int maxAttributeIndex = -1;
+    private CRUDStatus crudStatus = CRUDStatus.Read;
+    private DataCollectionStatus dataCollectionStatus = DataCollectionStatus.None;
+    Collection<ServiceConfigurationAttribute> configurationAttributes;
 
     @JsonIgnore
-    private HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationForIndexMap;
-    WorkFlowState workFlowState = WorkFlowState.None;
-
-    public HashMap<Integer, ServiceConfigurationAttribute> getAttributeConfigurationForIndexMap() {
-        return attributeConfigurationForIndexMap;
-    }
-
-    public Collection<ServiceConfigurationAttribute> getConfigurationAttributes() {
-        return attributeConfigurationForIndexMap.values();
-    }
+    private HashMap<Integer, ServiceConfigurationAttribute> configurationMap;
 
     public enum Type {
         Record("RECORD"),
@@ -111,37 +103,6 @@ public class DataSetItem {
         }
     }
 
-    public enum WorkFlowState {
-        None("NONE"),
-        Pending("PENDING"),
-        Rejected("REJECTED"),
-        Success("Success");
-
-        private final String stringValue;
-
-        private WorkFlowState(final String text) { this.stringValue = text; }
-
-        @Override
-        public String toString() { return stringValue; }
-
-        /**
-         * Work flow state from name
-         * @param workFlowString The name of the work flow state
-         * @return
-         */
-        public static WorkFlowState fromString(String workFlowString) {
-            workFlowString = workFlowString.toUpperCase();
-            if ( workFlowString.equals(Pending.toString()) ) {
-                return Pending;
-            } else if ( workFlowString.equals(Rejected.toString()) ) {
-                return Rejected;
-            } else if ( workFlowString.equals(Success.toString()) ) {
-                return Success;
-            }
-            return None;
-        }
-    }
-
     public enum DataCollectionStatus {
         None("NONE"),
         Complete("COMPLETE"),
@@ -183,7 +144,24 @@ public class DataSetItem {
      * @param attributeConfigurationMap The service configuration attributes to use for validation. This should come from your DataSource getViewUpdateServiceAttributes, getCreateServiceAttributes, or getSearchServiceAttributes depending on what this DataSetItem is being used for.
      */
     DataSetItem(HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationMap) {
-        this.attributeConfigurationForIndexMap = attributeConfigurationMap;
+        this.configurationAttributes = attributeConfigurationMap.values();
+        this.configurationMap = attributeConfigurationMap;
+    }
+
+    public DataSetItem(Collection<ServiceConfigurationAttribute> attributes) {
+        this.configurationAttributes = attributes;
+        this.configurationMap = new HashMap<>();
+        if (attributes!=null) {
+            for (ServiceConfigurationAttribute attribute : attributes) {
+                configurationMap.put(attribute.getAttributeIndex(), attribute);
+            }
+        }
+    }
+
+    void validateAttributes() {
+        for (Map.Entry<Integer, DataSetItemAttribute> attribute : attributeMap.entrySet()) {
+            validateGetterAttributeTypeForIndex(attribute.getValue().getAttributeType(), attribute.getKey());
+        }
     }
 
     /**
@@ -196,7 +174,7 @@ public class DataSetItem {
 
     /**
      * Gets the primary key
-     * @return
+     * @return Returns the primary key
      */
     public String getPrimaryKey() {
         return primaryKey;
@@ -216,20 +194,6 @@ public class DataSetItem {
      */
     public void setCRUDStatus(CRUDStatus status) {
         crudStatus = status;
-    }
-
-    /**
-     * Returns the work flow state
-     * @return
-     */
-    public WorkFlowState getWorkFlowState() { return workFlowState; }
-
-    /**
-     * Sets the work flow state
-     * @param state The work flow state of the item
-     */
-    public void setWorkFlowState(WorkFlowState state) {
-        workFlowState = state;
     }
 
     /**
@@ -293,8 +257,6 @@ public class DataSetItem {
      */
     public int getIntAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
-        int intAttribute;
-
         attribute = attributeMap.get(attributeIndex);
         if ( attribute != null ) {
             try {
@@ -596,7 +558,7 @@ public class DataSetItem {
 
 
     private boolean validateGetterAttributeTypeForIndex(AttributeType attributeType, int attributeIndex) throws InvalidAttributeValueException {
-        ServiceConfigurationAttribute attributeConfig = attributeConfigurationForIndexMap.get(attributeIndex);
+        ServiceConfigurationAttribute attributeConfig = configurationMap.get(attributeIndex);
         if ( attributeConfig == null ) {
             System.out.println("Warning: This data set is not configured for attribute " + attributeIndex + ". Setting or Getting the value at this index will always produce null");
             return false;
@@ -677,6 +639,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setColorForAttributeIndex(Color value, int attributeIndex) throws InvalidAttributeValueException {
+        _setColorForAttributeIndex(value, attributeIndex);
+    }
+
+    private void _setColorForAttributeIndex(Color value, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Color, attributeIndex)) {
             return;
         }
@@ -690,6 +656,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setIntForAttributeIndex(int value, int attributeIndex) throws InvalidAttributeValueException {
+        _setIntForAttributeIndex(value, attributeIndex);
+    }
+
+    private void _setIntForAttributeIndex(int value, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Int, attributeIndex)) {
             return;
         }
@@ -703,6 +673,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setListItemForAttributeIndex(ListItem listItem, int attributeIndex) throws InvalidAttributeValueException {
+        _setListItemForAttributeIndex(listItem, attributeIndex);
+    }
+
+    private void _setListItemForAttributeIndex(ListItem listItem, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.ListItem, attributeIndex)) {
             return;
         }
@@ -716,6 +690,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setLocationForAttributeIndex(Location location, int attributeIndex) throws InvalidAttributeValueException {
+        _setLocationForAttributeIndex(location, attributeIndex);
+    }
+
+    private void _setLocationForAttributeIndex(Location location, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Location, attributeIndex)) {
             return;
         }
@@ -724,6 +702,10 @@ public class DataSetItem {
     }
 
     public void setImageForAttributeIndex(Image image, int attributeIndex) throws InvalidAttributeValueException {
+        _setImageForAttributeIndex(image, attributeIndex);
+    }
+
+    private void _setImageForAttributeIndex(Image image, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Image, attributeIndex)) {
             return;
         }
@@ -737,6 +719,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setStringForAttributeIndex(String value, int attributeIndex) throws InvalidAttributeValueException {
+        _setStringForAttributeIndex(value, attributeIndex);
+    }
+
+    private void _setStringForAttributeIndex(String value, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.String, attributeIndex)) {
             return;
         }
@@ -750,6 +736,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setBooleanForAttributeIndex(boolean value, int attributeIndex) throws InvalidAttributeValueException {
+        _setBooleanForAttributeIndex(value, attributeIndex);
+    }
+
+    private void _setBooleanForAttributeIndex(boolean value, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Boolean, attributeIndex)) {
             return;
         }
@@ -757,30 +747,33 @@ public class DataSetItem {
         updateMaxAttribute(attributeIndex);
     }
 
+
     /**
      * Sets a date range value at the specified index of the attribute map
      * @param dateRange The date range to set
      * @param attributeIndex The index of the attribute
      * @throws InvalidAttributeValueException
      */
-    private void setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
-//        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateRange, attributeIndex) ) {
-//            return;
-//        }
+    public void setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
+        _setDateRangeForAttributeIndex(dateRange, attributeIndex);
+    }
+
+    private void _setDateRangeForAttributeIndex(DateRange dateRange, int attributeIndex) throws InvalidAttributeValueException {
         attributeMap.put(attributeIndex, new DataSetItemAttribute(dateRange));
         updateMaxAttribute(attributeIndex);
     }
-
     /**
      * Sets a date time range at the specified index of the attribute map
      * @param dateTimeRange The date time range to set
      * @param attributeIndex The index of the attribute
      * @throws InvalidAttributeValueException
      */
-    private void setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
-//        if ( !validateGetterAttributeTypeForIndex(AttributeType.DateTimeRange, attributeIndex) ) {
-//            return;
-//        }
+
+    public void setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
+        _setDateTimeRangeForAttributeIndex(dateTimeRange, attributeIndex);
+    }
+
+    private void _setDateTimeRangeForAttributeIndex(DateTimeRange dateTimeRange, int attributeIndex) throws InvalidAttributeValueException {
         attributeMap.put(attributeIndex, new DataSetItemAttribute(dateTimeRange));
         updateMaxAttribute(attributeIndex);
     }
@@ -791,6 +784,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setDoubleForAttributeIndex(double value, int attributeIndex) throws InvalidAttributeValueException {
+        _setDoubleForAttributeIndex(value, attributeIndex);
+    }
+
+    private void _setDoubleForAttributeIndex(double value, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Double, attributeIndex)) {
             return;
         }
@@ -799,6 +796,10 @@ public class DataSetItem {
     }
 
     public void setTimeIntervalForAttributeIndex(long timeInterval, int attributeIndex) throws InvalidAttributeValueException {
+        _setTimeIntervalForAttributeIndex(timeInterval, attributeIndex);
+    }
+
+    private void _setTimeIntervalForAttributeIndex(long timeInterval, int attributeIndex) throws InvalidAttributeValueException {
         if(!validateGetterAttributeTypeForIndex(AttributeType.TimeInterval, attributeIndex)) {
             return;
         }
@@ -811,6 +812,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setDateForAttributeIndex(DateTime date, int attributeIndex) throws InvalidAttributeValueException {
+        _setDateForAttributeIndex(date, attributeIndex);
+    }
+
+    private void _setDateForAttributeIndex(DateTime date, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.Date, attributeIndex)) {
             return;
         }
@@ -825,6 +830,10 @@ public class DataSetItem {
      * @param attributeIndex The index of the attribute
      */
     public void setDateTimeForAttributeIndex(DateTime date, int attributeIndex) throws InvalidAttributeValueException {
+        _setDateTimeForAttributeIndex(date, attributeIndex);
+    }
+
+    private void _setDateTimeForAttributeIndex(DateTime date, int attributeIndex) throws InvalidAttributeValueException {
         if (!validateGetterAttributeTypeForIndex(AttributeType.DateTime, attributeIndex)) {
             return;
         }
@@ -833,10 +842,6 @@ public class DataSetItem {
         }
     }
 
-    /**
-     * Updates the max attribute index
-     * @param attributeIndex
-     */
     private void updateMaxAttribute(int attributeIndex) {
         maxAttributeIndex = attributeIndex > maxAttributeIndex ? attributeIndex : maxAttributeIndex;
     }
@@ -876,7 +881,6 @@ public class DataSetItem {
         json.put("clientKey", clientKey);
         json.put("recordType", getItemType().stringValue);
         json.put("DataCollectionStatus",dataCollectionStatus.stringValue);
-        json.put("workFlowState", workFlowState.stringValue);
 
         ArrayNode attributes = json.putArray("attributes");
         int firstNullIndex = -1;
@@ -915,48 +919,48 @@ public class DataSetItem {
         clientKey = json.path("clientKey").textValue();
         ArrayNode attributes = (ArrayNode) json.path("attributes");
         IntStream.range(0, attributes.size())
-                .filter(i -> !attributes.get(i).isNull() && attributeConfigurationForIndexMap.get(i) != null)
+                .filter(i -> !attributes.get(i).isNull() && configurationMap.get(i) != null)
                 .forEach(i -> {
-                    ServiceConfigurationAttribute attribute = attributeConfigurationForIndexMap.get(i);
+                    ServiceConfigurationAttribute attribute = configurationMap.get(i);
                     JsonNode node = attributes.get(i);
                     switch (attribute.attributeType) {
                         case String:
-                            setStringForAttributeIndex(node.textValue(), i);
+                            _setStringForAttributeIndex(node.textValue(), i);
                             break;
                         case Double:
                             if ( node.isTextual() ) {
                                 try {
                                     double doubleValue  = Double.parseDouble(node.asText());
-                                    setDoubleForAttributeIndex(doubleValue, i);
+                                    _setDoubleForAttributeIndex(doubleValue, i);
                                 }
                                 catch (Exception ignored) {}
                             } else if ( node.isDouble() ) {
-                                setDoubleForAttributeIndex(node.doubleValue(), i);
+                                _setDoubleForAttributeIndex(node.doubleValue(), i);
                             }
                             break;
                         case Int:
                             if ( node.isTextual() ) {
                                 try {
                                     int intValue = Integer.parseInt(node.asText());
-                                    setIntForAttributeIndex(intValue, i);
+                                    _setIntForAttributeIndex(intValue, i);
                                 } catch (Exception ignored) {}
                             } else if ( node.isInt()) {
-                                setIntForAttributeIndex(node.intValue(), i);
+                                _setIntForAttributeIndex(node.intValue(), i);
                             }
                             break;
                         case Boolean:
-                            setBooleanForAttributeIndex(node.asText().equalsIgnoreCase("Y"), i);
+                            _setBooleanForAttributeIndex(node.asText().equalsIgnoreCase("Y"), i);
                             break;
                         case Date:
                             if ( search ) {
                                 JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                     DateRange dateRange = JsonUtils.fromJson(jsonNode, DateRange.class);
                                     if ( dateRange != null ) {
-                                        setDateRangeForAttributeIndex(dateRange, i);
+                                        _setDateRangeForAttributeIndex(dateRange, i);
                                     }
                                 });
                             } else {
-                                setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
+                                _setDateForAttributeIndex(DateUtil.dateFromString(node.asText()), i);
                             }
                             break;
                         case DateTime:
@@ -964,21 +968,21 @@ public class DataSetItem {
                                 JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                     DateTimeRange dateRange = JsonUtils.fromJson(jsonNode, DateTimeRange.class);
                                     if ( dateRange != null ) {
-                                        setDateTimeRangeForAttributeIndex(dateRange, i);
+                                        _setDateTimeRangeForAttributeIndex(dateRange, i);
                                     }
                                 });
                             } else {
-                                setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
+                                _setDateTimeForAttributeIndex(DateUtil.dateTimeFromString(node.asText()), i);
                             }
                             break;
                         case TimeInterval:
-                            setTimeIntervalForAttributeIndex(node.asLong(), i);
+                            _setTimeIntervalForAttributeIndex(node.asLong(), i);
                             break;
                         case DateRange:
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                 DateRange dateRange = JsonUtils.fromJson(jsonNode, DateRange.class);
                                 if ( dateRange != null ) {
-                                    setDateRangeForAttributeIndex(dateRange, i);
+                                    _setDateRangeForAttributeIndex(dateRange, i);
                                 }
                             });
                             break;
@@ -986,14 +990,14 @@ public class DataSetItem {
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                 DateTimeRange dateRange = JsonUtils.fromJson(jsonNode, DateTimeRange.class);
                                 if ( dateRange != null ) {
-                                    setDateTimeRangeForAttributeIndex(dateRange, i);
+                                    _setDateTimeRangeForAttributeIndex(dateRange, i);
                                 }
                             });
                             break;
                         case Image:
                            JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                Image image = JsonUtils.fromJson(jsonNode, Image.class);
-                               setImageForAttributeIndex(image, i);
+                               _setImageForAttributeIndex(image, i);
                                if ( attachmentMap != null && image.uploadKey != null ) {
                                    Http.MultipartFormData.FilePart filePart = attachmentMap.get(image.uploadKey);
                                    if ( filePart != null ) {
@@ -1005,7 +1009,7 @@ public class DataSetItem {
                         case Location:
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                 Location location = JsonUtils.fromJson(jsonNode, Location.class);
-                                setLocationForAttributeIndex(location, i);
+                                _setLocationForAttributeIndex(location, i);
                             });
                             break;
                         case Attachments:
@@ -1024,13 +1028,13 @@ public class DataSetItem {
                                                 if (subClientKey != null && attachmentMap != null) {
                                                     filePart = attachmentMap.get(subClientKey);
                                                 }
-                                                DataSetItem subDataSetItem = this.addNewAttachmentForAttributeIndex(i);
+                                                DataSetItem subDataSetItem = _addNewAttachmentForAttributeIndex(i);
                                                 subDataSetItem.updateFromJSON(childJsonNode, null, search);
                                                 if (filePart != null) {
                                                     ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
                                                 }
                                             } else {
-                                                DataSetItem subDataSetItem = this.addNewDataSetItemForAttributeIndex(i);
+                                                DataSetItem subDataSetItem = _addNewDataSetItemForAttributeIndex(i);
                                                 subDataSetItem.updateFromJSON(childJsonNode, attachmentMap, search);
                                             }
                                         });
@@ -1039,13 +1043,13 @@ public class DataSetItem {
                         case ListItem:
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                 ListItem listItem = JsonUtils.fromJson(jsonNode, ListItem.class);
-                                setListItemForAttributeIndex(listItem, i);
+                                _setListItemForAttributeIndex(listItem, i);
                             });
                             break;
                         case Color:
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                 Color color = JsonUtils.fromJson(jsonNode, Color.class);
-                                setColorForAttributeIndex(color, i);
+                                _setColorForAttributeIndex(color, i);
                             });
                             break;
                     }
@@ -1054,8 +1058,12 @@ public class DataSetItem {
     }
 
     public DataSetItem addNewDataSetItemForAttributeIndex(int attributeIndex) {
+       return _addNewDataSetItemForAttributeIndex(attributeIndex);
+    }
+
+    private DataSetItem _addNewDataSetItemForAttributeIndex(int attributeIndex) {
         DataSetItemAttribute attribute = attributeMap.get(attributeIndex);
-        ServiceConfigurationAttribute configurationAttribute = attributeConfigurationForIndexMap.get(attributeIndex);
+        ServiceConfigurationAttribute configurationAttribute = configurationMap.get(attributeIndex);
         if ( configurationAttribute == null || configurationAttribute.relatedService == null ) {
             throw new InvalidAttributeValueException("You have configured attribute " + attributeIndex + " as a relationship but you have not defined a related service. Please update your configuration to include a related service for this attribute.");
         }
@@ -1071,6 +1079,10 @@ public class DataSetItem {
     }
 
     public DataSetItemAttachment addNewAttachmentForAttributeIndex(int attributeIndex) throws InvalidAttributeValueException {
+        return _addNewAttachmentForAttributeIndex(attributeIndex);
+    }
+
+    private DataSetItemAttachment _addNewAttachmentForAttributeIndex(int attributeIndex) throws InvalidAttributeValueException {
         validateGetterAttributeTypeForIndex(AttributeType.Attachments, attributeIndex);
         DataSetItemAttachment attachmentItem = new DataSetItemAttachment();
         DataSetItemAttribute attribute = attributeMap.get(attributeIndex);

@@ -58,10 +58,10 @@ public class InspectionSource_Internal extends BaseSource_Internal {
     }
 
     public Collection<ServiceConfigurationAttribute> getInspectionItemAttributes(AuthenticationInfo authenticationInfo, Parameters params) {
-        return dataSource.getInspectionItemAttributes(authenticationInfo, params);
+        return dataSource.getInspectionItemAttributes();
     }
     public Collection<ServiceConfigurationAttribute> getInspectionSearchAttributes(AuthenticationInfo authenticationInfo, Parameters parameters) {
-        return dataSource.getInspectionSearchAttributes(authenticationInfo, parameters);
+        return dataSource.getInspectionSearchAttributes();
     }
 
     public boolean shouldSendIncrementalUpdates() {

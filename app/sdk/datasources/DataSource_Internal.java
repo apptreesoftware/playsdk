@@ -8,7 +8,6 @@ import sdk.datasources.base.DataSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
-import sdk.utils.ServiceParameter;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,11 +32,11 @@ public class DataSource_Internal extends BaseSource_Internal {
 
     public ServiceConfiguration getConfiguration(AuthenticationInfo authenticationInfo, Parameters params) {
        if ( dataSource != null ) {
-           return dataSource.getConfiguration(authenticationInfo, params);
+           return dataSource.getConfiguration();
        } else if ( rxDataSource != null ) {
-           return rxDataSource.getConfiguration(authenticationInfo, params);
+           return rxDataSource.getConfiguration();
        } else if ( futureDataSource != null ) {
-           return futureDataSource.getConfiguration(authenticationInfo, params);
+           return futureDataSource.getConfiguration();
        }
        throw new RuntimeException("No data source available");
     }

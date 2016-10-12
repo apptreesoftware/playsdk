@@ -1,8 +1,9 @@
 package sdk.sample;
 
 import com.avaje.ebean.ExpressionList;
-import sdk.data.*;
-import sdk.datasources.DataSourceBase;
+import sdk.data.DataSet;
+import sdk.data.DataSetItem;
+import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.base.DataSource;
 import sdk.sample.model.WorkOrder;
 import sdk.utils.AuthenticationInfo;
@@ -20,7 +21,7 @@ public class WorkOrderDataSource implements DataSource {
 
     @Override
     public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
-        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        DataSet dataSet = newEmptyDataSet();
 
         List<WorkOrder> workOrders = SampleDatabase.getServer().find(WorkOrder.class).findList();
         for ( WorkOrder workOrder : workOrders ) {
@@ -32,7 +33,7 @@ public class WorkOrderDataSource implements DataSource {
 
     @Override
     public DataSet getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
-        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        DataSet dataSet = newEmptyDataSet();
         WorkOrder workOrder = SampleDatabase.getServer().find(WorkOrder.class,id);
         if ( workOrder != null ) {
             DataSetItem item = dataSet.addNewDataSetItem();
@@ -54,7 +55,7 @@ public class WorkOrderDataSource implements DataSource {
         if ( woNumber != null ) {
             expression.contains("number", woNumber);
         }
-        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        DataSet dataSet = newEmptyDataSet();
         expression.findEach(workOrder -> {
             DataSetItem item = dataSet.addNewDataSetItem();
             workOrder.copyIntoDataSetItem(item);
@@ -70,7 +71,7 @@ public class WorkOrderDataSource implements DataSource {
             server.insert(workOrder);
             server.refresh(workOrder);
         });
-        DataSet dataSet = newEmptyDataSet(authenticationInfo, params);
+        DataSet dataSet = newEmptyDataSet();
         DataSetItem responseItem = dataSet.addNewDataSetItem();
         workOrder.copyIntoDataSetItem(responseItem);
         return dataSet.withSuccessMessage("Record Created");
@@ -96,7 +97,7 @@ public class WorkOrderDataSource implements DataSource {
     }
 
     @Override
-    public List<ServiceConfigurationAttribute> getDataSetAttributes(AuthenticationInfo authenticationInfo, Parameters params) {
+    public List<ServiceConfigurationAttribute> getDataSetAttributes() {
         ArrayList<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         attributes.add(new ServiceConfigurationAttribute.Builder(WorkOrder.IDIndex)
                 .name("ID")

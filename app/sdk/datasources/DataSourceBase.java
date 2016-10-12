@@ -2,6 +2,7 @@ package sdk.datasources;
 
 import sdk.AppTreeSource;
 import sdk.data.DataSet;
+import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.utils.AuthenticationInfo;
@@ -25,11 +26,9 @@ public interface DataSourceBase extends AppTreeSource {
     /**
      * Return the configuration attributes you want to use for creating a DataSetItem
      *
-     * @param authenticationInfo
-     * @param parameters
      * @return a List of service attributes
      */
-    Collection<ServiceConfigurationAttribute> getDataSetAttributes(AuthenticationInfo authenticationInfo, Parameters parameters);
+    Collection<ServiceConfigurationAttribute> getDataSetAttributes();
 
     /**
      * Return any parameters that can be used to filter or modify how the service should behave. The builder read these in and allow the user to modify how the service behaves.
@@ -41,14 +40,12 @@ public interface DataSourceBase extends AppTreeSource {
     default List<ServiceParameter> getServiceFilterParameters() { return null; }
     /**
      *
-     * @param authenticationInfo a HashMap of any authentication parameters that came from the request headers
-     * @param params a HashMap of the URL parameters included in the request
      * @return The configuration response
      */
-    default ServiceConfiguration getConfiguration(AuthenticationInfo authenticationInfo, Parameters params) {
+    default ServiceConfiguration getConfiguration() {
         try {
             return new ServiceConfiguration.Builder(getServiceDescription()).
-                    withAttributes(getDataSetAttributes(authenticationInfo, params)).
+                    withAttributes(getDataSetAttributes()).
                     withServiceFilterParameters(getServiceFilterParameters()).
                     withDependentListRESTPaths(getDependentLists()).build();
         } catch (Exception e) {
@@ -66,8 +63,13 @@ public interface DataSourceBase extends AppTreeSource {
     }
 
 
-    default DataSet newEmptyDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
-        Collection<ServiceConfigurationAttribute> attributes = getDataSetAttributes(authenticationInfo, parameters);
+    default DataSet newEmptyDataSet() {
+        Collection<ServiceConfigurationAttribute> attributes = getDataSetAttributes();
         return new DataSet(attributes);
+    }
+
+    default DataSetItem newEmptyDataSetItem(AuthenticationInfo authenticationInfo, Parameters parameters) {
+        Collection<ServiceConfigurationAttribute> attributes = getDataSetAttributes();
+        return new DataSetItem(attributes);
     }
 }

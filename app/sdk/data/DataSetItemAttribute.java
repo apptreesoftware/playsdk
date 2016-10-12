@@ -250,6 +250,9 @@ public class DataSetItemAttribute {
      */
     public DateTimeRange getDateTimeRange() { return dateTimeRange; }
 
+    public AttributeType getAttributeType() {
+        return attributeType;
+    }
 
     public Object getJSONValue(boolean primaryKeyRequired) throws InvalidPrimaryKeyException {
         switch (attributeType) {

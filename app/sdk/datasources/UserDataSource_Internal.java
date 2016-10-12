@@ -1,15 +1,12 @@
 package sdk.datasources;
 
-import rx.Observable;
+import sdk.data.DataSet;
+import sdk.data.ServiceConfiguration;
+import sdk.data.User;
 import sdk.datasources.rx.UserDataSource;
-import sdk.user.User;
-import sdk.user.UserInfoKey;
-import sdk.user.UserInfoResponse;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
-import java.io.InputStream;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -17,124 +14,106 @@ import java.util.concurrent.CompletableFuture;
  * Copyright AppTree Software, Inc.
  */
 public class UserDataSource_Internal extends BaseSource_Internal {
-    private UserDataSource rxUserDataSource;
-    private sdk.datasources.base.UserDataSource userDataSource;
-    private sdk.datasources.future.UserDataSource futureUserDataSource;
+    private UserDataSource rxDataSource;
+    private sdk.datasources.base.UserDataSource dataSource;
+    private sdk.datasources.future.UserDataSource futureDataSource;
 
     public UserDataSource_Internal(UserDataSource dataSource) {
-        this.rxUserDataSource = dataSource;
+        this.rxDataSource = dataSource;
     }
 
     public UserDataSource_Internal(sdk.datasources.base.UserDataSource dataSource) {
-        this.userDataSource = dataSource;
+        this.dataSource = dataSource;
     }
-    public UserDataSource_Internal(sdk.datasources.future.UserDataSource dataSource) { this.futureUserDataSource = dataSource; }
+    public UserDataSource_Internal(sdk.datasources.future.UserDataSource dataSource) { this.futureDataSource = dataSource; }
 
-    public CompletableFuture<List<UserInfoKey>> getUserKeys(AuthenticationInfo authenticationInfo) {
-        if ( rxUserDataSource != null ) {
-            return observableToFuture(rxUserDataSource.getUserInfoKeys(authenticationInfo));
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> userDataSource.getUserInfoKeys(authenticationInfo));
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.getUserInfoKeys(authenticationInfo);
+    public ServiceConfiguration getConfiguration() {
+        if ( dataSource != null ) {
+            return dataSource.getConfiguration();
+        } else if ( rxDataSource != null ) {
+            return rxDataSource.getConfiguration();
+        } else if ( futureDataSource != null ) {
+            return futureDataSource.getConfiguration();
         }
         throw new RuntimeException("No data source available");
     }
 
-    public CompletableFuture<UserInfoResponse> getUserInfo(String userID, AuthenticationInfo authenticationInfo, Parameters params) {
-        if (rxUserDataSource != null) {
-            return observableToFuture(rxUserDataSource.getUserInfo(userID, authenticationInfo, params));
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> userDataSource.getUserInfo(userID, authenticationInfo, params));
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.getUserInfo(userID, authenticationInfo, params);
+    private DataSet newDataSet(AuthenticationInfo authenticationInfo, Parameters parameters) {
+        if ( dataSource != null ) {
+            return dataSource.newEmptyDataSet();
+        } else if ( rxDataSource != null ) {
+            return rxDataSource.newEmptyDataSet();
+        } else if ( futureDataSource != null ) {
+            return futureDataSource.newEmptyDataSet();
         }
         throw new RuntimeException("No data source available");
     }
 
-    /***
-     * Get the users 'avatar' image
-     * @return an InputStream for the users image data. JPG an PNG are supported by the client.
-     */
-    public CompletableFuture<InputStream> getUserImage() {
-        if (rxUserDataSource != null) {
-            return observableToFuture(rxUserDataSource.getUserImage());
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> userDataSource.getUserImage());
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.getUserImage();
+    public CompletableFuture<DataSet> getUser(String userID, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        CompletableFuture<User> userFuture = null;
+        if ( rxDataSource != null ) {
+            userFuture = observableToFuture(rxDataSource.getUser(userID, authenticationInfo, parameters));
+        } else if ( dataSource != null ) {
+            userFuture = CompletableFuture.supplyAsync(() -> dataSource.getUser(userID, authenticationInfo, parameters));
+        } else if ( futureDataSource != null ) {
+            userFuture = futureDataSource.getUser(userID, authenticationInfo, parameters);
+        } else {
+            throw new RuntimeException("No data source available");
         }
-        throw new RuntimeException("No data source available");
+        return userFuture.thenApply(user -> {
+            DataSet dataSet = newDataSet(authenticationInfo, parameters);
+            dataSet.add(user);
+            return dataSet;
+        });
     }
 
-    /**
-     * Checks to see if a user exists and returns the user information
-     * @param userID the user ID to look for
-     * @param source the source to look for the user in
-     * @param authenticationInfo authentication information, use this to validate the request has access to this user info
-     * @param params any additional url parameters
-     * @return an ATUserInfoResponse containing information about the requested user
-     */
-    public CompletableFuture<UserInfoResponse> checkForUser(String userID, String source, AuthenticationInfo authenticationInfo, Parameters params) {
-        if (rxUserDataSource != null) {
-            return observableToFuture(rxUserDataSource.checkForUser(userID, source, authenticationInfo, params));
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> userDataSource.checkForUser(userID, source, authenticationInfo, params));
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.checkForUser(userID, source, authenticationInfo, params);
+    public CompletableFuture<DataSet> createUser(User user, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        CompletableFuture<User> userFuture = null;
+        if ( rxDataSource != null ) {
+            userFuture = observableToFuture(rxDataSource.createUser(user));
+        } else if ( dataSource != null ) {
+            userFuture = CompletableFuture.supplyAsync(() -> dataSource.createUser(user));
+        } else if ( futureDataSource != null ) {
+            userFuture = futureDataSource.createUser(user);
+        } else {
+            throw new RuntimeException("No data source available");
         }
-        throw new RuntimeException("No data source available");
+        return userFuture.thenApply(updatedUser -> {
+            DataSet dataSet = newDataSet(authenticationInfo, parameters);
+            dataSet.add(user);
+            return dataSet;
+        });
     }
 
-    /**
-     * A notification that a user has been created in the portal
-     * @param user the ATUser that was created
-     * @param authenticationInfo authentication information
-     * @param params any additional url parameters
-     */
-    public CompletableFuture<Void> createUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params) {
-        if (rxUserDataSource != null) {
-            return observableToFuture(rxUserDataSource.createUserEvent(user, authenticationInfo, params));
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.runAsync(() -> userDataSource.createUserEvent(user, authenticationInfo, params));
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.createUserEvent(user, authenticationInfo, params);
+    public CompletableFuture<DataSet> updateUser(User user, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        CompletableFuture<User> userFuture = null;
+        if ( rxDataSource != null ) {
+            userFuture = observableToFuture(rxDataSource.updateUser(user));
+        } else if ( dataSource != null ) {
+            userFuture = CompletableFuture.supplyAsync(() -> dataSource.updateUser(user));
+        } else if ( futureDataSource != null ) {
+            userFuture = futureDataSource.updateUser(user);
+        } else {
+            throw new RuntimeException("No data source available");
         }
-        throw new RuntimeException("No data source available");
+        return userFuture.thenApply(updatedUser -> {
+            DataSet dataSet = newDataSet(authenticationInfo, parameters);
+            dataSet.add(user);
+            return dataSet;
+        });
     }
 
-    /**
-     * A notification that a user has been updated in the portal
-     * @param user the ATUser that was updated
-     * @param authenticationInfo authentication information
-     * @param params any additional url parameters
-     */
-    public CompletableFuture<Void> updateUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params) {
-        if (rxUserDataSource != null) {
-            return observableToFuture(rxUserDataSource.updateUserEvent(user, authenticationInfo, params));
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.runAsync(() -> userDataSource.updateUserEvent(user, authenticationInfo, params));
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.updateUserEvent(user, authenticationInfo, params);
+    public CompletableFuture<Boolean> deleteUser(User user) {
+        CompletableFuture<Boolean> userFuture = null;
+        if ( rxDataSource != null ) {
+            userFuture = observableToFuture(rxDataSource.deleteUser(user));
+        } else if ( dataSource != null ) {
+            userFuture = CompletableFuture.supplyAsync(() -> dataSource.deleteUser(user));
+        } else if ( futureDataSource != null ) {
+            userFuture = futureDataSource.deleteUser(user);
+        } else {
+            throw new RuntimeException("No data source available");
         }
-        throw new RuntimeException("No data source available");
+        return userFuture;
     }
-
-    /**
-     * A notification that a user has been deleted in the portal
-     * @param user the ATUser that was created
-     * @param authenticationInfo authentication information
-     * @param params any additional url parameters
-     */
-    public CompletableFuture<Void> deleteUserEvent(User user, AuthenticationInfo authenticationInfo, Parameters params) {
-        if (rxUserDataSource != null) {
-            return observableToFuture(rxUserDataSource.deleteUserEvent(user, authenticationInfo, params));
-        } else if ( userDataSource != null ) {
-            return CompletableFuture.runAsync(() -> userDataSource.deleteUserEvent(user, authenticationInfo, params));
-        } else if ( futureUserDataSource != null ) {
-            return futureUserDataSource.deleteUserEvent(user, authenticationInfo, params);
-        }
-        throw new RuntimeException("No data source available");
-    }
-
 }
