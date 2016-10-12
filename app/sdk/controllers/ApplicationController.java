@@ -12,7 +12,6 @@ import sdk.ValidateRequestAction;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.datasources.UserDataSource_Internal;
-import sdk.datasources.base.UserDataSource;
 
 import javax.inject.Inject;
 
@@ -27,6 +26,7 @@ public class ApplicationController extends Controller {
     public Result describeEndpoints() {
         ObjectNode objectNode = Json.newObject();
         objectNode.put("success", true);
+        objectNode.put("platformVersion", AppTree.getPlatformVersion());
         String hostURL = application.configuration().getString("host");
 
         ArrayNode records = objectNode.putArray("records");

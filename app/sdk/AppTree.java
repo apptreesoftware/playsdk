@@ -5,10 +5,10 @@ import play.Configuration;
 import play.Play;
 import sdk.attachment.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
-import sdk.datasources.*;
 import sdk.datacollection.DataCollectionSource;
-import sdk.datasources.base.InspectionSource;
+import sdk.datasources.*;
 import sdk.datasources.base.UserDataSource;
+import sdk.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -22,6 +22,10 @@ public class AppTree {
     private static AuthenticationSource authenticationSource;
     private static UserDataSource_Internal userDataSource;
     private static AttachmentDataSource attachmentDataSource;
+
+    public static String getPlatformVersion() {
+        return Constants.PLATFORM_VERSION;
+    }
 
     public static void registerDataSourceWithName(String name, DataSourceBase dataSource) {
         dataSources.putIfAbsent(name, dataSource);
