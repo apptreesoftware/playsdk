@@ -13,7 +13,7 @@ public class ServiceConfiguration extends Response {
     public List<ServiceConfigurationAttribute> attributes;
     private List<String> dependentListEndpoints;
     public List<ServiceParameter> serviceFilterParameters;
-
+    public HashMap<String, Object> contextInfo = new HashMap<>();
     /**
      * Creates a service configuration
      */
@@ -25,7 +25,9 @@ public class ServiceConfiguration extends Response {
      */
     public ServiceConfiguration(String name, Collection<ServiceConfigurationAttribute> attributes, List<ServiceParameter> serviceFilterParameters, List<String> dependentListEndpoints) {
         this.name = name;
-        this.attributes = new ArrayList<>(attributes);
+        if ( attributes != null ) {
+            this.attributes = new ArrayList<>(attributes);
+        }
         this.serviceFilterParameters = serviceFilterParameters;
         this.dependentListEndpoints = dependentListEndpoints;
     }
@@ -42,6 +44,7 @@ public class ServiceConfiguration extends Response {
         private List<ServiceParameter> serviceFilterParameters;
         private List<String> dependentLists = new ArrayList<String>();
         private String message;
+        private HashMap<String, Object> contextInfo = new HashMap<>();
 
         /**
          * Creates a service configuration builder
@@ -81,11 +84,10 @@ public class ServiceConfiguration extends Response {
             return this;
         }
 
-        Builder withMessage(String message) {
-            this.message = message;
+        public Builder withContext(String key, Object value) {
+            this.contextInfo.put(key, value);
             return this;
         }
-
 
         /**
          * Creates a service configuration with the specified builder parameters
@@ -99,6 +101,7 @@ public class ServiceConfiguration extends Response {
             }
             ServiceConfiguration configuration =  new ServiceConfiguration(name,attributes,serviceFilterParameters, dependentLists);
             configuration.message = this.message;
+            configuration.contextInfo = this.contextInfo;
             return configuration;
         }
 

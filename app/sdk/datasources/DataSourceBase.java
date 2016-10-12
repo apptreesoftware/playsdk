@@ -44,10 +44,12 @@ public interface DataSourceBase extends AppTreeSource {
      */
     default ServiceConfiguration getConfiguration() {
         try {
-            return new ServiceConfiguration.Builder(getServiceDescription()).
-                    withAttributes(getDataSetAttributes()).
-                    withServiceFilterParameters(getServiceFilterParameters()).
-                    withDependentListRESTPaths(getDependentLists()).build();
+            return new ServiceConfiguration.Builder(getServiceDescription())
+                    .withAttributes(getDataSetAttributes())
+                    .withServiceFilterParameters(getServiceFilterParameters())
+                    .withDependentListRESTPaths(getDependentLists())
+                    .build();
+
         } catch (Exception e) {
             return (ServiceConfiguration) new ServiceConfiguration("", null, null, null).setFailedWithMessage(e.getMessage());
         }
