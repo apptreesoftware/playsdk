@@ -32,16 +32,14 @@ public class WorkOrderDataSource implements DataSource {
     }
 
     @Override
-    public DataSet getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
-        DataSet dataSet = newEmptyDataSet();
+    public DataSetItem getRecord(String id, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = SampleDatabase.getServer().find(WorkOrder.class,id);
         if ( workOrder != null ) {
-            DataSetItem item = dataSet.addNewDataSetItem();
-            workOrder.copyIntoDataSetItem(item);
-        } else {
-            dataSet.withFailureMessage("Item with primary key " + id + " not found.");
+            DataSetItem dataSetItem = new DataSetItem(getAttributes());
+            workOrder.copyIntoDataSetItem(dataSetItem);
+            return dataSetItem;
         }
-        return dataSet;
+        throw new RuntimeException("Item with key " + id + " does not exist");
     }
 
     @Override
@@ -64,21 +62,20 @@ public class WorkOrderDataSource implements DataSource {
     }
 
     @Override
-    public DataSet createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public DataSetItem createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.copyFromDataSetItem(dataSetItem);
         SampleDatabase.getInstance().performTransaction(server -> {
             server.insert(workOrder);
             server.refresh(workOrder);
         });
-        DataSet dataSet = newEmptyDataSet();
-        DataSetItem responseItem = dataSet.addNewDataSetItem();
+        DataSetItem responseItem = new DataSetItem(getAttributes());
         workOrder.copyIntoDataSetItem(responseItem);
-        return dataSet.withSuccessMessage("Record Created");
+        return responseItem;
     }
 
     @Override
-    public DataSet updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public DataSetItem updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = SampleDatabase.getServer().find(WorkOrder.class, dataSetItem.getPrimaryKey());
         if ( workOrder == null ) {
             throw new RuntimeException("Record not found");
@@ -88,7 +85,7 @@ public class WorkOrderDataSource implements DataSource {
            server.save(workOrder);
             server.refresh(workOrder);
         });
-        return getDataSetItem(authenticationInfo, workOrder.id + "", params);
+        return getRecord(workOrder.id + "",authenticationInfo, params);
     }
 
     @Override
@@ -97,7 +94,7 @@ public class WorkOrderDataSource implements DataSource {
     }
 
     @Override
-    public List<ServiceConfigurationAttribute> getDataSetAttributes() {
+    public List<ServiceConfigurationAttribute> getAttributes() {
         ArrayList<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         attributes.add(new ServiceConfigurationAttribute.Builder(WorkOrder.IDIndex)
                 .name("ID")

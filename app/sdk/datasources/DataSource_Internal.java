@@ -30,7 +30,7 @@ public class DataSource_Internal extends BaseSource_Internal {
         }
     }
 
-    public ServiceConfiguration getConfiguration(AuthenticationInfo authenticationInfo, Parameters params) {
+    public ServiceConfiguration getConfiguration() {
        if ( dataSource != null ) {
            return dataSource.getConfiguration();
        } else if ( rxDataSource != null ) {
@@ -54,14 +54,17 @@ public class DataSource_Internal extends BaseSource_Internal {
 
     public CompletableFuture<DataSet> getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
         if ( dataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> dataSource.getDataSetItem(authenticationInfo,id, params));
+            return CompletableFuture.supplyAsync(() -> new DataSet(dataSource.getRecord(id, authenticationInfo, params)));
         } else if (futureDataSource != null) {
-            return futureDataSource.getDataSetItem(authenticationInfo, id, params);
+            return futureDataSource
+                    .getRecord(id, authenticationInfo, params)
+                    .thenApply(DataSet::new);
         } else if (rxDataSource != null) {
-            return observableToFuture(rxDataSource.getDataSetItem(authenticationInfo, id, params));
+            return observableToFuture(rxDataSource.getRecord(id, authenticationInfo, params).map(DataSet::new));
         }
         throw new RuntimeException("No data source available");
     }
+
 
     /**
      * @param queryDataItem The data set item containing the values to be searched on
@@ -88,11 +91,11 @@ public class DataSource_Internal extends BaseSource_Internal {
      */
     public CompletableFuture<DataSet> createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         if ( dataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> dataSource.createDataSetItem(dataSetItem, authenticationInfo, params));
+            return CompletableFuture.supplyAsync(() -> dataSource.createRecord(dataSetItem, authenticationInfo, params)).thenApply(DataSet::new);
         } else if (futureDataSource != null) {
-            return futureDataSource.createDataSetItem(dataSetItem, authenticationInfo, params);
+            return futureDataSource.createRecord(dataSetItem, authenticationInfo, params).thenApply(DataSet::new);
         } else if (rxDataSource != null) {
-            return observableToFuture(rxDataSource.createDataSetItem(dataSetItem, authenticationInfo, params));
+            return observableToFuture(rxDataSource.createRecord(dataSetItem, authenticationInfo, params).map(DataSet::new));
         }
         throw new RuntimeException("No data source available");
     }
@@ -105,11 +108,11 @@ public class DataSource_Internal extends BaseSource_Internal {
      */
     public CompletableFuture<DataSet> updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         if ( dataSource != null ) {
-            return CompletableFuture.supplyAsync(() -> dataSource.updateDataSetItem(dataSetItem, authenticationInfo, params));
+            return CompletableFuture.supplyAsync(() -> dataSource.updateRecord(dataSetItem, authenticationInfo, params)).thenApply(DataSet::new);
         } else if (futureDataSource != null) {
-            return futureDataSource.updateDataSetItem(dataSetItem, authenticationInfo, params);
+            return futureDataSource.updateRecord(dataSetItem, authenticationInfo, params).thenApply(DataSet::new);
         } else if (rxDataSource != null) {
-            return observableToFuture(rxDataSource.updateDataSetItem(dataSetItem, authenticationInfo, params));
+            return observableToFuture(rxDataSource.updateRecord(dataSetItem, authenticationInfo, params).map(DataSet::new));
         }
         throw new RuntimeException("No data source available");
     }

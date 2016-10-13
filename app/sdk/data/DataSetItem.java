@@ -31,6 +31,11 @@ public class DataSetItem {
     @JsonIgnore
     private HashMap<Integer, ServiceConfigurationAttribute> configurationMap;
 
+    @JsonIgnore
+    public Collection<ServiceConfigurationAttribute> getConfigurationAttributes() {
+        return configurationAttributes;
+    }
+
     public enum Type {
         Record("RECORD"),
         Attachment("ATTACHMENT");

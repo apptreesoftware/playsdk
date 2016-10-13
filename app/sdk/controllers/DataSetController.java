@@ -94,16 +94,11 @@ public class DataSetController extends DataController {
     }
 
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
-        Http.Request request = request();
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
 
         return CompletableFuture
-                .supplyAsync(() -> {
-                    AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-                    Parameters parameters = new Parameters(request.queryString());
-                    return dataSource.getConfiguration(authenticationInfo, parameters);
-                })
+                .supplyAsync(dataSource::getConfiguration)
                 .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
@@ -210,10 +205,6 @@ public class DataSetController extends DataController {
     }
 
     private CompletionStage<ServiceConfiguration> getServiceConfiguration(DataSource_Internal dataSource, Http.Request request) {
-        return CompletableFuture.supplyAsync(() -> {
-            AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-            Parameters parameters = new Parameters(request.queryString());
-            return dataSource.getConfiguration(authenticationInfo, parameters);
-        });
+        return CompletableFuture.supplyAsync(dataSource::getConfiguration);
     }
 }

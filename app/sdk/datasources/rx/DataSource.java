@@ -10,7 +10,6 @@ import sdk.utils.Parameters;
 import sdk.utils.Response;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by matthew on 9/6/16.
@@ -24,12 +23,15 @@ public interface DataSource extends DataSourceBase {
     Observable<DataSet> getDataSet(AuthenticationInfo authenticationInfo, Parameters params);
 
     /***
-     * @param authenticationInfo a HashMap of any authentication information that came through in the request headers from the mobile client
+     *
      * @param id       The ID of the item to fetch
-     * @param params   a HashMap of the URL parameters included in the request
+     * @param authenticationInfo a HashMap of any authentication information that came through in the request headers from the mobile client
+     * @param parameters   a HashMap of the URL parameters included in the request
      * @return The data source response that contains the data set item with the requested ID
      */
-    Observable<DataSet> getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params);
+
+    Observable<DataSetItem> getRecord(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
+
 
     /**
      * @param queryDataItem The data set item containing the values to be searched on
@@ -42,23 +44,15 @@ public interface DataSource extends DataSourceBase {
     }
 
     /**
+     *
      * @param dataSetItem The data set item to be created
      * @param authenticationInfo    a Hashmap of any authentication parameters that came through the request headers
      * @param params      a HashMap of the URL parameters included in the request
      * @return The data source response that contains the newly created data set item
      */
-    default Observable<DataSet> createDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new UnsupportedOperationException("Create is not supported on this web service");
-    }
 
-    /**
-     * @param dataSetItem The data set item to be updated
-     * @param authenticationInfo    a HashMap of any authentication parameters that came from the request headers
-     * @param params      a Hashmap of the URL parameters included in the request
-     * @return The DataSet that contains a single item that represents the updated item.
-     */
-    default Observable<DataSet> updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new UnsupportedOperationException("Update is not supported on this web service");
+    default Observable<DataSetItem> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        throw new UnsupportedOperationException("Create is not supported on this web service");
     }
 
     /**
@@ -70,6 +64,18 @@ public interface DataSource extends DataSourceBase {
      */
     default Observable<Response> updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
         return Observable.just(Response.success());
+    }
+
+    /**
+     *
+     * @param dataSetItem The data set item to be updated
+     * @param authenticationInfo    a HashMap of any authentication parameters that came from the request headers
+     * @param params      a Hashmap of the URL parameters included in the request
+     * @return The DataSet that contains a single item that represents the updated item.
+     */
+
+    default Observable<DataSetItem> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        throw new UnsupportedOperationException("Update is not supported on this web service");
     }
 
     /**

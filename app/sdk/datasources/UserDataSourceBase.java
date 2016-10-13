@@ -16,7 +16,7 @@ public interface UserDataSourceBase extends DataSourceBase {
         return "User";
     }
     @Override
-    default Collection<ServiceConfigurationAttribute> getDataSetAttributes() {
+    default Collection<ServiceConfigurationAttribute> getAttributes() {
         return User.getConfigurationAttributesWithCustomAttributes(getCustomUserAttributes());
     }
 
@@ -25,7 +25,7 @@ public interface UserDataSourceBase extends DataSourceBase {
     default ServiceConfiguration getConfiguration() {
         try {
             return new ServiceConfiguration.Builder(getServiceDescription())
-                    .withAttributes(getDataSetAttributes())
+                    .withAttributes(getAttributes())
                     .withServiceFilterParameters(getServiceFilterParameters())
                     .withDependentListRESTPaths(getDependentLists())
                     .withContext("userCreateSupported", userCreationSupported())

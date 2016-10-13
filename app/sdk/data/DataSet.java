@@ -31,6 +31,15 @@ public class DataSet extends Response {
         }
     }
 
+    public DataSet(DataSetItem item) {
+        dataSetItems = new ArrayList<>();
+        assert item.getConfigurationAttributes() != null;
+        for (ServiceConfigurationAttribute attribute : item.getConfigurationAttributes()) {
+            attributeConfigurationForIndexMap.put(attribute.getAttributeIndex(), attribute);
+        }
+        dataSetItems.add(item);
+    }
+
     @Nullable
     ServiceConfigurationAttribute getAttributeConfigurationForIndex(int index) {
         return attributeConfigurationForIndexMap.get(index);
