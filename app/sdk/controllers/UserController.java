@@ -3,10 +3,12 @@ package sdk.controllers;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
 import sdk.data.*;
+import sdk.data.deprecated.UserInfoResponse;
 import sdk.datasources.UserDataSource_Internal;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.JsonUtils;
@@ -32,7 +34,23 @@ public class UserController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request().headers());
         Parameters parameters = new Parameters(request().queryString());
         return dataSource.getUser(userID, authenticationInfo, parameters)
-                .thenApply(userDataSet -> ok(userDataSet.toJSON()))
+                .thenApply(userDataSet -> {
+                    if ( AppTree.getCoreFormatVersion().equals("5.4") ) {
+                        User user = (User) userDataSet.getDataSetItems().get(0);
+                        UserInfoResponse.Builder builder = new UserInfoResponse.Builder()
+                                .withSuccess(user.getUserID())
+                                .withUsername(user.getUsername())
+                                .withEmail(user.getEmail())
+                                .withFirstName(user.getFirstName())
+                                .withLastName(user.getLastName())
+                                .withPhoneNumber(user.getPhone());
+                        builder.withUserInfoValues(user.getCustomAttributeMap());
+                        return JsonUtils.toJson(builder.build());
+                    } else {
+                        return userDataSet.toJSON();
+                    }
+                })
+                .thenApply(Results::ok)
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 

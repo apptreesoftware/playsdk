@@ -94,6 +94,19 @@ public class User extends DataSetItem {
         return this.primaryKey;
     }
 
+    public HashMap<String, String> getCustomAttributeMap() {
+        HashMap<String, String> map = new HashMap<>();
+        for ( int i = CUSTOM_ATTRIBUTE_START_INDEX; i <= 80; i++ ) {
+            ServiceConfigurationAttribute attribute = configurationMap.get(i);
+            if ( attribute != null ) {
+                String value = getStringAttributeAtIndex(attribute.getAttributeIndex());
+                if ( value != null ) {
+                    map.put(attribute.getName(), value);
+                }
+            }
+        }
+        return map;
+    }
 
     public String getStringAttributeAtIndex(int attributeIndex) {
         return super.getStringAttributeAtIndex(attributeIndex + CUSTOM_ATTRIBUTE_START_INDEX);

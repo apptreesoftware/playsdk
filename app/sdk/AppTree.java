@@ -113,6 +113,17 @@ public class AppTree {
         return Play.application().configuration().getString("play.crypto.secret");
     }
 
+    public static String getCoreFormatVersion() {
+        String format = Constants.PLATFORM_VERSION;
+        Configuration configuration = Play.application().configuration().getConfig("apptree");
+        if ( configuration != null ) {
+            if ( configuration.getString("platform.version") != null ) {
+                format = configuration.getString("platform.version");
+            }
+        }
+        return format;
+    }
+
     public static String getHost() {
         return Play.application().configuration().getString("host");
     }

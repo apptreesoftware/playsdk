@@ -29,7 +29,7 @@ public class DataSetItem {
     Collection<ServiceConfigurationAttribute> configurationAttributes;
 
     @JsonIgnore
-    private HashMap<Integer, ServiceConfigurationAttribute> configurationMap;
+    protected HashMap<Integer, ServiceConfigurationAttribute> configurationMap;
 
     @JsonIgnore
     public Collection<ServiceConfigurationAttribute> getConfigurationAttributes() {
