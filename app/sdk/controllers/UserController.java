@@ -6,17 +6,16 @@ import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.ServiceConfiguration;
-import sdk.data.User;
+import sdk.data.*;
 import sdk.datasources.UserDataSource_Internal;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.JsonUtils;
 import sdk.utils.Parameters;
 import sdk.utils.ResponseExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -46,6 +45,26 @@ public class UserController extends DataController {
                 .supplyAsync(dataSource::getConfiguration)
                 .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    public CompletionStage<Result> getUserInfoKeys() {
+        UserDataSource_Internal dataSource = AppTree.getUserDataSource_internal();
+        if (dataSource == null) {
+            return CompletableFuture.completedFuture(notFound("No user data source has been provided"));
+        }
+        return CompletableFuture
+                .supplyAsync(dataSource::getConfiguration)
+                .thenApply(serviceConfiguration -> {
+                    ArrayList<String> keys = new ArrayList<String>();
+                    for (ServiceConfigurationAttribute attribute : serviceConfiguration.getAttributes() ) {
+                        if ( attribute.getAttributeIndex() >= User.CUSTOM_ATTRIBUTE_START_INDEX ) {
+                            keys.add(attribute.getName());
+                        }
+                    }
+                    return new UserStringListResponse(true, keys, "");
+                })
+                .thenApply(userStringListResponse -> ok(JsonUtils.toJson(userStringListResponse)));
+
     }
 
     @Override
@@ -84,5 +103,16 @@ public class UserController extends DataController {
                 .thenCompose(dataSetItem -> dataSource.updateUser((User)dataSetItem, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    private class UserStringListResponse {
+        public boolean success;
+        public List<String> records;
+        public String message;
+        UserStringListResponse(boolean success, List<String> sources, String message) {
+            this.success = success;
+            this.records = sources;
+            this.message = message;
+        }
     }
 }

@@ -13,11 +13,13 @@ POST        /auth/login                                                         
 POST        /auth/logout                                                                sdk.controllers.AuthenticationController.logout
 GET         /auth/validateToken                                                         sdk.controllers.AuthenticationController.validateToken
 
-#GET           /user/userInfoKeys                                                          sdk.controllers.UserController.getUserInfoKeys
+#For backwards compatability
+GET         /user/userInfoKeys                                                          sdk.controllers.UserController.getUserInfoKeys
+
 GET         /user/describe                                                              sdk.controllers.UserController.getConfiguration
 GET         /user/:userID                                                               sdk.controllers.UserController.getUserInfo(userID)
 POST        /user                                                                       sdk.controllers.UserController.createUser
-PUT         /user                                                                       sdk.controllers.UserController.updateUser
+PUT         /user                                                                       sdk.controllers.UserController.updateUser()
 #GET           /user/:userID/image                                                         sdk.controllers.UserController.getUserImage(userID)
 #POST          /user/checkForUserInfo                                                      sdk.controllers.UserController.checkForUserInfo
 #POST          /user/createUserEvent                                                       sdk.controllers.UserController.createUser
