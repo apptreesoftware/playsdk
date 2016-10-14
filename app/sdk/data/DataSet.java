@@ -3,6 +3,7 @@ package sdk.data;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
+import sdk.datasources.RecordActionResponse;
 import sdk.utils.Response;
 
 import javax.annotation.Nullable;
@@ -38,6 +39,21 @@ public class DataSet extends Response {
             attributeConfigurationForIndexMap.put(attribute.getAttributeIndex(), attribute);
         }
         dataSetItems.add(item);
+    }
+
+    public DataSet(RecordActionResponse response) {
+        dataSetItems = new ArrayList<>();
+        DataSetItem item = response.getDataSetItem();
+        if ( item != null ) {
+            assert item.getConfigurationAttributes() != null;
+            for (ServiceConfigurationAttribute attribute : item.getConfigurationAttributes()) {
+                attributeConfigurationForIndexMap.put(attribute.getAttributeIndex(), attribute);
+            }
+            dataSetItems.add(item);
+        }
+        setShowMessageAsAlert(response.isShowAsAlert());
+        setMessage(response.getMessage());
+        setSuccess(true);
     }
 
     @Nullable

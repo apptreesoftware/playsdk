@@ -22,6 +22,8 @@ public class ResponseExceptionHandler {
         Throwable rootCause = findRootCause(throwable, Integer.MAX_VALUE);
         if ( rootCause instanceof OnErrorThrowable.OnNextValue ) {
             throwable = findRootCause(throwable, 1);
+        } else {
+            throwable = rootCause;
         }
         throwable.printStackTrace();
         if ( throwable instanceof PrimaryObjectNotFoundException) {

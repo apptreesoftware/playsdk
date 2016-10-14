@@ -3,6 +3,7 @@ package sdk.datasources.future;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.Event;
+import sdk.datasources.RecordActionResponse;
 import sdk.datasources.DataSourceBase;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -49,7 +50,7 @@ public interface DataSource extends DataSourceBase {
      * @return The data source response that contains the newly created data set item
      */
 
-    default CompletableFuture<DataSetItem> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default CompletableFuture<RecordActionResponse> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Create is not supported on this web service");
     }
 
@@ -61,7 +62,7 @@ public interface DataSource extends DataSourceBase {
      * @return The DataSet that contains a single item that represents the updated item.
      */
 
-    default CompletableFuture<DataSetItem> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default CompletableFuture<RecordActionResponse> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Update is not supported on this web service");
     }
 

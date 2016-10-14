@@ -4,6 +4,7 @@ import com.avaje.ebean.ExpressionList;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfigurationAttribute;
+import sdk.datasources.RecordActionResponse;
 import sdk.datasources.base.DataSource;
 import sdk.sample.model.WorkOrder;
 import sdk.utils.AuthenticationInfo;
@@ -62,7 +63,7 @@ public class WorkOrderDataSource implements DataSource {
     }
 
     @Override
-    public DataSetItem createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public RecordActionResponse createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.copyFromDataSetItem(dataSetItem);
         SampleDatabase.getInstance().performTransaction(server -> {
@@ -71,11 +72,14 @@ public class WorkOrderDataSource implements DataSource {
         });
         DataSetItem responseItem = new DataSetItem(getAttributes());
         workOrder.copyIntoDataSetItem(responseItem);
-        return responseItem;
+        return new RecordActionResponse
+                .Builder()
+                .withRecord(responseItem)
+                .build();
     }
 
     @Override
-    public DataSetItem updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    public RecordActionResponse updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         WorkOrder workOrder = SampleDatabase.getServer().find(WorkOrder.class, dataSetItem.getPrimaryKey());
         if ( workOrder == null ) {
             throw new RuntimeException("Record not found");
@@ -85,7 +89,11 @@ public class WorkOrderDataSource implements DataSource {
            server.save(workOrder);
             server.refresh(workOrder);
         });
-        return getRecord(workOrder.id + "",authenticationInfo, params);
+        DataSetItem item = getRecord(workOrder.id + "",authenticationInfo, params);
+        return new RecordActionResponse
+                .Builder()
+                .withRecord(item)
+                .build();
     }
 
     @Override

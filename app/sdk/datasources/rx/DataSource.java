@@ -4,6 +4,7 @@ import rx.Observable;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.Event;
+import sdk.datasources.RecordActionResponse;
 import sdk.datasources.DataSourceBase;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -51,19 +52,8 @@ public interface DataSource extends DataSourceBase {
      * @return The data source response that contains the newly created data set item
      */
 
-    default Observable<DataSetItem> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default Observable<RecordActionResponse> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Create is not supported on this web service");
-    }
-
-    /**
-     *
-     * @param dataSetItemID the data set item ID that the event is related to
-     * @param event the ATEvent object
-     * @param authenticationInfo a HashMap of any authentication parameters that came from the request
-     * @param params a Parameters object of any URL parameters from the request
-     */
-    default Observable<Response> updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
-        return Observable.just(Response.success());
     }
 
     /**
@@ -74,8 +64,20 @@ public interface DataSource extends DataSourceBase {
      * @return The DataSet that contains a single item that represents the updated item.
      */
 
-    default Observable<DataSetItem> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+    default Observable<RecordActionResponse> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Update is not supported on this web service");
+    }
+
+
+    /**
+     *
+     * @param dataSetItemID the data set item ID that the event is related to
+     * @param event the ATEvent object
+     * @param authenticationInfo a HashMap of any authentication parameters that came from the request
+     * @param params a Parameters object of any URL parameters from the request
+     */
+    default Observable<Response> updateEventForDataSetItem(String dataSetItemID, Event event, AuthenticationInfo authenticationInfo, Parameters params) {
+        return Observable.just(Response.success());
     }
 
     /**
