@@ -22,7 +22,7 @@ public class User extends DataSetItem {
     private static int EMAIL_INDEX = 4;
     private static int PHONE_INDEX = 5;
 
-    public static int CUSTOM_ATTRIBUTE_START_INDEX = 30;
+    public static int CUSTOM_ATTRIBUTE_START_INDEX = 40;
 
     /***
      * Creates an DataSetItem using the configuration attributes provided. The service attributes passed in will be used to validate what data is being set on this DataSetItem.
