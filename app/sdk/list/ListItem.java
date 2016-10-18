@@ -132,6 +132,10 @@ public class ListItem {
         setAttributeForIndex(value, index);
     }
 
+    public void setBoolForAttributeIndex(boolean value, int index) {
+        setAttributeForIndex(value, index);
+    }
+
     public void setColorForAttributeIndex(Color color, int index) {
         setAttributeForIndex(color, index);
     }
