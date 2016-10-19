@@ -201,6 +201,7 @@ public class ListItem {
             gen.writeStartObject();
             gen.writeStringField("id", value.id);
             gen.writeStringField("value", value.value);
+            gen.writeStringField("parentID", value.parentID);
             if (value.latitude != -1000) {
                 gen.writeNumberField("latitude", value.latitude);
             }
