@@ -38,6 +38,24 @@ public class ServiceConfiguration extends Response {
     }
     public List<String> getDependentLists() { return dependentListEndpoints; }
 
+    public ServiceConfigurationAttribute getAttributeWithName(String name) {
+        for (ServiceConfigurationAttribute attribute : this.attributes ) {
+            if ( attribute.name.equals(name) ) {
+                return attribute;
+            }
+        }
+        return null;
+    }
+
+    public ServiceConfigurationAttribute getAttributeWithIndex(int index) {
+        for (ServiceConfigurationAttribute attribute : this.attributes ) {
+            if ( attribute.getAttributeIndex() == index ) {
+                return attribute;
+            }
+        }
+        return null;
+    }
+
     public static class Builder {
         String name;
         private Collection<ServiceConfigurationAttribute> attributes;

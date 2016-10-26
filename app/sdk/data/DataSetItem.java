@@ -36,6 +36,21 @@ public class DataSetItem {
         return configurationAttributes;
     }
 
+    public ServiceConfigurationAttribute getAttributeWithName(String name) {
+        if ( this.configurationAttributes == null ) return null;
+        for (ServiceConfigurationAttribute attribute : this.configurationAttributes ) {
+            if ( attribute.name.equals(name) ) {
+                return attribute;
+            }
+        }
+        return null;
+    }
+
+    public ServiceConfigurationAttribute getAttributeWithIndex(int index) {
+        if (configurationMap == null ) return null;
+        return configurationMap.get(index);
+    }
+
     public enum Type {
         Record("RECORD"),
         Attachment("ATTACHMENT");
