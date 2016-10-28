@@ -99,7 +99,7 @@ public class User extends DataSetItem {
         for ( int i = CUSTOM_ATTRIBUTE_START_INDEX; i <= 80; i++ ) {
             ServiceConfigurationAttribute attribute = configurationMap.get(i);
             if ( attribute != null ) {
-                String value = getStringAttributeAtIndex(attribute.getAttributeIndex());
+                String value = getStringAttributeAtIndex(attribute.getAttributeIndex() - CUSTOM_ATTRIBUTE_START_INDEX);
                 if ( value != null ) {
                     map.put(attribute.getName(), value);
                 }
