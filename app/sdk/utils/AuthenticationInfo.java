@@ -36,14 +36,14 @@ public class AuthenticationInfo {
      * @return The custom authentication value
      */
     public String getCustomAuthenticationParameter(String key) {
-        return extraAuthInfo.get(key);
+        return extraAuthInfo.get(key.toLowerCase());
     }
 
     public void setCustomAuthenticationParameter(String key, String value) {
-        extraAuthInfo.put(key, value);
+        extraAuthInfo.put(key.toLowerCase(), value);
     }
 
-    public void removeCustomAuthenticationParameter(String key) { extraAuthInfo.remove(key); }
+    public void removeCustomAuthenticationParameter(String key) { extraAuthInfo.remove(key.toLowerCase()); }
 
     public HashMap<String, String> getExtraAuthInfo() { return extraAuthInfo; }
 
@@ -54,7 +54,7 @@ public class AuthenticationInfo {
             } else if ( k.equalsIgnoreCase(USERNAME_TOKEN_HEADER) ) {
                 setUserID(v[0]);
             } else {
-                extraAuthInfo.putIfAbsent(k, v[0]);
+                extraAuthInfo.putIfAbsent(k.toLowerCase(), v[0]);
             }
         });
     }
