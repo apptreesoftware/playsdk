@@ -19,6 +19,8 @@ public class ListServiceConfiguration extends Response {
 
     public ArrayList<ListServiceConfigurationAttribute> getAttributes() { return this.attributes; }
 
+    public ListServiceConfiguration() {}
+
     /**
      *
      * @param parameters a list of parameters that can be used to filter or modify how the service should behave
