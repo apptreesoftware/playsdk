@@ -9,6 +9,8 @@ import rx.exceptions.OnErrorThrowable;
 import sdk.exceptions.AuthorizationException;
 import sdk.exceptions.PrimaryObjectNotFoundException;
 
+import static sdk.utils.Constants.SDK_ERROR_STATUS_CODE;
+
 /**
  * Created by Matthew Smith on 5/12/16.
  * Copyright AppTree Software, Inc.
@@ -34,7 +36,7 @@ public class ResponseExceptionHandler {
         } else if ( throwable instanceof AuthorizationException) {
             return Controller.unauthorized();
         }
-        return Controller.ok(JsonUtils.toJson(Response.fromException(throwable, async)));
+        return Controller.status(SDK_ERROR_STATUS_CODE,JsonUtils.toJson(Response.fromException(throwable, async)));
     }
 
     public static void updateCallbackWithException(WSRequest request, Throwable throwable) {

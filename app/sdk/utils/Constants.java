@@ -23,4 +23,6 @@ public class Constants {
     public static final String CORE_CALLBACK_TYPE_ERROR = "ERROR";
 
     public static final String PLATFORM_VERSION = "5.5";
+
+    public static final int SDK_ERROR_STATUS_CODE = 540;
 }
