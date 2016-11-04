@@ -4,7 +4,8 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   javaJdbc,
-  javaWs
+  javaWs,
+  cache
 )
 
 doc in Compile <<= target.map(_ / "none")

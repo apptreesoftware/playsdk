@@ -64,6 +64,7 @@ public class CacheListSQLGenerator {
             createTableSQL += "LATITUDE REAL, LONGITUDE REAL);";
             statement.executeUpdate(createTableSQL);
             statement.close();
+            createIndexes(connection);
             System.gc();
             parseListResponse(list, connection);
             outputPath = getTemporaryDirectoryPath() + File.separator + fileName + ".zip";
@@ -88,6 +89,57 @@ public class CacheListSQLGenerator {
         } finally {
             cleanup();
         }
+    }
+
+    private static void createIndexes(Connection connection) throws SQLException {
+
+        PreparedStatement indexStatement = connection.prepareStatement("Create INDEX list_item_index_id ON LIST_ITEM(ID COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_value ON LIST_ITEM(VALUE COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_1 ON LIST_ITEM(ATTRIBUTE01 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_2 ON LIST_ITEM(ATTRIBUTE02 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_3 ON LIST_ITEM(ATTRIBUTE03 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_4 ON LIST_ITEM(ATTRIBUTE04 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_5 ON LIST_ITEM(ATTRIBUTE05 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_6 ON LIST_ITEM(ATTRIBUTE06 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_7 ON LIST_ITEM(ATTRIBUTE07 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_8 ON LIST_ITEM(ATTRIBUTE08 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_9 ON LIST_ITEM(ATTRIBUTE09 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
+
+        indexStatement = connection.prepareStatement("Create INDEX list_item_index_10 ON LIST_ITEM(ATTRIBUTE10 COLLATE  NOCASE);");
+        indexStatement.execute();
+        indexStatement.close();
     }
 
     private static int parseListResponse(List list, Connection connection) throws SQLException {

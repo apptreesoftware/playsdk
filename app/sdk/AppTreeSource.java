@@ -4,6 +4,7 @@ import play.api.Logger;
 import play.api.Play;
 import play.db.Database;
 import play.libs.ws.WSClient;
+import play.cache.CacheApi;
 
 /**
  * Created by Matthew Smith on 5/12/16.
@@ -17,4 +18,5 @@ public interface AppTreeSource {
         return Play.current().injector().instanceOf(Logger.class);
     }
     default WSClient getWSClient() { return Play.current().injector().instanceOf(WSClient.class); }
+    default CacheApi getCache() { return Play.current().injector().instanceOf(CacheApi.class); }
 }
