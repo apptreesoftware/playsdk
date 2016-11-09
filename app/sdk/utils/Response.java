@@ -1,5 +1,7 @@
 package sdk.utils;
 
+import sdk.AppTree;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -8,7 +10,6 @@ public class Response {
     protected String message;
     protected boolean showMessageAsAlert;
     protected boolean async = false;
-
 
     public Response setFailedWithMessage(String message) {
         setSuccess(false);

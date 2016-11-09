@@ -1,5 +1,6 @@
 package sdk.data;
 
+import sdk.AppTree;
 import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
@@ -14,6 +15,7 @@ public class ServiceConfiguration extends Response {
     private List<String> dependentListEndpoints;
     public List<ServiceParameter> serviceFilterParameters;
     public HashMap<String, Object> contextInfo = new HashMap<>();
+    private String platformVersion;
     /**
      * Creates a service configuration
      */
@@ -30,6 +32,10 @@ public class ServiceConfiguration extends Response {
         }
         this.serviceFilterParameters = serviceFilterParameters;
         this.dependentListEndpoints = dependentListEndpoints;
+    }
+
+    public String getPlatformVersion() {
+        return AppTree.getPlatformVersion();
     }
 
     public String getName() { return name; }
