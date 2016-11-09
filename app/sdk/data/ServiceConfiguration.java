@@ -15,7 +15,6 @@ public class ServiceConfiguration extends Response {
     private List<String> dependentListEndpoints;
     public List<ServiceParameter> serviceFilterParameters;
     public HashMap<String, Object> contextInfo = new HashMap<>();
-    private String platformVersion;
     /**
      * Creates a service configuration
      */
