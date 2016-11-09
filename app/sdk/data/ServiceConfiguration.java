@@ -1,5 +1,6 @@
 package sdk.data;
 
+import sdk.AppTree;
 import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
@@ -30,6 +31,10 @@ public class ServiceConfiguration extends Response {
         }
         this.serviceFilterParameters = serviceFilterParameters;
         this.dependentListEndpoints = dependentListEndpoints;
+    }
+
+    public String getPlatformVersion() {
+        return AppTree.getPlatformVersion();
     }
 
     public String getName() { return name; }
