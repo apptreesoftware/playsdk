@@ -21,7 +21,6 @@ public class UserDataSource_Internal extends BaseSource_Internal {
     public UserDataSource_Internal(UserDataSource dataSource) {
         this.rxDataSource = dataSource;
     }
-
     public UserDataSource_Internal(sdk.datasources.base.UserDataSource dataSource) {
         this.dataSource = dataSource;
     }

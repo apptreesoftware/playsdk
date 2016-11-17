@@ -1,7 +1,11 @@
 package sdk.data;
 
+import org.apache.commons.io.IOUtils;
 import play.mvc.Http;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -46,6 +50,20 @@ public class DataSetItemAttachment extends DataSetItem {
 
     public Http.MultipartFormData.FilePart getAttachmentFileItem() {
         return attachmentFileItem;
+    }
+
+    public byte[] getAttachmentBytes() {
+        if ( attachmentFileItem != null ) {
+            File file = (File) attachmentFileItem.getFile();
+            if ( file != null ) {
+                try {
+                    return IOUtils.toByteArray(new FileInputStream(file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 
     public void setAttachmentFileItem(Http.MultipartFormData.FilePart attachmentFileItem) {

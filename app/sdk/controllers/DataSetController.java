@@ -8,10 +8,10 @@ import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
-import sdk.attachment.AttachmentDataSource;
 import sdk.data.DataSetItem;
 import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
+import sdk.datasources.AttachmentDataSource_Internal;
 import sdk.datasources.DataSource_Internal;
 import sdk.utils.*;
 
@@ -170,15 +170,14 @@ public class DataSetController extends DataController {
     }
 
     public CompletionStage<Result> getAttachment(String attachmentID) {
-        AttachmentDataSource source = AppTree.getAttachmentDataSource();
+        AttachmentDataSource_Internal source = AppTree.getAttachmentDataSource_internal();
         if ( source == null ) {
             return CompletableFuture.completedFuture(notFound("No attachment source provided"));
         }
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
-        return CompletableFuture
-                .supplyAsync(() -> source.getAttachment(attachmentID, authenticationInfo, parameters))
+        return source.getAttachment(attachmentID, authenticationInfo, parameters)
                 .thenApply(attachmentResponse -> {
                     String mimeType = attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream";
                     String filename = attachmentResponse.fileName != null ? attachmentResponse.fileName : UUID.randomUUID().toString();

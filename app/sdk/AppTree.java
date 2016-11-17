@@ -3,7 +3,7 @@ package sdk;
 import org.jetbrains.annotations.Nullable;
 import play.Configuration;
 import play.Play;
-import sdk.attachment.AttachmentDataSource;
+import sdk.datasources.base.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.datacollection.DataCollectionSource;
 import sdk.datasources.*;
@@ -21,7 +21,7 @@ public class AppTree {
 
     private static AuthenticationSource authenticationSource;
     private static UserDataSource_Internal userDataSource;
-    private static AttachmentDataSource attachmentDataSource;
+    private static AttachmentDataSource_Internal attachmentDataSource;
 
     public static String getPlatformVersion() {
         return Constants.PLATFORM_VERSION;
@@ -93,12 +93,18 @@ public class AppTree {
         return userDataSource;
     }
 
-    public static AttachmentDataSource getAttachmentDataSource() {
+    public static AttachmentDataSource_Internal getAttachmentDataSource_internal() {
         return attachmentDataSource;
     }
 
     public static void setAttachmentDataSource(AttachmentDataSource attachmentDataSource) {
-        AppTree.attachmentDataSource = attachmentDataSource;
+        AppTree.attachmentDataSource = new AttachmentDataSource_Internal(attachmentDataSource);
+    }
+    public static void setAttachmentDataSource(sdk.datasources.future.AttachmentDataSource attachmentDataSource) {
+        AppTree.attachmentDataSource = new AttachmentDataSource_Internal(attachmentDataSource);
+    }
+    public static void setAttachmentDataSource(sdk.datasources.rx.AttachmentDataSource attachmentDataSource) {
+        AppTree.attachmentDataSource = new AttachmentDataSource_Internal(attachmentDataSource);
     }
 
     public static boolean needsAPIKeyValidation() {

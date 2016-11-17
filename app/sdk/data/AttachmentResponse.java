@@ -1,6 +1,4 @@
-package sdk.attachment;
-
-import sdk.utils.Response;
+package sdk.data;
 
 import java.io.InputStream;
 
