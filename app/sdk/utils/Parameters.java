@@ -183,7 +183,7 @@ public class Parameters {
         int offset = 0;
 
         if ( parameters.get("offset") != null ) {
-            offset = Integer.parseInt("offset");
+            offset = Integer.parseInt(parameters.get("offset"));
         }
 
         return offset;
