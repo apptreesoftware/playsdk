@@ -258,6 +258,11 @@ public class ServiceConfigurationAttribute {
             return this;
         }
 
+        public Builder asText() {
+            mAttributeType = AttributeType.String;
+            return this;
+        }
+
         /**
          * Sets the attribute type as bool
          * @return the builder with bool type
