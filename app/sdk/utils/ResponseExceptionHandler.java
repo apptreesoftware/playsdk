@@ -9,6 +9,7 @@ import rx.exceptions.OnErrorThrowable;
 import sdk.exceptions.AuthorizationException;
 import sdk.exceptions.PrimaryObjectNotFoundException;
 
+import static sdk.utils.Constants.CORE_CALLBACK_TYPE_ERROR;
 import static sdk.utils.Constants.SDK_ERROR_STATUS_CODE;
 
 /**
@@ -41,6 +42,7 @@ public class ResponseExceptionHandler {
 
     public static void updateCallbackWithException(WSRequest request, Throwable throwable) {
         String message = "";
+        String coreCallbackType = CORE_CALLBACK_TYPE_ERROR;
         if ( throwable instanceof PrimaryObjectNotFoundException ) {
             if ( throwable.getMessage() != null ) {
                 message = Response.fromException(throwable, true).getMessage();
@@ -48,11 +50,12 @@ public class ResponseExceptionHandler {
                 message = "The data you are trying to access can not be found";
             }
         } else if ( throwable instanceof AuthorizationException ) {
+            coreCallbackType = Constants.CORE_CALLBACK_TYPE_AUTH_FAILURE;
             message = "Authorization Failed";
         } else {
             message = Response.fromException(throwable, true).getMessage();
         }
-        request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_ERROR);
+        request.setHeader(Constants.CORE_CALLBACK_TYPE, coreCallbackType);
         ObjectNode json = Json.newObject();
         json.put(Constants.CORE_CALLBACK_MESSAGE, message);
         request.setBody(json);
