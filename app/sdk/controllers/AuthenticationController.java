@@ -58,6 +58,13 @@ public class AuthenticationController extends Controller {
 
         return CompletableFuture
                 .supplyAsync(() -> source.validateAuthenticationInfo(authenticationInfo))
-                .thenApply(response -> ok(JsonUtils.toJson(response)));
+                .thenApply(result -> {
+                    if (!result) {
+                        return unauthorized();
+                    } else {
+                        return ok("");
+                    }
+                })
+                .exceptionally(ResponseExceptionHandler::handleException);
     }
 }
