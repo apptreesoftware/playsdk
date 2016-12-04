@@ -124,6 +124,12 @@ public class DataSetItemAttribute {
         dataSetItems.add(dataSetItem);
     }
 
+    public DataSetItemAttribute(DataSetItemAttachment dataSetItem) {
+        attributeType = AttributeType.Attachments;
+        dataSetItems = new ArrayList<>(1);
+        dataSetItems.add(dataSetItem);
+    }
+
     /**
      * Sets the list of data set item attributes
      * @param dataSetItems The list of data set item attributes

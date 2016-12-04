@@ -44,13 +44,10 @@ public class AuthenticationDataSource implements AuthenticationSource {
     }
 
     @Override
-    public Response validateAuthenticationInfo(AuthenticationInfo authenticationInfo) {
+    public boolean validateAuthenticationInfo(AuthenticationInfo authenticationInfo) {
         Session session = SampleDatabase.getServer().find(Session.class)
                 .where().eq("token", authenticationInfo.getToken()).findUnique();
-        if ( session == null ) {
-            return new Response(false, "Invalid session");
-        }
-        return new Response(true,null);
+        return session != null;
     }
 
     private Session createSession(User user) {
