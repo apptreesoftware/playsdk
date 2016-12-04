@@ -4,6 +4,7 @@ import rx.Observable;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.datasources.InspectionSourceBase;
+import sdk.datasources.RecordActionResponse;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
@@ -16,7 +17,7 @@ public interface InspectionSource extends InspectionSourceBase {
 
     Observable<DataSet> startInspection(DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters);
     Observable<DataSet> completeInspection(DataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters);
-    default Observable<DataSet> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    default Observable<RecordActionResponse> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         throw new UnsupportedOperationException("updateInspectionItem not supported on this data source");
     }
 }

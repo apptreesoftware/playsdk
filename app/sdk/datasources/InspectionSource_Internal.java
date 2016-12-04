@@ -45,7 +45,7 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
-    public CompletableFuture<DataSet> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public CompletableFuture<RecordActionResponse> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
             return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters));
         } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
