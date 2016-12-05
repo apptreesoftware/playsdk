@@ -1,5 +1,6 @@
 package sdk.emailNotifications;
 
+import play.Play;
 import play.libs.ws.WSRequest;
 import sdk.AppTreeSource;
 import sdk.utils.Constants;
@@ -10,20 +11,17 @@ import sdk.utils.JsonUtils;
  */
 public class EmailUtils implements AppTreeSource {
     private String coreURL;
-    private static String defaultCoreURL = "https://services1.apptreesoftware.com";
     private static EmailUtils instance;
 
     private EmailUtils(String url) {
         coreURL = url;
     }
 
-    public static void setDefaultCoreURL(String url) {
-        defaultCoreURL = url;
-    }
-
     public static EmailUtils getDefaultInstance() {
         if ( instance == null ) {
-            instance = new EmailUtils(defaultCoreURL);
+            String url = Play.application().configuration().getString("coreURL");
+            if ( url == null ) url = Constants.defaultCoreURL;
+            instance = new EmailUtils(url);
         }
         return instance;
     }

@@ -1,6 +1,7 @@
 package sdk.pushNotifications;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.typesafe.config.ConfigFactory;
 import play.libs.ws.WSRequest;
 import sdk.AppTreeSource;
 import sdk.utils.Constants;
@@ -15,13 +16,12 @@ import java.util.concurrent.CompletionStage;
  */
 public class PushNotificationUtils implements AppTreeSource {
     private String coreURL;
-    private static String defaultCoreURL = "https://services1.apptreesoftware.com";
     private static PushNotificationUtils instance;
-
-    public static void setDefaultNotificationCoreURL(String url) { defaultCoreURL = url; }
 
     public static PushNotificationUtils getDefaultInstance() {
         if ( instance == null ) {
+            String defaultCoreURL = ConfigFactory.load().getString("coreURL");
+            if ( defaultCoreURL == null ) defaultCoreURL = Constants.defaultCoreURL;
             instance = new PushNotificationUtils(defaultCoreURL);
         }
         return instance;
