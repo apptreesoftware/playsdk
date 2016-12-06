@@ -23,6 +23,8 @@ public class Constants {
     public static final String CORE_CALLBACK_TYPE_ERROR = "ERROR";
     public static final String CORE_CALLBACK_TYPE_AUTH_FAILURE = "AUTHORIZATION_FAILURE";
 
+    public static final String defaultCoreURL = "https://services1.apptreesoftware.com";
+
     public static final String PLATFORM_VERSION = "5.5";
 
     public static final int SDK_ERROR_STATUS_CODE = 540;
