@@ -2,6 +2,7 @@ package sdk.datasources;
 
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
+import sdk.data.InspectionDataSet;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.base.InspectionSource;
 import sdk.utils.AuthenticationInfo;
@@ -33,7 +34,7 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
-    public CompletableFuture<DataSet> completeInspection(DataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public CompletableFuture<DataSet> completeInspection(InspectionDataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
             return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).completeInspection(completedDataSet, authenticationInfo, parameters));
         } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
@@ -45,14 +46,14 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
-    public CompletableFuture<RecordActionResponse> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    public CompletableFuture<DataSet> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
-            return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters));
+            return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters)).thenApply(DataSet::new);
         } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
-            return ((sdk.datasources.future.InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters);
+            return ((sdk.datasources.future.InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters).thenApply(DataSet::new);
         } else if (dataSource instanceof sdk.datasources.rx.InspectionSource) {
             sdk.datasources.rx.InspectionSource source = (sdk.datasources.rx.InspectionSource) dataSource;
-            return observableToFuture(source.updateInspectionItem(dataSetItem, authenticationInfo, parameters));
+            return observableToFuture(source.updateInspectionItem(dataSetItem, authenticationInfo, parameters).map(DataSet::new));
         }
         throw new RuntimeException("No data source defined");
     }

@@ -25,7 +25,7 @@ public class DataSetItem {
     private String clientKey;
     private int maxAttributeIndex = -1;
     private CRUDStatus crudStatus = CRUDStatus.Read;
-    private DataCollectionStatus dataCollectionStatus = DataCollectionStatus.None;
+    private Status status = Status.None;
     Collection<ServiceConfigurationAttribute> configurationAttributes;
 
     @JsonIgnore
@@ -123,13 +123,13 @@ public class DataSetItem {
         }
     }
 
-    public enum DataCollectionStatus {
+    public enum Status {
         None("NONE"),
         Complete("COMPLETE"),
         Exception("EXCEPTION");
 
         private final String stringValue;
-        private DataCollectionStatus(final String text) {
+        private Status(final String text) {
             this.stringValue = text;
         }
 
@@ -143,7 +143,7 @@ public class DataSetItem {
          * @param string The name of the assessment status
          * @return
          */
-        public static DataCollectionStatus fromString(String string) {
+        public static Status fromString(String string) {
             if ( string == null ) {
                 return None;
             }
@@ -244,16 +244,16 @@ public class DataSetItem {
      * Gets the assessment status
      * @return
      */
-    public DataCollectionStatus getDataCollectionStatus() {
-        return dataCollectionStatus;
+    public Status getStatus() {
+        return status;
     }
 
     /**
      * Sets the assessment status
-     * @param DataCollectionStatus
+     * @param status
      */
-    public void setDataCollectionStatus(DataCollectionStatus DataCollectionStatus) {
-        dataCollectionStatus = DataCollectionStatus;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     /**
@@ -900,7 +900,7 @@ public class DataSetItem {
         json.put("CRUDStatus", crudStatus.stringValue);
         json.put("clientKey", clientKey);
         json.put("recordType", getItemType().stringValue);
-        json.put("DataCollectionStatus",dataCollectionStatus.stringValue);
+        json.put("status", status.stringValue);
 
         ArrayNode attributes = json.putArray("attributes");
         int firstNullIndex = -1;
@@ -935,7 +935,7 @@ public class DataSetItem {
     public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap, boolean search) {
         primaryKey = json.path("primaryKey").textValue();
         crudStatus = CRUDStatus.fromString(json.path("CRUDStatus").textValue());
-        dataCollectionStatus = DataCollectionStatus.fromString(json.path("DataCollectionStatus").textValue());
+        status = Status.fromString(json.path("status").textValue());
         clientKey = json.path("clientKey").textValue();
         ArrayNode attributes = (ArrayNode) json.path("attributes");
         IntStream.range(0, attributes.size())

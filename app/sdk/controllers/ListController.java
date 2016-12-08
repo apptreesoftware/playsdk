@@ -12,19 +12,16 @@ import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
-import sdk.datasources.ListDataSource;
 import sdk.datasources.ListDataSource_Internal;
-import sdk.datasources.base.CacheableList;
-import sdk.datasources.base.SearchableList;
-import sdk.list.*;
+import sdk.list.CacheListSQLGenerator;
+import sdk.list.ListDataSourceResponse;
+import sdk.list.ListServiceConfiguration;
 import sdk.utils.*;
 
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static sdk.utils.CallbackLogger.logCallbackInfo;
 import static sdk.utils.CallbackLogger.logExceptionCallback;
@@ -58,7 +55,7 @@ public class ListController extends Controller {
         }
         String callbackURL = request.getHeader(CORE_CALLBACK_URL);
         final boolean json = useJSON;
-        ListDataSource_Internal dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
+        ListDataSource_Internal dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source " + listName));
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         if (callbackURL != null) {

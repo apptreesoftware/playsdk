@@ -1,11 +1,15 @@
 package sdk.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import sdk.AppTree;
-import sdk.data.DataSet;
+import sdk.ValidateRequestAction;
 import sdk.data.DataSetItem;
+import sdk.data.InspectionDataSet;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.InspectionSource_Internal;
@@ -15,6 +19,8 @@ import sdk.utils.*;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import static sdk.utils.Constants.AppTreeDateTimeFormat;
 
 /**
  * Created by Matthew Smith on 8/30/16.
@@ -34,6 +40,7 @@ public class InspectionController extends DataController {
     }
 
     @BodyParser.Of(BodyParser.Json.class)
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> startInspection(String dataSetName) {
         Http.Request request = request();
         InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
@@ -56,7 +63,23 @@ public class InspectionController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
+    @With({ValidateRequestAction.class})
+    public CompletionStage<Result> updateInspectionItem(String dataSetName) {
+        Http.Request request = request();
+        InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
+        if ( dataSource == null ) {
+            return CompletableFuture.completedFuture(notFound());
+        }
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        return getConfiguration(dataSource, request)
+                .thenCompose(inspectionConfiguration -> dataSetItemFromRequest(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
+                .thenCompose(dataSetItem -> dataSource.updateInspectionItem(dataSetItem, authenticationInfo, parameters))
+                .thenApply(dataSet -> ok(dataSet.toJSON()));
+    }
+
     @BodyParser.Of(BodyParser.Json.class)
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> completeInspection(String dataSetName) {
         System.out.println("The complete call has reached the connector");
         Http.Request request = request();
@@ -68,7 +91,8 @@ public class InspectionController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         return getConfiguration(dataSource, request)
-                .thenCompose(inspectionConfiguration -> dataSetFromRequest(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
+                .thenApply(InspectionConfiguration::getInspectionServiceConfiguration)
+                .thenCompose(inspectionConfiguration -> completedInspectionDataSet(inspectionConfiguration, request))
                 .thenCompose(dataSet -> {
                     if ( callbackURL != null ) {
                         completeInspection(dataSource, dataSet, callbackURL, authenticationInfo, parameters);
@@ -80,7 +104,7 @@ public class InspectionController extends DataController {
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
-    private void completeInspection(InspectionSource_Internal dataSource, DataSet completedDataSet, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+    private void completeInspection(InspectionSource_Internal dataSource, InspectionDataSet completedDataSet, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
         dataSource.completeInspection(completedDataSet, authenticationInfo, parameters)
                 .whenComplete((dataSet, throwable) -> {
                     if ( throwable != null ) {
@@ -121,5 +145,37 @@ public class InspectionController extends DataController {
         });
     }
 
+    private CompletionStage<InspectionDataSet> completedInspectionDataSet(ServiceConfiguration configuration, Http.Request request) {
+        JsonNode jsonNode = request.body().asJson();
+        InspectionDataSet dataSet = new InspectionDataSet(configuration.attributes);
+        dataSet.setTotalRecords(jsonNode.get("totalRecords").asInt(0));
+        String dateString = jsonNode.get("startDate").asText();
+        if ( dateString != null ) {
+            try {
+                dataSet.setStartDate(AppTreeDateTimeFormat.parseDateTime(dateString));
+            } catch (Exception ignored) {}
+        }
+        dateString = jsonNode.get("endDate").asText();
+        if ( dateString != null ) {
+            try {
+                dataSet.setEndDate(AppTreeDateTimeFormat.parseDateTime(dateString));
+            } catch (Exception ignored) {}
+        }
+        String collectionStateString = jsonNode.get("state").asText();
+        if (collectionStateString != null) {
+            dataSet.setStatus(InspectionDataSet.CollectionState.valueOf(collectionStateString));
+        }
 
+        JsonNode records = jsonNode.get("records");
+        if ( records != null && records.isArray() ) {
+            for ( JsonNode dataSetItemNode : records ) {
+                if ( dataSetItemNode.isArray() ) {
+                    dataSetItemNode = dataSetItemNode.get(0);
+                }
+                dataSetItemForJSON((ObjectNode)dataSetItemNode, dataSet, false, null);
+            }
+        }
+        return CompletableFuture.completedFuture(dataSet);
+        //return dataSet;
+    }
 }
