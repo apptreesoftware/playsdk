@@ -1,9 +1,6 @@
 package sdk.datasources;
 
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.InspectionDataSet;
-import sdk.data.ServiceConfigurationAttribute;
+import sdk.data.*;
 import sdk.datasources.base.InspectionSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -56,6 +53,14 @@ public class InspectionSource_Internal extends BaseSource_Internal {
             return observableToFuture(source.updateInspectionItem(dataSetItem, authenticationInfo, parameters).map(DataSet::new));
         }
         throw new RuntimeException("No data source defined");
+    }
+
+    public ServiceConfiguration getInspectionConfiguration() {
+        return dataSource.getInspectionDataSource().getConfiguration();
+    }
+
+    public ServiceConfiguration getInspectionSearchConfiguration() {
+        return dataSource.getInspectionSearchDataSource().getConfiguration();
     }
 
     public Collection<ServiceConfigurationAttribute> getInspectionItemAttributes(AuthenticationInfo authenticationInfo, Parameters params) {

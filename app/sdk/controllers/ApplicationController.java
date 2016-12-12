@@ -47,8 +47,12 @@ public class ApplicationController extends Controller {
         });
         AppTree.inspectionSources.forEach((endpoint, datasource) -> {
             String name = datasource.getServiceName() != null ? datasource.getServiceName() : endpoint;
-            String url = hostURL + "/inspection/" + endpoint;
-            addEndpoint("inspection/" + endpoint, name, url, "inspection", records);
+            String searchEndpoint = "inspection/" + endpoint + "/search";
+            String inspectEndpoint = "inspection/" + endpoint + "/inspect";
+            String searchName = name + " " + "Search";
+            String inspectName = name + " " + "Inspect";
+            addEndpoint(searchEndpoint, searchName, hostURL + "/" + searchEndpoint, "data", records, endpoint, "inspection");
+            addEndpoint(inspectEndpoint, inspectName, hostURL + "/" + inspectEndpoint, "data", records, endpoint, "inspection");
         });
         UserDataSource_Internal userDataSource = AppTree.getUserDataSource_internal();
         if ( userDataSource != null ) {
@@ -66,11 +70,19 @@ public class ApplicationController extends Controller {
     }
 
     private void addEndpoint(String endpoint, String name, String url, String type, ArrayNode records) {
+        addEndpoint(endpoint, name, url, type, records, null, null);
+    }
+
+    private void addEndpoint(String endpoint, String name, String url, String type, ArrayNode records, String group, String groupType) {
         ObjectNode endpointJSON = Json.newObject();
         endpointJSON.put("endpoint", endpoint);
         endpointJSON.put("name", name);
         endpointJSON.put("type", type);
         endpointJSON.put("url", url);
+        if ( group != null ) {
+            endpointJSON.put("group", group);
+            endpointJSON.put("groupType", groupType);
+        }
         records.add(endpointJSON);
     }
 

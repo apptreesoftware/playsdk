@@ -47,10 +47,12 @@ GET         /datacollection/:endpoint/:sessionID/:dataSetID/searchForDataSetItem
 POST        /datacollection/:endpoint/:sessionID/event                                  sdk.controllers.DataCollectionController.postEvent(endpoint, sessionID)
 POST        /datacollection/:endpoint/:sessionID/submit                                 sdk.controllers.DataCollectionController.submit(endpoint, sessionID)
 
-GET         /inspection/:endpoint/describe                                              sdk.controllers.InspectionController.getConfiguration(endpoint)
-POST        /inspection/:endpoint/start                                                 sdk.controllers.InspectionController.startInspection(endpoint)
-PUT         /inspection/:endpoint/updateInspectionItem                                  sdk.controllers.InspectionController.updateInspectionItem(endpoint)
-PUT         /inspection/:endpoint/complete                                              sdk.controllers.InspectionController.completeInspection(endpoint)
+GET         /inspection/:endpoint/inspect/describe                                      sdk.controllers.InspectionController.getInspectionConfiguration(endpoint)
+GET         /inspection/:endpoint/search/describe                                       sdk.controllers.InspectionController.getInspectionSearchConfiguration(endpoint)
+
+POST        /inspection/:endpoint/search                                                sdk.controllers.InspectionController.startInspection(endpoint)
+PUT         /inspection/:endpoint/inspect                                               sdk.controllers.InspectionController.updateInspectionItem(endpoint)
+PUT         /inspection/:endpoint/inspect/complete                                      sdk.controllers.InspectionController.completeInspection(endpoint)
 
 GET         /attachments/:attachmentID                                                  sdk.controllers.DataSetController.getAttachment(attachmentID : String)
 

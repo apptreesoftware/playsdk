@@ -28,13 +28,22 @@ import static sdk.utils.Constants.AppTreeDateTimeFormat;
  */
 public class InspectionController extends DataController {
 
-    public CompletionStage<Result> getConfiguration(String dataSetName) {
-        Http.Request request = request();
+    public CompletionStage<Result> getInspectionConfiguration(String dataSetName) {
         InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound());
         }
-        return getConfiguration(dataSource, request)
+        return CompletableFuture.supplyAsync(dataSource::getInspectionConfiguration)
+                .thenApply(response -> ok(JsonUtils.toJson(response)))
+                .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    public CompletionStage<Result> getInspectionSearchConfiguration(String dataSetName) {
+        InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
+        if ( dataSource == null ) {
+            return CompletableFuture.completedFuture(notFound());
+        }
+        return CompletableFuture.supplyAsync(dataSource::getInspectionSearchConfiguration)
                 .thenApply(response -> ok(JsonUtils.toJson(response)))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
