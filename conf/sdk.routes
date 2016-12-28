@@ -53,6 +53,7 @@ GET         /inspection/:endpoint/search/describe                               
 POST        /inspection/:endpoint/search                                                sdk.controllers.InspectionController.startInspection(endpoint)
 PUT         /inspection/:endpoint/inspect                                               sdk.controllers.InspectionController.updateInspectionItem(endpoint)
 PUT         /inspection/:endpoint/inspect/complete                                      sdk.controllers.InspectionController.completeInspection(endpoint)
+POST        /inspection/:endpoint/inspect/search                                        sdk.controllers.InspectionController.searchInspectionItem(endpoint)
 
 GET         /attachments/:attachmentID                                                  sdk.controllers.DataSetController.getAttachment(attachmentID : String)
 

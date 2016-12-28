@@ -18,6 +18,9 @@ public interface InspectionSource extends InspectionSourceBase {
 
     DataSet startInspection(DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters);
     DataSet completeInspection(InspectionDataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters);
+    default DataSetItem searchForInspectionItem(String primaryKey, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new UnsupportedOperationException("searchForInspectionItem not supported on this data source");
+    }
 
     default RecordActionResponse updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         throw new UnsupportedOperationException("updateInspectionItem not supported on this data source");

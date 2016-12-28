@@ -43,6 +43,19 @@ public class InspectionSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source defined");
     }
 
+    public CompletableFuture<DataSet> searchInspectionItem(String primaryKey, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        if ( dataSource instanceof InspectionSource ) {
+            return CompletableFuture.supplyAsync(() -> ((InspectionSource) dataSource)
+                    .searchForInspectionItem(primaryKey, authenticationInfo, parameters))
+                    .thenApply(DataSet::new);
+        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
+            return ((sdk.datasources.future.InspectionSource) dataSource).searchForInspectionItem(primaryKey, authenticationInfo, parameters).thenApply(DataSet::new);
+        } else if ( dataSource instanceof sdk.datasources.rx.InspectionSource ) {
+            return observableToFuture(((sdk.datasources.rx.InspectionSource) dataSource).searchForInspectionItem(primaryKey, authenticationInfo, parameters).map(DataSet::new));
+        }
+        throw new RuntimeException("No data source defined");
+    }
+
     public CompletableFuture<DataSet> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         if ( dataSource instanceof InspectionSource ) {
             return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).updateInspectionItem(dataSetItem, authenticationInfo, parameters)).thenApply(DataSet::new);

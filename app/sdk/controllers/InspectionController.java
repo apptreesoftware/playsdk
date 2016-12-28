@@ -87,6 +87,30 @@ public class InspectionController extends DataController {
                 .thenApply(dataSet -> ok(dataSet.toJSON()));
     }
 
+    public CompletionStage<Result> searchInspectionItem(String dataSetName) {
+        InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
+        Http.Request request = request();
+        if ( dataSource == null ) {
+            return CompletableFuture.completedFuture(notFound());
+        }
+        JsonNode json = request.body().asJson();
+        if ( json == null || !json.has("id") ) {
+            return CompletableFuture.completedFuture(badRequest("No ID was provided"));
+        }
+        String id = json.get("id").asText();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
+
+        if (callbackURL != null) {
+            searchInspectionItem(dataSource, id, callbackURL, authenticationInfo, parameters);
+            return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+        } else {
+            return dataSource.searchInspectionItem(id, authenticationInfo, parameters)
+                    .thenApply(response -> ok(JsonUtils.toJson(response)));
+        }
+    }
+
     @BodyParser.Of(BodyParser.Json.class)
     @With({ValidateRequestAction.class})
     public CompletionStage<Result> completeInspection(String dataSetName) {
@@ -131,6 +155,17 @@ public class InspectionController extends DataController {
                         sendDataSetExceptionCallback(throwable, callbackURL);
                     } else {
                         sendDataSetResponse(dataSet, callbackURL);
+                    }
+                });
+    }
+
+    private void searchInspectionItem(InspectionSource_Internal dataSource, String primaryKey, String callbackUrl, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.searchInspectionItem(primaryKey, authenticationInfo, parameters)
+                .whenComplete((dataSet, throwable) -> {
+                    if ( throwable != null ) {
+                        sendDataSetExceptionCallback(throwable, callbackUrl);
+                    } else {
+                        sendDataSetResponse(dataSet, callbackUrl);
                     }
                 });
     }

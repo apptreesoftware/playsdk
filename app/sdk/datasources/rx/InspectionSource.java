@@ -7,12 +7,10 @@ import sdk.data.InspectionDataSet;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.InspectionSourceBase;
 import sdk.datasources.RecordActionResponse;
-import sdk.datasources.base.*;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by matthew on 9/6/16.
@@ -21,6 +19,11 @@ public interface InspectionSource extends InspectionSourceBase {
 
     Observable<DataSet> startInspection(DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters);
     Observable<DataSet> completeInspection(InspectionDataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters);
+
+    default Observable<DataSetItem> searchForInspectionItem(String primaryKey, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new UnsupportedOperationException("searchForInspectionItem not supported on this data source");
+    }
+
     default Observable<RecordActionResponse> updateInspectionItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
         throw new UnsupportedOperationException("updateInspectionItem not supported on this data source");
     }
