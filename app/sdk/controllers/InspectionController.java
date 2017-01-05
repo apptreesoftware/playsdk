@@ -16,7 +16,11 @@ import sdk.datasources.InspectionSource_Internal;
 import sdk.inspection.InspectionConfiguration;
 import sdk.utils.*;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -79,11 +83,12 @@ public class InspectionController extends DataController {
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound());
         }
+        Map<String,String> contextMap = getContextFromRequest(request);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         return getConfiguration(dataSource, request)
                 .thenCompose(inspectionConfiguration -> dataSetItemFromRequest(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
-                .thenCompose(dataSetItem -> dataSource.updateInspectionItem(dataSetItem, authenticationInfo, parameters))
+                .thenCompose(dataSetItem -> dataSource.updateInspectionItem(dataSetItem,contextMap, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()));
     }
 
@@ -93,20 +98,16 @@ public class InspectionController extends DataController {
         if ( dataSource == null ) {
             return CompletableFuture.completedFuture(notFound());
         }
-        JsonNode json = request.body().asJson();
-        if ( json == null || !json.has("id") ) {
-            return CompletableFuture.completedFuture(badRequest("No ID was provided"));
-        }
-        String id = json.get("id").asText();
+        InspectionSearchRequest searchRequest = JsonUtils.fromJson(request.body().asJson(), InspectionSearchRequest.class);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
-
+        Map<String,String> contextMap = getContextFromRequest(request);
         if (callbackURL != null) {
-            searchInspectionItem(dataSource, id, callbackURL, authenticationInfo, parameters);
+            searchInspectionItem(dataSource, searchRequest,contextMap, callbackURL, authenticationInfo, parameters);
             return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
         } else {
-            return dataSource.searchInspectionItem(id, authenticationInfo, parameters)
+            return dataSource.searchInspectionItem(searchRequest.id, contextMap, authenticationInfo, parameters)
                     .thenApply(response -> ok(JsonUtils.toJson(response)));
         }
     }
@@ -159,8 +160,8 @@ public class InspectionController extends DataController {
                 });
     }
 
-    private void searchInspectionItem(InspectionSource_Internal dataSource, String primaryKey, String callbackUrl, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        dataSource.searchInspectionItem(primaryKey, authenticationInfo, parameters)
+    private void searchInspectionItem(InspectionSource_Internal dataSource, InspectionSearchRequest searchRequest, Map<String,String> context, String callbackUrl, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.searchInspectionItem(searchRequest.id, context, authenticationInfo, parameters)
                 .whenComplete((dataSet, throwable) -> {
                     if ( throwable != null ) {
                         sendDataSetExceptionCallback(throwable, callbackUrl);
@@ -209,6 +210,10 @@ public class InspectionController extends DataController {
         if (collectionStateString != null) {
             dataSet.setStatus(InspectionDataSet.CollectionState.valueOf(collectionStateString));
         }
+        JsonNode context = jsonNode.get("context");
+        context.fields().forEachRemaining((entry) -> {
+            dataSet.setContextValue(entry.getKey(), entry.getValue().textValue());
+        });
 
         JsonNode records = jsonNode.get("records");
         if ( records != null && records.isArray() ) {
@@ -221,5 +226,23 @@ public class InspectionController extends DataController {
         }
         return CompletableFuture.completedFuture(dataSet);
         //return dataSet;
+    }
+
+    private @Nullable Map<String,String> getContextFromRequest(Http.Request request) {
+        String contextString = request.getQueryString("context");
+        if ( contextString == null ) return null;
+        String[] entries = contextString.split(",");
+        Map<String,String> entryMap = new HashMap<>();
+        for (String entry : entries) {
+            String[] components = entry.split(":");
+            if (components.length == 2) {
+                entryMap.put(components[0], components[1]);
+            }
+        }
+        return entryMap;
+    }
+
+    class InspectionSearchRequest {
+        public String id;
     }
 }
