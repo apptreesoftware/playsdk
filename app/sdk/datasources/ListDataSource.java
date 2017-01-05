@@ -3,7 +3,9 @@ package sdk.datasources;
 import sdk.AppTreeSource;
 import sdk.datasources.base.CacheableList;
 import sdk.list.ListServiceConfigurationAttribute;
+import sdk.utils.ServiceParameter;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,4 +23,9 @@ public interface ListDataSource extends AppTreeSource {
      */
     String getServiceName();
 
+    /**
+     *
+     * @return A list service configuration containing the possible server filter parameters of a list
+     */
+    default Set<ServiceParameter> getServiceFilterParameters() { return null; }
 }

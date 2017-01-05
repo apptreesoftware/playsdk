@@ -36,6 +36,7 @@ public class ListDataSource_Internal extends BaseSource_Internal {
             configuration.setUserIDIndex(((UserList) this).userIDIndex());
         }
         configuration.getAttributes().addAll(dataSource.getListServiceAttributes());
+        configuration.getServiceFilterParameters().addAll(dataSource.getServiceFilterParameters());
         return configuration;
     }
 
