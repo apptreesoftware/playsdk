@@ -8,10 +8,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
-import sdk.data.DataSetItem;
-import sdk.data.InspectionDataSet;
-import sdk.data.ServiceConfiguration;
-import sdk.data.ServiceConfigurationAttribute;
+import sdk.data.*;
 import sdk.datasources.InspectionSource_Internal;
 import sdk.inspection.InspectionConfiguration;
 import sdk.utils.*;
@@ -242,7 +239,4 @@ public class InspectionController extends DataController {
         return entryMap;
     }
 
-    class InspectionSearchRequest {
-        public String id;
-    }
 }
