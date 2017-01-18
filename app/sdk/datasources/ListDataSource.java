@@ -27,5 +27,5 @@ public interface ListDataSource extends AppTreeSource {
      *
      * @return A list service configuration containing the possible server filter parameters of a list
      */
-    default Set<ServiceParameter> getServiceFilterParameters() { return null; }
+    default Set<ServiceParameter> getListFilterParameters() { return null; }
 }
