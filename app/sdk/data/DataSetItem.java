@@ -362,7 +362,7 @@ public class DataSetItem {
     public Optional<ListItem> getOptionalListItemAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
-        if (attribute != null) {
+        if (attribute != null && attribute.getListItem() != null) {
             return java.util.Optional.of(attribute.getListItem());
         }
         return java.util.Optional.empty();
