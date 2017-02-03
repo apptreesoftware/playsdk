@@ -2,6 +2,7 @@ package sdk.pushNotifications;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.ConfigFactory;
+import play.Play;
 import play.libs.ws.WSRequest;
 import sdk.AppTreeSource;
 import sdk.utils.Constants;
@@ -20,7 +21,7 @@ public class PushNotificationUtils implements AppTreeSource {
 
     public static PushNotificationUtils getDefaultInstance() {
         if ( instance == null ) {
-            String defaultCoreURL = ConfigFactory.load().getString("coreURL");
+            String defaultCoreURL = Play.application().configuration().getString("coreURL");
             if ( defaultCoreURL == null ) defaultCoreURL = Constants.defaultCoreURL;
             instance = new PushNotificationUtils(defaultCoreURL);
         }
