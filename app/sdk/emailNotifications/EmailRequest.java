@@ -14,19 +14,17 @@ public class EmailRequest {
     public String operator;
     public String subject;
     public String body;
-    public String from;
     public String replyTo;
     public Collection<String> to;
     public Collection<String> cc;
 
-    private EmailRequest(Collection<String> roles, Collection<String> statuses, Collection<String> userIDs, String operator, String subject, String body, String from, String replyTo, Collection<String> to, Collection<String> cc) {
+    private EmailRequest(Collection<String> roles, Collection<String> statuses, Collection<String> userIDs, String operator, String subject, String body, String replyTo, Collection<String> to, Collection<String> cc) {
         this.roles = roles;
         this.statuses = statuses;
         this.userIDs = userIDs;
         this.operator = operator;
         this.subject = subject;
         this.body = body;
-        this.from = from;
         this.replyTo = replyTo;
         this.to = to;
         this.cc = cc;
@@ -39,13 +37,11 @@ public class EmailRequest {
         private String operator;
         private String subject;
         private String body;
-        private String from;
         private String replyTo;
         private Collection<String> to;
         private Collection<String> cc;
 
-        public Builder(String from, String replyTo) {
-            this.from = from;
+        public Builder(String replyTo) {
             this.replyTo = replyTo;
         }
 
@@ -85,15 +81,12 @@ public class EmailRequest {
         }
 
         public EmailRequest build() {
-            EmailRequest emailRequest = new EmailRequest(roles, statuses, userIDs, operator, subject, body, from, replyTo, to, cc);
+            EmailRequest emailRequest = new EmailRequest(roles, statuses, userIDs, operator, subject, body, replyTo, to, cc);
             if ((emailRequest.userIDs == null || emailRequest.userIDs.size() == 0) && (emailRequest.statuses == null || emailRequest.statuses.size() == 0) && (emailRequest.roles == null || emailRequest.roles.size() == 0) && (emailRequest.to == null || emailRequest.to.size() ==0)) {
                 throw new RuntimeException("Invalid list of users to send email to");
             }
             if ( emailRequest.subject == null || emailRequest.body == null ) {
                 throw new RuntimeException("Empty subject or body");
-            }
-            if ( emailRequest.from == null ) {
-                throw new RuntimeException("Sender is required");
             }
             return emailRequest;
         }
