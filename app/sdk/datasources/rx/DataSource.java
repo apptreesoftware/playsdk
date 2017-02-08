@@ -91,4 +91,15 @@ public interface DataSource extends DataSourceBase {
     default Observable<DataSet> bulkUpdateDataSetItems(List<String> primaryKeys, DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         throw new UnsupportedOperationException("Bulk update is not supported by this web service");
     }
+
+    /**
+     *
+     * @param dataSetItemID the ID of the data set item to delete
+     * @param authenticationInfo a HashMap of any authentication parameters sent in the request
+     * @param params a Parameters object of any URL parameters from the request
+     * @return
+     */
+    default Observable<RecordActionResponse> deleteRecord(String dataSetItemID, AuthenticationInfo authenticationInfo, Parameters params) {
+        throw new UnsupportedOperationException("Delete is not supported on this web service");
+    }
 }

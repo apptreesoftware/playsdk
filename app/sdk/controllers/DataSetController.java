@@ -157,6 +157,20 @@ public class DataSetController extends DataController {
     }
 
     @With({ValidateRequestAction.class})
+    public CompletionStage<Result> deleteDataSetItem(String dataSetName, String dataSetItemID) {
+        Http.Request request = request();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
+        return getServiceConfiguration(dataSource, request)
+                .thenCompose(dataSetItem -> dataSource.deleteDataSetItem(dataSetItemID, authenticationInfo, parameters))
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> getDataSetItem(String dataSetName, String primaryKey) {
         Http.Request request = request();
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
