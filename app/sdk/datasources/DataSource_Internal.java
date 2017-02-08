@@ -154,4 +154,21 @@ public class DataSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source available");
     }
 
+    /**
+     * This will delete the given data set item
+     * @param dataSetItemID the ID of the data set item to delete
+     * @param authenticationInfo a HashMap of any authentication parameters sent in the request
+     * @param params a Parameters object of any URL parameters from the request
+     * @return
+     */
+    public CompletableFuture<DataSet> deleteDataSetItem(String dataSetItemID, AuthenticationInfo authenticationInfo, Parameters params) {
+        if ( dataSource != null ) {
+            return CompletableFuture.supplyAsync(() -> dataSource.deleteRecord(dataSetItemID, authenticationInfo, params)).thenApply(DataSet::new);
+        } else if (futureDataSource != null) {
+            return futureDataSource.deleteRecord(dataSetItemID, authenticationInfo, params).thenApply(DataSet::new);
+        } else if (rxDataSource != null) {
+            return observableToFuture(rxDataSource.deleteRecord(dataSetItemID, authenticationInfo, params).map(DataSet::new));
+        }
+        throw new RuntimeException("No data source available");
+    }
 }
