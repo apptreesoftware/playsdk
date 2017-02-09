@@ -3,6 +3,7 @@ package sdk.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -165,7 +166,7 @@ public class DataSetController extends DataController {
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
 
         return getServiceConfiguration(dataSource, request)
-                .thenCompose(dataSetItem -> dataSource.deleteDataSetItem(dataSetItemID, authenticationInfo, parameters))
+                .thenCompose(configuration -> dataSource.deleteDataSetItem(dataSetItemID, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
