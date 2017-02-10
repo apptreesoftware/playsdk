@@ -3,6 +3,7 @@ package sdk.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -152,6 +153,20 @@ public class DataSetController extends DataController {
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters))
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .exceptionally(ResponseExceptionHandler::handleException);
+    }
+
+    @With({ValidateRequestAction.class})
+    public CompletionStage<Result> deleteDataSetItem(String dataSetName, String dataSetItemID) {
+        Http.Request request = request();
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+
+        return getServiceConfiguration(dataSource, request)
+                .thenCompose(configuration -> dataSource.deleteDataSetItem(dataSetItemID, authenticationInfo, parameters))
                 .thenApply(dataSet -> ok(dataSet.toJSON()))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }

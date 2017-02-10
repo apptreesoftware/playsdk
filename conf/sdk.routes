@@ -35,6 +35,7 @@ PUT         /dataset/:dataSetName                                               
 PUT         /dataset/:dataSetName/bulk                                                  sdk.controllers.DataSetController.bulkUpdate(dataSetName : String)
 POST        /dataset/:dataSetName/search                                                sdk.controllers.DataSetController.searchDataSet(dataSetName : String)
 POST        /dataset/:dataSetName/:dataSetID/event                                      sdk.controllers.DataSetController.postEvent(dataSetName, dataSetID)
+DELETE      /dataset/:dataSetName/:dataSetID                                            sdk.controllers.DataSetController.deleteDataSetItem(dataSetName: String, dataSetID: String)
 
 
 GET         /datacollection/:endpoint/describe                                          sdk.controllers.DataCollectionController.getDataCollectionConfiguration(endpoint)
