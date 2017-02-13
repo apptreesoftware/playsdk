@@ -486,6 +486,13 @@ public class DataSetItem {
         }
     }
 
+
+    public Optional<Boolean> getOptionalBooleanAttributeAtIndex(int attributeIndex) {
+        return Optional.ofNullable(getBooleanValueAtIndex(attributeIndex));
+    }
+
+
+
     public @Nullable Boolean getBooleanValueAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
