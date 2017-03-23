@@ -189,10 +189,23 @@ public class ListItem {
         return Optional.empty();
     }
 
-    public Optional<DateTime> getDateTimeAttributeForIndex(int index) {
+    public DateTime getDateTimeAttributeForIndex(int index) {
         ListItemAttribute attribute = itemAttributes.get(index);
-        return Optional.ofNullable(attribute.getDateValue());
+        if(attribute != null) {
+            return attribute.getDateValue();
+        }
+        return null;
     }
+
+    public Optional<DateTime> getOptionalDateTimeAttributeForIndex(int index) {
+        ListItemAttribute attribute = itemAttributes.get(index);
+        if(attribute != null) {
+            return Optional.ofNullable(attribute.getDateValue());
+        }
+        return Optional.empty();
+
+    }
+
 
     static class ListItemSerializer extends JsonSerializer<ListItem> {
 
