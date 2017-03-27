@@ -31,7 +31,7 @@ public class EmailUtils implements AppTreeSource {
     }
 
     public void sendEmail(EmailRequest emailRequest, String appID, String appAPIKey) {
-        WSRequest request = getWSClient().url(String.format("%s/emailNotification", coreURL)).setRequestTimeout(300000);
+        WSRequest request = getWSClient().url(String.format("%s/connector/notifications/email", coreURL)).setRequestTimeout(300000);
         request.setHeader(Constants.APP_ID_HEADER, appID);
         request.setHeader(Constants.APPLICATION_API_KEY_HEADER, appAPIKey);
         request.setMethod("POST");
