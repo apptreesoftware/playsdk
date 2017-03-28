@@ -5,7 +5,7 @@ scalaVersion := "2.11.8"
 name := "AppTree Play SDK"
 organization := "com.apptreesoftware"
 
-version := "5.5.3-SNAPSHOT"
+version := "5.5.5-SNAPSHOT"
 
 libraryDependencies ++= Seq(
 )
