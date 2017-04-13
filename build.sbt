@@ -14,7 +14,7 @@ doc in Compile <<= target.map(_ / "none")
 
 fork in run := false
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava).aggregate(sdkmodels).dependsOn(sdkmodels)
+lazy val sdk = (project in file(".")).enablePlugins(PlayJava).aggregate(sdkmodels).dependsOn(sdkmodels)
 
 lazy val sdkmodels = (project in file("sdkmodels")).enablePlugins(PlayJava)
 
