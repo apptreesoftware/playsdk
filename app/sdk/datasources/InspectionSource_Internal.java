@@ -1,9 +1,8 @@
 package sdk.datasources;
 
-import sdk.data.*;
-import sdk.datasources.base.InspectionSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.data.*;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.Collection;
 import java.util.Map;
@@ -21,9 +20,9 @@ public class InspectionSource_Internal extends BaseSource_Internal {
     }
 
     public CompletableFuture<InspectionDataSet> startInspection(DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        if ( dataSource instanceof InspectionSource ) {
-            return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).startInspection(inspectionSearchDataSetItem, authenticationInfo, parameters));
-        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
+        if ( dataSource instanceof sdk.datasources.base.InspectionSource) {
+            return CompletableFuture.supplyAsync(() -> ((sdk.datasources.base.InspectionSource)dataSource).startInspection(inspectionSearchDataSetItem, authenticationInfo, parameters));
+        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource) {
             return ((sdk.datasources.future.InspectionSource)dataSource).startInspection(inspectionSearchDataSetItem, authenticationInfo, parameters);
         } else if (dataSource instanceof sdk.datasources.rx.InspectionSource) {
             sdk.datasources.rx.InspectionSource source = (sdk.datasources.rx.InspectionSource) dataSource;
@@ -33,9 +32,9 @@ public class InspectionSource_Internal extends BaseSource_Internal {
     }
 
     public CompletableFuture<DataSet> completeInspection(InspectionDataSet completedDataSet, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        if ( dataSource instanceof InspectionSource ) {
-            return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).completeInspection(completedDataSet, authenticationInfo, parameters));
-        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
+        if ( dataSource instanceof sdk.datasources.base.InspectionSource) {
+            return CompletableFuture.supplyAsync(() -> ((sdk.datasources.base.InspectionSource)dataSource).completeInspection(completedDataSet, authenticationInfo, parameters));
+        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource) {
             return ((sdk.datasources.future.InspectionSource)dataSource).completeInspection(completedDataSet, authenticationInfo, parameters);
         } else if (dataSource instanceof sdk.datasources.rx.InspectionSource) {
             sdk.datasources.rx.InspectionSource source = (sdk.datasources.rx.InspectionSource) dataSource;
@@ -45,22 +44,22 @@ public class InspectionSource_Internal extends BaseSource_Internal {
     }
 
     public CompletableFuture<DataSet> searchInspectionItem(String primaryKey, Map<String,String> inspectionContext, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        if ( dataSource instanceof InspectionSource ) {
-            return CompletableFuture.supplyAsync(() -> ((InspectionSource) dataSource)
+        if ( dataSource instanceof sdk.datasources.base.InspectionSource) {
+            return CompletableFuture.supplyAsync(() -> ((sdk.datasources.base.InspectionSource) dataSource)
                     .searchForInspectionItem(primaryKey,inspectionContext, authenticationInfo, parameters))
                     .thenApply(DataSet::new);
-        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
+        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource) {
             return ((sdk.datasources.future.InspectionSource) dataSource).searchForInspectionItem(primaryKey,inspectionContext, authenticationInfo, parameters).thenApply(DataSet::new);
-        } else if ( dataSource instanceof sdk.datasources.rx.InspectionSource ) {
+        } else if ( dataSource instanceof sdk.datasources.rx.InspectionSource) {
             return observableToFuture(((sdk.datasources.rx.InspectionSource) dataSource).searchForInspectionItem(primaryKey,inspectionContext, authenticationInfo, parameters).map(DataSet::new));
         }
         throw new RuntimeException("No data source defined");
     }
 
     public CompletableFuture<DataSet> updateInspectionItem(DataSetItem dataSetItem,Map<String,String> inspectionContext, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        if ( dataSource instanceof InspectionSource ) {
-            return CompletableFuture.supplyAsync(() -> ((InspectionSource)dataSource).updateInspectionItem(dataSetItem,inspectionContext,authenticationInfo, parameters)).thenApply(DataSet::new);
-        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource ) {
+        if ( dataSource instanceof sdk.datasources.base.InspectionSource) {
+            return CompletableFuture.supplyAsync(() -> ((sdk.datasources.base.InspectionSource)dataSource).updateInspectionItem(dataSetItem,inspectionContext,authenticationInfo, parameters)).thenApply(DataSet::new);
+        } else if ( dataSource instanceof sdk.datasources.future.InspectionSource) {
             return ((sdk.datasources.future.InspectionSource)dataSource).updateInspectionItem(dataSetItem,inspectionContext, authenticationInfo, parameters).thenApply(DataSet::new);
         } else if (dataSource instanceof sdk.datasources.rx.InspectionSource) {
             sdk.datasources.rx.InspectionSource source = (sdk.datasources.rx.InspectionSource) dataSource;

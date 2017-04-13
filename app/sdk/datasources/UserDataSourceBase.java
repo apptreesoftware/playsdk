@@ -1,8 +1,8 @@
 package sdk.datasources;
 
-import sdk.data.ServiceConfiguration;
-import sdk.data.ServiceConfigurationAttribute;
-import sdk.data.User;
+import sdkmodels.data.ServiceConfiguration;
+import sdkmodels.data.ServiceConfigurationAttribute;
+import sdkmodels.data.User;
 
 import java.util.Collection;
 

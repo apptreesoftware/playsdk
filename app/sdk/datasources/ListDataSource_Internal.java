@@ -1,13 +1,12 @@
 package sdk.datasources;
 
 import rx.Observable;
-import sdk.datasources.base.CacheableList;
-import sdk.list.List;
-import sdk.list.ListServiceConfiguration;
 import sdk.datasources.base.SearchableList;
 import sdk.list.UserList;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.list.List;
+import sdkmodels.list.ListServiceConfiguration;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +23,7 @@ public class ListDataSource_Internal extends BaseSource_Internal {
 
     public ListServiceConfiguration getListServiceConfiguration() {
         ListServiceConfiguration configuration = new ListServiceConfiguration(dataSource.getServiceName());
-        configuration.setCanCache(this instanceof CacheableList);
+        configuration.setCanCache(this instanceof sdk.datasources.base.CacheableList);
         if (isCacheSupported()) {
             configuration.canCache = true;
             configuration.authenticationRequired = !isListContentGlobal();
@@ -42,8 +41,8 @@ public class ListDataSource_Internal extends BaseSource_Internal {
     }
 
     public CompletableFuture<List> getList(AuthenticationInfo authenticationInfo, Parameters parameters) {
-        if (dataSource instanceof CacheableList) {
-            return CompletableFuture.supplyAsync(() -> ((CacheableList) dataSource).getList(authenticationInfo, parameters));
+        if (dataSource instanceof sdk.datasources.base.CacheableList) {
+            return CompletableFuture.supplyAsync(() -> ((sdk.datasources.base.CacheableList) dataSource).getList(authenticationInfo, parameters));
         } else if (dataSource instanceof sdk.datasources.future.CacheableList) {
             return ((sdk.datasources.future.CacheableList) dataSource).getList(authenticationInfo, parameters);
         } else if (dataSource instanceof sdk.datasources.rx.CacheableList) {
@@ -71,7 +70,7 @@ public class ListDataSource_Internal extends BaseSource_Internal {
     }
 
     private boolean isSearchSupported() {
-        return dataSource instanceof sdk.datasources.rx.SearchableList || dataSource instanceof sdk.datasources.base.SearchableList || dataSource instanceof sdk.datasources.future.SearchableList;
+        return dataSource instanceof sdk.datasources.rx.SearchableList || dataSource instanceof SearchableList || dataSource instanceof sdk.datasources.future.SearchableList;
     }
 
     private boolean isCacheSupported() {
@@ -79,8 +78,8 @@ public class ListDataSource_Internal extends BaseSource_Internal {
     }
 
     private boolean isListContentGlobal() {
-        if (dataSource instanceof CacheableList) {
-            return ((CacheableList) dataSource).isListContentGlobal();
+        if (dataSource instanceof sdk.datasources.base.CacheableList) {
+            return ((sdk.datasources.base.CacheableList) dataSource).isListContentGlobal();
         } else if (dataSource instanceof sdk.datasources.future.CacheableList) {
             return ((sdk.datasources.future.CacheableList) dataSource).isListContentGlobal();
         } else if (dataSource instanceof sdk.datasources.rx.CacheableList) {

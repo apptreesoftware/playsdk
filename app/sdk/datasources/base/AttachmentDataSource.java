@@ -1,9 +1,9 @@
 package sdk.datasources.base;
 
 import sdk.datasources.AttachmentDataSourceBase;
-import sdk.data.AttachmentResponse;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.data.AttachmentResponse;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 /**
  * Created by matthew on 5/16/16.

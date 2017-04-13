@@ -1,13 +1,13 @@
 package sdk.datasources;
 
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.Event;
-import sdk.data.ServiceConfiguration;
 import sdk.datasources.base.DataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.DataSetItem;
+import sdkmodels.data.Event;
+import sdkmodels.data.ServiceConfiguration;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
+import sdkmodels.utils.Response;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,9 +23,9 @@ public class DataSource_Internal extends BaseSource_Internal {
     public DataSource_Internal(DataSourceBase dataSourceBase) {
         if ( dataSourceBase instanceof DataSource ) {
             dataSource = (DataSource) dataSourceBase;
-        } else if ( dataSourceBase instanceof sdk.datasources.future.DataSource ) {
+        } else if ( dataSourceBase instanceof sdk.datasources.future.DataSource) {
             futureDataSource = (sdk.datasources.future.DataSource) dataSourceBase;
-        } else if ( dataSourceBase instanceof sdk.datasources.rx.DataSource ) {
+        } else if ( dataSourceBase instanceof sdk.datasources.rx.DataSource) {
             rxDataSource = (sdk.datasources.rx.DataSource) dataSourceBase;
         }
     }

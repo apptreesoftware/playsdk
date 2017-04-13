@@ -12,7 +12,12 @@ libraryDependencies ++= Seq(
 
 doc in Compile <<= target.map(_ / "none")
 
-lazy val root = (project in file(".")).enablePlugins(PlayJava)
+fork in run := false
+
+lazy val sdk = (project in file(".")).enablePlugins(PlayJava).aggregate(sdkmodels).dependsOn(sdkmodels)
+
+lazy val sdkmodels = (project in file("sdkmodels")).enablePlugins(PlayJava)
+
 libraryDependencies ++= Seq(
   javaJdbc,
   cache,

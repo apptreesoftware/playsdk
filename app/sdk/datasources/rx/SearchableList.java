@@ -1,10 +1,10 @@
 package sdk.datasources.rx;
 
 import rx.Observable;
-import sdk.list.List;
 import sdk.datasources.ListDataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.list.List;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.Map;
 

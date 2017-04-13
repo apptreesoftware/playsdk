@@ -1,0 +1,3 @@
+[submodule "sdkmodels"]
+	path = sdkmodels
+	url = https://github.com/apptreesoftware/sdkmodels.git

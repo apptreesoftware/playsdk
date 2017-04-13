@@ -5,8 +5,8 @@ import play.Logger;
 import play.api.inject.guice.GuiceApplicationBuilder;
 import play.api.inject.guice.GuiceApplicationLoader;
 import play.libs.Json;
-import sdk.serializers.DataSetModule;
-import sdk.serializers.DateTimeModule;
+import sdkmodels.serializers.DataSetModule;
+import sdkmodels.serializers.DateTimeModule;
 
 /**
  * Created by Matthew on 5/31/2016.

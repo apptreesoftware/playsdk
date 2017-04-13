@@ -1,13 +1,13 @@
 package sdk.datasources.base;
 
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.Event;
-import sdk.datasources.RecordActionResponse;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.DataSetItem;
+import sdkmodels.data.Event;
+import sdkmodels.utils.RecordActionResponse;
 import sdk.datasources.DataSourceBase;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
+import sdkmodels.utils.Response;
 
 import java.util.List;
 

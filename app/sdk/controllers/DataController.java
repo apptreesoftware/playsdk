@@ -8,10 +8,10 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Controller;
 import play.mvc.Http;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.ServiceConfiguration;
-import sdk.utils.Constants;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.DataSetItem;
+import sdkmodels.data.ServiceConfiguration;
+import sdkmodels.utils.Constants;
 import sdk.utils.ResponseExceptionHandler;
 
 import java.util.HashMap;

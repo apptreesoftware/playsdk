@@ -1,9 +1,9 @@
 package sdk.datasources.base;
 
-import sdk.data.User;
+import sdkmodels.data.User;
 import sdk.datasources.UserDataSourceBase;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 /**
  * Created by matthew on 5/12/16.

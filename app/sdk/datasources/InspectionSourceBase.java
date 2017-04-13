@@ -1,13 +1,14 @@
 package sdk.datasources;
 
-import sdk.AppTreeSource;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.InspectionDataSet;
-import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.base.DataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdk.AppTreeSource;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.DataSetItem;
+import sdkmodels.data.InspectionDataSet;
+import sdkmodels.data.ServiceConfigurationAttribute;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
+import sdkmodels.utils.RecordActionResponse;
 
 import java.util.Collection;
 
@@ -29,8 +30,8 @@ public interface InspectionSourceBase extends AppTreeSource {
         return new InspectionDataSet(attributes);
     }
 
-    default sdk.datasources.base.DataSource getInspectionDataSource() {
-        return new sdk.datasources.base.DataSource() {
+    default DataSource getInspectionDataSource() {
+        return new DataSource() {
             @Override
             public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
                 return null;
@@ -60,8 +61,8 @@ public interface InspectionSourceBase extends AppTreeSource {
         };
     }
 
-    default sdk.datasources.base.DataSource getInspectionSearchDataSource() {
-        return new sdk.datasources.base.DataSource() {
+    default DataSource getInspectionSearchDataSource() {
+        return new DataSource() {
             @Override
             public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
                 return null;

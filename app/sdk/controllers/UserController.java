@@ -7,13 +7,13 @@ import play.mvc.Results;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
-import sdk.data.*;
-import sdk.data.deprecated.UserInfoResponse;
 import sdk.datasources.UserDataSource_Internal;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.JsonUtils;
-import sdk.utils.Parameters;
 import sdk.utils.ResponseExceptionHandler;
+import sdkmodels.data.*;
+import sdkmodels.data.deprecated.UserInfoResponse;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.JsonUtils;
+import sdkmodels.utils.Parameters;
 
 import java.util.ArrayList;
 import java.util.HashMap;

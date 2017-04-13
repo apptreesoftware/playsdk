@@ -1,12 +1,12 @@
 package sdk.datasources.future;
 
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.InspectionDataSet;
 import sdk.datasources.InspectionSourceBase;
-import sdk.datasources.RecordActionResponse;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.DataSetItem;
+import sdkmodels.data.InspectionDataSet;
+import sdkmodels.utils.RecordActionResponse;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

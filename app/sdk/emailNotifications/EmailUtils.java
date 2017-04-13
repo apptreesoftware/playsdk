@@ -3,8 +3,9 @@ package sdk.emailNotifications;
 import play.Play;
 import play.libs.ws.WSRequest;
 import sdk.AppTreeSource;
-import sdk.utils.Constants;
-import sdk.utils.JsonUtils;
+import sdkmodels.emailNotifications.EmailRequest;
+import sdkmodels.utils.Constants;
+import sdkmodels.utils.JsonUtils;
 
 /**
  * Created by alexis on 12/5/16.
