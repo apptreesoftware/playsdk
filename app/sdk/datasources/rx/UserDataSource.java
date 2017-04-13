@@ -1,10 +1,10 @@
 package sdk.datasources.rx;
 
 import rx.Observable;
-import sdk.data.User;
+import sdkmodels.data.User;
 import sdk.datasources.UserDataSourceBase;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 /**
  * Created by Matthew Smith on 9/2/16.

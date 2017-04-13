@@ -1,8 +1,9 @@
 package sdk.auth;
 
 import sdk.AppTreeSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Response;
+import sdkmodels.auth.LoginResponse;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Response;
 
 /**
  * Created by matthew on 5/12/16.

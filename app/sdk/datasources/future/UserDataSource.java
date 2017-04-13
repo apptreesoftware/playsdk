@@ -1,9 +1,9 @@
 package sdk.datasources.future;
 
-import sdk.data.User;
+import sdkmodels.data.User;
 import sdk.datasources.UserDataSourceBase;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.concurrent.CompletableFuture;
 

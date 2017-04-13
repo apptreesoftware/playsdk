@@ -3,12 +3,11 @@ package sdk;
 import org.jetbrains.annotations.Nullable;
 import play.Configuration;
 import play.Play;
-import sdk.datasources.base.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.datacollection.DataCollectionSource;
 import sdk.datasources.*;
 import sdk.datasources.base.UserDataSource;
-import sdk.utils.Constants;
+import sdkmodels.utils.Constants;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -97,7 +96,7 @@ public class AppTree {
         return attachmentDataSource;
     }
 
-    public static void setAttachmentDataSource(AttachmentDataSource attachmentDataSource) {
+    public static void setAttachmentDataSource(sdk.datasources.base.AttachmentDataSource attachmentDataSource) {
         AppTree.attachmentDataSource = new AttachmentDataSource_Internal(attachmentDataSource);
     }
     public static void setAttachmentDataSource(sdk.datasources.future.AttachmentDataSource attachmentDataSource) {

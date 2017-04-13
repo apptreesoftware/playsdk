@@ -1,10 +1,10 @@
 package sdk.datacollection;
 
 import sdk.AppTreeSource;
-import sdk.data.*;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
+import sdkmodels.data.*;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
+import sdkmodels.utils.Response;
 
 import java.util.List;
 

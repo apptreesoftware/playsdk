@@ -1,8 +1,11 @@
 package sdk.list;
 
 import sdk.datasources.base.CacheableList;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.list.List;
+import sdkmodels.list.ListItem;
+import sdkmodels.list.ListServiceConfigurationAttribute;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -1,10 +1,10 @@
 package sdk.datasources;
 
 import sdk.AppTreeSource;
-import sdk.data.DataSet;
-import sdk.data.ServiceConfiguration;
-import sdk.data.ServiceConfigurationAttribute;
-import sdk.utils.ServiceParameter;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.ServiceConfiguration;
+import sdkmodels.data.ServiceConfigurationAttribute;
+import sdkmodels.utils.ServiceParameter;
 
 import java.util.Collection;
 import java.util.List;

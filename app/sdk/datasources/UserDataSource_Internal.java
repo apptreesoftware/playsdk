@@ -1,11 +1,11 @@
 package sdk.datasources;
 
-import sdk.data.DataSet;
-import sdk.data.ServiceConfiguration;
-import sdk.data.User;
 import sdk.datasources.rx.UserDataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.ServiceConfiguration;
+import sdkmodels.data.User;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.concurrent.CompletableFuture;
 

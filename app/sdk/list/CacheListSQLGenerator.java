@@ -3,6 +3,8 @@ package sdk.list;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import play.Logger;
+import sdkmodels.list.List;
+import sdkmodels.list.ListItem;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,16 +1,14 @@
 package sdk.datasources.rx;
 
 import rx.Observable;
-import sdk.data.DataSet;
-import sdk.data.DataSetItem;
-import sdk.data.InspectionDataSet;
-import sdk.data.ServiceConfigurationAttribute;
+import sdkmodels.data.DataSet;
+import sdkmodels.data.DataSetItem;
+import sdkmodels.data.InspectionDataSet;
 import sdk.datasources.InspectionSourceBase;
-import sdk.datasources.RecordActionResponse;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
+import sdkmodels.utils.RecordActionResponse;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**

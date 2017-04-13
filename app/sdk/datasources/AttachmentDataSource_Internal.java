@@ -1,9 +1,9 @@
 package sdk.datasources;
 
-import sdk.data.AttachmentResponse;
-import sdk.datasources.base.AttachmentDataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.Parameters;
+import sdk.datasources.future.AttachmentDataSource;
+import sdkmodels.data.AttachmentResponse;
+import sdkmodels.utils.AuthenticationInfo;
+import sdkmodels.utils.Parameters;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -12,17 +12,17 @@ import java.util.concurrent.CompletableFuture;
  * Copyright AppTree Software, Inc.
  */
 public class AttachmentDataSource_Internal extends BaseSource_Internal {
-    private AttachmentDataSource baseDataSource;
-    private sdk.datasources.future.AttachmentDataSource futureDataSource;
+    private sdk.datasources.base.AttachmentDataSource baseDataSource;
+    private AttachmentDataSource futureDataSource;
     private sdk.datasources.rx.AttachmentDataSource rxDataSource;
 
-    public AttachmentDataSource_Internal(AttachmentDataSource dataSource) {
+    public AttachmentDataSource_Internal(sdk.datasources.base.AttachmentDataSource dataSource) {
         this.baseDataSource = dataSource;
     }
     public AttachmentDataSource_Internal(sdk.datasources.rx.AttachmentDataSource dataSource) {
         this.rxDataSource = dataSource;
     }
-    public AttachmentDataSource_Internal(sdk.datasources.future.AttachmentDataSource dataSource) {
+    public AttachmentDataSource_Internal(AttachmentDataSource dataSource) {
         this.futureDataSource = dataSource;
     }
 

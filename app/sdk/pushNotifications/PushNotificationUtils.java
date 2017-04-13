@@ -1,12 +1,13 @@
 package sdk.pushNotifications;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import play.Play;
 import play.libs.ws.WSRequest;
 import sdk.AppTreeSource;
-import sdk.utils.Constants;
-import sdk.utils.JsonUtils;
+import sdkmodels.pushNotifications.PushNotificationResponse;
+import sdkmodels.pushNotifications.PushRequest;
+import sdkmodels.utils.Constants;
+import sdkmodels.utils.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
