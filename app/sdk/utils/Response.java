@@ -29,7 +29,7 @@ public class Response {
     }
 
     public static Response fromException(Throwable throwable, boolean async) {
-        String message = throwable.getMessage();
+        String message = throwable.getCause() == null ? throwable.getMessage() : throwable.getCause().getMessage();
         if ( message == null ) {
             if ( throwable instanceof NullPointerException ) {
                 message = "Connector threw NullPointer exception";
