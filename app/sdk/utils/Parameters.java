@@ -2,16 +2,15 @@ package sdk.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import sdk.models.DateRange;
 import sdk.models.Location;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by alexis on 5/3/16.
@@ -187,5 +186,14 @@ public class Parameters {
         }
 
         return offset;
+    }
+
+    public List<Integer> getPrefetchRelationships() {
+        List<Integer> prefetchRelationships = new ArrayList<>();
+        String relationshipString = parameters.get("relationships");
+        if ( !StringUtils.isEmpty(relationshipString) ) {
+            prefetchRelationships = Arrays.stream(relationshipString.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
+        }
+        return prefetchRelationships;
     }
 }

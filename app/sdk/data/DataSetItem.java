@@ -27,6 +27,7 @@ public class DataSetItem {
     private CRUDStatus crudStatus = CRUDStatus.Read;
     private Status status = Status.None;
     Collection<ServiceConfigurationAttribute> configurationAttributes;
+    Collection<Integer> lazyLoadedRelationships;
 
     @JsonIgnore
     protected HashMap<Integer, ServiceConfigurationAttribute> configurationMap;
@@ -49,6 +50,17 @@ public class DataSetItem {
     public ServiceConfigurationAttribute getAttributeWithIndex(int index) {
         if (configurationMap == null ) return null;
         return configurationMap.get(index);
+    }
+
+    public void useLazyLoad(int attributeIndex) {
+        ServiceConfigurationAttribute attribute = getAttributeWithIndex(attributeIndex);
+        if ( attribute == null || !attribute.attributeType.equals(AttributeType.Relation) ) {
+            throw new RuntimeException("Attempting to use lazy loading on an attribute that isn't a relationship");
+        }
+        if ( lazyLoadedRelationships == null ) {
+            lazyLoadedRelationships = new ArrayList<>();
+        }
+        lazyLoadedRelationships.add(attributeIndex);
     }
 
     public enum Type {
@@ -908,6 +920,7 @@ public class DataSetItem {
         json.put("clientKey", clientKey);
         json.put("recordType", getItemType().stringValue);
         json.put("status", status.stringValue);
+        json.put("lazyLoadedRelationships", lazyLoadedRelationships != null ? JsonUtils.toJson(lazyLoadedRelationships) : null);
 
         ArrayNode attributes = json.putArray("attributes");
         int firstNullIndex = -1;
