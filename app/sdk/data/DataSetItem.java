@@ -54,7 +54,7 @@ public class DataSetItem {
 
     public void useLazyLoad(int attributeIndex) {
         ServiceConfigurationAttribute attribute = getAttributeWithIndex(attributeIndex);
-        if ( attribute == null || !attribute.attributeType.equals(AttributeType.Relation) ) {
+        if ( attribute == null || (!attribute.attributeType.equals(AttributeType.Relation) && !attribute.attributeType.equals(AttributeType.Attachments)) ) {
             throw new RuntimeException("Attempting to use lazy loading on an attribute that isn't a relationship");
         }
         if ( lazyLoadedRelationships == null ) {
