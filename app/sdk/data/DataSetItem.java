@@ -920,7 +920,7 @@ public class DataSetItem {
         json.put("clientKey", clientKey);
         json.put("recordType", getItemType().stringValue);
         json.put("status", status.stringValue);
-        json.put("lazyLoadedRelationships", lazyLoadedRelationships != null ? lazyLoadedRelationships.toString() : null);
+        json.put("lazyLoadedRelationships", lazyLoadedRelationships != null ? JsonUtils.toJson(lazyLoadedRelationships) : null);
 
         ArrayNode attributes = json.putArray("attributes");
         int firstNullIndex = -1;
