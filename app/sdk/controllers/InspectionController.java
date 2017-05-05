@@ -86,7 +86,8 @@ public class InspectionController extends DataController {
         return getConfiguration(dataSource, request)
                 .thenCompose(inspectionConfiguration -> dataSetItemFromRequest(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
                 .thenCompose(dataSetItem -> dataSource.updateInspectionItem(dataSetItem,contextMap, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()));
+                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .exceptionally(ResponseExceptionHandler::handleException);
     }
 
     public CompletionStage<Result> searchInspectionItem(String dataSetName) {
