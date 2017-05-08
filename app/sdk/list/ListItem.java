@@ -224,7 +224,7 @@ public class ListItem {
             for ( int i = 0; i <= value.maxAttributeIndex; i++ ) {
                 ListItemAttribute attribute = value.getAttributeForIndex(i);
                 if ( attribute != null ) {
-                    if ( i < 10 ) {
+                    if ( i < 9 ) {
                         gen.writeStringField("attribute0" + (i + 1), attribute.getStringValue());
                     } else {
                         gen.writeStringField("attribute" + (i + 1), attribute.getStringValue());
