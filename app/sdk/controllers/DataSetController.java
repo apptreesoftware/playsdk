@@ -2,6 +2,7 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.apache.commons.lang3.StringUtils;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Http;
@@ -94,6 +95,28 @@ public class DataSetController extends DataController {
                 });
     }
 
+    private void generateDataSourceCreateResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters)
+                .whenComplete(((dataSet, throwable) -> {
+                    if ( throwable != null ) {
+                        sendDataSetExceptionCallback(throwable, callbackURL);
+                    } else {
+                        sendDataSetResponse(dataSet, callbackURL);
+                    }
+                }));
+    }
+
+    private void generateDataSourceUpdateResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters)
+                .whenComplete(((dataSet, throwable) -> {
+                    if ( throwable != null ) {
+                        sendDataSetExceptionCallback(throwable, callbackURL);
+                    } else {
+                        sendDataSetResponse(dataSet, callbackURL);
+                    }
+                }));
+    }
+
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
@@ -107,6 +130,7 @@ public class DataSetController extends DataController {
     @With({ValidateRequestAction.class})
     public CompletionStage<Result> createDataSetItem(String dataSetName) {
         Http.Request request = request();
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
@@ -114,14 +138,21 @@ public class DataSetController extends DataController {
 
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
-                .thenCompose(dataSetItem -> dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()))
-                .exceptionally(ResponseExceptionHandler::handleException);
+                .thenCompose(dataSetItem -> {
+                    if ( !StringUtils.isEmpty(callbackURL) ) {
+                        generateDataSourceCreateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
+                        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+                    } else {
+                        return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
+                    }
+                })
+                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
     @With({ValidateRequestAction.class})
     public CompletionStage<Result> updateDataSetItem(String dataSetName) {
         Http.Request request = request();
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
@@ -129,9 +160,15 @@ public class DataSetController extends DataController {
 
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
-                .thenCompose(dataSetItem -> dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()))
-                .exceptionally(ResponseExceptionHandler::handleException);
+                .thenCompose(dataSetItem -> {
+                    if ( !StringUtils.isEmpty(callbackURL) ) {
+                        generateDataSourceUpdateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
+                        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+                    } else {
+                        return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
+                    }
+                })
+                .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
     @With({ValidateRequestAction.class})
