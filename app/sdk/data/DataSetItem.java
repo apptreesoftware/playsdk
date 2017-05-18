@@ -954,7 +954,7 @@ public class DataSetItem {
 
     public void updateFromJSON(ObjectNode json, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap, boolean search) {
         primaryKey = json.path("primaryKey").textValue();
-        crudStatus = CRUDStatus.fromString(json.path("CRUDStatus").textValue());
+        crudStatus = json.has("CRUDStatus") ? CRUDStatus.fromString(json.path("CRUDStatus").textValue()) : CRUDStatus.Read;
         status = Status.fromString(json.path("status").textValue());
         clientKey = json.path("clientKey").textValue();
         ArrayNode attributes = (ArrayNode) json.path("attributes");
