@@ -4,9 +4,10 @@ import rx.Observable;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.Event;
-import sdk.datasources.RecordActionResponse;
 import sdk.datasources.DataSourceBase;
+import sdk.datasources.RecordActionResponse;
 import sdk.utils.AuthenticationInfo;
+import sdk.utils.BatchManager;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
 
@@ -33,6 +34,9 @@ public interface DataSource extends DataSourceBase {
 
     Observable<DataSetItem> getRecord(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
 
+    default void getBatchedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
+        throw new UnsupportedOperationException("Paged fetch is not supported in this web service");
+    }
 
     /**
      * @param queryDataItem The data set item containing the values to be searched on
