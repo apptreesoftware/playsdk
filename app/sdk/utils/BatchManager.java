@@ -34,8 +34,6 @@ public class BatchManager {
             request.setBody(json);
         }
         json = dataSet.toJSON();
-        Logger.debug(String.format("Async response: %s\n%s", callbackURL, json.toString()));
-        Logger.debug(json.toString());
         request.post(json)
                 .whenComplete((wsResponse, throwable) -> {
                     logCallbackInfo(wsResponse, throwable, callbackURL);
