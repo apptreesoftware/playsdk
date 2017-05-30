@@ -6,6 +6,7 @@ import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
 import sdk.datasources.base.DataSource;
 import sdk.utils.AuthenticationInfo;
+import sdk.utils.BatchManager;
 import sdk.utils.Parameters;
 import sdk.utils.Response;
 
@@ -61,6 +62,17 @@ public class DataSource_Internal extends BaseSource_Internal {
                     .thenApply(DataSet::new);
         } else if (rxDataSource != null) {
             return observableToFuture(rxDataSource.getRecord(id, authenticationInfo, params).map(DataSet::new));
+        }
+        throw new RuntimeException("No data source available");
+    }
+
+    public void getPagedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
+        if ( dataSource != null ) {
+            dataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+        } else if ( futureDataSource != null ) {
+            futureDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+        } else if ( rxDataSource != null ) {
+            rxDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
         }
         throw new RuntimeException("No data source available");
     }

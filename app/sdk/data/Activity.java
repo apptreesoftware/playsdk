@@ -1,13 +1,10 @@
 package sdk.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import sdk.models.DateTimeRange;
 import sdk.models.Location;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
