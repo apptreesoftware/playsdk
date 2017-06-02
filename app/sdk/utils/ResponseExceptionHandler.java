@@ -22,7 +22,7 @@ public class ResponseExceptionHandler {
     }
 
     public static Result handleException(Throwable throwable, boolean async) {
-        Throwable rootCause = findRootCause(throwable, Integer.MAX_VALUE);
+        Throwable rootCause = findRootCause(throwable);
         if ( rootCause instanceof OnErrorThrowable.OnNextValue ) {
             throwable = findRootCause(throwable, 1);
         } else {
@@ -43,6 +43,12 @@ public class ResponseExceptionHandler {
     public static void updateCallbackWithException(WSRequest request, Throwable throwable) {
         String message = "";
         String coreCallbackType = CORE_CALLBACK_TYPE_ERROR;
+        Throwable rootCause = findRootCause(throwable);
+        if ( rootCause instanceof OnErrorThrowable.OnNextValue ) {
+            throwable = findRootCause(throwable, 1);
+        } else {
+            throwable = rootCause;
+        }
         if ( throwable instanceof PrimaryObjectNotFoundException ) {
             if ( throwable.getMessage() != null ) {
                 message = Response.fromException(throwable, true).getMessage();
