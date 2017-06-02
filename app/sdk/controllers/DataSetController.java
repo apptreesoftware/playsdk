@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -52,6 +51,21 @@ public class DataSetController extends DataController {
     }
 
     @With({ValidateRequestAction.class})
+    public CompletionStage<Result> getBatchedDataSet(String dataSetName) {
+        Http.Request request = request();
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
+
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if ( callbackURL == null ) return CompletableFuture.completedFuture(badRequest("No callback URL provided"));
+        BatchManager batchManager = new BatchManager(callbackURL, wsClient);
+        dataSource.getPagedDataSet(authenticationInfo, parameters, batchManager);
+        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+    }
+
+    @With({ValidateRequestAction.class})
     public CompletionStage<Result> searchDataSet(String dataSetName) {
         Http.Request request = request();
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
@@ -71,7 +85,6 @@ public class DataSetController extends DataController {
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
-
 
     private void generateDataSourceResponse(DataSource_Internal dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
                 dataSource.getDataSet(authenticationInfo, parameters)

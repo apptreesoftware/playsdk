@@ -25,7 +25,7 @@ public class Constants {
 
     public static final String defaultCoreURL = "https://services1.apptreesoftware.com";
 
-    public static final String PLATFORM_VERSION = "5.5";
+    public static final String PLATFORM_VERSION = "5.6";
 
     public static final int SDK_ERROR_STATUS_CODE = 540;
 }

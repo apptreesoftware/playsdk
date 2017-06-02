@@ -5,7 +5,6 @@ import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.InspectionDataSet;
 import sdk.data.ServiceConfigurationAttribute;
-import sdk.datasources.base.DataSource;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 

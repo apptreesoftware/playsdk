@@ -1,7 +1,5 @@
 package sdk.utils;
 
-import sdk.AppTree;
-
 /**
  * Created by alexis on 5/3/16.
  */

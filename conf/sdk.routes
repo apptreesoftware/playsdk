@@ -29,6 +29,7 @@ PUT         /user                                                               
 
 GET         /dataset/:dataSetName                                                       sdk.controllers.DataSetController.getDataSet(dataSetName: String)
 GET         /dataset/:dataSetName/describe                                              sdk.controllers.DataSetController.getDataConfiguration(dataSetName: String)
+GET         /dataset/:dataSetName/batch                                                 sdk.controllers.DataSetController.getBatchedDataSet(dataSetName)
 GET         /dataset/:dataSetName/:primaryKey                                           sdk.controllers.DataSetController.getDataSetItem(dataSetName : String, primaryKey : String)
 POST        /dataset/:dataSetName                                                       sdk.controllers.DataSetController.createDataSetItem(dataSetName : String)
 PUT         /dataset/:dataSetName                                                       sdk.controllers.DataSetController.updateDataSetItem(dataSetName : String)

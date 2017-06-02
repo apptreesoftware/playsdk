@@ -1,6 +1,5 @@
 package sdk.pushNotifications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import org.joda.time.DateTime;
 
