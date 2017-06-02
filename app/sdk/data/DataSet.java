@@ -127,6 +127,9 @@ public class DataSet extends Response {
      * @return The count of data set items
      */
     public int getTotalRecords() {
+        if ( totalRecords == 0 && dataSetItems != null ) {
+            totalRecords = dataSetItems.size();
+        }
         return totalRecords;
     }
 
