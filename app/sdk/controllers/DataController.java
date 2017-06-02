@@ -75,6 +75,7 @@ public abstract class DataController extends Controller {
         WSRequest request = wsClient.url(callbackURL);
         if (dataSet.isSuccess()) {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
+            request.setHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+"");
         } else {
             request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_WARNING);
             ObjectNode json = Json.newObject();

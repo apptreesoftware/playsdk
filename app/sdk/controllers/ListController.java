@@ -66,10 +66,10 @@ public class ListController extends Controller {
                     .thenApply(list -> {
                         if (json) {
                             ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
-                            return ok(JsonUtils.toJson(response));
+                            return ok(JsonUtils.toJson(response)).withHeader(Constants.CORE_ITEM_COUNT_HEADER, response.getRecords().size()+"");
                         } else {
                             File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
-                            return ok(sqlFile);
+                            return ok(sqlFile).withHeader(Constants.CORE_ITEM_COUNT_HEADER, list.listItems.size()+"");
                         }
                     }).exceptionally(exception -> {
                         if (json) {
@@ -89,6 +89,7 @@ public class ListController extends Controller {
                     File sqlFile = CacheListSQLGenerator.generateDatabaseForList(list);
                     WSRequest request = wsClient.url(callbackURL);
                     request.setHeader(Constants.CORE_CALLBACK_TYPE, Constants.CORE_CALLBACK_TYPE_SUCCESS);
+                    request.setHeader(Constants.CORE_ITEM_COUNT_HEADER, list.listItems.size()+"");
                     return request
                             .post(sqlFile)
                             .whenComplete((wsResponse, throwable) -> {
@@ -121,7 +122,7 @@ public class ListController extends Controller {
         return dataSource.queryList(searchTerm, barcodeSearch, searchContext, info, parameters)
                 .thenApply(list -> {
                     ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
-                    return ok(JsonUtils.toJson(response));
+                    return ok(JsonUtils.toJson(response)).withHeader(Constants.CORE_ITEM_COUNT_HEADER, response.getRecords().size()+"");
                 })
                 .exceptionally(ResponseExceptionHandler::handleException);
 //                .exceptionally(exception -> {
