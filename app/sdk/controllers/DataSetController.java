@@ -45,7 +45,7 @@ public class DataSetController extends DataController {
             return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
         } else {
             return dataSource.getDataSet(authenticationInfo,parameters)
-                    .thenApply(dataSet -> ok(dataSet.toJSON()))
+                    .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
                     .exceptionally(ResponseExceptionHandler::handleException);
         }
     }
@@ -80,7 +80,7 @@ public class DataSetController extends DataController {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
+                        return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
@@ -156,7 +156,7 @@ public class DataSetController extends DataController {
                         generateDataSourceCreateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
+                        return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
@@ -178,7 +178,7 @@ public class DataSetController extends DataController {
                         generateDataSourceUpdateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
+                        return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
@@ -203,7 +203,7 @@ public class DataSetController extends DataController {
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -217,7 +217,7 @@ public class DataSetController extends DataController {
 
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSource.deleteDataSetItem(dataSetItemID, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -230,7 +230,7 @@ public class DataSetController extends DataController {
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
 
         return dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters)
-                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 

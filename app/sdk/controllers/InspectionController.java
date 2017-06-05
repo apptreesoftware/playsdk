@@ -66,7 +66,7 @@ public class InspectionController extends DataController {
                         generateInspection(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.startInspection(dataSetItem,authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()));
+                        return dataSource.startInspection(dataSetItem,authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
                     }
                 })
                 .exceptionally(ResponseExceptionHandler::handleException);
@@ -85,7 +85,7 @@ public class InspectionController extends DataController {
         return getConfiguration(dataSource, request)
                 .thenCompose(inspectionConfiguration -> dataSetItemFromRequest(inspectionConfiguration.getInspectionServiceConfiguration(), request, false))
                 .thenCompose(dataSetItem -> dataSource.updateInspectionItem(dataSetItem,contextMap, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -105,7 +105,7 @@ public class InspectionController extends DataController {
             return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
         } else {
             return dataSource.searchInspectionItem(searchRequest.id, contextMap, authenticationInfo, parameters)
-                    .thenApply(response -> ok(JsonUtils.toJson(response)));
+                    .thenApply(response -> ok(JsonUtils.toJson(response)).withHeader(Constants.CORE_ITEM_COUNT_HEADER, response.getTotalRecords()+""));
         }
     }
 
@@ -129,7 +129,7 @@ public class InspectionController extends DataController {
                         completeInspection(dataSource, dataSet, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.completeInspection(dataSet, authenticationInfo, parameters).thenApply(returnDataSet -> ok(returnDataSet.toJSON()));
+                        return dataSource.completeInspection(dataSet, authenticationInfo, parameters).thenApply(returnDataSet -> ok(returnDataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, returnDataSet.getTotalRecords()+""));
                     }
                 })
                 .exceptionally(ResponseExceptionHandler::handleException);
