@@ -61,8 +61,8 @@ public class DataSetController extends DataController {
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
         if ( callbackURL == null ) return CompletableFuture.completedFuture(badRequest("No callback URL provided"));
         BatchManager batchManager = new BatchManager(callbackURL, wsClient);
-        dataSource.getPagedDataSet(authenticationInfo, parameters, batchManager);
-        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+        Response response = dataSource.getPagedDataSet(authenticationInfo, parameters, batchManager);
+        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(response)));
     }
 
     @With({ValidateRequestAction.class})

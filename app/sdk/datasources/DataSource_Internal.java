@@ -66,15 +66,19 @@ public class DataSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source available");
     }
 
-    public void getPagedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
+    public Response getPagedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
+        Response response = Response.fromException(new RuntimeException("No data source available"), true);
         if ( dataSource != null ) {
-            dataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+            CompletableFuture.runAsync(() -> dataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager));
+            response = Response.asyncSuccess();
         } else if ( futureDataSource != null ) {
-            futureDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+            CompletableFuture.runAsync(() -> futureDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager));
+            response = Response.asyncSuccess();
         } else if ( rxDataSource != null ) {
-            rxDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+            CompletableFuture.runAsync(() -> rxDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager));
+            response = Response.asyncSuccess();
         }
-        throw new RuntimeException("No data source available");
+        return response;
     }
 
 
