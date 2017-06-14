@@ -5,10 +5,7 @@ import sdk.data.DataSetItem;
 import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
 import sdk.datasources.base.DataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.BatchManager;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
+import sdk.utils.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -66,7 +63,7 @@ public class DataSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source available");
     }
 
-    public Response getPagedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
+    public Response getPagedDataSet(AuthenticationInfo authenticationInfo, BatchParameters parameters, BatchManager batchManager) {
 
         DataSourceBase base;
         if (dataSource != null) {
