@@ -56,7 +56,7 @@ public class DataSetController extends DataController {
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
 
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-        Parameters parameters = new Parameters(request.queryString());
+        BatchParameters parameters = new BatchParameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
         if ( callbackURL == null ) return CompletableFuture.completedFuture(badRequest("No callback URL provided"));
