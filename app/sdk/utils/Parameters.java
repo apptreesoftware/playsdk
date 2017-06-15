@@ -121,7 +121,7 @@ public class Parameters {
 
         if ( parameters.get(key) != null ) {
             dateString = parameters.get(key);
-            dateTime = DateTime.parse(dateString);
+            dateTime = DateTime.parse(dateString, Constants.AppTreeDateTimeFormat);
         }
 
         return dateTime;
