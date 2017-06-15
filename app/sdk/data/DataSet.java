@@ -1,5 +1,6 @@
 package sdk.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
@@ -61,6 +62,7 @@ public class DataSet extends Response {
         return attributeConfigurationForIndexMap.get(index);
     }
 
+    @JsonIgnore
     public Collection<ServiceConfigurationAttribute> getConfigurationAttributes() {
         return attributeConfigurationForIndexMap.values();
     }
