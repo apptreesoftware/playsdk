@@ -43,9 +43,12 @@ public class PushNotificationUtils implements AppTreeSource {
         request.setBody(JsonUtils.toJson(pushRequest));
         return request.execute()
                 .thenApply(wsResponse -> {
-                    if ( wsResponse.getStatus() != 200 ) throw new RuntimeException("Core returned response code " + wsResponse.getStatus());
+                    JsonNode node = wsResponse.asJson();
+                    if ( wsResponse.getStatus() != 200 ) {
+                        String message = node != null ? node.get("message").asText("Core returned response code: " + wsResponse.getStatus()) : "Core returned response code: " + wsResponse.getStatus();
+                        throw new RuntimeException(message);
+                    }
                     else {
-                        JsonNode node = wsResponse.asJson();
                         if ( node == null ) throw new RuntimeException("There was an error communicating with the core");
                         return JsonUtils.fromJson(node, PushNotificationResponse.class);
                     }
