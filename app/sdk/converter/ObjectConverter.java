@@ -20,6 +20,7 @@ import java.util.*;
  */
 public class ObjectConverter {
     private static final Map<AttributeType, List<Class>> supportedTypeMap;
+
     static {
         supportedTypeMap = new HashMap<AttributeType, List<Class>>() {{
             ArrayList<Class> stringClasses = new ArrayList<>();
@@ -66,7 +67,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param dataSetItem
      * @param destination
      * @param <T>
@@ -81,7 +81,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param field
      * @param record
      * @param destination
@@ -508,8 +507,8 @@ public class ObjectConverter {
      */
     private static <T> void readStringData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         Object fieldData = field.get(object);
-        record.setString(fieldData.toString(), index);
-        if(primaryKey){
+        record.setString(fieldData != null ? fieldData.toString() : null, index);
+        if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
         }
     }
@@ -526,7 +525,7 @@ public class ObjectConverter {
     private static <T> void readIntegerData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         Integer fieldData = (Integer) field.get(object);
         record.setInt(fieldData, index);
-        if(primaryKey){
+        if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
         }
     }
@@ -549,7 +548,7 @@ public class ObjectConverter {
             fieldData = (Double) field.get(object);
         }
         record.setDouble(fieldData, index);
-        if(primaryKey){
+        if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
         }
     }
@@ -566,7 +565,7 @@ public class ObjectConverter {
     private static <T> void readBoolData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         Boolean fieldData = (Boolean) field.get(object);
         record.setBool(fieldData, index);
-        if(primaryKey){
+        if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
         }
     }
@@ -582,7 +581,7 @@ public class ObjectConverter {
     private static <T> void readDateData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         DateTime dateTime = getDateValueFromObject(field, object);
         record.setDate(dateTime, index);
-        if(primaryKey){
+        if (primaryKey) {
             record.setPrimaryKey(dateTime.toString());
         }
     }
@@ -599,7 +598,7 @@ public class ObjectConverter {
     private static <T> void readDateTimeData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         DateTime dateTime = getDateValueFromObject(field, object);
         record.setDateTime(dateTime, index);
-        if(primaryKey){
+        if (primaryKey) {
             record.setPrimaryKey(dateTime.toString());
         }
     }
@@ -685,7 +684,7 @@ public class ObjectConverter {
         try {
             for (Object obj : relationship) {
                 DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-                copyToRecord(tempItem, relationship);
+                copyToRecord(tempItem, obj);
             }
         } catch (UnsupportedAttributeException e) {
             e.printStackTrace();
@@ -810,7 +809,6 @@ public class ObjectConverter {
         boolean canUpdateAndRequired = attribute.canUpdateAndRequired();
         boolean canSearch = attribute.canSearch();
         boolean canSearchAndRequired = attribute.canSearchAndRequired();
-
 
 
         ServiceConfigurationAttribute serviceConfigurationAttribute = new ServiceConfigurationAttribute();
