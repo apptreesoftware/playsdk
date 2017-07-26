@@ -368,4 +368,23 @@ public class ServiceConfigurationAttribute {
             return attribute;
         }
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceConfigurationAttribute that = (ServiceConfigurationAttribute) o;
+
+        if (create != that.create) return false;
+        if (createRequired != that.createRequired) return false;
+        if (update != that.update) return false;
+        if (updateRequired != that.updateRequired) return false;
+        if (search != that.search) return false;
+        if (searchRequired != that.searchRequired) return false;
+        if (mAttributeIndex != that.mAttributeIndex) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return attributeType == that.attributeType;
+    }
 }

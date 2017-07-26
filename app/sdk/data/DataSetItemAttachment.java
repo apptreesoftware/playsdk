@@ -44,7 +44,7 @@ public class DataSetItemAttachment extends DataSetItem {
     }
 
 
-    DataSetItemAttachment() {
+    public DataSetItemAttachment() {
         super(configurationAttributeMap);
     }
 

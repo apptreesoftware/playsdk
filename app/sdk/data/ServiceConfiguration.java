@@ -149,4 +149,23 @@ public class ServiceConfiguration extends Response {
             super(message);
         }
     }
+
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceConfiguration that = (ServiceConfiguration) o;
+
+        if(!this.name.equals(that.name)) return false;
+        if(this.getAttributes().size() != that.getAttributes().size()) return false;
+        for(int i = 0; i < this.getAttributes().size(); i++) {
+            ServiceConfigurationAttribute thisAttr = this.getAttributes().get(i);
+            ServiceConfigurationAttribute thatAttr = that.getAttributes().get(i);
+            if(!thisAttr.equals(thatAttr)) return false;
+        }
+        return true;
+    }
+
+
 }

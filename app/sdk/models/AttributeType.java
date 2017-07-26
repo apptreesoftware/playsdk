@@ -8,20 +8,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum AttributeType {
     String("Text"),
     Int("Integer"),
-    TimeInterval("TimeInterval"),
+    TimeInterval("TimeInterval"), //Support Annotation (long, int, float, double)  -
     Double("Float"),
     Boolean("Boolean"),
     Date("Date"),
     DateTime("DateTime"),
     DateRange("DateRange"),
     DateTimeRange("DateTimeRange"),
-    Image("Image"),
-    Location("Location"),
-    Attachments("Attachments"),
-    Relation("Relationship"),
-    SingleRelationship("SingleRelationship"),
-    ListItem("ListItem"),
-    Color("Color"),
+    Image("Image"), //Support Annotations ( String )
+    Location("Location"), //Support ( for sdk.Location )
+    Attachments("Attachments"), //Support (at later date)
+    Relation("Relationship"), //support (List<AnyObject>)
+    SingleRelationship("SingleRelationship"), //support AnyObject
+    ListItem("ListItem"), //support AnyObject
+    Color("Color"), //support for sdk.Color ( at later date )
     None("None");
 
     private String stringValue;
