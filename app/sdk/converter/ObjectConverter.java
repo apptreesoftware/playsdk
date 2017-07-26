@@ -444,13 +444,14 @@ public class ObjectConverter {
         int index = attributeAnnotation.index();
         Class fieldClass = field.getType();
         AttributeMeta attributeMeta = dataSetItem.getAttributeMeta(index);
+        boolean primaryKey = attributeAnnotation.primaryKey();
         if (attributeMeta == null) {
             attributeMeta = new AttributeMeta(inferDataType(field).getAttributeType(), index);
         }
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readObjectData(field, attributeMeta, source, dataSetItem);
+        readObjectData(field, attributeMeta, source, dataSetItem, primaryKey);
     }
 
 
@@ -462,25 +463,25 @@ public class ObjectConverter {
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readObjectData(Field field, AttributeMeta attributeMeta, T object, Record dataSetItem) throws IllegalAccessException {
+    private static <T> void readObjectData(Field field, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey) throws IllegalAccessException {
         switch (attributeMeta.getAttributeType()) {
             case String:
-                readStringData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
+                readStringData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey);
                 break;
             case Int:
-                readIntegerData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
+                readIntegerData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey);
                 break;
             case Double:
-                readDoubleData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
+                readDoubleData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey);
                 break;
             case Boolean:
-                readBoolData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
+                readBoolData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey);
                 break;
             case Date:
-                readDateData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
+                readDateData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey);
                 break;
             case DateTime:
-                readDateTimeData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
+                readDateTimeData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey);
                 break;
             case ListItem:
                 readListItemData(field, object, dataSetItem, attributeMeta.getAttributeIndex());
@@ -500,39 +501,45 @@ public class ObjectConverter {
     /**
      * @param field
      * @param object
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readStringData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
+    private static <T> void readStringData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         Object fieldData = field.get(object);
-        dataSetItem.setString(fieldData.toString(), index);
+        record.setString(fieldData.toString(), index);
+        if(primaryKey){
+            record.setPrimaryKey(fieldData.toString());
+        }
     }
 
 
     /**
      * @param field
      * @param object
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readIntegerData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
+    private static <T> void readIntegerData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         Integer fieldData = (Integer) field.get(object);
-        dataSetItem.setInt(fieldData, index);
+        record.setInt(fieldData, index);
+        if(primaryKey){
+            record.setPrimaryKey(fieldData.toString());
+        }
     }
 
     /**
      * @param field
      * @param object
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readDoubleData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
+    private static <T> void readDoubleData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         String fieldName = field.getType().getName();
         Double fieldData = null;
         if (fieldName.contains("Float") || fieldName.contains("float")) {
@@ -541,48 +548,60 @@ public class ObjectConverter {
         } else {
             fieldData = (Double) field.get(object);
         }
-        dataSetItem.setDouble(fieldData, index);
+        record.setDouble(fieldData, index);
+        if(primaryKey){
+            record.setPrimaryKey(fieldData.toString());
+        }
     }
 
 
     /**
      * @param field
      * @param object
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readBoolData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
-        boolean fieldData = (Boolean) field.get(object);
-        dataSetItem.setBool(fieldData, index);
+    private static <T> void readBoolData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
+        Boolean fieldData = (Boolean) field.get(object);
+        record.setBool(fieldData, index);
+        if(primaryKey){
+            record.setPrimaryKey(fieldData.toString());
+        }
     }
 
     /**
      * @param field
      * @param object
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readDateData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
+    private static <T> void readDateData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         DateTime dateTime = getDateValueFromObject(field, object);
-        dataSetItem.setDate(dateTime, index);
+        record.setDate(dateTime, index);
+        if(primaryKey){
+            record.setPrimaryKey(dateTime.toString());
+        }
     }
 
 
     /**
      * @param field
      * @param object
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws IllegalAccessException
      */
-    private static <T> void readDateTimeData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
+    private static <T> void readDateTimeData(Field field, T object, Record record, int index, boolean primaryKey) throws IllegalAccessException {
         DateTime dateTime = getDateValueFromObject(field, object);
-        dataSetItem.setDateTime(dateTime, index);
+        record.setDateTime(dateTime, index);
+        if(primaryKey){
+            record.setPrimaryKey(dateTime.toString());
+        }
     }
 
 
@@ -784,10 +803,26 @@ public class ObjectConverter {
                 }
             }
         }
+
+        boolean canCreate = attribute.canCreate();
+        boolean canCreateAndRequired = attribute.canCreateAndRequired();
+        boolean canUpdate = attribute.canUpdate();
+        boolean canUpdateAndRequired = attribute.canUpdateAndRequired();
+        boolean canSearch = attribute.canSearch();
+        boolean canSearchAndRequired = attribute.canSearchAndRequired();
+
+
+
         ServiceConfigurationAttribute serviceConfigurationAttribute = new ServiceConfigurationAttribute();
         serviceConfigurationAttribute.setAttributeIndex(index);
         serviceConfigurationAttribute.setAttributeType(attributeType);
         serviceConfigurationAttribute.setName(name);
+        serviceConfigurationAttribute.create = canCreate;
+        serviceConfigurationAttribute.createRequired = canCreateAndRequired;
+        serviceConfigurationAttribute.update = canUpdate;
+        serviceConfigurationAttribute.updateRequired = canUpdateAndRequired;
+        serviceConfigurationAttribute.search = canSearch;
+        serviceConfigurationAttribute.searchRequired = canSearchAndRequired;
         if (requiresRelatedServiceConfiguration(attributeType)) {
             setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, field.getType(), relationShipClass);
         }

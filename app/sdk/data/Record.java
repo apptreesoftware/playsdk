@@ -63,4 +63,6 @@ public interface Record {
     AttributeMeta getAttributeMeta(int index);
     void setAttributeMeta(int index, AttributeMeta attributeMeta);
 
+    void setPrimaryKey(String primaryKey);
+
 }

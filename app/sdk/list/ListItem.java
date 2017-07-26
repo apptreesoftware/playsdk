@@ -501,6 +501,11 @@ public class ListItem implements Record {
         this.getAttributeMetaMap().put(index, attributeMeta);
     }
 
+    @Override
+    public void setPrimaryKey(String primaryKey) {
+        this.id = primaryKey;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if(attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();
