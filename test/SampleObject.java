@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import sdk.annotations.Attribute;
 import sdk.data.DataSetItemAttachment;
@@ -34,6 +35,7 @@ public class SampleObject {
 
     @Attribute(index = 5)
     public double testDouble;
+
 
     @Attribute(index = 6)
     public Double testDoubleObject;

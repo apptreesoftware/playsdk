@@ -4,6 +4,7 @@ import org.junit.Test;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
+import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 
@@ -152,7 +153,7 @@ public class ConverterTest {
 
 
     @Test
-    public void testCopyFromDataSetItem() throws UnsupportedAttributeException, IllegalAccessException {
+    public void testCopyFromDataSetItem() throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException {
         ServiceConfiguration sampleConf = ObjectConverter.generateConfiguration(SampleObject.class);
         SampleObject sampleObject = new SampleObject();
         DataSetItem dataSetItem = new DataSetItem(sampleConf.getAttributes());
