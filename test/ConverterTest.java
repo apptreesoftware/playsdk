@@ -19,16 +19,16 @@ public class ConverterTest {
     public SampleObject getSampleObject() {
         SampleObject sampleObject = new SampleObject();
         sampleObject.woNumber = "1234";
-        sampleObject.testInt = 1;
-        sampleObject.testIntObject = 1;
-        sampleObject.testFloat = 1.0f;
-        sampleObject.testFloatObject = 1.0f;
-        sampleObject.testDouble = 1.0;
-        sampleObject.testDoubleObject = 1.0;
-        sampleObject.testDate = new Date(100);
-        sampleObject.testJodaTimeDate = new DateTime(100);
-        sampleObject.testSqlDate = new java.sql.Date(100);
-        sampleObject.sampleListItem = new SampleListItem();
+        sampleObject.setTestInt(1);
+        sampleObject.setTestIntObject(1);
+        sampleObject.setTestFloat(1.0f);
+        sampleObject.setTestFloatObject(1.0f);
+        sampleObject.setTestDouble(1.0);
+        sampleObject.setTestDoubleObject(1.0);
+        sampleObject.setTestDate(new Date(100));
+        sampleObject.setTestJodaTimeDate(new DateTime(100));
+        sampleObject.setTestSqlDate(new java.sql.Date(100));
+        sampleObject.setSampleListItem(new SampleListItem());
         sampleObject.sampleListItem.woNumber = "1234";
         sampleObject.sampleListItem.testInt = 1;
         sampleObject.sampleListItem.testIntObject = 1;
@@ -57,7 +57,7 @@ public class ConverterTest {
         DataSetItem singleRelationShip = dataSetItem.addNewDataSetItemForAttributeIndex(11);
         copyDataToSingleListItem(singleRelationShip);
         List<SampleRelationship> relationshipList = getSampleRelationshipList();
-        for(SampleRelationship sampleRelationship:relationshipList) {
+        for (SampleRelationship sampleRelationship : relationshipList) {
             DataSetItem tempDataSetItem = dataSetItem.addNewDataSetItemForAttributeIndex(12);
             sampleRelationship.copyToDataSetItem(tempDataSetItem);
         }
@@ -65,14 +65,11 @@ public class ConverterTest {
     }
 
 
-
-
-
     private List<SampleRelationship> getSampleRelationshipList() {
         int max = 10;
         int cnt = 0;
         List<SampleRelationship> tempList = new ArrayList<>();
-        while(cnt <= max) {
+        while (cnt <= max) {
             tempList.add(getSampleRelationship());
             cnt++;
         }
@@ -81,7 +78,7 @@ public class ConverterTest {
     }
 
 
-    private SampleRelationship getSampleRelationship(){
+    private SampleRelationship getSampleRelationship() {
         SampleRelationship sampleRelationship = new SampleRelationship();
         sampleRelationship.woNumber = "1234";
         sampleRelationship.testInt = 1;
@@ -108,8 +105,6 @@ public class ConverterTest {
     }
 
 
-
-
     private void copyDataToSingleListItem(DataSetItem dataSetItem) {
         dataSetItem.setString("1234", 0);
         dataSetItem.setInt(1, 1);
@@ -125,8 +120,7 @@ public class ConverterTest {
     }
 
 
-
-    private ListItem getSampleListItem(){
+    private ListItem getSampleListItem() {
         ListItem listItem = new ListItem();
         listItem.setString("1234", 0);
         listItem.setInt(1, 1);
@@ -151,7 +145,6 @@ public class ConverterTest {
     }
 
 
-
     @Test
     public void testCopyFromDataSetItem() throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException {
         ServiceConfiguration sampleConf = ObjectConverter.generateConfiguration(SampleObject.class);
@@ -163,26 +156,6 @@ public class ConverterTest {
         ObjectConverter.copyToRecord(testDataSetItem, sampleObject);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
