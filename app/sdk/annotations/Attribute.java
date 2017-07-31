@@ -16,7 +16,6 @@ public @interface Attribute {
     String name() default "";
     AttributeType dataType() default AttributeType.None;
     Class relationShipClass() default Class.class;
-    boolean primaryKey() default false;
     boolean canCreate() default true;
     boolean canCreateAndRequired() default false;
     boolean canUpdate() default true;

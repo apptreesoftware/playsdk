@@ -3,6 +3,7 @@ package sdk.converter;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
 import sdk.data.*;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
@@ -73,9 +74,13 @@ public class ObjectConverter {
      * @throws UnsupportedAttributeException
      * @throws IllegalAccessException
      */
-    public static <T> void copyFromRecord(Record dataSetItem, T destination) throws UnableToWriteException, UnsupportedAttributeException, IllegalAccessException {
+    public static <T> void copyFromRecord(Record dataSetItem, T destination) {
         for (Field field : destination.getClass().getDeclaredFields()) {
-            copyToField(field, dataSetItem, destination);
+            try {
+                copyToField(field, dataSetItem, destination);
+            } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -311,7 +316,7 @@ public class ObjectConverter {
             Object object = classValue.newInstance();
             copyFromRecord(listItem, object);
             field.set(destination, object);
-        } catch (ClassNotFoundException | InstantiationException | UnsupportedAttributeException | IllegalAccessException ie) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
@@ -336,7 +341,7 @@ public class ObjectConverter {
             Object object = classValue.newInstance();
             copyFromRecord(newDataSetItem, object);
             field.set(destination, object);
-        } catch (ClassNotFoundException | InstantiationException | UnsupportedAttributeException | IllegalAccessException ie) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
@@ -364,7 +369,7 @@ public class ObjectConverter {
                 tempList.add(object);
             }
             field.set(destination, tempList);
-        } catch (ClassNotFoundException | InstantiationException | UnsupportedAttributeException | IllegalAccessException ie) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
@@ -420,10 +425,14 @@ public class ObjectConverter {
      * @throws UnsupportedAttributeException
      * @throws IllegalAccessException
      */
-    public static <T> void copyToRecord(Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException {
+    public static <T> void copyToRecord(Record dataSetItem, T source) {
         Field[] fields = source.getClass().getDeclaredFields();
         for (Field field : fields) {
-            copyFromField(field, dataSetItem, source);
+            try {
+                copyFromField(field, dataSetItem, source);
+            } catch (UnsupportedAttributeException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -437,13 +446,20 @@ public class ObjectConverter {
      */
     private static <T> void copyFromField(Field field, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException {
         Attribute attributeAnnotation = field.getAnnotation(Attribute.class);
+        PrimaryKey primaryKeyAnnotation = field.getAnnotation(PrimaryKey.class);
+        boolean primaryKey = false;
+        if (primaryKeyAnnotation != null) {
+            primaryKey = true;
+        }
+        if(primaryKey && attributeAnnotation == null) {
+            dataSetItem.setPrimaryKey(field.get(source).toString());
+        }
         if (attributeAnnotation == null) {
             return;
         }
         int index = attributeAnnotation.index();
         Class fieldClass = field.getType();
         AttributeMeta attributeMeta = dataSetItem.getAttributeMeta(index);
-        boolean primaryKey = attributeAnnotation.primaryKey();
         if (attributeMeta == null) {
             attributeMeta = new AttributeMeta(inferDataType(field).getAttributeType(), index);
         }
@@ -643,11 +659,7 @@ public class ObjectConverter {
     private static <T> void readListItemData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
         Object listItemObject = field.get(object);
         ListItem listItem = new ListItem();
-        try {
-            copyToRecord(listItem, listItemObject);
-        } catch (UnsupportedAttributeException e) {
-            e.printStackTrace();
-        }
+        copyToRecord(listItem, listItemObject);
         dataSetItem.setListItem(listItem, index);
     }
 
@@ -662,12 +674,8 @@ public class ObjectConverter {
      */
     private static <T> void readSingleRelationshipData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
         Object relationship = field.get(object);
-        try {
-            DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-            copyToRecord(tempItem, relationship);
-        } catch (UnsupportedAttributeException e) {
-            e.printStackTrace();
-        }
+        DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
+        copyToRecord(tempItem, relationship);
     }
 
 
@@ -681,13 +689,9 @@ public class ObjectConverter {
      */
     private static <T> void readRelationshipData(Field field, T object, Record dataSetItem, int index) throws IllegalAccessException {
         List<Object> relationship = (List<Object>) field.get(object);
-        try {
-            for (Object obj : relationship) {
-                DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-                copyToRecord(tempItem, obj);
-            }
-        } catch (UnsupportedAttributeException e) {
-            e.printStackTrace();
+        for (Object obj : relationship) {
+            DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
+            copyToRecord(tempItem, obj);
         }
     }
 
@@ -696,6 +700,7 @@ public class ObjectConverter {
      * @param <T>
      * @return
      */
+
     public static <T> ServiceConfiguration generateConfiguration(Class<T> someClass) {
         return new ServiceConfiguration.Builder(someClass.getName()).withAttributes(generateConfigurationAttributes(someClass)).build();
     }
