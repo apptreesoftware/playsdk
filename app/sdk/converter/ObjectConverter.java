@@ -72,13 +72,6 @@ public class ObjectConverter {
     }
 
 
-    /**
-     * @param dataSetItem
-     * @param destination
-     * @param <T>
-     * @throws UnsupportedAttributeException
-     * @throws IllegalAccessException
-     */
     public static <T> void copyFromRecord(Record dataSetItem, T destination) {
         if (destination == null) return;
         mapMethodsFromSource(destination);
@@ -91,15 +84,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param record
-     * @param destination
-     * @param <T>
-     * @throws UnsupportedAttributeException
-     * @throws IllegalAccessException
-     */
     private static <T> void copyToField(Field field, Record record, T destination) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException {
         Attribute attribute = field.getAnnotation(Attribute.class);
         if (attribute == null) {
@@ -119,16 +103,6 @@ public class ObjectConverter {
         readDataSetItemData(field, attributeMeta, destination, record, metaClass, userSetterAndGetter);
     }
 
-
-    /**
-     * @param field
-     * @param attributeMeta
-     * @param destination
-     * @param dataSetItem
-     * @param metaClass
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void readDataSetItemData(Field field, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class metaClass, boolean useSetterAndGetter) throws UnableToWriteException {
         switch (attributeMeta.getAttributeType()) {
             case String:
@@ -164,15 +138,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeStringData(Field field, T destination, Record dataSetItem, Integer index, boolean useSetterAndGetter) throws UnableToWriteException {
         String value = dataSetItem.getString(index);
         try {
@@ -184,15 +149,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeIntegerData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         Optional<Integer> value = dataSetItem.getOptionalInt(index);
         try {
@@ -207,15 +163,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeDoubleData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         Optional<Double> value = dataSetItem.getOptionalDouble(index);
         boolean floatValue = fieldIsFloat(field);
@@ -242,15 +189,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeBoolData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         Optional<Boolean> value = dataSetItem.getOptionalBoolean(index);
         try {
@@ -265,14 +203,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throw UnableToWriteException
-     */
     private static <T> void writeDateData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         DateTime value = dataSetItem.getDate(index);
         try {
@@ -282,14 +212,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeDateTimeData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         DateTime value = dataSetItem.getDateTime(index);
         try {
@@ -299,23 +221,10 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @return
-     */
     private static boolean fieldIsFloat(Field field) {
         return (field.getType().getName().contains("float") || field.getType().getName().contains("Float"));
     }
 
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeListItemData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         ListItem listItem = dataSetItem.getListItem(index);
         if (listItem == null) return;
@@ -330,16 +239,6 @@ public class ObjectConverter {
             throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
-
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws UnableToWriteException
-     */
 
     private static <T> void writeSingleRelationshipData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         DataSetItem newDataSetItem = dataSetItem.getDataSetItem(index);
@@ -356,16 +255,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param destination
-     * @param dataSetItem
-     * @param index
-     * @param metaClass
-     * @param <T>
-     * @throws UnableToWriteException
-     */
     private static <T> void writeRelationshipData(Field field, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException {
         List<DataSetItem> dataSetItems = dataSetItem.getDataSetItems(index);
         if (dataSetItems == null) return;
@@ -384,14 +273,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param datetime
-     * @param destination
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void setDateValueFromField(Field field, DateTime datetime, T destination) throws IllegalAccessException {
         Class clazz = field.getType();
         if (clazz == org.joda.time.DateTime.class) {
@@ -405,11 +286,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param classType
-     * @param type
-     * @return
-     */
     private static boolean isFieldClassSupportedForType(Class<?> classType, AttributeType type) {
         if ((type.equals(AttributeType.ListItem) || type.equals(AttributeType.Relation) || type.equals(AttributeType.SingleRelationship)) && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
@@ -418,23 +294,10 @@ public class ObjectConverter {
         return classList != null && classList.contains(classType);
     }
 
-
-    /**
-     * @return
-     */
     private static Map<AttributeType, List<Class>> getSupportedTypeMap() {
         return supportedTypeMap;
     }
 
-    //Copy into a data set item from a model object
-
-    /**
-     * @param dataSetItem
-     * @param source
-     * @param <T>
-     * @throws UnsupportedAttributeException
-     * @throws IllegalAccessException
-     */
     public static <T> void copyToRecord(Record dataSetItem, T source) {
         if (source == null) return;
         mapMethodsFromSource(source);
@@ -448,14 +311,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @param dataSetItem
-     * @param source
-     * @param <T>
-     * @throws UnsupportedAttributeException
-     * @throws IllegalAccessException
-     */
     private static <T> void copyFromField(Field field, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
         Attribute attributeAnnotation = field.getAnnotation(Attribute.class);
         PrimaryKey primaryKeyAnnotation = field.getAnnotation(PrimaryKey.class);
@@ -482,15 +337,6 @@ public class ObjectConverter {
         readObjectData(field, attributeMeta, source, dataSetItem, primaryKey, useGetterAndSetter);
     }
 
-
-    /**
-     * @param field
-     * @param attributeMeta
-     * @param object
-     * @param dataSetItem
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readObjectData(Field field, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
@@ -525,15 +371,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param record
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readStringData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object fieldData = null;
         if (fieldHasGetter(field, object) && useGetterAndSetter) fieldData = useGetter(field, object);
@@ -544,15 +381,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param record
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readIntegerData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
         Integer fieldData = null;
         if (fieldHasGetter(field, object) && useGetterAndSetter) {
@@ -564,14 +392,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @param object
-     * @param record
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readDoubleData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
         String fieldName = field.getType().getName();
         Double fieldData = null;
@@ -592,15 +412,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param record
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readBoolData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
         Boolean fieldData = null;
         if (fieldHasGetter(field, object) && useGetterAndSetter) {
@@ -612,14 +423,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @param object
-     * @param record
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readDateData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
         DateTime dateTime = getDateValueFromObject(field, object, useGetterAndSetter);
         record.setDate(dateTime, index);
@@ -628,15 +431,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param record
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readDateTimeData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
         DateTime dateTime = getDateValueFromObject(field, object, useGetterAndSetter);
         record.setDateTime(dateTime, index);
@@ -645,14 +439,6 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param <T>
-     * @return
-     * @throws IllegalAccessException
-     */
     private static <T> DateTime getDateValueFromObject(Field field, T object, boolean useGetterAndSetter) throws IllegalAccessException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Date);
         if (supportedClasses == null) {
@@ -679,15 +465,6 @@ public class ObjectConverter {
         return new DateTime();
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readListItemData(Field field, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException {
         Object listItemObject = null;
         if (useGetterAndSetter) {
@@ -700,15 +477,6 @@ public class ObjectConverter {
         dataSetItem.setListItem(listItem, index);
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readSingleRelationshipData(Field field, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException {
         Object relationship = null;
         if (fieldHasGetter(field, object) && useGetterAndSetter) {
@@ -718,15 +486,6 @@ public class ObjectConverter {
         copyToRecord(tempItem, relationship);
     }
 
-
-    /**
-     * @param field
-     * @param object
-     * @param dataSetItem
-     * @param index
-     * @param <T>
-     * @throws IllegalAccessException
-     */
     private static <T> void readRelationshipData(Field field, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException {
         List<Object> relationship = null;
         if (fieldHasGetter(field, object) && useGetterAndSetter) {
@@ -738,35 +497,16 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param someClass
-     * @param <T>
-     * @return
-     */
-
     public static <T> ServiceConfiguration generateConfiguration(Class<T> someClass) {
         return new ServiceConfiguration.Builder(someClass.getName()).withAttributes(generateConfigurationAttributes(someClass)).build();
     }
 
-
-    /**
-     * @param someClass
-     * @param configName
-     * @param <T>
-     * @return
-     */
     public static <T> ListServiceConfiguration generateListConfiguration(Class<T> someClass, String configName) {
         ListServiceConfiguration listServiceConfiguration = new ListServiceConfiguration(configName);
         listServiceConfiguration.getAttributes().addAll(generateListConfigurationAttributes(someClass));
         return listServiceConfiguration;
     }
 
-
-    /**
-     * @param someClass
-     * @param <T>
-     * @return
-     */
     public static <T> Collection<ListServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
         Collection<ListServiceConfigurationAttribute> attributes = new ArrayList<>();
@@ -779,12 +519,6 @@ public class ObjectConverter {
         return attributes;
     }
 
-
-    /**
-     * @param field
-     * @param attribute
-     * @return
-     */
     private static ListServiceConfigurationAttribute getListServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
@@ -803,12 +537,6 @@ public class ObjectConverter {
         return listServiceConfigurationAttribute;
     }
 
-
-    /**
-     * @param someClass
-     * @param <T>
-     * @return
-     */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
@@ -821,11 +549,6 @@ public class ObjectConverter {
         return attributes;
     }
 
-    /**
-     * @param field
-     * @param attribute
-     * @return
-     */
     private static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
@@ -875,23 +598,10 @@ public class ObjectConverter {
         return serviceConfigurationAttribute;
     }
 
-
-    /**
-     * @param attributeType
-     * @return
-     */
     private static boolean requiresRelatedServiceConfiguration(AttributeType attributeType) {
         return (attributeType.equals(AttributeType.ListItem) || attributeType.equals(AttributeType.Relation) || attributeType.equals(AttributeType.SingleRelationship));
     }
 
-
-    /**
-     * @param attributeType
-     * @param serviceConfigurationAttribute
-     * @param configName
-     * @param clazz
-     * @param clazz1
-     */
     private static void setRelatedServiceConfiguration(AttributeType attributeType, ServiceConfigurationAttribute serviceConfigurationAttribute, String configName, Class<?> clazz, Class<?> clazz1) {
         if (attributeType.equals(AttributeType.ListItem)) {
             serviceConfigurationAttribute.setRelatedListServiceConfiguration(generateListConfiguration(clazz, configName));
@@ -902,21 +612,12 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param field
-     * @return
-     */
     private static String inferName(Field field) {
         String name = field.getName();
         //TODO: clean up camel Case Variable names
         return name;
     }
 
-
-    /**
-     * @param field
-     * @return
-     */
     private static ConverterAttributeType inferDataType(Field field) {
         String simpleName = field.getType().getSimpleName();
         switch (simpleName) {
@@ -948,10 +649,6 @@ public class ObjectConverter {
         }
     }
 
-    /**
-     * @param clazz
-     * @return
-     */
     private static ConverterAttributeType inferDataType(Class clazz) {
         String simpleName = clazz.getSimpleName();
         switch (simpleName) {
@@ -983,21 +680,10 @@ public class ObjectConverter {
         }
     }
 
-
-    /**
-     * @param index
-     * @param clazz
-     * @return
-     */
     private static AttributeMeta inferMetaData(int index, Class clazz) {
         return new AttributeMeta(inferDataType(clazz).getAttributeType(), index);
     }
 
-
-    /**
-     * @param clazz
-     * @return
-     */
     private static boolean isPrimitiveDataTypeOrWrapper(Class clazz) {
         if (clazz.isPrimitive()) return true;
         switch (clazz.getSimpleName()) {
@@ -1014,7 +700,6 @@ public class ObjectConverter {
                 return false;
         }
     }
-
 
     private static <T> boolean fieldHasGetter(Field field, T object) {
         Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
@@ -1060,7 +745,6 @@ public class ObjectConverter {
         return new StringBuilder("set")
                 .append(name).toString().toLowerCase();
     }
-
 
     private static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;

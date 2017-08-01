@@ -18,7 +18,7 @@ import java.util.List;
  * Created by Orozco on 7/19/17.
  */
 public class SampleObject {
-    @Attribute(index = 0)
+    @Attribute(index = 0, useGetterAndSetter = false)
     public String woNumber;
 
     @Attribute(index = 1)
