@@ -1,15 +1,10 @@
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import sdk.annotations.Attribute;
-import sdk.data.DataSetItemAttachment;
 import sdk.data.RelatedServiceConfiguration;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
-import sdk.list.ListItem;
-import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 
-import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,10 +46,10 @@ public class SampleObject {
     @Attribute(index = 10)
     public SampleListItem sampleListItem;
 
-    @Attribute(index = 11, relationShipClass = SampleRelationship.class, dataType = AttributeType.SingleRelationship)
+    @Attribute(index = 11, relationshipClass = SampleRelationship.class, dataType = AttributeType.SingleRelationship)
     public SampleRelationship sampleListItemSingleRelationship;
 
-    @Attribute(index = 12, relationShipClass = SampleRelationship.class, dataType = AttributeType.Relation)
+    @Attribute(index = 12, relationshipClass = SampleRelationship.class, dataType = AttributeType.Relation)
     public List<SampleRelationship> sampleListItemRelationship;
 
 

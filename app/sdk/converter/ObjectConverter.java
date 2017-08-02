@@ -12,7 +12,6 @@ import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 
-import java.beans.BeanInfo;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -90,7 +89,7 @@ public class ObjectConverter {
             return;
         }
         int index = attribute.index();
-        Class metaClass = attribute.relationShipClass();
+        Class metaClass = attribute.relationshipClass();
         Class fieldClass = field.getType();
         AttributeMeta attributeMeta = record.getAttributeMeta(index);
         boolean userSetterAndGetter = attribute.useGetterAndSetter();
@@ -261,9 +260,9 @@ public class ObjectConverter {
         Class classValue = null;
         try {
             classValue = Class.forName(metaClass.getName());
-            Object object = classValue.newInstance();
             ArrayList<Object> tempList = new ArrayList<>();
             for (DataSetItem dataSetItem1 : dataSetItems) {
+                Object object = classValue.newInstance();
                 copyFromRecord(dataSetItem1, object);
                 tempList.add(object);
             }
@@ -552,14 +551,14 @@ public class ObjectConverter {
     private static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
-        Class relationShipClass = attribute.relationShipClass();
+        Class relationShipClass = attribute.relationshipClass();
         if (StringUtils.isEmpty(name)) {
             name = inferName(field);
         }
         AttributeType attributeType = attribute.dataType();
         ConverterAttributeType converterAttributeType;
         if (attributeType.equals(AttributeType.None)) {
-            if (attribute.relationShipClass() == Class.class) {
+            if (attribute.relationshipClass() == Class.class) {
                 converterAttributeType = inferDataType(field);
                 attributeType = converterAttributeType.getAttributeType();
             } else {
@@ -749,7 +748,7 @@ public class ObjectConverter {
     private static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
         String className = sourceObject.getClass().getName();
-        Map<String, Method> methodMap = Arrays.stream(sourceObject.getClass().getDeclaredMethods()).collect(Collectors.toMap(method -> method.getName().toLowerCase(), method -> method));
+        Map<String, Method> methodMap = Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(Collectors.toMap(method -> method.getName().toLowerCase(), method -> method, ((method, method2) ->  method)));
         getMethodMap().put(className, methodMap);
     }
 
