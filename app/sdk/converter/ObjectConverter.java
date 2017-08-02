@@ -506,9 +506,9 @@ public class ObjectConverter {
         return listServiceConfiguration;
     }
 
-    public static <T> Collection<ListServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
+    public static <T> Set<ListServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
-        Collection<ListServiceConfigurationAttribute> attributes = new ArrayList<>();
+        Set<ListServiceConfigurationAttribute> attributes = new HashSet<>();
         for (Field field : fields) {
             Attribute attribute = field.getAnnotation(Attribute.class);
             if (attribute != null) {
@@ -524,7 +524,7 @@ public class ObjectConverter {
         if (StringUtils.isEmpty(name)) {
             name = inferName(field);
         }
-        ConverterAttributeType converterAttributeType;
+        ConverterAttributeType converterAttributeType = null;
         AttributeType attributeType = attribute.dataType();
         if (attributeType.equals(AttributeType.None)) {
             converterAttributeType = inferDataType(field);
@@ -532,7 +532,7 @@ public class ObjectConverter {
         ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
         listServiceConfigurationAttribute.setAttributeIndex(index);
         listServiceConfigurationAttribute.setLabel(name);
-        listServiceConfigurationAttribute.setAttributeType(attributeType);
+        listServiceConfigurationAttribute.setAttributeType(converterAttributeType.getAttributeType());
         return listServiceConfigurationAttribute;
     }
 
