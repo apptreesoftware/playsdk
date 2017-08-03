@@ -181,4 +181,9 @@ public class SampleObject {
     public void setSampleListItemRelationship(List<SampleRelationship> sampleListItemRelationship) {
         this.sampleListItemRelationship = sampleListItemRelationship;
     }
+
+    @Attribute(index = 15, dataType = AttributeType.SingleRelationship)
+    public void setSampleListItemRelationships(List<SampleRelationship> sampleListItemRelationship) {
+        this.sampleListItemRelationship = sampleListItemRelationship;
+    }
 }
