@@ -28,6 +28,10 @@ public class ObjectConverter {
     private static final Map<AttributeType, List<Class>> supportedTypeMap;
     private static Map<String, Map<String, Method>> methodMap;
 
+
+    /**
+     *  Static map containing AttributeType -> Class supported types
+     */
     static {
         supportedTypeMap = new HashMap<AttributeType, List<Class>>() {{
             ArrayList<Class> stringClasses = new ArrayList<>();
@@ -73,6 +77,15 @@ public class ObjectConverter {
     }
 
 
+    /**
+     * Method accepts an object that implements the `Record` interface and an object's members annotated with Attribute annotation
+     * This function iterates the annotated members of the "destination" object
+     * then copies the value from record object into the annotated field of your "destination" object
+     * The link is created by index
+     * @param dataSetItem
+     * @param destination
+     * @param <T>
+     */
     public static <T> void copyFromRecord(Record dataSetItem, T destination) {
         if (destination == null) return;
         mapMethodsFromSource(destination);
@@ -85,6 +98,18 @@ public class ObjectConverter {
         }
     }
 
+
+    /**
+     *
+     * @param proxy
+     * @param record
+     * @param destination
+     * @param <T>
+     * @throws UnsupportedAttributeException
+     * @throws IllegalAccessException
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void copyToField(AttributeProxy proxy, Record record, T destination) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException, InvocationTargetException {
         Attribute attribute = proxy.getAttributeAnnotation();
         if (attribute == null) {
@@ -104,6 +129,19 @@ public class ObjectConverter {
         readDataSetItemData(proxy, attributeMeta, destination, record, metaClass, userSetterAndGetter);
     }
 
+
+    /**
+     *
+     * @param proxy
+     * @param attributeMeta
+     * @param destination
+     * @param dataSetItem
+     * @param metaClass
+     * @param useSetterAndGetter
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class metaClass, boolean useSetterAndGetter) throws UnableToWriteException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
@@ -139,6 +177,18 @@ public class ObjectConverter {
         }
     }
 
+
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param useSetterAndGetter
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeStringData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, boolean useSetterAndGetter) throws UnableToWriteException, InvocationTargetException {
         String value = dataSetItem.getString(index);
         try {
@@ -166,6 +216,17 @@ public class ObjectConverter {
         }
     }
 
+
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeDoubleData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
         Optional<Double> value = dataSetItem.getOptionalDouble(index);
         boolean isFloatValue = fieldIsFloat(proxy.getType());
@@ -192,6 +253,16 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeBoolData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
         Optional<Boolean> value = dataSetItem.getOptionalBoolean(index);
         try {
@@ -206,6 +277,16 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeDateData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
         DateTime value = dataSetItem.getDate(index);
         try {
@@ -215,6 +296,16 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeDateTimeData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
         DateTime value = dataSetItem.getDateTime(index);
         try {
@@ -224,10 +315,25 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param clazz
+     * @return
+     */
     private static boolean fieldIsFloat(Class clazz) {
         return (clazz.getName().contains("float") || clazz.getName().contains("Float"));
     }
 
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeListItemData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
         ListItem listItem = dataSetItem.getListItem(index);
         if (listItem == null) return;
@@ -243,6 +349,16 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeSingleRelationshipData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
         DataSetItem newDataSetItem = dataSetItem.getDataSetItem(index);
         if (newDataSetItem == null) return;
@@ -258,6 +374,17 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param proxy
+     * @param destination
+     * @param dataSetItem
+     * @param index
+     * @param metaClass
+     * @param <T>
+     * @throws UnableToWriteException
+     * @throws InvocationTargetException
+     */
     private static <T> void writeRelationshipData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
         List<DataSetItem> dataSetItems = dataSetItem.getDataSetItems(index);
         if (dataSetItems == null) return;
@@ -276,6 +403,15 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param proxy
+     * @param datetime
+     * @param destination
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void setDateValueFromField(AttributeProxy proxy, DateTime datetime, T destination) throws IllegalAccessException, InvocationTargetException {
         Class clazz = proxy.getType();
         if (clazz == org.joda.time.DateTime.class) {
@@ -289,6 +425,12 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param classType
+     * @param type
+     * @return
+     */
     private static boolean isFieldClassSupportedForType(Class<?> classType, AttributeType type) {
         if ((type.equals(AttributeType.ListItem) || type.equals(AttributeType.Relation) || type.equals(AttributeType.SingleRelationship)) && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
@@ -297,10 +439,20 @@ public class ObjectConverter {
         return classList != null && classList.contains(classType);
     }
 
+    /**
+     *
+     * @return
+     */
     private static Map<AttributeType, List<Class>> getSupportedTypeMap() {
         return supportedTypeMap;
     }
 
+    /**
+     *
+     * @param dataSetItem
+     * @param source
+     * @param <T>
+     */
     public static <T> void copyToRecord(Record dataSetItem, T source) {
         if (source == null) return;
         mapMethodsFromSource(source);
@@ -313,6 +465,11 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param clazz
+     * @return
+     */
     private static List<AttributeProxy> getMethodAndFieldAnnotationsForClass(Class clazz) {
         Field[] fields = clazz.getFields();
         Method[] methods = clazz.getMethods();
@@ -329,6 +486,16 @@ public class ObjectConverter {
         return attributeProxies;
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param dataSetItem
+     * @param source
+     * @param <T>
+     * @throws UnsupportedAttributeException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void copyFromField(AttributeProxy attributeProxy, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
         Attribute attributeAnnotation = attributeProxy.getAttributeAnnotation();
         PrimaryKey primaryKeyAnnotation = attributeProxy.getPrimaryKeyAnnotation();
@@ -360,6 +527,19 @@ public class ObjectConverter {
         readObjectData(attributeProxy, attributeMeta, source, dataSetItem, primaryKey, useGetterAndSetter, value);
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param attributeMeta
+     * @param object
+     * @param dataSetItem
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readObjectData(AttributeProxy attributeProxy, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
@@ -394,6 +574,19 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readStringData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Object fieldData = null;
         if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) fieldData = useGetter(attributeProxy, object);
@@ -410,6 +603,19 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readIntegerData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Integer fieldData = null;
         if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
@@ -427,6 +633,19 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readDoubleData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         String fieldName = attributeProxy.getDataTypeName();
         Double fieldData = null;
@@ -453,6 +672,19 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readBoolData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Boolean fieldData = null;
         if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
@@ -470,6 +702,19 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readDateData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDate(dateTime, index);
@@ -484,6 +729,19 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readDateTimeData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDateTime(dateTime, index);
@@ -498,6 +756,16 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param useGetterAndSetter
+     * @param <T>
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> DateTime getDateValueFromObject(AttributeProxy attributeProxy, T object, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Date);
         if (supportedClasses == null) {
@@ -524,6 +792,17 @@ public class ObjectConverter {
         return new DateTime();
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param dataSetItem
+     * @param index
+     * @param useGetterAndSetter
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readListItemData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object listItemObject = null;
         if (useGetterAndSetter) {
@@ -536,6 +815,17 @@ public class ObjectConverter {
         dataSetItem.setListItem(listItem, index);
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param dataSetItem
+     * @param index
+     * @param useGetterAndSetter
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readSingleRelationshipData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object relationship = null;
         if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
@@ -545,6 +835,17 @@ public class ObjectConverter {
         copyToRecord(tempItem, relationship);
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param dataSetItem
+     * @param index
+     * @param useGetterAndSetter
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     private static <T> void readRelationshipData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         List<Object> relationship = null;
         if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
@@ -556,6 +857,12 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param someClass
+     * @param <T>
+     * @return
+     */
     public static <T> ServiceConfiguration generateConfiguration(Class<T> someClass) {
         return new ServiceConfiguration.Builder(someClass.getName()).withAttributes(generateConfigurationAttributes(someClass)).build();
     }
@@ -566,6 +873,12 @@ public class ObjectConverter {
         return listServiceConfiguration;
     }
 
+    /**
+     *
+     * @param someClass
+     * @param <T>
+     * @return
+     */
     public static <T> Set<ListServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
         Set<ListServiceConfigurationAttribute> attributes = new HashSet<>();
@@ -578,6 +891,12 @@ public class ObjectConverter {
         return attributes;
     }
 
+    /**
+     *
+     * @param field
+     * @param attribute
+     * @return
+     */
     private static ListServiceConfigurationAttribute getListServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
@@ -596,6 +915,12 @@ public class ObjectConverter {
         return listServiceConfigurationAttribute;
     }
 
+    /**
+     *
+     * @param someClass
+     * @param <T>
+     * @return
+     */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
         Method[] methods = someClass.getDeclaredMethods();
@@ -609,6 +934,12 @@ public class ObjectConverter {
         return attributes;
     }
 
+    /**
+     *
+     * @param configurationWrapper
+     * @param attribute
+     * @return
+     */
     private static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(ConfigurationWrapper configurationWrapper, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
@@ -658,10 +989,23 @@ public class ObjectConverter {
         return serviceConfigurationAttribute;
     }
 
+    /**
+     *
+     * @param attributeType
+     * @return
+     */
     private static boolean requiresRelatedServiceConfiguration(AttributeType attributeType) {
         return (attributeType.equals(AttributeType.ListItem) || attributeType.equals(AttributeType.Relation) || attributeType.equals(AttributeType.SingleRelationship));
     }
 
+    /**
+     *
+     * @param attributeType
+     * @param serviceConfigurationAttribute
+     * @param configName
+     * @param clazz
+     * @param clazz1
+     */
     private static void setRelatedServiceConfiguration(AttributeType attributeType, ServiceConfigurationAttribute serviceConfigurationAttribute, String configName, Class<?> clazz, Class<?> clazz1) {
         if (attributeType.equals(AttributeType.ListItem)) {
             serviceConfigurationAttribute.setRelatedListServiceConfiguration(generateListConfiguration(clazz, configName));
@@ -672,11 +1016,21 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     */
     private static String inferName(String name) {
         //TODO: clean up camel Case Variable names
         return name;
     }
 
+    /**
+     *
+     * @param dataTypeName
+     * @return
+     */
     private static ConverterAttributeType inferDataType(String dataTypeName) {
         switch (dataTypeName) {
             case "String":
@@ -707,6 +1061,11 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param clazz
+     * @return
+     */
     private static ConverterAttributeType inferDataType(Class clazz) {
         String simpleName = clazz.getSimpleName();
         switch (simpleName) {
@@ -738,10 +1097,21 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param index
+     * @param clazz
+     * @return
+     */
     private static AttributeMeta inferMetaData(int index, Class clazz) {
         return new AttributeMeta(inferDataType(clazz).getAttributeType(), index);
     }
 
+    /**
+     *
+     * @param clazz
+     * @return
+     */
     private static boolean isPrimitiveDataTypeOrWrapper(Class clazz) {
         if (clazz.isPrimitive()) return true;
         switch (clazz.getSimpleName()) {
@@ -759,6 +1129,13 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param <T>
+     * @return
+     */
     private static <T> boolean fieldHasGetter(AttributeProxy attributeProxy, T object) {
         if (!attributeProxy.isField) return false;
         Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
@@ -766,12 +1143,26 @@ public class ObjectConverter {
         return (tempMap.containsKey(getterMethodName(attributeProxy.getName())));
     }
 
+    /**
+     *
+     * @param proxy
+     * @param object
+     * @param <T>
+     * @return
+     */
     private static <T> boolean fieldHasSetter(AttributeProxy proxy, T object) {
         Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
         if (tempMap == null) return false;
         return (tempMap.containsKey(setterMethodName(proxy)));
     }
 
+    /**
+     *
+     * @param destination
+     * @param proxy
+     * @param value
+     * @param <T>
+     */
     private static <T> void useSetter(T destination, AttributeProxy proxy, Object value) {
         Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
         if (tempMethodMap == null) return;
@@ -783,6 +1174,13 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param object
+     * @param <T>
+     * @return
+     */
     private static <T> Object useGetter(AttributeProxy attributeProxy, T object) {
         Map<String, Method> tempMethodMap = getMethodMap().get(object.getClass().getName());
         if (tempMethodMap == null) return null;
@@ -795,11 +1193,21 @@ public class ObjectConverter {
         return null;
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     */
     private static String getterMethodName(String name) {
         return new StringBuilder("get")
                 .append(name).toString().toLowerCase();
     }
 
+    /**
+     *
+     * @param proxy
+     * @return
+     */
     private static String setterMethodName(AttributeProxy proxy) {
         if (proxy.isField) {
             return new StringBuilder("set")
@@ -809,6 +1217,11 @@ public class ObjectConverter {
         }
     }
 
+    /**
+     *
+     * @param sourceObject
+     * @param <T>
+     */
     private static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
         String className = sourceObject.getClass().getName();
@@ -816,6 +1229,10 @@ public class ObjectConverter {
         getMethodMap().put(className, methodMap);
     }
 
+    /**
+     *
+     * @return
+     */
     public static Map<String, Map<String, Method>> getMethodMap() {
         if (methodMap == null) {
             methodMap = new HashMap<>();
@@ -823,10 +1240,23 @@ public class ObjectConverter {
         return methodMap;
     }
 
+    /**
+     *
+     * @param tempMethodMap
+     */
     public static void setMethodMap(Map<String, Map<String, Method>> tempMethodMap) {
         methodMap = tempMethodMap;
     }
 
+    /**
+     *
+     * @param attributeProxy
+     * @param destination
+     * @param value
+     * @param <T>
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
     private static <T> void useSetterIfExists(AttributeProxy attributeProxy, T destination, Object value) throws InvocationTargetException, IllegalAccessException {
         if (fieldHasSetter(attributeProxy, destination)) {
             useSetter(destination, attributeProxy, value);

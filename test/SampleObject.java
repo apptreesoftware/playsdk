@@ -183,7 +183,18 @@ public class SampleObject {
     }
 
     @Attribute(index = 15, dataType = AttributeType.SingleRelationship)
-    public void setSampleListItemRelationships(List<SampleRelationship> sampleListItemRelationship) {
+    public String setSampleListItemRelationships() {
+        return "";
+    }
+
+
+    @Attribute(index = 16)
+    public String getTestRandom() {
+        return "hello sir";
+    }
+
+
+    public void setTestRandom(List<SampleRelationship> sampleListItemRelationship) {
         this.sampleListItemRelationship = sampleListItemRelationship;
     }
 }
