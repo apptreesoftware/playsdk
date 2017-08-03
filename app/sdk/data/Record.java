@@ -65,4 +65,9 @@ public interface Record {
 
     void setPrimaryKey(String primaryKey);
 
+    void setValue(String value);
+
+    boolean isValueSet();
+
+
 }

@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
+import sdk.annotations.PrimaryValue;
 import sdk.data.*;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
@@ -154,7 +155,7 @@ public class ObjectConverter {
             if (value.isPresent()) {
                 field.set(destination, value.get());
             } else {
-                ConverterAttributeType converterAttributeType = inferDataType(field);
+                ConverterAttributeType converterAttributeType = inferDataType(field.getClass().getSimpleName());
                 field.set(destination, (converterAttributeType.isOptional()) ? null : 0);
             }
         } catch (IllegalAccessException e) {
@@ -174,7 +175,7 @@ public class ObjectConverter {
                 }
 
             } else {
-                ConverterAttributeType converterAttributeType = inferDataType(field);
+                ConverterAttributeType converterAttributeType = inferDataType(field.getClass().getSimpleName());
                 if (converterAttributeType.isOptional()) {
                     field.set(destination, null);
                 } else {
@@ -194,7 +195,7 @@ public class ObjectConverter {
             if (value.isPresent()) {
                 field.set(destination, value.get());
             } else {
-                ConverterAttributeType converterAttributeType = inferDataType(field);
+                ConverterAttributeType converterAttributeType = inferDataType(field.getClass().getSimpleName());
                 field.set(destination, (converterAttributeType.isOptional()) ? null : false);
             }
         } catch (IllegalAccessException e) {
@@ -300,196 +301,252 @@ public class ObjectConverter {
     public static <T> void copyToRecord(Record dataSetItem, T source) {
         if (source == null) return;
         mapMethodsFromSource(source);
-        Field[] fields = source.getClass().getDeclaredFields();
-        for (Field field : fields) {
+        for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(source.getClass())) {
             try {
-                copyFromField(field, dataSetItem, source);
+                copyFromField(attributeProxy, dataSetItem, source);
             } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private static <T> void copyFromField(Field field, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
-        Attribute attributeAnnotation = field.getAnnotation(Attribute.class);
-        PrimaryKey primaryKeyAnnotation = field.getAnnotation(PrimaryKey.class);
+    private static List<AttributeProxy> getMethodAndFieldAnnotationsForClass(Class clazz) {
+        Field[] fields = clazz.getFields();
+        Method[] methods = clazz.getMethods();
+        List<AttributeProxy> attributeProxies = new ArrayList<>();
+        attributeProxies.addAll(Arrays.stream(fields)
+                .filter(field -> field.getAnnotation(Attribute.class) != null)
+                .map(field -> new AttributeProxy(field))
+                .collect(Collectors.toList()));
+
+        attributeProxies.addAll(Arrays.stream(methods)
+                .filter(method -> method.getAnnotation(Attribute.class) != null)
+                .map(field -> new AttributeProxy(field))
+                .collect(Collectors.toList()));
+        return attributeProxies;
+    }
+
+    private static <T> void copyFromField(AttributeProxy attributeProxy, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
+        Attribute attributeAnnotation = attributeProxy.getAttributeAnnotation();
+        PrimaryKey primaryKeyAnnotation = attributeProxy.getPrimaryKeyAnnotation();
+        PrimaryValue primaryValueAnnotation = attributeProxy.getValueAnnotation();
         boolean primaryKey = false;
+        boolean value = false;
         if (primaryKeyAnnotation != null) {
             primaryKey = true;
         }
+        if (primaryValueAnnotation != null) {
+            value = true;
+        }
         if (primaryKey && attributeAnnotation == null) {
-            dataSetItem.setPrimaryKey(field.get(source).toString());
+            dataSetItem.setPrimaryKey(attributeProxy.getValue(source).toString());
         }
         if (attributeAnnotation == null) {
             return;
         }
         int index = attributeAnnotation.index();
-        Class fieldClass = field.getType();
+        Class fieldClass = attributeProxy.getType();
         boolean useGetterAndSetter = attributeAnnotation.useGetterAndSetter();
         AttributeMeta attributeMeta = dataSetItem.getAttributeMeta(index);
         if (attributeMeta == null) {
-            attributeMeta = new AttributeMeta(inferDataType(field).getAttributeType(), index);
+            attributeMeta = new AttributeMeta(inferDataType(attributeProxy.getType().getSimpleName()).getAttributeType(), index);
         }
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readObjectData(field, attributeMeta, source, dataSetItem, primaryKey, useGetterAndSetter);
+        readObjectData(attributeProxy, attributeMeta, source, dataSetItem, primaryKey, useGetterAndSetter, value);
     }
 
-    private static <T> void readObjectData(Field field, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+    private static <T> void readObjectData(AttributeProxy attributeProxy, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
-                readStringData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                readStringData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
             case Int:
-                readIntegerData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                readIntegerData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
             case Double:
-                readDoubleData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                readDoubleData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
             case Boolean:
-                readBoolData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                readBoolData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
             case Date:
-                readDateData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                readDateData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
             case DateTime:
-                readDateTimeData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                readDateTimeData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
             case ListItem:
-                readListItemData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                readListItemData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             case Relation:
-                readRelationshipData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                readRelationshipData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             case SingleRelationship:
-                readSingleRelationshipData(field, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                readSingleRelationshipData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             default:
                 break;
         }
     }
 
-    private static <T> void readStringData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+    private static <T> void readStringData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Object fieldData = null;
-        if (fieldHasGetter(field, object) && useGetterAndSetter) fieldData = useGetter(field, object);
-        else fieldData = field.get(object);
+        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) fieldData = useGetter(attributeProxy, object);
+        else fieldData = attributeProxy.getValue(object);
         record.setString(fieldData != null ? fieldData.toString() : null, index);
+        if (value) {
+            record.setValue(fieldData.toString());
+        }
         if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
+            if(!record.isValueSet()){
+                record.setValue(fieldData.toString());
+            }
         }
     }
 
-    private static <T> void readIntegerData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
+    private static <T> void readIntegerData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Integer fieldData = null;
-        if (fieldHasGetter(field, object) && useGetterAndSetter) {
-            fieldData = (Integer) useGetter(field, object);
-        } else fieldData = (Integer) field.get(object);
+        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+            fieldData = (Integer) useGetter(attributeProxy, object);
+        } else fieldData = (Integer) attributeProxy.getValue(object);
         record.setInt(fieldData, index);
+        if (value) {
+            record.setValue(fieldData.toString());
+        }
         if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
+            if(!record.isValueSet()) {
+                record.setValue(fieldData.toString());
+            }
         }
     }
 
-    private static <T> void readDoubleData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
-        String fieldName = field.getType().getName();
+    private static <T> void readDoubleData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+        String fieldName = attributeProxy.getDataTypeName();
         Double fieldData = null;
         if (fieldName.contains("Float") || fieldName.contains("float")) {
             Float floatValue = null;
-            if (fieldHasGetter(field, object) && useGetterAndSetter) {
-                floatValue = (Float) useGetter(field, object);
-            } else floatValue = (Float) field.get(object);
+            if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                floatValue = (Float) useGetter(attributeProxy, object);
+            } else floatValue = (Float) attributeProxy.getValue(object);
             fieldData = new Double(floatValue);
         } else {
-            if (fieldHasGetter(field, object) && useGetterAndSetter) {
-                fieldData = (Double) useGetter(field, object);
-            } else fieldData = (Double) field.get(object);
+            if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                fieldData = (Double) useGetter(attributeProxy, object);
+            } else fieldData = (Double) attributeProxy.getValue(object);
         }
         record.setDouble(fieldData, index);
+        if (value) {
+            record.setValue(fieldData.toString());
+        }
         if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
+            if(!record.isValueSet()) {
+                record.setValue(fieldData.toString());
+            }
         }
     }
 
-    private static <T> void readBoolData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
+    private static <T> void readBoolData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Boolean fieldData = null;
-        if (fieldHasGetter(field, object) && useGetterAndSetter) {
-            fieldData = (Boolean) useGetter(field, object);
-        } else fieldData = (Boolean) field.get(object);
+        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+            fieldData = (Boolean) useGetter(attributeProxy, object);
+        } else fieldData = (Boolean) attributeProxy.getValue(object);
         record.setBool(fieldData, index);
+        if (value) {
+            record.setValue(fieldData.toString());
+        }
         if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
+            if(!record.isValueSet()) {
+                record.setValue(fieldData.toString());
+            }
         }
     }
 
-    private static <T> void readDateData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
-        DateTime dateTime = getDateValueFromObject(field, object, useGetterAndSetter);
+    private static <T> void readDateData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+        DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDate(dateTime, index);
+        if (value) {
+            record.setValue(dateTime.toString());
+        }
         if (primaryKey) {
             record.setPrimaryKey(dateTime.toString());
+            if(!record.isValueSet()) {
+                record.setValue(dateTime.toString());
+            }
         }
     }
 
-    private static <T> void readDateTimeData(Field field, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException {
-        DateTime dateTime = getDateValueFromObject(field, object, useGetterAndSetter);
+    private static <T> void readDateTimeData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+        DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDateTime(dateTime, index);
+        if (value) {
+            record.setValue(dateTime.toString());
+        }
         if (primaryKey) {
             record.setPrimaryKey(dateTime.toString());
+            if(!record.isValueSet()) {
+                record.setValue(dateTime.toString());
+            }
         }
     }
 
-    private static <T> DateTime getDateValueFromObject(Field field, T object, boolean useGetterAndSetter) throws IllegalAccessException {
+    private static <T> DateTime getDateValueFromObject(AttributeProxy attributeProxy, T object, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Date);
         if (supportedClasses == null) {
             return new DateTime();
         }
         for (Class clazz : supportedClasses) {
-            if (clazz == org.joda.time.DateTime.class && field.getType() == clazz) {
-                if (fieldHasGetter(field, object) && useGetterAndSetter) {
-                    return (DateTime) useGetter(field, object);
-                } else return (DateTime) field.get(object);
+            if (clazz == org.joda.time.DateTime.class && attributeProxy.getType() == clazz) {
+                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                    return (DateTime) useGetter(attributeProxy, object);
+                } else return (DateTime) attributeProxy.getValue(object);
             }
-            if (clazz == java.util.Date.class && field.getType() == clazz) {
-                if (fieldHasGetter(field, object) && useGetterAndSetter) {
-                    return new DateTime(((java.util.Date) useGetter(field, object)).getTime());
-                } else return new DateTime((Date) field.get(object));
+            if (clazz == java.util.Date.class && attributeProxy.getType() == clazz) {
+                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                    return new DateTime(((java.util.Date) useGetter(attributeProxy, object)).getTime());
+                } else return new DateTime((Date) attributeProxy.getValue(object));
             }
-            if (clazz == java.sql.Date.class && field.getType() == clazz) {
-                if (fieldHasGetter(field, object) && useGetterAndSetter) {
-                    return new DateTime(((java.sql.Date) useGetter(field, object)).getTime());
-                } else return new DateTime((java.sql.Date) field.get(object));
+            if (clazz == java.sql.Date.class && attributeProxy.getType() == clazz) {
+                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                    return new DateTime(((java.sql.Date) useGetter(attributeProxy, object)).getTime());
+                } else return new DateTime((java.sql.Date) attributeProxy.getValue(object));
             }
         }
 
         return new DateTime();
     }
 
-    private static <T> void readListItemData(Field field, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException {
+    private static <T> void readListItemData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object listItemObject = null;
         if (useGetterAndSetter) {
-            if (fieldHasGetter(field, object)) {
-                listItemObject = useGetter(field, object);
+            if (fieldHasGetter(attributeProxy, object)) {
+                listItemObject = useGetter(attributeProxy, object);
             }
-        } else listItemObject = field.get(object);
+        } else listItemObject = attributeProxy.getValue(object);
         ListItem listItem = new ListItem();
         copyToRecord(listItem, listItemObject);
         dataSetItem.setListItem(listItem, index);
     }
 
-    private static <T> void readSingleRelationshipData(Field field, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException {
+    private static <T> void readSingleRelationshipData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object relationship = null;
-        if (fieldHasGetter(field, object) && useGetterAndSetter) {
-            relationship = useGetter(field, object);
-        } else relationship = field.get(object);
+        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+            relationship = useGetter(attributeProxy, object);
+        } else relationship = attributeProxy.getValue(object);
         DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
         copyToRecord(tempItem, relationship);
     }
 
-    private static <T> void readRelationshipData(Field field, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException {
+    private static <T> void readRelationshipData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         List<Object> relationship = null;
-        if (fieldHasGetter(field, object) && useGetterAndSetter) {
-            relationship = (List<Object>) useGetter(field, object);
-        } else relationship = (List<Object>) field.get(object);
+        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+            relationship = (List<Object>) useGetter(attributeProxy, object);
+        } else relationship = (List<Object>) attributeProxy.getValue(object);
         for (Object obj : relationship) {
             DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
             copyToRecord(tempItem, obj);
@@ -522,12 +579,12 @@ public class ObjectConverter {
         int index = attribute.index();
         String name = attribute.name();
         if (StringUtils.isEmpty(name)) {
-            name = inferName(field);
+            name = inferName(field.getName());
         }
         ConverterAttributeType converterAttributeType = null;
         AttributeType attributeType = attribute.dataType();
         if (attributeType.equals(AttributeType.None)) {
-            converterAttributeType = inferDataType(field);
+            converterAttributeType = inferDataType(field.getClass().getSimpleName());
         }
         ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
         listServiceConfigurationAttribute.setAttributeIndex(index);
@@ -538,31 +595,38 @@ public class ObjectConverter {
 
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
+        Method[] methods = someClass.getDeclaredMethods();
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         for (Field field : fields) {
             Attribute attribute = field.getAnnotation(Attribute.class);
             if (attribute != null) {
-                attributes.add(getServiceConfigurationAttributeFromField(field, attribute));
+                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(field), attribute));
+            }
+        }
+        for (Method method : methods) {
+            Attribute attribute = method.getAnnotation(Attribute.class);
+            if (attribute != null) {
+                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(method), attribute));
             }
         }
         return attributes;
     }
 
-    private static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
+    private static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(ConfigurationWrapper configurationWrapper, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
         Class relationShipClass = attribute.relationshipClass();
         if (StringUtils.isEmpty(name)) {
-            name = inferName(field);
+            name = inferName(configurationWrapper.varName);
         }
         AttributeType attributeType = attribute.dataType();
         ConverterAttributeType converterAttributeType;
         if (attributeType.equals(AttributeType.None)) {
             if (attribute.relationshipClass() == Class.class) {
-                converterAttributeType = inferDataType(field);
+                converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
                 attributeType = converterAttributeType.getAttributeType();
             } else {
-                converterAttributeType = inferDataType(field);
+                converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
                 if (!converterAttributeType.getAttributeType().equals(AttributeType.Relation)) {
                     converterAttributeType = new ConverterAttributeType(AttributeType.SingleRelationship, true);
                     attributeType = converterAttributeType.getAttributeType();
@@ -592,7 +656,7 @@ public class ObjectConverter {
         serviceConfigurationAttribute.search = canSearch;
         serviceConfigurationAttribute.searchRequired = canSearchAndRequired;
         if (requiresRelatedServiceConfiguration(attributeType)) {
-            setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, field.getType(), relationShipClass);
+            setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, configurationWrapper.clazz, relationShipClass);
         }
         return serviceConfigurationAttribute;
     }
@@ -611,15 +675,13 @@ public class ObjectConverter {
         }
     }
 
-    private static String inferName(Field field) {
-        String name = field.getName();
+    private static String inferName(String name) {
         //TODO: clean up camel Case Variable names
         return name;
     }
 
-    private static ConverterAttributeType inferDataType(Field field) {
-        String simpleName = field.getType().getSimpleName();
-        switch (simpleName) {
+    private static ConverterAttributeType inferDataType(String dataTypeName) {
+        switch (dataTypeName) {
             case "String":
                 return new ConverterAttributeType(AttributeType.String, true);
             case "Double":
@@ -700,10 +762,11 @@ public class ObjectConverter {
         }
     }
 
-    private static <T> boolean fieldHasGetter(Field field, T object) {
+    private static <T> boolean fieldHasGetter(AttributeProxy attributeProxy, T object) {
+        if (!attributeProxy.isField) return false;
         Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
         if (tempMap == null) return false;
-        return (tempMap.containsKey(getterMethodName(field.getName())));
+        return (tempMap.containsKey(getterMethodName(attributeProxy.getName())));
     }
 
     private static <T> boolean fieldHasSetter(Field field, T object) {
@@ -723,10 +786,10 @@ public class ObjectConverter {
         }
     }
 
-    private static <T> Object useGetter(Field field, T object) {
+    private static <T> Object useGetter(AttributeProxy attributeProxy, T object) {
         Map<String, Method> tempMethodMap = getMethodMap().get(object.getClass().getName());
         if (tempMethodMap == null) return null;
-        Method getterMethod = tempMethodMap.get(getterMethodName(field.getName()));
+        Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
         try {
             return getterMethod.invoke(object);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -748,7 +811,7 @@ public class ObjectConverter {
     private static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
         String className = sourceObject.getClass().getName();
-        Map<String, Method> methodMap = Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(Collectors.toMap(method -> method.getName().toLowerCase(), method -> method, ((method, method2) ->  method)));
+        Map<String, Method> methodMap = Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(Collectors.toMap(method -> method.getName().toLowerCase(), method -> method, ((method, method2) -> method)));
         getMethodMap().put(className, methodMap);
     }
 

@@ -76,7 +76,7 @@ public class SampleObject {
         return attributes;
     }
 
-
+    @Attribute(index = 13)
     public String getWoNumber() {
         return woNumber;
     }
@@ -165,6 +165,7 @@ public class SampleObject {
         this.sampleListItem = sampleListItem;
     }
 
+    @Attribute(index = 14, dataType = AttributeType.Relation)
     public SampleRelationship getSampleListItemSingleRelationship() {
         return sampleListItemSingleRelationship;
     }

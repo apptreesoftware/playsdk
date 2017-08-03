@@ -479,6 +479,16 @@ public class DataSetItem implements Record {
         this.primaryKey = primaryKey;
     }
 
+    @Override
+    public void setValue(String value) {
+        return;
+    }
+
+    @Override
+    public boolean isValueSet() {
+        return true;
+    }
+
     /**
      * Gets the primary key
      *

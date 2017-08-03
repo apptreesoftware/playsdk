@@ -36,6 +36,7 @@ public class ListItem implements Record {
     private int maxAttributeIndex = -1;
     private Map<Integer, AttributeMeta> attributeMetaMap;
     private ListServiceConfiguration attributeConfiguration;
+    private boolean valueIsSet;
 
     public ListServiceConfiguration getConfiguration() {
         return attributeConfiguration;
@@ -504,6 +505,17 @@ public class ListItem implements Record {
     @Override
     public void setPrimaryKey(String primaryKey) {
         this.id = primaryKey;
+    }
+
+    @Override
+    public void setValue(String value) {
+        valueIsSet = true;
+        this.value = value;
+    }
+
+    @Override
+    public boolean isValueSet() {
+        return valueIsSet;
     }
 
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
