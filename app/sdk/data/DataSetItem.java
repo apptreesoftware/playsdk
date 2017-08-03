@@ -310,7 +310,7 @@ public class DataSetItem implements Record {
 
     @Override
     public AttributeMeta getAttributeMeta(int index) {
-        if(configurationMap == null) return null;
+        if(configurationMap == null || configurationMap.size() == 0) return null;
         ServiceConfigurationAttribute serviceConfigurationAttribute = configurationMap.get(index);
         return new AttributeMeta(serviceConfigurationAttribute.getAttributeType(), serviceConfigurationAttribute.getAttributeIndex());
     }

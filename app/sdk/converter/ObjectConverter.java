@@ -597,16 +597,10 @@ public class ObjectConverter {
         Field[] fields = someClass.getDeclaredFields();
         Method[] methods = someClass.getDeclaredMethods();
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
-        for (Field field : fields) {
-            Attribute attribute = field.getAnnotation(Attribute.class);
+        for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(someClass)) {
+            Attribute attribute = proxy.getAttributeAnnotation();
             if (attribute != null) {
-                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(field), attribute));
-            }
-        }
-        for (Method method : methods) {
-            Attribute attribute = method.getAnnotation(Attribute.class);
-            if (attribute != null) {
-                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(method), attribute));
+                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(proxy), attribute));
             }
         }
         return attributes;
@@ -671,7 +665,7 @@ public class ObjectConverter {
         } else if (attributeType.equals(AttributeType.Relation)) {
             serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz1).getAttributes()));
         } else {
-            serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz1).getAttributes()));
+            serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz).getAttributes()));
         }
     }
 

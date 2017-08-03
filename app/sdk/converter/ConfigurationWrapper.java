@@ -29,5 +29,11 @@ public class ConfigurationWrapper{
         this.clazz = method.getReturnType();
     }
 
+    public ConfigurationWrapper(AttributeProxy attributeProxy){
+        this.varName = attributeProxy.getName();
+        this.dataTypeName = attributeProxy.getType().getSimpleName();
+        this.clazz = attributeProxy.getType();
+    }
+
 
 }

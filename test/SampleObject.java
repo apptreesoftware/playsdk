@@ -165,7 +165,7 @@ public class SampleObject {
         this.sampleListItem = sampleListItem;
     }
 
-    @Attribute(index = 14, dataType = AttributeType.Relation)
+    @Attribute(index = 14, dataType = AttributeType.SingleRelationship)
     public SampleRelationship getSampleListItemSingleRelationship() {
         return sampleListItemSingleRelationship;
     }

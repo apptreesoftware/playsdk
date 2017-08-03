@@ -70,9 +70,9 @@ public class AttributeProxy {
 
     public String getName() {
         if (isField) {
-            return currentField.getType().getName();
+            return currentField.getName();
         } else {
-            return currentMethod.getReturnType().getName();
+            return currentMethod.getName();
         }
     }
 
