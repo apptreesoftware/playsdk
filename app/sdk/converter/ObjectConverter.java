@@ -2,6 +2,7 @@ package sdk.converter;
 
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
+import scala.annotation.meta.field;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
@@ -157,16 +158,23 @@ public class ObjectConverter {
                 intValue = value.get();
             } else {
                 ConverterAttributeType converterAttributeType = inferDataType(proxy.getType().getSimpleName());
-                field.set(destination, (converterAttributeType.isOptional()) ? null : 0);
+                intValue = (converterAttributeType.isOptional())?null:0;
             }
+            if(fieldHasSetter(proxy, destination)) {
+                useSetter(destination, proxy, value);
+            } else proxy.setValue(destination, value);
         } catch (IllegalAccessException e) {
-            throw new UnableToWriteException(field.getClass().getName(), index, AttributeType.Int.toString(), e.getMessage());
+            throw new UnableToWriteException(proxy.getType().getName(), index, AttributeType.Int.toString(), e.getMessage());
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 
     private static <T> void writeDoubleData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         Optional<Double> value = dataSetItem.getOptionalDouble(index);
-        boolean floatValue = fieldIsFloat(field);
+        Float floatValue = 0.0f;
+        Double doubleValue = 0.0;
+        boolean isValueFloat = fieldIsFloat(field);
         try {
             if (value.isPresent()) {
                 if (floatValue) {
