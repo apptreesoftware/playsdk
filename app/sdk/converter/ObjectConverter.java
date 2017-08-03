@@ -75,23 +75,23 @@ public class ObjectConverter {
     public static <T> void copyFromRecord(Record dataSetItem, T destination) {
         if (destination == null) return;
         mapMethodsFromSource(destination);
-        for (Field field : destination.getClass().getDeclaredFields()) {
+        for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
-                copyToField(field, dataSetItem, destination);
+                copyToField(proxy, dataSetItem, destination);
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private static <T> void copyToField(Field field, Record record, T destination) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException {
-        Attribute attribute = field.getAnnotation(Attribute.class);
+    private static <T> void copyToField(AttributeProxy proxy, Record record, T destination) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException {
+        Attribute attribute = proxy.getAttributeAnnotation();
         if (attribute == null) {
             return;
         }
         int index = attribute.index();
         Class metaClass = attribute.relationshipClass();
-        Class fieldClass = field.getType();
+        Class fieldClass = proxy.getType();
         AttributeMeta attributeMeta = record.getAttributeMeta(index);
         boolean userSetterAndGetter = attribute.useGetterAndSetter();
         if (attributeMeta == null) {
@@ -100,62 +100,63 @@ public class ObjectConverter {
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readDataSetItemData(field, attributeMeta, destination, record, metaClass, userSetterAndGetter);
+        readDataSetItemData(proxy, attributeMeta, destination, record, metaClass, userSetterAndGetter);
     }
 
-    private static <T> void readDataSetItemData(Field field, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class metaClass, boolean useSetterAndGetter) throws UnableToWriteException {
+    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class metaClass, boolean useSetterAndGetter) throws UnableToWriteException {
         switch (attributeMeta.getAttributeType()) {
             case String:
-                writeStringData(field, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
+                writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
                 break;
             case Int:
-                writeIntegerData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeIntegerData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Double:
-                writeDoubleData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDoubleData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Boolean:
-                writeBoolData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeBoolData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Date:
-                writeDateData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDateData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case DateTime:
-                writeDateTimeData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDateTimeData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case ListItem:
-                writeListItemData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeListItemData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case SingleRelationship:
-                writeSingleRelationshipData(field, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeSingleRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Relation:
-                writeRelationshipData(field, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
                 break;
             default:
-                writeStringData(field, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
+                writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
                 break;
         }
     }
 
-    private static <T> void writeStringData(Field field, T destination, Record dataSetItem, Integer index, boolean useSetterAndGetter) throws UnableToWriteException {
+    private static <T> void writeStringData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, boolean useSetterAndGetter) throws UnableToWriteException, InvocationTargetException {
         String value = dataSetItem.getString(index);
         try {
-            if (fieldHasSetter(field, destination)) {
-                useSetter(destination, field, value);
-            } else field.set(destination, value);
+            if (fieldHasSetter(proxy, destination)) {
+                useSetter(destination, proxy, value);
+            } else proxy.setValue(destination, value);
         } catch (IllegalAccessException e) {
-            throw new UnableToWriteException(field.getClass().getName(), index, AttributeType.String.toString(), e.getMessage());
+            throw new UnableToWriteException(proxy.getType().getClass().getName(), index, AttributeType.String.toString(), e.getMessage());
         }
     }
 
-    private static <T> void writeIntegerData(Field field, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
+    private static <T> void writeIntegerData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException {
         Optional<Integer> value = dataSetItem.getOptionalInt(index);
+        Integer intValue = 0;
         try {
             if (value.isPresent()) {
-                field.set(destination, value.get());
+                intValue = value.get();
             } else {
-                ConverterAttributeType converterAttributeType = inferDataType(field.getClass().getSimpleName());
+                ConverterAttributeType converterAttributeType = inferDataType(proxy.getType().getSimpleName());
                 field.set(destination, (converterAttributeType.isOptional()) ? null : 0);
             }
         } catch (IllegalAccessException e) {
@@ -763,16 +764,16 @@ public class ObjectConverter {
         return (tempMap.containsKey(getterMethodName(attributeProxy.getName())));
     }
 
-    private static <T> boolean fieldHasSetter(Field field, T object) {
+    private static <T> boolean fieldHasSetter(AttributeProxy proxy, T object) {
         Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
         if (tempMap == null) return false;
-        return (tempMap.containsKey(setterMethodName(field.getName())));
+        return (tempMap.containsKey(setterMethodName(proxy)));
     }
 
-    private static <T> void useSetter(T destination, Field field, Object value) {
+    private static <T> void useSetter(T destination, AttributeProxy proxy, Object value) {
         Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
         if (tempMethodMap == null) return;
-        Method setterMethod = tempMethodMap.get(setterMethodName(field.getName()));
+        Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
         try {
             setterMethod.invoke(destination, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -797,9 +798,13 @@ public class ObjectConverter {
                 .append(name).toString().toLowerCase();
     }
 
-    private static String setterMethodName(String name) {
-        return new StringBuilder("set")
-                .append(name).toString().toLowerCase();
+    private static String setterMethodName(AttributeProxy proxy) {
+        if(proxy.isField){
+            return new StringBuilder("set")
+                    .append(proxy.getName()).toString().toLowerCase();
+        } else {
+            return proxy.getName().replace("get", "set");
+        }
     }
 
     private static <T> void mapMethodsFromSource(T sourceObject) {

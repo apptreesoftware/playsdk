@@ -60,6 +60,15 @@ public class AttributeProxy {
     }
 
 
+    public <T> void setValue(T destination, Object value) throws InvocationTargetException, IllegalAccessException {
+        if(isField) {
+            currentField.set(destination, value);
+        } else {
+            currentMethod.invoke(destination, value);
+        }
+    }
+
+
     public Class getType() {
         if (isField) {
             return currentField.getType();
