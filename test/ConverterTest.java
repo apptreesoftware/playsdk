@@ -1,16 +1,23 @@
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
+import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
+import sdk.converter.AttributeProxy;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
+import sdk.data.Record;
 import sdk.data.ServiceConfiguration;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
+import sdk.models.Location;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -157,5 +164,120 @@ public class ConverterTest {
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
     }
 
+    @Test
+    public void testInferName() {
+        Map<String, String> testMap = new HashMap<>();
+        testMap.put("aName", "A Name");
+        testMap.put("MyVar", "My Var");
+        testMap.put("bool123", "Bool 123");
+        testMap.put("123bool", "123 Bool");
+        testMap.put("snake_case", "Snake Case");
+        testMap.put("myURL", "My URL");
 
+        try {
+            ObjectConverter converter = new ObjectConverter();
+            Class[] argTypes = new Class[]{String.class};
+            Method method = converter.getClass().getDeclaredMethod("inferName", argTypes);
+            method.setAccessible(true);
+            Object[] args = new Object[1];
+
+            testMap.forEach((key, value) -> {
+                args[0] = key;
+                String output = "";
+                try {output = (String) method.invoke(converter, args);}
+                catch(Exception e) {System.out.println("Test failed.");}
+                System.out.println(output);
+                assert (output.equals(value));
+            });
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testGetLocationValueFromObject() {
+        TestClass object = new TestClass();
+        List<AttributeProxy> attributeProxies = new ArrayList<>();
+        hydrateObjAndProxies(object, attributeProxies);
+        ObjectConverter converter = new ObjectConverter();
+        try {
+            Method method = converter.getClass().getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            method.setAccessible(true);
+            Object[] args = new Object[3];
+            args[0] = attributeProxies.get(1);
+            args[1] = object;
+            args[2] = false; // Use getter/setter
+            Location testFillObj = (Location) method.invoke(converter, args);
+            System.out.println(String.format("Initial: %s, Final: %s", object.location.getLatLngString(), testFillObj.getLatLngString()));
+            assert(testFillObj.getLatLngString().equals(object.location.getLatLngString()));
+            assert(testFillObj.getAccuracy() == object.location.getAccuracy());
+            assert(testFillObj.getBearing() == object.location.getBearing());
+            assert(testFillObj.getElevation() == object.location.getElevation());
+            assert(testFillObj.getSpeed() == object.location.getSpeed());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testReadLocationData() {
+        TestClass object = new TestClass();
+        List<AttributeProxy> attributeProxies = new ArrayList<>();
+        hydrateObjAndProxies(object, attributeProxies);
+        ObjectConverter converter = new ObjectConverter();
+        try {
+            Method method = converter.getClass().getDeclaredMethod("readLocationData", AttributeProxy.class, Object.class, Record.class, int.class, boolean.class, boolean.class, boolean.class);
+            method.setAccessible(true);
+            Object[] args = new Object[7];
+            args[0] = attributeProxies.get(1);
+            args[1] = object;
+            args[2] = new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestClass.class));
+            args[3] = 1; // index
+            args[4] = false; // Primary key
+            args[5] = false; // use getter/setter
+            args[6] = true; // value
+            method.invoke(converter, args);
+            Location testFillObj = ((DataSetItem) args[2]).getLocation((Integer) args[3]);
+            System.out.println(String.format("Initial: %s, Final: %s", object.location.getLatLngString(), testFillObj.getLatLngString()));
+            assert(testFillObj.getLatLngString().equals(object.location.getLatLngString()));
+            assert(testFillObj.getAccuracy() == object.location.getAccuracy());
+            assert(testFillObj.getBearing() == object.location.getBearing());
+            assert(testFillObj.getElevation() == object.location.getElevation());
+            assert(testFillObj.getSpeed() == object.location.getSpeed());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    private void hydrateObjAndProxies(TestClass object, List<AttributeProxy> attributeProxies) {
+        object.location = new Location(1.0, 2.0);
+        object.location.setTimestamp(new DateTime());
+        object.location.setSpeed(3.0);
+        object.location.setElevation(4.0);
+        object.location.setBearing(5.0);
+        object.location.setAccuracy(6.0);
+        Field[] fields = TestClass.class.getFields();
+        Method[] methods = TestClass.class.getMethods();
+        attributeProxies.addAll(Arrays.stream(fields)
+                .filter(field -> field.getAnnotation(Attribute.class) != null)
+                .map(field -> new AttributeProxy(field))
+                .collect(Collectors.toList()));
+        attributeProxies.addAll(Arrays.stream(methods)
+                .filter(method -> method.getAnnotation(Attribute.class) != null)
+                .map(field -> new AttributeProxy(field))
+                .collect(Collectors.toList()));
+    }
+
+    public class TestClass {
+        @PrimaryKey
+        @Attribute(index = 0)
+        public int key;
+
+        @Attribute(index = 1)
+        public Location location;
+    }
+
+    public class TestLocation {
+        
+    }
 }

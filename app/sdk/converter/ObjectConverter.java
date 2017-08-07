@@ -1,5 +1,6 @@
 package sdk.converter;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import scala.annotation.meta.field;
@@ -13,6 +14,7 @@ import sdk.list.ListItem;
 import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
+import sdk.models.Location;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -70,6 +72,10 @@ public class ObjectConverter {
             dateTimeClasses.add(org.joda.time.DateTime.class);
             dateTimeClasses.add(java.sql.Date.class);
             put(AttributeType.DateTime, dateTimeClasses);
+
+            ArrayList<Class> locationClasses = new ArrayList<>();
+            locationClasses.add(Location.class);
+            put(AttributeType.Location, locationClasses);
         }};
     }
 
@@ -170,6 +176,9 @@ public class ObjectConverter {
                 break;
             case Relation:
                 writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+                break;
+            case Location:
+                writeLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -400,6 +409,16 @@ public class ObjectConverter {
             useSetterIfExists(proxy, destination, tempList);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
+        }
+    }
+
+    private static <T> void writeLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
+        Location location = dataSetItem.getLocation(index);
+        if (location == null) return;
+        try {
+            useSetterIfExists(proxy, destination, location);
+        } catch (IllegalAccessException ie) {
+            throw new UnableToWriteException(proxy.getType().getName(), index, AttributeType.Location.toString(), ie.getMessage());
         }
     }
 
@@ -756,6 +775,20 @@ public class ObjectConverter {
         }
     }
 
+    private static <T> void readLocationData(AttributeProxy proxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+        Location location = getLocationValueFromObject(proxy, object, useGetterAndSetter);
+        record.setLocation(location, index);
+        if(value) {
+            record.setValue(location.toString());
+        }
+        if(primaryKey) {
+            record.setPrimaryKey(location.toString());
+            if(!record.isValueSet()) {
+                record.setValue(location.toString());
+            }
+        }
+    }
+
     /**
      *
      * @param attributeProxy
@@ -790,6 +823,23 @@ public class ObjectConverter {
         }
 
         return new DateTime();
+    }
+
+    private static <T> Location getLocationValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+        List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Location);
+        if(supportedClasses == null) return new Location();
+        if(proxy.getType() == Location.class) {
+            if(fieldHasGetter(proxy, object) && useGetterAndSetter) return (Location) useGetter(proxy, object);
+            Location location = (Location) proxy.getValue(object);
+            Location retLocation = new Location(location.getLatitude(), location.getLongitude());
+            retLocation.setAccuracy(location.getAccuracy());
+            retLocation.setBearing(location.getBearing());
+            retLocation.setElevation(location.getElevation());
+            retLocation.setSpeed(location.getSpeed());
+            retLocation.setTimestamp(location.getTimestamp());
+            return retLocation;
+        }
+        return new Location();
     }
 
     /**
@@ -1022,8 +1072,22 @@ public class ObjectConverter {
      * @return
      */
     private static String inferName(String name) {
-        //TODO: clean up camel Case Variable names
-        return name;
+        if(name.contains("_")) { // snake case
+            name = name.replace("_", " ");
+        } else { // camel case
+            StringBuilder builder = new StringBuilder();
+            builder.append(name.charAt(0));
+            for(int i = 1; i < name.length(); i++) {
+                char c = name.charAt(i);
+                char p = name.charAt(i - 1);
+                if(Character.isAlphabetic(c) != Character.isAlphabetic(p) ||
+                        (Character.isUpperCase(c) && Character.isUpperCase(c) != Character.isUpperCase(p)))
+                    builder.append(" ");
+                builder.append(name.charAt(i));
+            }
+            name = builder.toString();
+        }
+        return WordUtils.capitalize(name);
     }
 
     /**
@@ -1032,33 +1096,7 @@ public class ObjectConverter {
      * @return
      */
     private static ConverterAttributeType inferDataType(String dataTypeName) {
-        switch (dataTypeName) {
-            case "String":
-                return new ConverterAttributeType(AttributeType.String, true);
-            case "Double":
-            case "Float":
-                return new ConverterAttributeType(AttributeType.Double, true);
-            case "float":
-            case "double":
-                return new ConverterAttributeType(AttributeType.Double, false);
-            case "Integer":
-                return new ConverterAttributeType(AttributeType.Int, true);
-            case "int":
-                return new ConverterAttributeType(AttributeType.Int, false);
-            case "Date":
-            case "DateTime":
-                return new ConverterAttributeType(AttributeType.DateTime, true);
-            case "Boolean":
-                return new ConverterAttributeType(AttributeType.Boolean, true);
-            case "boolean":
-                return new ConverterAttributeType(AttributeType.Boolean, false);
-            case "ArrayList":
-            case "List":
-                return new ConverterAttributeType(AttributeType.Relation, true);
-            default:
-                return new ConverterAttributeType(AttributeType.ListItem, true);
-
-        }
+        return findTypeOnSimpleName(dataTypeName);
     }
 
     /**
@@ -1068,7 +1106,11 @@ public class ObjectConverter {
      */
     private static ConverterAttributeType inferDataType(Class clazz) {
         String simpleName = clazz.getSimpleName();
-        switch (simpleName) {
+        return findTypeOnSimpleName(simpleName);
+    }
+
+    private static ConverterAttributeType findTypeOnSimpleName(String name) {
+        switch (name) {
             case "String":
                 return new ConverterAttributeType(AttributeType.String, true);
             case "Double":
@@ -1091,9 +1133,10 @@ public class ObjectConverter {
             case "ArrayList":
             case "List":
                 return new ConverterAttributeType(AttributeType.Relation, true);
+            case "Location":
+                return new ConverterAttributeType(AttributeType.Location, true);
             default:
                 return new ConverterAttributeType(AttributeType.ListItem, true);
-
         }
     }
 
