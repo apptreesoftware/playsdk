@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 import scala.annotation.meta.field;
 import sdk.annotations.Attribute;
+import sdk.annotations.CustomLocation;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
 import sdk.data.*;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class ObjectConverter {
     private static final Map<AttributeType, List<Class>> supportedTypeMap;
     private static Map<String, Map<String, Method>> methodMap;
+    private static Map<String, String> locationMethodNames;
 
 
     /**
@@ -75,7 +77,20 @@ public class ObjectConverter {
 
             ArrayList<Class> locationClasses = new ArrayList<>();
             locationClasses.add(Location.class);
+            locationClasses.add(CustomLocation.class);
             put(AttributeType.Location, locationClasses);
+        }};
+    }
+
+    static {
+        locationMethodNames = new HashMap<String, String>() {{
+            put("setLatitude", "getLatitude");
+            put("setLongitude", "getLongitude");
+            put("setAccuracy", "getAccuracy");
+            put("setSpeed", "getSpeed");
+            put("setElevation", "getElevation");
+            put("setBearing", "getBearing");
+            put("setTimestamp", "getTimestamp");
         }};
     }
 
@@ -178,7 +193,7 @@ public class ObjectConverter {
                 writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
                 break;
             case Location:
-                writeLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+                routeWriteLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -412,7 +427,31 @@ public class ObjectConverter {
         }
     }
 
-    private static <T> void writeLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
+    throws UnableToWriteException, InvocationTargetException {
+        if(CustomLocation.class.isAssignableFrom(destination.getClass())) writeCustomLocationData(proxy, destination, dataSetItem, index, metaClass);
+        else writeLocationData(proxy, (Location) destination, dataSetItem, index, metaClass);
+    }
+
+    private static <T> void writeCustomLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
+            throws UnableToWriteException, InvocationTargetException {
+        Location location = dataSetItem.getLocation(index);
+        if (location == null) return;
+        hydrateCustomLocation(destination, location);
+    }
+
+    private static <T> void hydrateCustomLocation(T destination, Location source) {
+        locationMethodNames.forEach((setMethod, getMethod) -> {
+            try {
+                Method setter = destination.getClass().getDeclaredMethod(setMethod);
+                Method getter = Location.class.getMethod(getMethod);
+                setter.invoke(destination, (Object) getter.invoke(source));
+            } catch(Exception e){}
+        });
+    }
+
+    private static void writeLocationData(AttributeProxy proxy, Location destination, Record dataSetItem, Integer index, Class metaClass)
+            throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
         try {
@@ -838,8 +877,18 @@ public class ObjectConverter {
             retLocation.setSpeed(location.getSpeed());
             retLocation.setTimestamp(location.getTimestamp());
             return retLocation;
+        } else if(proxy.getType().isAssignableFrom(CustomLocation.class)) {
+            Location location = new Location();
+            locationMethodNames.forEach((setter, getter) -> {
+                try {
+                    Method setMethod = Location.class.getMethod(setter);
+                    Method getMethod = proxy.getValue(object).getClass().getMethod(getter);
+                    setMethod.invoke(location, (Object) getMethod.invoke(object));
+                } catch(Exception error) {}
+            });
+            return location;
         }
-        return new Location();
+        return null;
     }
 
     /**

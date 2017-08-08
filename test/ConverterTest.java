@@ -249,6 +249,12 @@ public class ConverterTest {
         }
     }
 
+    @Test
+    public void testWriteLocationDataSDK() {
+        TestClass object = new TestClass();
+
+    }
+
     private void hydrateObjAndProxies(TestClass object, List<AttributeProxy> attributeProxies) {
         object.location = new Location(1.0, 2.0);
         object.location.setTimestamp(new DateTime());
@@ -278,6 +284,6 @@ public class ConverterTest {
     }
 
     public class TestLocation {
-        
+
     }
 }
