@@ -164,12 +164,20 @@ public class DataSetItem implements Record {
 
     @Override
     public Color getColor(int index) {
+        DataSetItemAttribute attribute = attributeMap.get(index);
+        if(attribute != null) {
+            return attribute.getColorValue();
+        }
         return null;
     }
 
     @Override
     public Optional<Color> getOptionalColor(int index) {
-        return null;
+        DataSetItemAttribute attribute = attributeMap.get(index);
+        if(attribute != null) {
+            return Optional.of(attribute.getColorValue());
+        }
+        return Optional.empty();
     }
 
     @Override

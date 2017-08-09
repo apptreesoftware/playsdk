@@ -4,6 +4,7 @@ import sdk.data.RelatedServiceConfiguration;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.models.AttributeType;
+import sdk.models.Color;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,13 +53,16 @@ public class SampleObject {
     @Attribute(index = 12, relationshipClass = SampleRelationship.class, dataType = AttributeType.Relation)
     public List<SampleRelationship> sampleListItemRelationship;
 
+    @Attribute(index = 17)
+    public Color color;
+
 
     public static ServiceConfiguration getServiceConfiguration() {
         return new ServiceConfiguration.Builder("SampleObject").withAttributes(getServiceConfigurationAttributes()).build();
     }
 
 
-    private static List<ServiceConfigurationAttribute> getServiceConfigurationAttributes() {
+    public static List<ServiceConfigurationAttribute> getServiceConfigurationAttributes() {
         List<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         attributes.add(new ServiceConfigurationAttribute.Builder(0).name("woNumber").build());
         attributes.add(new ServiceConfigurationAttribute.Builder(1).name("testInt").asInt().build());
@@ -73,6 +77,7 @@ public class SampleObject {
         attributes.add(new ServiceConfigurationAttribute.Builder(10).name("sampleListItem").asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
         attributes.add(new ServiceConfigurationAttribute.Builder(11).name("sampleListItemSingleRelationship").asSingleRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
         attributes.add(new ServiceConfigurationAttribute.Builder(12).name("sampleListItemRelationship").asRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(17).name("color").asColor().build());
         return attributes;
     }
 

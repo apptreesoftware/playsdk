@@ -34,6 +34,8 @@ public class ConfigurationManager {
                 return new ConverterAttributeType(AttributeType.Relation, true);
             case "Location":
                 return new ConverterAttributeType(AttributeType.Location, true);
+            case "Color":
+                return new ConverterAttributeType(AttributeType.Color, true);
         }
         if(CustomLocation.class.isAssignableFrom(clazz)) return new ConverterAttributeType(AttributeType.Location, true);
         return new ConverterAttributeType(AttributeType.ListItem, true);

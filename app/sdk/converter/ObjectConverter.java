@@ -14,6 +14,7 @@ import sdk.list.ListItem;
 import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
+import sdk.models.Color;
 import sdk.models.Location;
 
 import java.lang.reflect.Field;
@@ -76,6 +77,10 @@ public class ObjectConverter {
             locationClasses.add(Location.class);
             locationClasses.add(CustomLocation.class);
             put(AttributeType.Location, locationClasses);
+
+            ArrayList<Class> colorClasses = new ArrayList();
+            colorClasses.add(Color.class);
+            put(AttributeType.Color, colorClasses);
         }};
     }
 
@@ -179,6 +184,9 @@ public class ObjectConverter {
                 break;
             case Location:
                 routeWriteLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+                break;
+            case Color:
+                writeColorData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -451,7 +459,17 @@ public class ObjectConverter {
         try {
             useSetterIfExists(proxy, destination, location);
         } catch(Exception error) {
+            throw new RuntimeException("Unable to write Location data for field: " + proxy.getName());
+        }
+    }
 
+    private static <T> void writeColorData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass) {
+        Color color = record.getColor(index);
+        if(color == null) return;
+        try {
+            useSetterIfExists(proxy, destination, color);
+        } catch(Exception error) {
+            throw new RuntimeException("Unable to write Color data for field: " + proxy.getName());
         }
     }
 
@@ -623,6 +641,10 @@ public class ObjectConverter {
                 break;
             case Location:
                 readLocationData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
+                break;
+            case Color:
+                readColorData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                break;
             default:
                 break;
         }
@@ -824,6 +846,11 @@ public class ObjectConverter {
         }
     }
 
+    private static <T> void readColorData(AttributeProxy proxy, T object, Record record, int index, boolean useGetterAndSetter) {
+        Color color = getColorValueFromObject(proxy, object, useGetterAndSetter);
+        record.setColor(color, index);
+    }
+
     /**
      *
      * @param attributeProxy
@@ -887,6 +914,18 @@ public class ObjectConverter {
             return location;
         }
         return null;
+    }
+
+    private static <T> Color getColorValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter) {
+        if(getSupportedTypeMap().get(AttributeType.Color) == null) return new Color();
+        if(proxy.getType() == Color.class) {
+            try {
+                if (fieldHasGetter(proxy, object) && useGetterAndSetter) return (Color) useGetter(proxy, object);
+                Color objColor = (Color) proxy.getValue(object);
+                return new Color(objColor.getR(), objColor.getG(), objColor.getB(), objColor.getA());
+            } catch(Exception error) {}
+        }
+        return new Color();
     }
 
     /**
@@ -1183,6 +1222,8 @@ public class ObjectConverter {
                 return new ConverterAttributeType(AttributeType.Relation, true);
             case "Location":
                 return new ConverterAttributeType(AttributeType.Location, true);
+            case "Color":
+                return new ConverterAttributeType(AttributeType.Color, true);
             default:
                 return new ConverterAttributeType(AttributeType.ListItem, true);
         }

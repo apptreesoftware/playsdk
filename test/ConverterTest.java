@@ -12,6 +12,7 @@ import sdk.data.ServiceConfiguration;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
+import sdk.models.Color;
 import sdk.models.Location;
 
 import java.lang.reflect.Field;
@@ -47,7 +48,21 @@ public class ConverterTest {
         sampleObject.sampleListItem.testDate = new Date(100);
         sampleObject.sampleListItem.testJodaTimeDate = new DateTime(100);
         sampleObject.sampleListItem.testSqlDate = new java.sql.Date(100);
+        sampleObject.color = new Color(255, 155, 55, 5);
         return sampleObject;
+    }
+
+    public void hydrateSampleObjectProxies(List<AttributeProxy> attributeProxies) {
+        Field[] fields = SampleObject.class.getFields();
+        Method[] methods = SampleObject.class.getMethods();
+        attributeProxies.addAll(Arrays.stream(fields)
+                .filter(field -> field.getAnnotation(Attribute.class) != null)
+                .map(field -> new AttributeProxy(field))
+                .collect(Collectors.toList()));
+        attributeProxies.addAll(Arrays.stream(methods)
+                .filter(method -> method.getAnnotation(Attribute.class) != null)
+                .map(field -> new AttributeProxy(field))
+                .collect(Collectors.toList()));
     }
 
     private DataSetItem getHydratedDataSetItemFromSampleObject(DataSetItem dataSetItem, SampleObject sampleObject) {
@@ -69,6 +84,7 @@ public class ConverterTest {
             DataSetItem tempDataSetItem = dataSetItem.addNewDataSetItemForAttributeIndex(12);
             sampleRelationship.copyToDataSetItem(tempDataSetItem);
         }
+        dataSetItem.setColor(sampleObject.color, 17);
         return dataSetItem;
     }
 
@@ -333,6 +349,83 @@ public class ConverterTest {
             assert(dest.customLocation.getSpeed() == src.getSpeed());
             assert(dest.customLocation.getBearing() == src.getBearing());
             assert(dest.customLocation.getElevation() == src.getElevation());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testReadColorData() {
+        SampleObject object = getSampleObject();
+        DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
+        List<AttributeProxy> proxies = new ArrayList<>();
+        hydrateSampleObjectProxies(proxies);
+        AttributeProxy argProxy = null;
+        for(AttributeProxy proxy : proxies) {
+            if(proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
+        }
+        try {
+            Method method = ObjectConverter.class.getDeclaredMethod("readColorData", AttributeProxy.class, Object.class, Record.class, int.class, boolean.class);
+            method.setAccessible(true);
+            Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), false};
+            method.invoke(null, args);
+            Color responseColor = dataSetItem.getColor(argProxy.getAttributeAnnotation().index());
+            assert(responseColor.getA() == object.color.getA());
+            assert(responseColor.getB() == object.color.getB());
+            assert(responseColor.getG() == object.color.getG());
+            assert(responseColor.getR() == object.color.getR());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testWriteColor() {
+        SampleObject object = getSampleObject();
+        DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
+        List<AttributeProxy> proxies = new ArrayList<>();
+        getHydratedDataSetItemFromSampleObject(dataSetItem, object);
+        hydrateSampleObjectProxies(proxies);
+        AttributeProxy argProxy = null;
+        object.color = null;
+        for(AttributeProxy proxy : proxies) {
+            if(proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
+        }
+        try {
+            Method method = ObjectConverter.class.getDeclaredMethod("writeColorData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
+            method.setAccessible(true);
+            Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), Class.class};
+            method.invoke(null, args);
+            Color responseColor = object.color;
+            assert(responseColor.getA() == object.color.getA());
+            assert(responseColor.getB() == object.color.getB());
+            assert(responseColor.getG() == object.color.getG());
+            assert(responseColor.getR() == object.color.getR());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testGetColorValueFromObject() {
+        SampleObject object = getSampleObject();
+        DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
+        List<AttributeProxy> proxies = new ArrayList<>();
+        getHydratedDataSetItemFromSampleObject(dataSetItem, object);
+        hydrateSampleObjectProxies(proxies);
+        AttributeProxy argProxy = null;
+        for(AttributeProxy proxy : proxies) {
+            if(proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
+        }
+        try {
+            Method method = ObjectConverter.class.getDeclaredMethod("getColorValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            method.setAccessible(true);
+            Object[] args = {argProxy, object, false};
+            Color responseColor = (Color) method.invoke(null, args);
+            assert(responseColor.getA() == object.color.getA());
+            assert(responseColor.getB() == object.color.getB());
+            assert(responseColor.getG() == object.color.getG());
+            assert(responseColor.getR() == object.color.getR());
         } catch(Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
