@@ -4,7 +4,7 @@ import sdk.AppTreeSource;
 import sdk.data.DataSet;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
-import sdk.utils.ServiceParameter;
+import sdk.utils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -65,5 +65,9 @@ public interface DataSourceBase extends AppTreeSource {
     default DataSet newEmptyDataSet() {
         Collection<ServiceConfigurationAttribute> attributes = getAttributes();
         return new DataSet(attributes);
+    }
+
+    default void getBatchedDataSet(AuthenticationInfo authenticationInfo, BatchParameters parameters, BatchManager batchManager) {
+        throw new UnsupportedOperationException("Paged fetch is not supported in this web service");
     }
 }

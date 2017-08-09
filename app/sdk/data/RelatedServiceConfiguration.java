@@ -1,5 +1,7 @@
 package sdk.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class RelatedServiceConfiguration extends ServiceConfiguration {
 
     private HashMap<Integer, ServiceConfigurationAttribute> attributeConfigurationForIndexMap;
 
+    @JsonIgnore
     public HashMap<Integer, ServiceConfigurationAttribute> getAttributeConfigurationForIndexMap() {
         if ( attributeConfigurationForIndexMap == null ) {
             attributeConfigurationForIndexMap = new HashMap<Integer, ServiceConfigurationAttribute>();

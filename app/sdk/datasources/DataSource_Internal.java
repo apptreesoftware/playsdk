@@ -5,10 +5,7 @@ import sdk.data.DataSetItem;
 import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
 import sdk.datasources.base.DataSource;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.BatchManager;
-import sdk.utils.Parameters;
-import sdk.utils.Response;
+import sdk.utils.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -66,15 +63,21 @@ public class DataSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source available");
     }
 
-    public void getPagedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
-        if ( dataSource != null ) {
-            dataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
-        } else if ( futureDataSource != null ) {
-            futureDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+    public Response getPagedDataSet(AuthenticationInfo authenticationInfo, BatchParameters parameters, BatchManager batchManager) {
+
+        DataSourceBase base;
+        if (dataSource != null) {
+            base = dataSource;
+        } else if (futureDataSource != null) {
+            base = futureDataSource;
         } else if ( rxDataSource != null ) {
-            rxDataSource.getBatchedDataSet(authenticationInfo, parameters, batchManager);
+            base = rxDataSource;
+        } else {
+            return Response.fromException(new RuntimeException("No data source available"), true);
         }
-        throw new RuntimeException("No data source available");
+
+        CompletableFuture.runAsync(() -> base.getBatchedDataSet(authenticationInfo, parameters, batchManager));
+        return Response.asyncSuccess();
     }
 
 
