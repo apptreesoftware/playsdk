@@ -506,7 +506,7 @@ public class ObjectConverter {
             return true;
         }
         List<Class> classList = getSupportedTypeMap().get(type);
-        return classList != null && classList.contains(classType);
+        return classList != null && (classList.contains(classType) || classList.contains(classType.getSuperclass()));
     }
 
     /**
@@ -894,6 +894,7 @@ public class ObjectConverter {
         if(proxy.getType() == Location.class) {
             if(fieldHasGetter(proxy, object) && useGetterAndSetter) return (Location) useGetter(proxy, object);
             Location location = (Location) proxy.getValue(object);
+            if(location == null) return new Location();
             Location retLocation = new Location(location.getLatitude(), location.getLongitude());
             retLocation.setAccuracy(location.getAccuracy());
             retLocation.setBearing(location.getBearing());
@@ -904,6 +905,7 @@ public class ObjectConverter {
         } else if(CustomLocation.class.isAssignableFrom(proxy.getType())) {
             Location location = new Location();
             C src = (C) proxy.getValue(object);
+            if(src == null) return new Location();
             location.setLatitude(src.getLatitude());
             location.setLongitude(src.getLongitude());
             location.setBearing(src.getBearing());
@@ -913,7 +915,7 @@ public class ObjectConverter {
             location.setTimestamp(src.getTimestamp());
             return location;
         }
-        return null;
+        return new Location();
     }
 
     private static <T> Color getColorValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter) {
@@ -1058,8 +1060,6 @@ public class ObjectConverter {
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
-        Field[] fields = someClass.getDeclaredFields();
-        Method[] methods = someClass.getDeclaredMethods();
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(someClass)) {
             Attribute attribute = proxy.getAttributeAnnotation();
@@ -1163,6 +1163,7 @@ public class ObjectConverter {
             name = name.replace("_", " ");
         } else { // camel case
             StringBuilder builder = new StringBuilder();
+            if(name.matches("^(set|get).*$")) name = name.substring(3); // remove set or get from front
             builder.append(name.charAt(0));
             for(int i = 1; i < name.length(); i++) {
                 char c = name.charAt(i);

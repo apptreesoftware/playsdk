@@ -1,10 +1,12 @@
 import org.joda.time.DateTime;
 import sdk.annotations.Attribute;
+import sdk.annotations.CustomLocation;
 import sdk.data.RelatedServiceConfiguration;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 import sdk.models.Color;
+import sdk.models.Location;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,6 +58,36 @@ public class SampleObject {
     @Attribute(index = 17)
     public Color color;
 
+    @Attribute(index = 18)
+    public Location sdkLocation;
+
+    @Attribute(index = 19)
+    public TestLocation customLocation;
+
+    public static class TestLocation extends CustomLocation {
+        public TestLocation() {}
+
+        @Override
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        @Override
+        public double getLatitude() {
+            return this.latitude;
+        }
+
+        @Override
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+
+        @Override
+        public double getLongitude() {
+            return this.longitude;
+        }
+    }
+
 
     public static ServiceConfiguration getServiceConfiguration() {
         return new ServiceConfiguration.Builder("SampleObject").withAttributes(getServiceConfigurationAttributes()).build();
@@ -64,20 +96,35 @@ public class SampleObject {
 
     public static List<ServiceConfigurationAttribute> getServiceConfigurationAttributes() {
         List<ServiceConfigurationAttribute> attributes = new ArrayList<>();
-        attributes.add(new ServiceConfigurationAttribute.Builder(0).name("woNumber").build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(1).name("testInt").asInt().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(2).name("testIntObject").asInt().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(3).name("testFloat").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(4).name("testFloatObject").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(5).name("testDouble").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(6).name("testDoubleObject").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(7).name("testDate").asDateTime().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(8).name("testJodaTimeDate").asDateTime().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(9).name("testSqlDate").asDateTime().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(10).name("sampleListItem").asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(11).name("sampleListItemSingleRelationship").asSingleRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(12).name("sampleListItemRelationship").asRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(17).name("color").asColor().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(0).name("Wo Number").canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(1).name("Test Int").canCreate().canUpdate().canSearch().asInt().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(2).name("Test Int Object").canCreate().canUpdate().canSearch().asInt().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(3).name("Test Float").canCreate().canUpdate().canSearch().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(4).name("Test Float Object").canCreate().canUpdate().canSearch().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(5).name("Test Double").canCreate().canUpdate().canSearch().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(6).name("Test Double Object").canCreate().canUpdate().canSearch().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(7).name("Test Date").canCreate().canUpdate().canSearch().asDateTime().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(8).name("Test Joda Time Date").canCreate().canUpdate().canSearch().asDateTime().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(9).name("Test Sql Date").canCreate().canUpdate().canSearch().asDateTime().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(10).name("Sample List Item")
+                .canCreate().canUpdate().canSearch().asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(11).name("Sample List Item Single Relationship")
+                .asSingleRelationship(new RelatedServiceConfiguration("Sample List Item Single Relationship", SampleListItem.getServiceConfigurationAttributes()))
+                .canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(12).name("Sample List Item Relationship")
+                .asRelationship(new RelatedServiceConfiguration("Sample List Item Single Relationship", SampleListItem.getServiceConfigurationAttributes()))
+                .canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(17).name("Color").canCreate().canUpdate().canSearch().asColor().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(18).name("Sdk Location").canCreate().canUpdate().canSearch().asLocation().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(19).name("Custom Location").canCreate().canUpdate().canSearch().asLocation().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(13).name("Get Wo Number").canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(14).name("Get Sample List Item Single Relationship")
+                .asSingleRelationship(new RelatedServiceConfiguration("Sample List Item Single Relationship", SampleListItem.getServiceConfigurationAttributes()))
+                .canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(15).name("Set Sample List Item Relationships")
+                .asSingleRelationship(new RelatedServiceConfiguration("Sample List Item Single Relationship", SampleListItem.getServiceConfigurationAttributes()))
+                .canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(16).name("Get Test Random").canCreate().canUpdate().canSearch().build());
         return attributes;
     }
 

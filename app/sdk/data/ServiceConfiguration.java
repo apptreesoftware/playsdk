@@ -150,7 +150,7 @@ public class ServiceConfiguration extends Response {
         }
     }
 
-
+    // TODO: fix this. It relies on the order of the attributes in the list to do this accurately.
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
