@@ -3,7 +3,6 @@ package sdk.converter;
 import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
-import scala.annotation.meta.field;
 import sdk.annotations.Attribute;
 import sdk.annotations.CustomLocation;
 import sdk.annotations.PrimaryKey;
@@ -30,8 +29,6 @@ import java.util.stream.Collectors;
 public class ObjectConverter {
     private static final Map<AttributeType, List<Class>> supportedTypeMap;
     private static Map<String, Map<String, Method>> methodMap;
-    private static Map<String, String> locationMethodNames;
-
 
     /**
      *  Static map containing AttributeType -> Class supported types
@@ -79,18 +76,6 @@ public class ObjectConverter {
             locationClasses.add(Location.class);
             locationClasses.add(CustomLocation.class);
             put(AttributeType.Location, locationClasses);
-        }};
-    }
-
-    static {
-        locationMethodNames = new HashMap<String, String>() {{
-            put("setLatitude", "getLatitude");
-            put("setLongitude", "getLongitude");
-            put("setAccuracy", "getAccuracy");
-            put("setSpeed", "getSpeed");
-            put("setElevation", "getElevation");
-            put("setBearing", "getBearing");
-            put("setTimestamp", "getTimestamp");
         }};
     }
 
@@ -430,34 +415,43 @@ public class ObjectConverter {
     private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
     throws UnableToWriteException, InvocationTargetException {
         if(CustomLocation.class.isAssignableFrom(destination.getClass())) writeCustomLocationData(proxy, destination, dataSetItem, index, metaClass);
-        else writeLocationData(proxy, (Location) destination, dataSetItem, index, metaClass);
+        else writeLocationData(proxy, destination, dataSetItem, index, metaClass);
     }
 
-    private static <T> void writeCustomLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
+    private static <T, C extends CustomLocation> void writeCustomLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
             throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
-        hydrateCustomLocation(destination, location);
-    }
-
-    private static <T> void hydrateCustomLocation(T destination, Location source) {
-        locationMethodNames.forEach((setMethod, getMethod) -> {
+        C customLocation = null;
+        try {customLocation = (C) destination.getClass().getDeclaredField(proxy.getName()).get(destination);}
+        catch(Exception error) {}
+        if(customLocation != null) {
+            customLocation.fromLocation(location, customLocation);
+        } else {
             try {
-                Method setter = destination.getClass().getDeclaredMethod(setMethod);
-                Method getter = Location.class.getMethod(getMethod);
-                setter.invoke(destination, (Object) getter.invoke(source));
-            } catch(Exception e){}
-        });
+                Field field = destination.getClass().getDeclaredField(proxy.getName());
+                Class<C> clazz = (Class<C>) Class.forName(field.getType().getName());
+                C newInstance = clazz.newInstance();
+                newInstance.setLatitude(location.getLatitude());
+                newInstance.setLongitude(location.getLongitude());
+                newInstance.setBearing(location.getBearing());
+                newInstance.setElevation(location.getElevation());
+                newInstance.setSpeed(location.getSpeed());
+                newInstance.setAccuracy(location.getAccuracy());
+                newInstance.setTimestamp(location.getTimestamp());
+                useSetterIfExists(proxy, destination, newInstance);
+            } catch(Exception error) {System.out.println(error.getMessage());}
+        }
     }
 
-    private static void writeLocationData(AttributeProxy proxy, Location destination, Record dataSetItem, Integer index, Class metaClass)
+    private static <T> void writeLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
             throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
         try {
             useSetterIfExists(proxy, destination, location);
-        } catch (IllegalAccessException ie) {
-            throw new UnableToWriteException(proxy.getType().getName(), index, AttributeType.Location.toString(), ie.getMessage());
+        } catch(Exception error) {
+
         }
     }
 
@@ -627,6 +621,8 @@ public class ObjectConverter {
             case SingleRelationship:
                 readSingleRelationshipData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
+            case Location:
+                readLocationData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
             default:
                 break;
         }
@@ -864,7 +860,8 @@ public class ObjectConverter {
         return new DateTime();
     }
 
-    private static <T> Location getLocationValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+    private static <T, C extends CustomLocation> Location getLocationValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter)
+            throws IllegalAccessException, InvocationTargetException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Location);
         if(supportedClasses == null) return new Location();
         if(proxy.getType() == Location.class) {
@@ -877,15 +874,16 @@ public class ObjectConverter {
             retLocation.setSpeed(location.getSpeed());
             retLocation.setTimestamp(location.getTimestamp());
             return retLocation;
-        } else if(proxy.getType().isAssignableFrom(CustomLocation.class)) {
+        } else if(CustomLocation.class.isAssignableFrom(proxy.getType())) {
             Location location = new Location();
-            locationMethodNames.forEach((setter, getter) -> {
-                try {
-                    Method setMethod = Location.class.getMethod(setter);
-                    Method getMethod = proxy.getValue(object).getClass().getMethod(getter);
-                    setMethod.invoke(location, (Object) getMethod.invoke(object));
-                } catch(Exception error) {}
-            });
+            C src = (C) proxy.getValue(object);
+            location.setLatitude(src.getLatitude());
+            location.setLongitude(src.getLongitude());
+            location.setBearing(src.getBearing());
+            location.setElevation(src.getElevation());
+            location.setSpeed(src.getSpeed());
+            location.setAccuracy(src.getAccuracy());
+            location.setTimestamp(src.getTimestamp());
             return location;
         }
         return null;
@@ -1050,7 +1048,8 @@ public class ObjectConverter {
         ConverterAttributeType converterAttributeType;
         if (attributeType.equals(AttributeType.None)) {
             if (attribute.relationshipClass() == Class.class) {
-                converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
+                //converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
+                converterAttributeType = ConfigurationManager.getConverterAttributeType(configurationWrapper.clazz);
                 attributeType = converterAttributeType.getAttributeType();
             } else {
                 converterAttributeType = inferDataType(configurationWrapper.dataTypeName);

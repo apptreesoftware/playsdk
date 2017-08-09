@@ -2,6 +2,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import sdk.annotations.Attribute;
+import sdk.annotations.CustomLocation;
 import sdk.annotations.PrimaryKey;
 import sdk.converter.AttributeProxy;
 import sdk.converter.ObjectConverter;
@@ -195,7 +196,7 @@ public class ConverterTest {
     }
 
     @Test
-    public void testGetLocationValueFromObject() {
+    public void testGetLocationValueFromObjectSDK() {
         TestClass object = new TestClass();
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         hydrateObjAndProxies(object, attributeProxies);
@@ -214,6 +215,33 @@ public class ConverterTest {
             assert(testFillObj.getBearing() == object.location.getBearing());
             assert(testFillObj.getElevation() == object.location.getElevation());
             assert(testFillObj.getSpeed() == object.location.getSpeed());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testGetLocationValueFromObjectCustom() {
+        TestClass object = new TestClass();
+        List<AttributeProxy> attributeProxies = new ArrayList<>();
+        hydrateObjAndProxies(object, attributeProxies);
+        object.customLocation = new TestLocation();
+        object.customLocation.fromLocation(object.location, object.customLocation);
+        ObjectConverter converter = new ObjectConverter();
+        try {
+            Method method = converter.getClass().getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            method.setAccessible(true);
+            Object[] args = new Object[3];
+            args[0] = attributeProxies.get(2);
+            args[1] = object;
+            args[2] = false; // Use getter/setter
+            Location testFillObj = (Location) method.invoke(converter, args);
+            assert(testFillObj.getLatitude() == object.customLocation.getLatitude());
+            assert(testFillObj.getLongitude() == object.customLocation.getLongitude());
+            assert(testFillObj.getAccuracy() == object.customLocation.getAccuracy());
+            assert(testFillObj.getBearing() == object.customLocation.getBearing());
+            assert(testFillObj.getElevation() == object.customLocation.getElevation());
+            assert(testFillObj.getSpeed() == object.customLocation.getSpeed());
         } catch(Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
@@ -252,7 +280,62 @@ public class ConverterTest {
     @Test
     public void testWriteLocationDataSDK() {
         TestClass object = new TestClass();
+        ObjectConverter converter = new ObjectConverter();
+        List<AttributeProxy> attributeProxies = new ArrayList<>();
+        hydrateObjAndProxies(object, attributeProxies);
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestClass.class));
+        dataSetItem.setLocation(object.location, 1);
+        Location src = dataSetItem.getLocation(1);
+        TestClass dest = new TestClass();
+        try {
+            Method method = ObjectConverter.class.getDeclaredMethod("writeLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
+            method.setAccessible(true);
+            Object[] args = new Object[5];
+            args[0] = attributeProxies.get(1);
+            args[1] = dest; // destination
+            args[2] = dataSetItem;
+            args[3] = 1;
+            args[4] = Class.class;
+            method.invoke(converter, args);
+            assert(dest.location.getLatLngString().equals(src.getLatLngString()));
+            assert(dest.location.getAccuracy() == src.getAccuracy());
+            assert(dest.location.getSpeed() == src.getSpeed());
+            assert(dest.location.getBearing() == src.getBearing());
+            assert(dest.location.getElevation() == src.getElevation());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
+    }
 
+    @Test
+    public void testWriteCustomLocation() {
+        TestClass object = new TestClass();
+        ObjectConverter converter = new ObjectConverter();
+        List<AttributeProxy> attributeProxies = new ArrayList<>();
+        hydrateObjAndProxies(object, attributeProxies);
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestClass.class));
+        dataSetItem.setLocation(object.location, 2);
+        Location src = dataSetItem.getLocation(2);
+        TestClass dest = new TestClass();
+        try {
+            Method method = ObjectConverter.class.getDeclaredMethod("writeCustomLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
+            method.setAccessible(true);
+            Object[] args = new Object[5];
+            args[0] = attributeProxies.get(2);
+            args[1] = dest; // destination
+            args[2] = dataSetItem;
+            args[3] = 2;
+            args[4] = Class.class;
+            method.invoke(converter, args);
+            assert(dest.customLocation.getLatitude() == src.getLatitude());
+            assert(dest.customLocation.getLongitude() == src.getLongitude());
+            assert(dest.customLocation.getAccuracy() == src.getAccuracy());
+            assert(dest.customLocation.getSpeed() == src.getSpeed());
+            assert(dest.customLocation.getBearing() == src.getBearing());
+            assert(dest.customLocation.getElevation() == src.getElevation());
+        } catch(Exception error) {
+            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+        }
     }
 
     private void hydrateObjAndProxies(TestClass object, List<AttributeProxy> attributeProxies) {
@@ -281,9 +364,32 @@ public class ConverterTest {
 
         @Attribute(index = 1)
         public Location location;
+
+        @Attribute(index = 2)
+        public TestLocation customLocation;
     }
 
-    public class TestLocation {
+    public static class TestLocation extends CustomLocation {
+        public TestLocation() {}
 
+        @Override
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        @Override
+        public double getLatitude() {
+            return this.latitude;
+        }
+
+        @Override
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+
+        @Override
+        public double getLongitude() {
+            return this.longitude;
+        }
     }
 }
