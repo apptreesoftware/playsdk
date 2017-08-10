@@ -1,6 +1,6 @@
 package sdk.pushNotifications;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
 
 /**
@@ -12,8 +12,8 @@ public class PushNotificationResponse {
     public DateTime creationDate;
     public DateTime scheduledDate;
     public PushRequest pushRequest;
-    @JsonRawValue public String iosPushPayload;
-    @JsonRawValue public String androidPushPayload;
+    public JsonNode iosPushPayload;
+    public JsonNode androidPushPayload;
 
     public PushNotificationResponse() {}
 }

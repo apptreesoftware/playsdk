@@ -30,4 +30,6 @@ public class Constants {
     public static final String PLATFORM_VERSION = "5.6";
 
     public static final int SDK_ERROR_STATUS_CODE = 540;
+
+    public static final String UPDATED_DATE_PARAM = "updatedate";
 }

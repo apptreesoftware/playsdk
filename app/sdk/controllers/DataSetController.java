@@ -56,13 +56,13 @@ public class DataSetController extends DataController {
         String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
 
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
-        Parameters parameters = new Parameters(request.queryString());
+        BatchParameters parameters = new BatchParameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
         if ( callbackURL == null ) return CompletableFuture.completedFuture(badRequest("No callback URL provided"));
         BatchManager batchManager = new BatchManager(callbackURL, wsClient);
-        dataSource.getPagedDataSet(authenticationInfo, parameters, batchManager);
-        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+        Response response = dataSource.getPagedDataSet(authenticationInfo, parameters, batchManager);
+        return CompletableFuture.completedFuture(ok(JsonUtils.toJson(response)));
     }
 
     @With({ValidateRequestAction.class})

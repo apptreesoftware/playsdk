@@ -36,7 +36,7 @@ public class PushNotificationUtils implements AppTreeSource {
     }
 
     private CompletionStage<PushNotificationResponse> sendPushNotification(PushRequest pushRequest, String applicationAPIKey, String appID) {
-        WSRequest request = getWSClient().url(String.format("%s/pushNotification/sendConnectorPush", coreURL)).setRequestTimeout(300000);
+        WSRequest request = getWSClient().url(String.format("%s/connector/notifications/push", coreURL)).setRequestTimeout(300000);
         request.setHeader(Constants.APPLICATION_API_KEY_HEADER, applicationAPIKey);
         request.setHeader(Constants.APP_ID_HEADER, appID);
         request.setMethod("POST");

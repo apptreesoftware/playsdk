@@ -152,6 +152,9 @@ public class ListItem implements Record {
     }
 
     @Deprecated
+    public void setDoubleForAttributeIndex(Double value, int index) { setAttributeForIndex(value, index);}
+
+
     public void setColorForAttributeIndex(Color color, int index) {
         setAttributeForIndex(color, index);
     }

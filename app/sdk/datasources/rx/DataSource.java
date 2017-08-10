@@ -34,10 +34,6 @@ public interface DataSource extends DataSourceBase {
 
     Observable<DataSetItem> getRecord(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
 
-    default void getBatchedDataSet(AuthenticationInfo authenticationInfo, Parameters parameters, BatchManager batchManager) {
-        throw new UnsupportedOperationException("Paged fetch is not supported in this web service");
-    }
-
     /**
      * @param queryDataItem The data set item containing the values to be searched on
      * @param authenticationInfo      a HashMap of any authentication parameters that came through in the request headers
