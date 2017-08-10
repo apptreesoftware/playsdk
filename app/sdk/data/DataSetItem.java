@@ -303,6 +303,16 @@ public class DataSetItem implements Record {
     }
 
     @Override
+    public DataSetItemAttachment addNewDataSetItemAttachment(int index) {
+        return addNewAttachmentForAttributeIndex(index);
+    }
+
+    @Override
+    public List<DataSetItemAttachment> getAttachmentItemsForIndex(int index) {
+        return getAttachmentItemsAtIndex(index);
+    }
+
+    @Override
     public ServiceConfigurationAttribute getAttribute(int index) {
         if (configurationMap == null) return null;
         return configurationMap.get(index);
@@ -310,7 +320,7 @@ public class DataSetItem implements Record {
 
     @Override
     public AttributeMeta getAttributeMeta(int index) {
-        if(configurationMap == null || configurationMap.size() == 0) return null;
+        if (configurationMap == null || configurationMap.size() == 0) return null;
         ServiceConfigurationAttribute serviceConfigurationAttribute = configurationMap.get(index);
         return new AttributeMeta(serviceConfigurationAttribute.getAttributeType(), serviceConfigurationAttribute.getAttributeIndex());
     }
@@ -321,7 +331,7 @@ public class DataSetItem implements Record {
     }
 
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
-        if(attributeMap == null) {
+        if (attributeMap == null) {
             attributeMap = new HashMap<>();
         }
         return attributeMetaMap;
@@ -1500,10 +1510,10 @@ public class DataSetItem implements Record {
         if (clientKey != null ? !clientKey.equals(that.clientKey) : that.clientKey != null) return false;
         if (crudStatus != that.crudStatus) return false;
         if (status != that.status) return false;
-        if(configurationMap.size() != that.configurationMap.size()) return false;
-        if(attributeMap.size() != that.attributeMap.size()) return false;
-        if(!configurationMap.keySet().equals(that.configurationMap.keySet())) return false;
-        if(!attributeMap.keySet().equals(that.attributeMap.keySet())) return false;
+        if (configurationMap.size() != that.configurationMap.size()) return false;
+        if (attributeMap.size() != that.attributeMap.size()) return false;
+        if (!configurationMap.keySet().equals(that.configurationMap.keySet())) return false;
+        if (!attributeMap.keySet().equals(that.attributeMap.keySet())) return false;
         return true;
     }
 

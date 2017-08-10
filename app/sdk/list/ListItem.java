@@ -9,10 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.joda.time.DateTime;
 import play.Logger;
-import sdk.data.AttributeMeta;
-import sdk.data.DataSetItem;
-import sdk.data.Record;
-import sdk.data.ServiceConfigurationAttribute;
+import sdk.data.*;
 import sdk.models.*;
 
 import javax.annotation.Nullable;
@@ -483,6 +480,16 @@ public class ListItem implements Record {
     @Override
     public DataSetItem addNewDataSetItem(int index) {
         throw new RuntimeException("Unable to get Data Set Item from Data Set Item");
+    }
+
+    @Override
+    public DataSetItemAttachment addNewDataSetItemAttachment(int index) {
+        throw new RuntimeException("Attachments are not supported for this type of record.");
+    }
+
+    @Override
+    public List<DataSetItemAttachment> getAttachmentItemsForIndex(int index) {
+        throw new RuntimeException("Attachments are not supported for this type of record.");
     }
 
     @Override

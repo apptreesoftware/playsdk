@@ -1,6 +1,7 @@
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mock;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
@@ -16,6 +17,7 @@ import java.util.List;
  * Created by Orozco on 7/19/17.
  */
 public class ConverterTest {
+
     public SampleObject getSampleObject() {
         SampleObject sampleObject = new SampleObject();
         sampleObject.woNumber = "1234";
@@ -39,6 +41,18 @@ public class ConverterTest {
         sampleObject.sampleListItem.testDate = new Date(100);
         sampleObject.sampleListItem.testJodaTimeDate = new DateTime(100);
         sampleObject.sampleListItem.testSqlDate = new java.sql.Date(100);
+        sampleObject.sampleAttachment = new ArrayList<>();
+        SampleAttachment sampleAttachment = new SampleAttachment();
+        sampleAttachment.setAttachmentURL("http://testattachment.url");
+        sampleAttachment.setMimeType("test/mimetype");
+        sampleAttachment.setTitle("First Attachment");
+        SampleAttachment sampleAttachment2 = new SampleAttachment();
+        sampleAttachment2.setAttachmentURL("http://testattachment.url");
+        sampleAttachment2.setMimeType("test/mimetype");
+        sampleAttachment2.setTitle("second Attachment");
+        sampleObject.sampleAttachment.add(sampleAttachment);
+        sampleObject.sampleAttachment.add(sampleAttachment2);
+        sampleObject.sampleSingleAttachment = sampleAttachment2;
         return sampleObject;
     }
 
@@ -156,6 +170,68 @@ public class ConverterTest {
         ObjectConverter.copyToRecord(testDataSetItem, sampleObject);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
     }
+
+
+    @Test
+    public void generateAttachmentConfiguration() {
+        ServiceConfiguration sampleConf = SampleAttachment.getServiceConfiguration();
+        ServiceConfiguration generateConfig = ObjectConverter.generateConfiguration(SampleAttachmentWrapper.class);
+        Assert.assertTrue(sampleConf.equals(generateConfig));
+    }
+
+
+    @Test
+    public void testIfConfigurationsAreEqual() {
+        ServiceConfiguration sampleConf = SampleObject.getServiceConfiguration();
+        ServiceConfiguration generatedConfg = ObjectConverter.generateConfiguration(SampleObject.class);
+        Assert.assertTrue(sampleConf.equals(generatedConfg));
+    }
+
+
+
+    @Test
+    public void toDataSetItem(){
+        SampleObject sampleObject = getSampleObject();
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
+        ObjectConverter.copyToRecord(dataSetItem, sampleObject);
+    }
+
+
+
+
+    @Test
+    public void fromDataSetItem(){
+        SampleObject sampleObject = getSampleObject();
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
+        ObjectConverter.copyToRecord(dataSetItem, sampleObject);
+        SampleObject testSampleObject = new SampleObject();
+        ObjectConverter.copyFromRecord(dataSetItem, testSampleObject);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

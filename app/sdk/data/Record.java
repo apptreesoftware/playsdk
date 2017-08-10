@@ -6,6 +6,7 @@ import sdk.models.Color;
 import sdk.models.Image;
 import sdk.models.Location;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -58,6 +59,10 @@ public interface Record {
 
     DataSetItem addNewDataSetItem(int index);
 
+    DataSetItemAttachment addNewDataSetItemAttachment(int index);
+
+    List<DataSetItemAttachment> getAttachmentItemsForIndex(int index);
+
     ServiceConfigurationAttribute getAttribute(int index);
 
     AttributeMeta getAttributeMeta(int index);
@@ -68,6 +73,8 @@ public interface Record {
     void setValue(String value);
 
     boolean isValueSet();
+
+
 
 
 }

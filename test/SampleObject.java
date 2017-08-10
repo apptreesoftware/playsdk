@@ -52,6 +52,13 @@ public class SampleObject {
     @Attribute(index = 12, relationshipClass = SampleRelationship.class, dataType = AttributeType.Relation)
     public List<SampleRelationship> sampleListItemRelationship;
 
+    @Attribute(index = 13)
+    public List<SampleAttachment> sampleAttachment;
+
+    @Attribute(index = 14)
+    public SampleAttachment sampleSingleAttachment;
+
+
 
     public static ServiceConfiguration getServiceConfiguration() {
         return new ServiceConfiguration.Builder("SampleObject").withAttributes(getServiceConfigurationAttributes()).build();
@@ -60,23 +67,24 @@ public class SampleObject {
 
     private static List<ServiceConfigurationAttribute> getServiceConfigurationAttributes() {
         List<ServiceConfigurationAttribute> attributes = new ArrayList<>();
-        attributes.add(new ServiceConfigurationAttribute.Builder(0).name("woNumber").build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(1).name("testInt").asInt().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(2).name("testIntObject").asInt().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(3).name("testFloat").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(4).name("testFloatObject").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(5).name("testDouble").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(6).name("testDoubleObject").asDouble().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(7).name("testDate").asDateTime().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(8).name("testJodaTimeDate").asDateTime().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(9).name("testSqlDate").asDateTime().build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(10).name("sampleListItem").asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(11).name("sampleListItemSingleRelationship").asSingleRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(12).name("sampleListItemRelationship").asRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(0).name("woNumber").canCreate().canSearch().canUpdate().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(1).name("testInt").canCreate().canSearch().canUpdate().asInt().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(2).name("testIntObject").canCreate().canSearch().canUpdate().asInt().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(3).name("testFloat").canCreate().canSearch().canUpdate().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(4).name("testFloatObject").canCreate().canSearch().canUpdate().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(5).name("testDouble").canCreate().canSearch().canUpdate().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(6).name("testDoubleObject").canCreate().canSearch().canUpdate().asDouble().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(7).name("testDate").canCreate().canSearch().canUpdate().asDateTime().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(8).name("testJodaTimeDate").canCreate().canSearch().canUpdate().asDateTime().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(9).name("testSqlDate").canCreate().canSearch().canUpdate().asDateTime().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(10).name("sampleListItem").canCreate().canSearch().canUpdate().asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(11).name("sampleListItemSingleRelationship").canCreate().canSearch().canUpdate().asSingleRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(12).name("sampleListItemRelationship").canCreate().canSearch().canUpdate().asRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(13).name("sampleAttachment").asAttachments().canUpdate().canCreate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(14).name("sampleSingleAttachment").asAttachments().canUpdate().canCreate().canSearch().build());
         return attributes;
     }
 
-    @Attribute(index = 13)
     public String getWoNumber() {
         return woNumber;
     }
@@ -165,7 +173,6 @@ public class SampleObject {
         this.sampleListItem = sampleListItem;
     }
 
-    @Attribute(index = 14, dataType = AttributeType.SingleRelationship)
     public SampleRelationship getSampleListItemSingleRelationship() {
         return sampleListItemSingleRelationship;
     }
@@ -181,17 +188,10 @@ public class SampleObject {
     public void setSampleListItemRelationship(List<SampleRelationship> sampleListItemRelationship) {
         this.sampleListItemRelationship = sampleListItemRelationship;
     }
-
-    @Attribute(index = 15, dataType = AttributeType.SingleRelationship)
     public String setSampleListItemRelationships() {
         return "";
     }
 
-
-    @Attribute(index = 16)
-    public String getTestRandom() {
-        return "hello sir";
-    }
 
 
     public void setTestRandom(List<SampleRelationship> sampleListItemRelationship) {

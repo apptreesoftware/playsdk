@@ -2,10 +2,12 @@ package sdk.converter;
 
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
-import scala.annotation.meta.field;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
+import sdk.converter.attachment.AbstractAttachment;
+import sdk.converter.attachment.ApptreeAttachment;
+import sdk.converter.attachment.Attachment;
 import sdk.data.*;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
@@ -13,6 +15,7 @@ import sdk.list.ListItem;
 import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
+import sdk.utils.RecordUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +23,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static sdk.utils.ClassUtils.Null;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -82,6 +87,7 @@ public class ObjectConverter {
      * This function iterates the annotated members of the "destination" object
      * then copies the value from record object into the annotated field of your "destination" object
      * The link is created by index
+     *
      * @param dataSetItem
      * @param destination
      * @param <T>
@@ -100,7 +106,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param record
      * @param destination
@@ -131,7 +136,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param attributeMeta
      * @param destination
@@ -170,6 +174,8 @@ public class ObjectConverter {
                 break;
             case Relation:
                 writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+            case Attachments:
+                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -179,7 +185,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -218,7 +223,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -241,7 +245,7 @@ public class ObjectConverter {
             } else {
                 ConverterAttributeType converterAttributeType = inferDataType(proxy.getType().getSimpleName());
                 if (converterAttributeType.isOptional()) {
-                    proxy.setValue(destination, value.get());
+                    proxy.setValue(destination, null);
                 } else {
                     if (isFloatValue)
                         useSetterIfExists(proxy, destination, 0.0f);
@@ -254,7 +258,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -278,7 +281,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -297,7 +299,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -316,7 +317,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -325,7 +325,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -350,7 +349,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -375,7 +373,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -403,8 +400,30 @@ public class ObjectConverter {
         }
     }
 
+
+    private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
+        List<DataSetItemAttachment> attachmentItems = dataSetItem.getAttachmentItemsForIndex(index);
+        if (attachmentItems == null) return;
+        Class classValue = null;
+        try {
+            classValue = Class.forName(metaClass.getName());
+            ArrayList<AbstractAttachment> tempList = new ArrayList<>();
+            AbstractAttachment tempObject = new Attachment();
+;            if(proxy.isWrappedClass) {
+                RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, tempList);
+                useSetterIfExists(proxy, destination, tempList);
+            } else {
+                RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, tempObject);
+                useSetterIfExists(proxy, destination, ApptreeAttachment.class.cast(tempObject));
+            }
+        } catch (ClassNotFoundException | IllegalAccessException ie) {
+            throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
+        }
+    }
+
+
+
     /**
-     *
      * @param proxy
      * @param datetime
      * @param destination
@@ -413,6 +432,7 @@ public class ObjectConverter {
      * @throws InvocationTargetException
      */
     private static <T> void setDateValueFromField(AttributeProxy proxy, DateTime datetime, T destination) throws IllegalAccessException, InvocationTargetException {
+        if(Null(datetime)) return;
         Class clazz = proxy.getType();
         if (clazz == org.joda.time.DateTime.class) {
             useSetterIfExists(proxy, destination, datetime);
@@ -426,13 +446,16 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param classType
      * @param type
      * @return
      */
     private static boolean isFieldClassSupportedForType(Class<?> classType, AttributeType type) {
-        if ((type.equals(AttributeType.ListItem) || type.equals(AttributeType.Relation) || type.equals(AttributeType.SingleRelationship)) && !isPrimitiveDataTypeOrWrapper(classType)) {
+        if ((type.equals(AttributeType.ListItem) ||
+                type.equals(AttributeType.Relation) ||
+                type.equals(AttributeType.Attachments) ||
+                type.equals(AttributeType.SingleRelationship)) &&
+                !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }
         List<Class> classList = getSupportedTypeMap().get(type);
@@ -440,7 +463,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @return
      */
     private static Map<AttributeType, List<Class>> getSupportedTypeMap() {
@@ -448,7 +470,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param dataSetItem
      * @param source
      * @param <T>
@@ -465,8 +486,23 @@ public class ObjectConverter {
         }
     }
 
+
+    public static void copyToAttachment(DataSetItemAttachment attachmentItem, Object object) {
+        AbstractAttachment apptreeAttachment = (AbstractAttachment) object;
+        attachmentItem.setMimeType(apptreeAttachment.getMimeType());
+        attachmentItem.setTitle(apptreeAttachment.getTitle());
+        attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
+    }
+
+
+    public static void copyFromAttachment(DataSetItemAttachment attachmentItem, AbstractAttachment object) {
+        object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
+        object.setMimeType(attachmentItem.getMimeType());
+        object.setTitle(attachmentItem.getTitle());
+    }
+
+
     /**
-     *
      * @param clazz
      * @return
      */
@@ -487,7 +523,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param dataSetItem
      * @param source
@@ -528,7 +563,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param attributeMeta
      * @param object
@@ -569,13 +603,15 @@ public class ObjectConverter {
             case SingleRelationship:
                 readSingleRelationshipData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
+            case Attachments:
+                readAttachmentData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                break;
             default:
                 break;
         }
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -589,7 +625,7 @@ public class ObjectConverter {
      */
     private static <T> void readStringData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Object fieldData = null;
-        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) fieldData = useGetter(attributeProxy, object);
+        if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
         record.setString(fieldData != null ? fieldData.toString() : null, index);
         if (value) {
@@ -604,7 +640,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -618,8 +653,8 @@ public class ObjectConverter {
      */
     private static <T> void readIntegerData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Integer fieldData = null;
-        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-            fieldData = (Integer) useGetter(attributeProxy, object);
+        if (useGetterAndSetter) {
+            fieldData = (Integer) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Integer) attributeProxy.getValue(object);
         record.setInt(fieldData, index);
         if (value) {
@@ -634,7 +669,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -651,13 +685,13 @@ public class ObjectConverter {
         Double fieldData = null;
         if (fieldName.contains("Float") || fieldName.contains("float")) {
             Float floatValue = null;
-            if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                floatValue = (Float) useGetter(attributeProxy, object);
+            if (useGetterAndSetter) {
+                floatValue = (Float) useGetterIfExists(attributeProxy, object);
             } else floatValue = (Float) attributeProxy.getValue(object);
             fieldData = new Double(floatValue);
         } else {
-            if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                fieldData = (Double) useGetter(attributeProxy, object);
+            if (useGetterAndSetter) {
+                fieldData = (Double) useGetterIfExists(attributeProxy, object);
             } else fieldData = (Double) attributeProxy.getValue(object);
         }
         record.setDouble(fieldData, index);
@@ -673,7 +707,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -687,8 +720,8 @@ public class ObjectConverter {
      */
     private static <T> void readBoolData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Boolean fieldData = null;
-        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-            fieldData = (Boolean) useGetter(attributeProxy, object);
+        if (useGetterAndSetter) {
+            fieldData = (Boolean) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Boolean) attributeProxy.getValue(object);
         record.setBool(fieldData, index);
         if (value) {
@@ -703,7 +736,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -730,7 +762,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -757,7 +788,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param useGetterAndSetter
@@ -773,18 +803,18 @@ public class ObjectConverter {
         }
         for (Class clazz : supportedClasses) {
             if (clazz == org.joda.time.DateTime.class && attributeProxy.getType() == clazz) {
-                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return (DateTime) useGetter(attributeProxy, object);
+                if (useGetterAndSetter) {
+                    return (DateTime) useGetterIfExists(attributeProxy, object);
                 } else return (DateTime) attributeProxy.getValue(object);
             }
             if (clazz == java.util.Date.class && attributeProxy.getType() == clazz) {
-                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return new DateTime(((java.util.Date) useGetter(attributeProxy, object)).getTime());
+                if (useGetterAndSetter) {
+                    return new DateTime(((java.util.Date) useGetterIfExists(attributeProxy, object)).getTime());
                 } else return new DateTime((Date) attributeProxy.getValue(object));
             }
             if (clazz == java.sql.Date.class && attributeProxy.getType() == clazz) {
-                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return new DateTime(((java.sql.Date) useGetter(attributeProxy, object)).getTime());
+                if (useGetterAndSetter) {
+                    return new DateTime(((java.sql.Date) useGetterIfExists(attributeProxy, object)).getTime());
                 } else return new DateTime((java.sql.Date) attributeProxy.getValue(object));
             }
         }
@@ -793,7 +823,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param dataSetItem
@@ -806,9 +835,7 @@ public class ObjectConverter {
     private static <T> void readListItemData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object listItemObject = null;
         if (useGetterAndSetter) {
-            if (fieldHasGetter(attributeProxy, object)) {
-                listItemObject = useGetter(attributeProxy, object);
-            }
+            listItemObject = useGetterIfExists(attributeProxy, object);
         } else listItemObject = attributeProxy.getValue(object);
         ListItem listItem = new ListItem();
         copyToRecord(listItem, listItemObject);
@@ -816,7 +843,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param dataSetItem
@@ -828,15 +854,54 @@ public class ObjectConverter {
      */
     private static <T> void readSingleRelationshipData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         Object relationship = null;
-        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-            relationship = useGetter(attributeProxy, object);
+        if (useGetterAndSetter) {
+            relationship = useGetterIfExists(attributeProxy, object);
         } else relationship = attributeProxy.getValue(object);
         DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
         copyToRecord(tempItem, relationship);
     }
 
+
     /**
-     *
+     * @param attributeProxy
+     * @param object
+     * @param dataSetItem
+     * @param index
+     * @param useGetterAndSetter
+     * @param <T>
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    private static <T> void readAttachmentData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+        Object relationship = null;
+        List<Object> relationships = null;
+
+        if (useGetterAndSetter) {
+            if (attributeProxy.isWrappedClass) {
+                relationships = (List<Object>) useGetterIfExists(attributeProxy, object);
+            } else {
+                relationship = useGetterIfExists(attributeProxy, object);
+            }
+        } else {
+            if (attributeProxy.isWrappedClass) {
+                relationships = (List<Object>) attributeProxy.getValue(object);
+            } else {
+                relationship = attributeProxy.getValue(object);
+            }
+        }
+
+        if (Null(relationship) && !Null(relationships)) {
+            RecordUtils.copyListOfAttachmentsToRecordForIndex(relationships, dataSetItem, index);
+        }
+
+        if (!Null(relationship) && Null(relationships)) {
+            RecordUtils.copySingleAttachmentToRecordForIndex(relationship, dataSetItem, index);
+        }
+
+    }
+
+
+    /**
      * @param attributeProxy
      * @param object
      * @param dataSetItem
@@ -848,9 +913,10 @@ public class ObjectConverter {
      */
     private static <T> void readRelationshipData(AttributeProxy attributeProxy, T object, Record dataSetItem, int index, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
         List<Object> relationship = null;
-        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-            relationship = (List<Object>) useGetter(attributeProxy, object);
+        if (useGetterAndSetter) {
+            relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
         } else relationship = (List<Object>) attributeProxy.getValue(object);
+        if (Null(relationship)) relationship = new ArrayList<>();
         for (Object obj : relationship) {
             DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
             copyToRecord(tempItem, obj);
@@ -858,7 +924,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param someClass
      * @param <T>
      * @return
@@ -874,7 +939,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param someClass
      * @param <T>
      * @return
@@ -892,7 +956,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param field
      * @param attribute
      * @return
@@ -916,14 +979,11 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param someClass
      * @param <T>
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
-        Field[] fields = someClass.getDeclaredFields();
-        Method[] methods = someClass.getDeclaredMethods();
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(someClass)) {
             Attribute attribute = proxy.getAttributeAnnotation();
@@ -935,7 +995,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param configurationWrapper
      * @param attribute
      * @return
@@ -951,8 +1010,13 @@ public class ObjectConverter {
         ConverterAttributeType converterAttributeType;
         if (attributeType.equals(AttributeType.None)) {
             if (attribute.relationshipClass() == Class.class) {
-                converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
-                attributeType = converterAttributeType.getAttributeType();
+                if (isChildOfApptreeSpecificClass(configurationWrapper.clazz)) {
+                    converterAttributeType = new ConverterAttributeType(getAttributeTypeFromApptreeSpecificClass(configurationWrapper.clazz), true);
+                    attributeType = converterAttributeType.getAttributeType();
+                } else {
+                    converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
+                    attributeType = converterAttributeType.getAttributeType();
+                }
             } else {
                 converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
                 if (!converterAttributeType.getAttributeType().equals(AttributeType.Relation)) {
@@ -990,7 +1054,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeType
      * @return
      */
@@ -999,7 +1062,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeType
      * @param serviceConfigurationAttribute
      * @param configName
@@ -1017,7 +1079,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param name
      * @return
      */
@@ -1027,7 +1088,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param dataTypeName
      * @return
      */
@@ -1062,7 +1122,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -1098,7 +1157,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param index
      * @param clazz
      * @return
@@ -1108,7 +1166,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -1130,7 +1187,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param <T>
@@ -1144,7 +1200,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param object
      * @param <T>
@@ -1157,7 +1212,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param destination
      * @param proxy
      * @param value
@@ -1175,13 +1229,15 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param <T>
      * @return
      */
-    private static <T> Object useGetter(AttributeProxy attributeProxy, T object) {
+    private static <T> Object useGetterIfExists(AttributeProxy attributeProxy, T object) throws InvocationTargetException, IllegalAccessException {
+        if (!fieldHasGetter(attributeProxy, object)) {
+            return attributeProxy.getValue(object);
+        }
         Map<String, Method> tempMethodMap = getMethodMap().get(object.getClass().getName());
         if (tempMethodMap == null) return null;
         Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
@@ -1194,7 +1250,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param name
      * @return
      */
@@ -1204,7 +1259,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @return
      */
@@ -1218,7 +1272,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param sourceObject
      * @param <T>
      */
@@ -1230,7 +1283,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @return
      */
     public static Map<String, Map<String, Method>> getMethodMap() {
@@ -1241,7 +1293,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param tempMethodMap
      */
     public static void setMethodMap(Map<String, Map<String, Method>> tempMethodMap) {
@@ -1249,7 +1300,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param destination
      * @param value
@@ -1265,5 +1315,17 @@ public class ObjectConverter {
                 attributeProxy.setValue(destination, value);
             }
         }
+    }
+
+
+    private static boolean isChildOfApptreeSpecificClass(Class clazz) {
+        return (AbstractAttachment.class.isAssignableFrom(clazz));
+    }
+
+    private static AttributeType getAttributeTypeFromApptreeSpecificClass(Class clazz) {
+        if (AbstractAttachment.class.isAssignableFrom(clazz)) {
+            return AttributeType.Attachments;
+        }
+        return AttributeType.None;
     }
 }
