@@ -1,19 +1,33 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
+<<<<<<< HEAD
+=======
 import org.springframework.util.StringUtils;
+>>>>>>> attachmentChanges
 import sdk.annotations.Attribute;
 import sdk.annotations.CustomLocation;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
+<<<<<<< HEAD
+import sdk.data.AttributeMeta;
+import sdk.data.DataSetItem;
+import sdk.data.Record;
+=======
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
 import sdk.data.*;
+>>>>>>> attachmentChanges
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 import sdk.models.AttributeType;
+<<<<<<< HEAD
+import sdk.models.Color;
+import sdk.models.Location;
+=======
 import sdk.utils.RecordUtils;
+>>>>>>> attachmentChanges
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -378,6 +392,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     /**
+<<<<<<< HEAD
+=======
      * @param clazz
      * @return
      */
@@ -386,6 +402,7 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     /**
+>>>>>>> attachmentChanges
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -467,6 +484,7 @@ public class ObjectConverter extends ConfigurationManager {
         }
     }
 
+<<<<<<< HEAD
     private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
             throws UnableToWriteException, InvocationTargetException {
         if (CustomLocation.class.isAssignableFrom(destination.getClass()))
@@ -509,7 +527,7 @@ public class ObjectConverter extends ConfigurationManager {
             throw new RuntimeException("Unable to write Color data for field: " + proxy.getName());
         }
     }
-
+=======
 
     private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
         List<DataSetItemAttachment> attachmentItems = dataSetItem.getAttachmentItemsForIndex(index);
@@ -533,6 +551,7 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
+>>>>>>> attachmentChanges
 
     /**
      * @param proxy
@@ -557,6 +576,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     /**
+<<<<<<< HEAD
+=======
      * @param classType
      * @param type
      * @return
@@ -634,49 +655,39 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     /**
+>>>>>>> attachmentChanges
      * @param attributeProxy
-     * @param dataSetItem
-     * @param source
+     * @param object
+     * @param record
+     * @param index
+     * @param primaryKey
+     * @param useGetterAndSetter
+     * @param value
      * @param <T>
-     * @throws UnsupportedAttributeException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    private static <T> void copyFromField(AttributeProxy attributeProxy, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
-        Attribute attributeAnnotation = attributeProxy.getAttributeAnnotation();
-        PrimaryKey primaryKeyAnnotation = attributeProxy.getPrimaryKeyAnnotation();
-        PrimaryValue primaryValueAnnotation = attributeProxy.getValueAnnotation();
-        boolean primaryKey = false;
-        boolean value = false;
-        if (primaryKeyAnnotation != null) {
-            primaryKey = true;
+    private static <T> void readStringData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+        Object fieldData = null;
+        if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) fieldData = useGetter(attributeProxy, object);
+        else fieldData = attributeProxy.getValue(object);
+        record.setString(fieldData != null ? fieldData.toString() : null, index);
+        if (value) {
+            record.setValue(fieldData.toString());
         }
-        if (primaryValueAnnotation != null) {
-            value = true;
+        if (primaryKey) {
+            record.setPrimaryKey(fieldData.toString());
+            if (!record.isValueSet()) {
+                record.setValue(fieldData.toString());
+            }
         }
-        if (primaryKey && attributeAnnotation == null) {
-            dataSetItem.setPrimaryKey(attributeProxy.getValue(source).toString());
-        }
-        if (attributeAnnotation == null) {
-            return;
-        }
-        int index = attributeAnnotation.index();
-        Class fieldClass = attributeProxy.getType();
-        boolean useGetterAndSetter = attributeAnnotation.useGetterAndSetter();
-        AttributeMeta attributeMeta = dataSetItem.getAttributeMeta(index);
-        if (attributeMeta == null) {
-            attributeMeta = new AttributeMeta(inferDataType(attributeProxy.getType().getSimpleName()).getAttributeType(), index);
-        }
-        if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
-            throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
-        }
-        readObjectData(attributeProxy, attributeMeta, source, dataSetItem, primaryKey, useGetterAndSetter, value);
     }
 
     /**
      * @param attributeProxy
-     * @param attributeMeta
      * @param object
+<<<<<<< HEAD
+=======
      * @param dataSetItem
      * @param primaryKey
      * @param useGetterAndSetter
@@ -753,6 +764,7 @@ public class ObjectConverter extends ConfigurationManager {
     /**
      * @param attributeProxy
      * @param object
+>>>>>>> attachmentChanges
      * @param record
      * @param index
      * @param primaryKey
@@ -898,11 +910,18 @@ public class ObjectConverter extends ConfigurationManager {
         }
     }
 
+<<<<<<< HEAD
     private static <T> void readLocationData(AttributeProxy proxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Location location = getLocationValueFromObject(proxy, object, useGetterAndSetter);
         record.setLocation(location, index);
         if (value) {
             record.setValue(location.toString());
+        }
+        if (primaryKey) {
+            record.setPrimaryKey(location.toString());
+            if (!record.isValueSet()) {
+                record.setValue(location.toString());
+=======
     /**
      * @param attributeProxy
      * @param object
@@ -917,10 +936,6 @@ public class ObjectConverter extends ConfigurationManager {
         if (supportedClasses == null) {
             return new DateTime();
         }
-        if (primaryKey) {
-            record.setPrimaryKey(location.toString());
-            if (!record.isValueSet()) {
-                record.setValue(location.toString());
         for (Class clazz : supportedClasses) {
             if (clazz == org.joda.time.DateTime.class && attributeProxy.getType() == clazz) {
                 if (useGetterAndSetter) {
@@ -936,6 +951,7 @@ public class ObjectConverter extends ConfigurationManager {
                 if (useGetterAndSetter) {
                     return new DateTime(((java.sql.Date) useGetterIfExists(attributeProxy, object)).getTime());
                 } else return new DateTime((java.sql.Date) attributeProxy.getValue(object));
+>>>>>>> attachmentChanges
             }
         }
     }
@@ -943,7 +959,6 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readColorData(AttributeProxy proxy, T object, Record record, int index, boolean useGetterAndSetter) {
         Color color = getColorValueFromObject(proxy, object, useGetterAndSetter);
         record.setColor(color, index);
-        return new DateTime();
     }
 
     /**
@@ -1048,36 +1063,135 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     /**
+<<<<<<< HEAD
+=======
      * @param someClass
      * @param <T>
      * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
      */
-    private static <T> DateTime getDateValueFromObject(AttributeProxy attributeProxy, T object, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
-        List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Date);
-        if (supportedClasses == null) {
-            return new DateTime();
+    public static <T> ServiceConfiguration generateConfiguration(Class<T> someClass) {
+        return new ServiceConfiguration.Builder(someClass.getName()).withAttributes(generateConfigurationAttributes(someClass)).build();
+    }
+
+    public static <T> ListServiceConfiguration generateListConfiguration(Class<T> someClass, String configName) {
+        ListServiceConfiguration listServiceConfiguration = new ListServiceConfiguration(configName);
+        listServiceConfiguration.getAttributes().addAll(generateListConfigurationAttributes(someClass));
+        return listServiceConfiguration;
+    }
+
+    /**
+     * @param someClass
+     * @param <T>
+     * @return
+     */
+    public static <T> Set<ListServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
+        Field[] fields = someClass.getDeclaredFields();
+        Set<ListServiceConfigurationAttribute> attributes = new HashSet<>();
+        for (Field field : fields) {
+            Attribute attribute = field.getAnnotation(Attribute.class);
+            if (attribute != null) {
+                attributes.add(getListServiceConfigurationAttributeFromField(field, attribute));
+            }
         }
-        for (Class clazz : supportedClasses) {
-            if (clazz == org.joda.time.DateTime.class && attributeProxy.getType() == clazz) {
-                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return (DateTime) useGetter(attributeProxy, object);
-                } else return (DateTime) attributeProxy.getValue(object);
+        return attributes;
+    }
+
+    /**
+     * @param field
+     * @param attribute
+     * @return
+     */
+    private static ListServiceConfigurationAttribute getListServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
+        int index = attribute.index();
+        String name = attribute.name();
+        if (StringUtils.isEmpty(name)) {
+            name = inferName(field.getName());
+        }
+        ConverterAttributeType converterAttributeType = null;
+        AttributeType attributeType = attribute.dataType();
+        if (attributeType.equals(AttributeType.None)) {
+            converterAttributeType = inferDataType(field.getClass().getSimpleName());
+        }
+        ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
+        listServiceConfigurationAttribute.setAttributeIndex(index);
+        listServiceConfigurationAttribute.setLabel(name);
+        listServiceConfigurationAttribute.setAttributeType(converterAttributeType.getAttributeType());
+        return listServiceConfigurationAttribute;
+    }
+
+    /**
+     * @param someClass
+     * @param <T>
+     * @return
+     */
+    public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
+        Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
+        for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(someClass)) {
+            Attribute attribute = proxy.getAttributeAnnotation();
+            if (attribute != null) {
+                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(proxy), attribute));
             }
-            if (clazz == java.util.Date.class && attributeProxy.getType() == clazz) {
-                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return new DateTime(((java.util.Date) useGetter(attributeProxy, object)).getTime());
-                } else return new DateTime((Date) attributeProxy.getValue(object));
-            }
-            if (clazz == java.sql.Date.class && attributeProxy.getType() == clazz) {
-                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return new DateTime(((java.sql.Date) useGetter(attributeProxy, object)).getTime());
-                } else return new DateTime((java.sql.Date) attributeProxy.getValue(object));
+        }
+        return attributes;
+    }
+
+    /**
+     * @param configurationWrapper
+     * @param attribute
+     * @return
+     */
+    private static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(ConfigurationWrapper configurationWrapper, Attribute attribute) {
+        int index = attribute.index();
+        String name = attribute.name();
+        Class relationShipClass = attribute.relationshipClass();
+        if (StringUtils.isEmpty(name)) {
+            name = inferName(configurationWrapper.varName);
+        }
+        AttributeType attributeType = attribute.dataType();
+        ConverterAttributeType converterAttributeType;
+        if (attributeType.equals(AttributeType.None)) {
+            if (attribute.relationshipClass() == Class.class) {
+                if (isChildOfApptreeSpecificClass(configurationWrapper.clazz)) {
+                    converterAttributeType = new ConverterAttributeType(getAttributeTypeFromApptreeSpecificClass(configurationWrapper.clazz), true);
+                    attributeType = converterAttributeType.getAttributeType();
+                } else {
+                    converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
+                    attributeType = converterAttributeType.getAttributeType();
+                }
+            } else {
+                converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
+                if (!converterAttributeType.getAttributeType().equals(AttributeType.Relation)) {
+                    converterAttributeType = new ConverterAttributeType(AttributeType.SingleRelationship, true);
+                    attributeType = converterAttributeType.getAttributeType();
+                } else {
+                    converterAttributeType = new ConverterAttributeType(AttributeType.Relation, true);
+                    attributeType = converterAttributeType.getAttributeType();
+                }
             }
         }
 
-        return new DateTime();
+        boolean canCreate = attribute.canCreate();
+        boolean canCreateAndRequired = attribute.canCreateAndRequired();
+        boolean canUpdate = attribute.canUpdate();
+        boolean canUpdateAndRequired = attribute.canUpdateAndRequired();
+        boolean canSearch = attribute.canSearch();
+        boolean canSearchAndRequired = attribute.canSearchAndRequired();
+
+
+        ServiceConfigurationAttribute serviceConfigurationAttribute = new ServiceConfigurationAttribute();
+        serviceConfigurationAttribute.setAttributeIndex(index);
+        serviceConfigurationAttribute.setAttributeType(attributeType);
+        serviceConfigurationAttribute.setName(name);
+        serviceConfigurationAttribute.create = canCreate;
+        serviceConfigurationAttribute.createRequired = canCreateAndRequired;
+        serviceConfigurationAttribute.update = canUpdate;
+        serviceConfigurationAttribute.updateRequired = canUpdateAndRequired;
+        serviceConfigurationAttribute.search = canSearch;
+        serviceConfigurationAttribute.searchRequired = canSearchAndRequired;
+        if (requiresRelatedServiceConfiguration(attributeType)) {
+            setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, configurationWrapper.clazz, relationShipClass);
+        }
+        return serviceConfigurationAttribute;
     }
 
     /**
@@ -1103,6 +1217,280 @@ public class ObjectConverter extends ConfigurationManager {
         } else {
             serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz).getAttributes()));
         }
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private static String inferName(String name) {
+        //TODO: clean up camel Case Variable names
+        return name;
+    }
+
+    /**
+     * @param dataTypeName
+     * @return
+     */
+    private static ConverterAttributeType inferDataType(String dataTypeName) {
+        switch (dataTypeName) {
+            case "String":
+                return new ConverterAttributeType(AttributeType.String, true);
+            case "Double":
+            case "Float":
+                return new ConverterAttributeType(AttributeType.Double, true);
+            case "float":
+            case "double":
+                return new ConverterAttributeType(AttributeType.Double, false);
+            case "Integer":
+                return new ConverterAttributeType(AttributeType.Int, true);
+            case "int":
+                return new ConverterAttributeType(AttributeType.Int, false);
+            case "Date":
+            case "DateTime":
+                return new ConverterAttributeType(AttributeType.DateTime, true);
+            case "Boolean":
+                return new ConverterAttributeType(AttributeType.Boolean, true);
+            case "boolean":
+                return new ConverterAttributeType(AttributeType.Boolean, false);
+            case "ArrayList":
+            case "List":
+                return new ConverterAttributeType(AttributeType.Relation, true);
+            default:
+                return new ConverterAttributeType(AttributeType.ListItem, true);
+
+        }
+    }
+
+    /**
+     * @param clazz
+     * @return
+     */
+    private static ConverterAttributeType inferDataType(Class clazz) {
+        String simpleName = clazz.getSimpleName();
+        switch (simpleName) {
+            case "String":
+                return new ConverterAttributeType(AttributeType.String, true);
+            case "Double":
+            case "Float":
+                return new ConverterAttributeType(AttributeType.Double, true);
+            case "float":
+            case "double":
+                return new ConverterAttributeType(AttributeType.Double, false);
+            case "Integer":
+                return new ConverterAttributeType(AttributeType.Int, true);
+            case "int":
+                return new ConverterAttributeType(AttributeType.Int, false);
+            case "Date":
+            case "DateTime":
+                return new ConverterAttributeType(AttributeType.DateTime, true);
+            case "Boolean":
+                return new ConverterAttributeType(AttributeType.Boolean, true);
+            case "boolean":
+                return new ConverterAttributeType(AttributeType.Boolean, false);
+            case "ArrayList":
+            case "List":
+                return new ConverterAttributeType(AttributeType.Relation, true);
+            default:
+                return new ConverterAttributeType(AttributeType.ListItem, true);
+
+        }
+    }
+
+    /**
+     * @param index
+     * @param clazz
+     * @return
+     */
+    private static AttributeMeta inferMetaData(int index, Class clazz) {
+        return new AttributeMeta(inferDataType(clazz).getAttributeType(), index);
+    }
+
+    /**
+     * @param clazz
+     * @return
+     */
+    private static boolean isPrimitiveDataTypeOrWrapper(Class clazz) {
+        if (clazz.isPrimitive()) return true;
+        switch (clazz.getSimpleName()) {
+            case "Integer":
+            case "Byte":
+            case "Short":
+            case "Long":
+            case "Boolean":
+            case "Character":
+            case "Float":
+            case "Double":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * @param attributeProxy
+     * @param object
+     * @param <T>
+     * @return
+     */
+    private static <T> boolean fieldHasGetter(AttributeProxy attributeProxy, T object) {
+        if (!attributeProxy.isField) return false;
+        Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
+        if (tempMap == null) return false;
+        return (tempMap.containsKey(getterMethodName(attributeProxy.getName())));
+    }
+
+    /**
+     * @param proxy
+     * @param object
+     * @param <T>
+     * @return
+     */
+    private static <T> boolean fieldHasSetter(AttributeProxy proxy, T object) {
+        Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
+        if (tempMap == null) return false;
+        return (tempMap.containsKey(setterMethodName(proxy)));
+    }
+
+    /**
+     * @param destination
+     * @param proxy
+     * @param value
+     * @param <T>
+     */
+    private static <T> void useSetter(T destination, AttributeProxy proxy, Object value) {
+        Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
+        if (tempMethodMap == null) return;
+        Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
+        try {
+            setterMethod.invoke(destination, value);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+>>>>>>> attachmentChanges
+     * @param attributeProxy
+     * @param object
+     * @param useGetterAndSetter
+     * @param <T>
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+<<<<<<< HEAD
+    private static <T> DateTime getDateValueFromObject(AttributeProxy attributeProxy, T object, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+        List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Date);
+        if (supportedClasses == null) {
+            return new DateTime();
+        }
+        for (Class clazz : supportedClasses) {
+            if (clazz == org.joda.time.DateTime.class && attributeProxy.getType() == clazz) {
+                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                    return (DateTime) useGetter(attributeProxy, object);
+                } else return (DateTime) attributeProxy.getValue(object);
+            }
+            if (clazz == java.util.Date.class && attributeProxy.getType() == clazz) {
+                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                    return new DateTime(((java.util.Date) useGetter(attributeProxy, object)).getTime());
+                } else return new DateTime((Date) attributeProxy.getValue(object));
+            }
+            if (clazz == java.sql.Date.class && attributeProxy.getType() == clazz) {
+                if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
+                    return new DateTime(((java.sql.Date) useGetter(attributeProxy, object)).getTime());
+                } else return new DateTime((java.sql.Date) attributeProxy.getValue(object));
+            }
+=======
+    private static <T> Object useGetterIfExists(AttributeProxy attributeProxy, T object) throws InvocationTargetException, IllegalAccessException {
+        if (!fieldHasGetter(attributeProxy, object)) {
+            return attributeProxy.getValue(object);
+        }
+        Map<String, Method> tempMethodMap = getMethodMap().get(object.getClass().getName());
+        if (tempMethodMap == null) return null;
+        Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
+        try {
+            return getterMethod.invoke(object);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    private static String getterMethodName(String name) {
+        return new StringBuilder("get")
+                .append(name).toString().toLowerCase();
+    }
+
+    /**
+     * @param proxy
+     * @return
+     */
+    private static String setterMethodName(AttributeProxy proxy) {
+        if (proxy.isField) {
+            return new StringBuilder("set")
+                    .append(proxy.getName()).toString().toLowerCase();
+        } else {
+            return proxy.getName().replace("get", "set");
+        }
+    }
+
+    /**
+     * @param sourceObject
+     * @param <T>
+     */
+    private static <T> void mapMethodsFromSource(T sourceObject) {
+        if (sourceObject == null) return;
+        String className = sourceObject.getClass().getName();
+        Map<String, Method> methodMap = Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(Collectors.toMap(method -> method.getName().toLowerCase(), method -> method, ((method, method2) -> method)));
+        getMethodMap().put(className, methodMap);
+    }
+
+    /**
+     * @return
+     */
+    public static Map<String, Map<String, Method>> getMethodMap() {
+        if (methodMap == null) {
+            methodMap = new HashMap<>();
+>>>>>>> attachmentChanges
+        }
+
+<<<<<<< HEAD
+        return new DateTime();
+    }
+
+    private static <T, C extends CustomLocation> Location getLocationValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter)
+            throws IllegalAccessException, InvocationTargetException {
+        List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Location);
+        if (supportedClasses == null) return new Location();
+        if (proxy.getType() == Location.class) {
+            if (fieldHasGetter(proxy, object) && useGetterAndSetter) return (Location) useGetter(proxy, object);
+            Location location = (Location) proxy.getValue(object);
+            if (location == null) return new Location();
+            Location retLocation = new Location(location.getLatitude(), location.getLongitude());
+            retLocation.setAccuracy(location.getAccuracy());
+            retLocation.setBearing(location.getBearing());
+            retLocation.setElevation(location.getElevation());
+            retLocation.setSpeed(location.getSpeed());
+            retLocation.setTimestamp(location.getTimestamp());
+            return retLocation;
+        } else if (CustomLocation.class.isAssignableFrom(proxy.getType())) {
+            Location location = new Location();
+            C src = (C) proxy.getValue(object);
+            if (src == null) return new Location();
+            location.setLatitude(src.getLatitude());
+            location.setLongitude(src.getLongitude());
+            location.setBearing(src.getBearing());
+            location.setElevation(src.getElevation());
+            location.setSpeed(src.getSpeed());
+            location.setAccuracy(src.getAccuracy());
+            location.setTimestamp(src.getTimestamp());
+            return location;
+        }
         return new Location();
     }
 
@@ -1114,10 +1502,36 @@ public class ObjectConverter extends ConfigurationManager {
                 Color objColor = (Color) proxy.getValue(object);
                 return new Color(objColor.getR(), objColor.getG(), objColor.getB(), objColor.getA());
             } catch (Exception error) {
+=======
+    /**
+     * @param tempMethodMap
+     */
+    public static void setMethodMap(Map<String, Map<String, Method>> tempMethodMap) {
+        methodMap = tempMethodMap;
+    }
+
+    /**
+     * @param attributeProxy
+     * @param destination
+     * @param value
+     * @param <T>
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    private static <T> void useSetterIfExists(AttributeProxy attributeProxy, T destination, Object value) throws InvocationTargetException, IllegalAccessException {
+        if (fieldHasSetter(attributeProxy, destination)) {
+            useSetter(destination, attributeProxy, value);
+        } else {
+            if (attributeProxy.isField) {
+                attributeProxy.setValue(destination, value);
+>>>>>>> attachmentChanges
             }
         }
         return new Color();
     }
+<<<<<<< HEAD
+}
+=======
 
 
     private static boolean isChildOfApptreeSpecificClass(Class clazz) {
@@ -1131,3 +1545,4 @@ public class ObjectConverter extends ConfigurationManager {
         return AttributeType.None;
     }
 }
+>>>>>>> attachmentChanges

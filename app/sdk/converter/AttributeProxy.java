@@ -3,10 +3,12 @@ package sdk.converter;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
+import sdk.utils.ClassUtils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Orozco on 8/2/17.
@@ -15,15 +17,19 @@ public class AttributeProxy {
     private Field currentField;
     private Method currentMethod;
     public boolean isField;
+    public boolean isWrappedClass;
+
 
     public AttributeProxy(Method currentMethod) {
         isField = false;
         this.currentMethod = currentMethod;
+        isWrappedClass = checkIfIsWrappedType((Class) currentMethod.getReturnType());
     }
 
     public AttributeProxy(Field currentField) {
         isField = true;
         this.currentField = currentField;
+        isWrappedClass = checkIfIsWrappedType((Class) currentField.getType());
     }
 
     public Attribute getAttributeAnnotation() {
@@ -61,7 +67,7 @@ public class AttributeProxy {
 
 
     public <T> void setValue(T destination, Object value) throws InvocationTargetException, IllegalAccessException {
-        if(isField) {
+        if (isField) {
             currentField.set(destination, value);
         } else {
             currentMethod.invoke(destination, value);
@@ -71,9 +77,13 @@ public class AttributeProxy {
 
     public Class getType() {
         if (isField) {
-            return currentField.getType();
+            return (!isWrappedClass) ?
+                    currentField.getType() :
+                    ClassUtils.getParameterizedType((ParameterizedType) currentField.getGenericType());
         } else {
-            return currentMethod.getReturnType();
+            return (!isWrappedClass) ?
+                    currentMethod.getReturnType() :
+                    ClassUtils.getParameterizedType((ParameterizedType) currentMethod.getGenericReturnType());
         }
     }
 
@@ -91,6 +101,10 @@ public class AttributeProxy {
         } else {
             return currentMethod.getReturnType().getSimpleName();
         }
+    }
+
+    private boolean checkIfIsWrappedType(Class clazz) {
+        return ClassUtils.isParameterizedType(clazz);
     }
 
 

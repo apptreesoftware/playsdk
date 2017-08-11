@@ -49,7 +49,9 @@ public class ConverterTest {
         sampleObject.sampleListItem.testDate = new Date(100);
         sampleObject.sampleListItem.testJodaTimeDate = new DateTime(100);
         sampleObject.sampleListItem.testSqlDate = new java.sql.Date(100);
+<<<<<<< HEAD
         sampleObject.color = new Color(255, 155, 55, 5);
+=======
         sampleObject.sampleAttachment = new ArrayList<>();
         SampleAttachment sampleAttachment = new SampleAttachment();
         sampleAttachment.setAttachmentURL("http://testattachment.url");
@@ -62,6 +64,7 @@ public class ConverterTest {
         sampleObject.sampleAttachment.add(sampleAttachment);
         sampleObject.sampleAttachment.add(sampleAttachment2);
         sampleObject.sampleSingleAttachment = sampleAttachment2;
+>>>>>>> attachmentChanges
         return sampleObject;
     }
 
@@ -390,6 +393,7 @@ public class ConverterTest {
     }
 
     @Test
+<<<<<<< HEAD
     public void testReadColorData() {
         SampleObject object = getSampleObject();
         DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
@@ -465,7 +469,7 @@ public class ConverterTest {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
-    @Test
+=======
     public void generateAttachmentConfiguration() {
         ServiceConfiguration sampleConf = SampleAttachment.getServiceConfiguration();
         ServiceConfiguration generateConfig = ObjectConverter.generateConfiguration(SampleAttachmentWrapper.class);
@@ -527,4 +531,5 @@ public class ConverterTest {
 
 
 
+>>>>>>> attachmentChanges
 }
