@@ -496,7 +496,11 @@ public class ListItem implements Record {
             return getAttributeMeta(index);
         }
         if (attributeConfiguration == null) return null;
-        ListServiceConfigurationAttribute attribute = attributeConfiguration.getAttributes().get(index);
+        ListServiceConfigurationAttribute attribute = null;
+        for(ListServiceConfigurationAttribute attr : attributeConfiguration.getAttributes()) {
+            if(attr.getAttributeIndex() == index) attribute = attr;
+        }
+        if(attribute == null) return null;
         return new AttributeMeta(attribute.getAttributeType(), attribute.getAttributeIndex());
     }
 

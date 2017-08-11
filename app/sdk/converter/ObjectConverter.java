@@ -93,6 +93,7 @@ public class ObjectConverter {
      * This function iterates the annotated members of the "destination" object
      * then copies the value from record object into the annotated field of your "destination" object
      * The link is created by index
+     *
      * @param dataSetItem
      * @param destination
      * @param <T>
@@ -111,7 +112,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param record
      * @param destination
@@ -142,7 +142,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param attributeMeta
      * @param destination
@@ -196,7 +195,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -235,7 +233,6 @@ public class ObjectConverter {
 
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -271,7 +268,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -295,7 +291,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -314,7 +309,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -333,7 +327,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -342,7 +335,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -367,7 +359,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -392,7 +383,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param destination
      * @param dataSetItem
@@ -421,8 +411,9 @@ public class ObjectConverter {
     }
 
     private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
-    throws UnableToWriteException, InvocationTargetException {
-        if(CustomLocation.class.isAssignableFrom(destination.getClass())) writeCustomLocationData(proxy, destination, dataSetItem, index, metaClass);
+            throws UnableToWriteException, InvocationTargetException {
+        if (CustomLocation.class.isAssignableFrom(destination.getClass()))
+            writeCustomLocationData(proxy, destination, dataSetItem, index, metaClass);
         else writeLocationData(proxy, destination, dataSetItem, index, metaClass);
     }
 
@@ -430,25 +421,14 @@ public class ObjectConverter {
             throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
-        C customLocation = null;
-        try {customLocation = (C) destination.getClass().getDeclaredField(proxy.getName()).get(destination);}
-        catch(Exception error) {}
-        if(customLocation != null) {
-            customLocation.fromLocation(location, customLocation);
-        } else {
-            try {
-                Field field = destination.getClass().getDeclaredField(proxy.getName());
-                Class<C> clazz = (Class<C>) Class.forName(field.getType().getName());
-                C newInstance = clazz.newInstance();
-                newInstance.setLatitude(location.getLatitude());
-                newInstance.setLongitude(location.getLongitude());
-                newInstance.setBearing(location.getBearing());
-                newInstance.setElevation(location.getElevation());
-                newInstance.setSpeed(location.getSpeed());
-                newInstance.setAccuracy(location.getAccuracy());
-                newInstance.setTimestamp(location.getTimestamp());
-                useSetterIfExists(proxy, destination, newInstance);
-            } catch(Exception error) {System.out.println(error.getMessage());}
+        try {
+            Field field = destination.getClass().getDeclaredField(proxy.getName());
+            Class<C> clazz = (Class<C>) Class.forName(field.getType().getName());
+            C newInstance = clazz.newInstance();
+            newInstance.fromLocation(location, newInstance);
+            useSetterIfExists(proxy, destination, newInstance);
+        } catch (Exception error) {
+            System.out.println(error.getMessage());
         }
     }
 
@@ -458,23 +438,22 @@ public class ObjectConverter {
         if (location == null) return;
         try {
             useSetterIfExists(proxy, destination, location);
-        } catch(Exception error) {
+        } catch (Exception error) {
             throw new RuntimeException("Unable to write Location data for field: " + proxy.getName());
         }
     }
 
     private static <T> void writeColorData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass) {
         Color color = record.getColor(index);
-        if(color == null) return;
+        if (color == null) return;
         try {
             useSetterIfExists(proxy, destination, color);
-        } catch(Exception error) {
+        } catch (Exception error) {
             throw new RuntimeException("Unable to write Color data for field: " + proxy.getName());
         }
     }
 
     /**
-     *
      * @param proxy
      * @param datetime
      * @param destination
@@ -496,7 +475,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param classType
      * @param type
      * @return
@@ -510,7 +488,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @return
      */
     private static Map<AttributeType, List<Class>> getSupportedTypeMap() {
@@ -518,7 +495,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param dataSetItem
      * @param source
      * @param <T>
@@ -536,7 +512,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -557,7 +532,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param dataSetItem
      * @param source
@@ -598,7 +572,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param attributeMeta
      * @param object
@@ -651,7 +624,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -680,7 +652,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -710,7 +681,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -749,7 +719,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -779,7 +748,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -806,7 +774,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param record
@@ -835,12 +802,12 @@ public class ObjectConverter {
     private static <T> void readLocationData(AttributeProxy proxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
         Location location = getLocationValueFromObject(proxy, object, useGetterAndSetter);
         record.setLocation(location, index);
-        if(value) {
+        if (value) {
             record.setValue(location.toString());
         }
-        if(primaryKey) {
+        if (primaryKey) {
             record.setPrimaryKey(location.toString());
-            if(!record.isValueSet()) {
+            if (!record.isValueSet()) {
                 record.setValue(location.toString());
             }
         }
@@ -852,7 +819,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param useGetterAndSetter
@@ -890,11 +856,11 @@ public class ObjectConverter {
     private static <T, C extends CustomLocation> Location getLocationValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter)
             throws IllegalAccessException, InvocationTargetException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Location);
-        if(supportedClasses == null) return new Location();
-        if(proxy.getType() == Location.class) {
-            if(fieldHasGetter(proxy, object) && useGetterAndSetter) return (Location) useGetter(proxy, object);
+        if (supportedClasses == null) return new Location();
+        if (proxy.getType() == Location.class) {
+            if (fieldHasGetter(proxy, object) && useGetterAndSetter) return (Location) useGetter(proxy, object);
             Location location = (Location) proxy.getValue(object);
-            if(location == null) return new Location();
+            if (location == null) return new Location();
             Location retLocation = new Location(location.getLatitude(), location.getLongitude());
             retLocation.setAccuracy(location.getAccuracy());
             retLocation.setBearing(location.getBearing());
@@ -902,10 +868,10 @@ public class ObjectConverter {
             retLocation.setSpeed(location.getSpeed());
             retLocation.setTimestamp(location.getTimestamp());
             return retLocation;
-        } else if(CustomLocation.class.isAssignableFrom(proxy.getType())) {
+        } else if (CustomLocation.class.isAssignableFrom(proxy.getType())) {
             Location location = new Location();
             C src = (C) proxy.getValue(object);
-            if(src == null) return new Location();
+            if (src == null) return new Location();
             location.setLatitude(src.getLatitude());
             location.setLongitude(src.getLongitude());
             location.setBearing(src.getBearing());
@@ -919,19 +885,19 @@ public class ObjectConverter {
     }
 
     private static <T> Color getColorValueFromObject(AttributeProxy proxy, T object, boolean useGetterAndSetter) {
-        if(getSupportedTypeMap().get(AttributeType.Color) == null) return new Color();
-        if(proxy.getType() == Color.class) {
+        if (getSupportedTypeMap().get(AttributeType.Color) == null) return new Color();
+        if (proxy.getType() == Color.class) {
             try {
                 if (fieldHasGetter(proxy, object) && useGetterAndSetter) return (Color) useGetter(proxy, object);
                 Color objColor = (Color) proxy.getValue(object);
                 return new Color(objColor.getR(), objColor.getG(), objColor.getB(), objColor.getA());
-            } catch(Exception error) {}
+            } catch (Exception error) {
+            }
         }
         return new Color();
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param dataSetItem
@@ -954,7 +920,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param dataSetItem
@@ -974,7 +939,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param dataSetItem
@@ -996,7 +960,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param someClass
      * @param <T>
      * @return
@@ -1012,7 +975,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param someClass
      * @param <T>
      * @return
@@ -1030,7 +992,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param field
      * @param attribute
      * @return
@@ -1044,7 +1005,7 @@ public class ObjectConverter {
         ConverterAttributeType converterAttributeType = null;
         AttributeType attributeType = attribute.dataType();
         if (attributeType.equals(AttributeType.None)) {
-            converterAttributeType = inferDataType(field.getClass().getSimpleName());
+            converterAttributeType = inferDataType(field.getType().getSimpleName());
         }
         ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
         listServiceConfigurationAttribute.setAttributeIndex(index);
@@ -1054,7 +1015,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param someClass
      * @param <T>
      * @return
@@ -1071,7 +1031,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param configurationWrapper
      * @param attribute
      * @return
@@ -1127,7 +1086,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeType
      * @return
      */
@@ -1136,7 +1094,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeType
      * @param serviceConfigurationAttribute
      * @param configName
@@ -1154,21 +1111,20 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param name
      * @return
      */
     private static String inferName(String name) {
-        if(name.contains("_")) { // snake case
+        if (name.contains("_")) { // snake case
             name = name.replace("_", " ");
         } else { // camel case
             StringBuilder builder = new StringBuilder();
-            if(name.matches("^(set|get).*$")) name = name.substring(3); // remove set or get from front
+            if (name.matches("^(set|get).*$")) name = name.substring(3); // remove set or get from front
             builder.append(name.charAt(0));
-            for(int i = 1; i < name.length(); i++) {
+            for (int i = 1; i < name.length(); i++) {
                 char c = name.charAt(i);
                 char p = name.charAt(i - 1);
-                if(Character.isAlphabetic(c) != Character.isAlphabetic(p) ||
+                if (Character.isAlphabetic(c) != Character.isAlphabetic(p) ||
                         (Character.isUpperCase(c) && Character.isUpperCase(c) != Character.isUpperCase(p)))
                     builder.append(" ");
                 builder.append(name.charAt(i));
@@ -1179,7 +1135,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param dataTypeName
      * @return
      */
@@ -1188,7 +1143,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -1231,7 +1185,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param index
      * @param clazz
      * @return
@@ -1241,7 +1194,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param clazz
      * @return
      */
@@ -1263,7 +1215,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param <T>
@@ -1277,7 +1228,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @param object
      * @param <T>
@@ -1290,7 +1240,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param destination
      * @param proxy
      * @param value
@@ -1308,7 +1257,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param object
      * @param <T>
@@ -1327,7 +1275,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param name
      * @return
      */
@@ -1337,7 +1284,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param proxy
      * @return
      */
@@ -1351,7 +1297,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param sourceObject
      * @param <T>
      */
@@ -1363,7 +1308,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @return
      */
     public static Map<String, Map<String, Method>> getMethodMap() {
@@ -1374,7 +1318,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param tempMethodMap
      */
     public static void setMethodMap(Map<String, Map<String, Method>> tempMethodMap) {
@@ -1382,7 +1325,6 @@ public class ObjectConverter {
     }
 
     /**
-     *
      * @param attributeProxy
      * @param destination
      * @param value
