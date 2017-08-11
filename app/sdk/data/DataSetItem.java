@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.prism.shader.Solid_TextureRGB_AlphaTest_Loader;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Http;
@@ -415,6 +416,13 @@ public class DataSetItem implements Record {
             }
             return None;
         }
+
+        public static boolean updatedStatus(CRUDStatus status) {
+            return (status.equals(CRUDStatus.Delete)
+                    || status.equals(CRUDStatus.Update));
+        }
+
+
     }
 
     public enum Status {

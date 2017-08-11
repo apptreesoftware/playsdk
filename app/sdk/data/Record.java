@@ -74,6 +74,8 @@ public interface Record {
 
     boolean isValueSet();
 
+    DataSetItem.CRUDStatus getCRUDStatus();
+
 
 
 
