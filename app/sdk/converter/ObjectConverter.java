@@ -5,7 +5,6 @@ import org.springframework.util.StringUtils;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
-import sdk.converter.attachment.AbstractAttachment;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
 import sdk.data.*;
@@ -407,16 +406,17 @@ public class ObjectConverter {
         Class classValue = null;
         try {
             classValue = Class.forName(metaClass.getName());
-            ArrayList<AbstractAttachment> tempList = new ArrayList<>();
-            AbstractAttachment tempObject = new Attachment();
+            ArrayList<ApptreeAttachment> tempList = new ArrayList<>();
+            ApptreeAttachment tempObject = new Attachment();
 ;            if(proxy.isWrappedClass) {
                 RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, tempList);
                 useSetterIfExists(proxy, destination, tempList);
             } else {
                 RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, tempObject);
-                useSetterIfExists(proxy, destination, ApptreeAttachment.class.cast(tempObject));
+                useSetterIfExists(proxy, destination, tempObject);
             }
         } catch (ClassNotFoundException | IllegalAccessException ie) {
+            ie.printStackTrace();
             throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
@@ -488,14 +488,14 @@ public class ObjectConverter {
 
 
     public static void copyToAttachment(DataSetItemAttachment attachmentItem, Object object) {
-        AbstractAttachment apptreeAttachment = (AbstractAttachment) object;
+        ApptreeAttachment apptreeAttachment = (ApptreeAttachment) object;
         attachmentItem.setMimeType(apptreeAttachment.getMimeType());
         attachmentItem.setTitle(apptreeAttachment.getTitle());
         attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
     }
 
 
-    public static void copyFromAttachment(DataSetItemAttachment attachmentItem, AbstractAttachment object) {
+    public static void copyFromAttachment(DataSetItemAttachment attachmentItem, ApptreeAttachment object) {
         object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
@@ -1319,11 +1319,11 @@ public class ObjectConverter {
 
 
     private static boolean isChildOfApptreeSpecificClass(Class clazz) {
-        return (AbstractAttachment.class.isAssignableFrom(clazz));
+        return (ApptreeAttachment.class.isAssignableFrom(clazz));
     }
 
     private static AttributeType getAttributeTypeFromApptreeSpecificClass(Class clazz) {
-        if (AbstractAttachment.class.isAssignableFrom(clazz)) {
+        if (ApptreeAttachment.class.isAssignableFrom(clazz)) {
             return AttributeType.Attachments;
         }
         return AttributeType.None;

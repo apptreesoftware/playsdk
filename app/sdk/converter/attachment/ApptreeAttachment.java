@@ -1,5 +1,7 @@
 package sdk.converter.attachment;
 
+import java.io.FileInputStream;
+
 /**
  * Created by Orozco on 8/10/17.
  */
@@ -15,4 +17,8 @@ public interface ApptreeAttachment {
     void setTitle(String title);
 
     String getTitle();
+
+    //Called when a new attachment is uploaded. You must read from this stream to wherever you want to store the attachment.
+    //Be sure to close the stream when you're done.
+    void setFileInputStream(FileInputStream inputStream);
 }

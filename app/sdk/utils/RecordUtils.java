@@ -1,7 +1,7 @@
 package sdk.utils;
 
 import sdk.converter.ObjectConverter;
-import sdk.converter.attachment.AbstractAttachment;
+import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
 import sdk.data.DataSetItemAttachment;
 import sdk.data.Record;
@@ -26,15 +26,15 @@ public class RecordUtils {
         }
     }
 
-    public static void copyListOfAttachmentsFromRecordForIndex(List<DataSetItemAttachment> attachments, List<AbstractAttachment> objects) {
+    public static void copyListOfAttachmentsFromRecordForIndex(List<DataSetItemAttachment> attachments, List<ApptreeAttachment> objects) {
             for(DataSetItemAttachment attachment:attachments) {
-                AbstractAttachment apptreeAttachment = new Attachment();
+                ApptreeAttachment apptreeAttachment = new Attachment();
                 ObjectConverter.copyFromAttachment(attachment, apptreeAttachment);
                 objects.add(apptreeAttachment);
             }
     }
 
-    public static void copyAttachmentFromRecordForIndex(List<DataSetItemAttachment> attachments, AbstractAttachment object) {
+    public static void copyAttachmentFromRecordForIndex(List<DataSetItemAttachment> attachments, ApptreeAttachment object) {
             DataSetItemAttachment attachment = attachments.get(0);
             if(attachment == null) return;
             ObjectConverter.copyFromAttachment(attachment, object);

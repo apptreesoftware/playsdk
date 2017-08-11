@@ -3,7 +3,7 @@ package sdk.converter.attachment;
 /**
  * Created by Orozco on 8/10/17.
  */
-public class Attachment extends AbstractAttachment {
+public class Attachment implements ApptreeAttachment {
 
     String mimeType;
     String attachmentURL;
