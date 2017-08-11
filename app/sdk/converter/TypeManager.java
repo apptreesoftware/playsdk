@@ -270,7 +270,7 @@ public class TypeManager {
      * @param <T>
      * @return
      */
-    protected static <T> Object useGetter(AttributeProxy attributeProxy, T object) {
+    protected static <T> Object useGetterIfExists(AttributeProxy attributeProxy, T object) {
         Map<String, Method> tempMethodMap = getMethodMap().get(object.getClass().getName());
         if (tempMethodMap == null) return null;
         Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
