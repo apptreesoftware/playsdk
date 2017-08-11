@@ -9,16 +9,9 @@ import sdk.models.Location;
  *
  * All required fields are already set in this abstract base class. Additional fields will be ignored.
  */
-public abstract class CustomLocation implements CustomLocationInterface {
-    protected double latitude = 0;
-    protected double longitude = 0;
-    protected double accuracy = 0;
-    protected double speed = 0;
-    protected double elevation = 0;
-    protected double bearing = 0;
-    protected DateTime timestamp = null;
+public interface CustomLocation {
 
-    public <T extends CustomLocation> void toLocation(Location location, T self) {
+    default public <T extends CustomLocation> void toLocation(Location location, T self) {
         location.setLatitude(self.getLatitude());
         location.setLongitude(self.getLongitude());
         location.setAccuracy(self.getAccuracy());
@@ -28,7 +21,7 @@ public abstract class CustomLocation implements CustomLocationInterface {
         location.setTimestamp(self.getTimestamp());
     }
 
-    public <T extends CustomLocation> void fromLocation(Location location, T self) {
+    default public <T extends CustomLocation> void fromLocation(Location location, T self) {
         self.setLatitude(location.getLatitude());
         self.setLongitude(location.getLongitude());
         self.setAccuracy(location.getAccuracy());
@@ -38,45 +31,38 @@ public abstract class CustomLocation implements CustomLocationInterface {
         self.setTimestamp(location.getTimestamp());
     }
 
-    protected CustomLocation() {}
+    public void setLatitude(double latitude);
+    public double getLatitude();
+    public void setLongitude(double longitude);
+    public double getLongitude();
 
-    public double getAccuracy() {
-        return this.accuracy;
+    default public double getAccuracy() {
+        return 0;
     }
 
-    public void setAccuracy(double accuracy) {
-        this.accuracy = accuracy;
+    default public void setAccuracy(double accuracy) {}
+
+    default public double getSpeed() {
+        return 0;
     }
 
-    public double getSpeed() {
-        return this.speed;
+    default public void setSpeed(double speed) {}
+
+    default public double getElevation() {
+        return 0;
     }
 
-    public void setSpeed(double speed) {
-        this.speed = speed;
+    default public void setElevation(double elevation) {}
+
+    default public double getBearing() {
+        return 0;
     }
 
-    public double getElevation() {
-        return this.elevation;
+    default public void setBearing(double bearing) {}
+
+    default public DateTime getTimestamp() {
+        return null;
     }
 
-    public void setElevation(double elevation) {
-        this.elevation = elevation;
-    }
-
-    public double getBearing() {
-        return bearing;
-    }
-
-    public void setBearing(double bearing) {
-        this.bearing = bearing;
-    }
-
-    public DateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(DateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+    default public void setTimestamp(DateTime timestamp) {}
 }
