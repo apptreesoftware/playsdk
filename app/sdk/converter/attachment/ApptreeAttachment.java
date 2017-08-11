@@ -18,7 +18,7 @@ public interface ApptreeAttachment {
 
     String getTitle();
 
-    //Called when a new attachment is uploaded. You must read from this stream to wherever you want to store the attachment.
-    //Be sure to close the stream when you're done.
-    void setFileInputStream(FileInputStream inputStream);
+//    Called when a new attachment is uploaded. You must read from this stream to wherever you want to store the attachment.
+//    Be sure to close the stream when you're done.
+     void setFileInputStream(FileInputStream inputStream);
 }

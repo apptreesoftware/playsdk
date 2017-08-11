@@ -13,12 +13,6 @@ import java.util.List;
  * Created by Orozco on 7/19/17.
  */
 public class SampleObject {
-
-
-    @Metadata
-    MetaData metadata;
-    public Map<String, Object> metadata;
-
     @Attribute(index = 0, useGetterAndSetter = false)
     public String woNumber;
 

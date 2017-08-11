@@ -120,7 +120,7 @@ public class ObjectConverter {
             return;
         }
         int index = attribute.index();
-        Class metaClass = attribute.relationshipClass();
+        Class definedRelationshipClass = attribute.relationshipClass();
         Class fieldClass = proxy.getType();
         AttributeMeta attributeMeta = record.getAttributeMeta(index);
         boolean userSetterAndGetter = attribute.useGetterAndSetter();
@@ -130,7 +130,7 @@ public class ObjectConverter {
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readDataSetItemData(proxy, attributeMeta, destination, record, metaClass, userSetterAndGetter);
+        readDataSetItemData(proxy, attributeMeta, destination, record, definedRelationshipClass, userSetterAndGetter);
     }
 
 
@@ -139,13 +139,13 @@ public class ObjectConverter {
      * @param attributeMeta
      * @param destination
      * @param dataSetItem
-     * @param metaClass
+     * @param definedRelationshipClass
      * @param useSetterAndGetter
      * @param <T>
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class metaClass, boolean useSetterAndGetter) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class definedRelationshipClass, boolean useSetterAndGetter) throws UnableToWriteException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -172,9 +172,9 @@ public class ObjectConverter {
                 writeSingleRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Relation:
-                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
             case Attachments:
-                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), metaClass);
+                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -403,21 +403,21 @@ public class ObjectConverter {
     private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
         List<DataSetItemAttachment> attachmentItems = dataSetItem.getAttachmentItemsForIndex(index);
         if (attachmentItems == null) return;
-        Class classValue = null;
         try {
-            classValue = Class.forName(metaClass.getName());
-            ArrayList<ApptreeAttachment> tempList = new ArrayList<>();
-            ApptreeAttachment tempObject = new Attachment();
-;            if(proxy.isWrappedClass) {
-                RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, tempList);
-                useSetterIfExists(proxy, destination, tempList);
+            ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();
+            ArrayList<ApptreeAttachment> attachmentList = new ArrayList<>();
+            if(proxy.isWrappedClass) {
+                RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, attachmentList);
+                useSetterIfExists(proxy, destination, attachmentList);
             } else {
-                RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, tempObject);
-                useSetterIfExists(proxy, destination, tempObject);
+                RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, singleAttachment);
+                useSetterIfExists(proxy, destination, singleAttachment);
             }
-        } catch (ClassNotFoundException | IllegalAccessException ie) {
+        } catch (IllegalAccessException ie) {
             ie.printStackTrace();
-            throw new UnableToWriteException(classValue.getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
+            throw new UnableToWriteException(proxy.getType().getName(), index, AttributeType.ListItem.toString(), ie.getMessage());
+        } catch (InstantiationException e) {
+            e.printStackTrace();
         }
     }
 

@@ -1,7 +1,6 @@
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;

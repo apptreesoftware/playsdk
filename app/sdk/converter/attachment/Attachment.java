@@ -1,5 +1,7 @@
 package sdk.converter.attachment;
 
+import java.io.FileInputStream;
+
 /**
  * Created by Orozco on 8/10/17.
  */
@@ -38,5 +40,10 @@ public class Attachment implements ApptreeAttachment {
     @Override
     public String getTitle() {
         return title;
+    }
+
+    @Override
+    public void setFileInputStream(FileInputStream inputStream) {
+
     }
 }
