@@ -2,6 +2,8 @@ package sdk.converter;
 
 import sdk.annotations.Attribute;
 import sdk.annotations.CustomLocation;
+import sdk.converter.attachment.ApptreeAttachment;
+import sdk.converter.attachment.Attachment;
 import sdk.models.AttributeType;
 import sdk.models.Color;
 import sdk.models.Location;
@@ -70,6 +72,11 @@ public class TypeManager {
             ArrayList<Class> colorClasses = new ArrayList();
             colorClasses.add(Color.class);
             put(AttributeType.Color, colorClasses);
+
+            ArrayList<Class> attachmentClasses = new ArrayList<>();
+            attachmentClasses.add(Attachment.class);
+            attachmentClasses.add(ApptreeAttachment.class);
+            put(AttributeType.Attachments, attachmentClasses);
         }};
     }
 
@@ -88,6 +95,8 @@ public class TypeManager {
     protected static ConverterAttributeType inferDataType(Class clazz) {
         if(CustomLocation.class.isAssignableFrom(clazz))
             return new ConverterAttributeType(AttributeType.Location, true);
+        if(ApptreeAttachment.class.isAssignableFrom(clazz))
+            return new ConverterAttributeType(AttributeType.Attachments, true);
         return findTypeOnSimpleName(clazz.getSimpleName());
     }
 
@@ -119,11 +128,12 @@ public class TypeManager {
                 return new ConverterAttributeType(AttributeType.Location, true);
             case "Color":
                 return new ConverterAttributeType(AttributeType.Color, true);
+            case "Attachments":
+                return new ConverterAttributeType(AttributeType.Attachments, true);
             default:
                 return new ConverterAttributeType(AttributeType.ListItem, true);
         }
     }
-
 
     /**
      * @param sourceObject
@@ -275,6 +285,7 @@ public class TypeManager {
         if (tempMethodMap == null) return null;
         Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
         try {
+            if(getterMethod == null) return attributeProxy.getValue(object);
             return getterMethod.invoke(object);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
