@@ -68,7 +68,7 @@ public class SampleObject {
     public Location sdkLocation;
 
     @Attribute(index = 19)
-    public TestLocation customLocation;
+    public SampleLocation customLocation;
 
     public static class TestLocation implements CustomLocation {
         public double latitude;

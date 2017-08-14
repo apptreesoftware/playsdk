@@ -62,8 +62,31 @@ public class ConverterTest {
         sampleObject.sampleAttachment.add(sampleAttachment);
         sampleObject.sampleAttachment.add(sampleAttachment2);
         sampleObject.sampleSingleAttachment = sampleAttachment2;
+        sampleObject.customLocation = getCustomLocation();
+        sampleObject.sdkLocation = getSDKLocation();
+
         return sampleObject;
     }
+
+
+    private SampleLocation getCustomLocation(){
+        SampleLocation location = new SampleLocation();
+        location.setLatitude(11.0);
+        location.setLongitude(232323.0);
+        return location;
+    }
+
+
+
+    private Location getSDKLocation(){
+        Location location = new Location();
+        location.setLatitude(1122.0);
+        location.setLongitude(12121.0);
+        return location;
+    }
+
+
+
 
     public void hydrateSampleObjectProxies(List<AttributeProxy> attributeProxies) {
         Field[] fields = SampleObject.class.getFields();

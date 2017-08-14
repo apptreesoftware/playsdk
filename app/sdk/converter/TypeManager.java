@@ -200,6 +200,7 @@ public class TypeManager {
                 || type.equals(AttributeType.Relation)
                 || type.equals(AttributeType.SingleRelationship))
                 || type.equals(AttributeType.Attachments)
+                || type.equals(AttributeType.Location)
                 && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }

@@ -1522,6 +1522,13 @@ public class DataSetItem implements Record {
         if (attributeMap.size() != that.attributeMap.size()) return false;
         if (!configurationMap.keySet().equals(that.configurationMap.keySet())) return false;
         if (!attributeMap.keySet().equals(that.attributeMap.keySet())) return false;
+        for(int i = 0; i < attributeMap.size(); i++) {
+            DataSetItemAttribute thisAttribute = this.attributeMap.get(i);
+            DataSetItemAttribute thatAttribute = that.attributeMap.get(i);
+            if(!thisAttribute.equals(thatAttribute)){
+                return false;
+            }
+        }
         return true;
     }
 

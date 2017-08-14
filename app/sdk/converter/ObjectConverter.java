@@ -454,7 +454,7 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
             throws UnableToWriteException, InvocationTargetException {
-        if (CustomLocation.class.isAssignableFrom(destination.getClass()))
+        if (CustomLocation.class.isAssignableFrom(proxy.getType()))
             writeCustomLocationData(proxy, destination, dataSetItem, index, metaClass);
         else writeLocationData(proxy, destination, dataSetItem, index, metaClass);
     }
