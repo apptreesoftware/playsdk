@@ -537,6 +537,11 @@ public class ListItem implements Record {
         throw new RuntimeException("This type of record does not support CRUD status");
     }
 
+    @Override
+    public boolean supportsCRUDStatus() {
+        return false;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if(attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();

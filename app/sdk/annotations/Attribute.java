@@ -16,6 +16,7 @@ public @interface Attribute {
     String name() default "";
     AttributeType dataType() default AttributeType.None;
     Class relationshipClass() default Class.class;
+    boolean excludeFromList() default false;
     boolean useGetterAndSetter() default true;
     boolean canCreate() default true;
     boolean canCreateAndRequired() default false;

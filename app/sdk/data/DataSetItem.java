@@ -553,6 +553,11 @@ public class DataSetItem implements Record {
         return crudStatus;
     }
 
+    @Override
+    public boolean supportsCRUDStatus() {
+        return true;
+    }
+
     /**
      * Gets the client key
      *

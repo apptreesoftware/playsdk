@@ -28,7 +28,8 @@ import static sdk.utils.ClassUtils.Null;
  */
 public class ObjectConverter extends ConfigurationManager {
 
-    public ObjectConverter() { }
+    public ObjectConverter() {
+    }
 
     /**
      * Method accepts an object that implements the `Record` interface and an object's members annotated with Attribute annotation
@@ -42,11 +43,13 @@ public class ObjectConverter extends ConfigurationManager {
      */
     public static <T> ParserContext copyFromRecord(Record record, T destination) {
         ParserContext parserContext = new ParserContext();
+        mapMethodsFromSource(destination);
         if (destination == null) {
             throw new DestinationInvalidException();
         }
-        mapMethodsFromSource(destination);
-        parserContext.setItemStatus(record.getCRUDStatus());
+        if (record.supportsCRUDStatus()) {
+            parserContext.setItemStatus(record.getCRUDStatus());
+        }
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
                 copyToField(proxy, record, destination, parserContext);
@@ -420,7 +423,7 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     private static <T> void copyFromRecordRecursive(AttributeProxy proxy, Type fieldType, Class classValue, Record record, T destination, Integer index)
-    throws InvocationTargetException, UnableToWriteException {
+            throws InvocationTargetException, UnableToWriteException {
         try {
             classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
@@ -511,7 +514,7 @@ public class ObjectConverter extends ConfigurationManager {
         try {
             ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();
             ArrayList<ApptreeAttachment> attachmentList = new ArrayList<>();
-            if(proxy.isWrappedClass) {
+            if (proxy.isWrappedClass) {
                 RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, attachmentList);
                 useSetterIfExists(proxy, destination, attachmentList);
             } else {
@@ -535,7 +538,7 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws InvocationTargetException
      */
     private static <T> void setDateValueFromField(AttributeProxy proxy, DateTime datetime, T destination) throws IllegalAccessException, InvocationTargetException {
-        if(Null(datetime)) return;
+        if (Null(datetime)) return;
         Class clazz = proxy.getType();
         if (clazz == org.joda.time.DateTime.class) {
             useSetterIfExists(proxy, destination, datetime);
@@ -928,7 +931,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (getSupportedTypeMap().get(AttributeType.Color) == null) return new Color();
         if (proxy.getType() == Color.class) {
             try {
-                if (fieldHasGetter(proxy, object) && useGetterAndSetter) return (Color) useGetterIfExists(proxy, object);
+                if (fieldHasGetter(proxy, object) && useGetterAndSetter)
+                    return (Color) useGetterIfExists(proxy, object);
                 Color objColor = (Color) proxy.getValue(object);
                 return new Color(objColor.getR(), objColor.getG(), objColor.getB(), objColor.getA());
             } catch (Exception error) {

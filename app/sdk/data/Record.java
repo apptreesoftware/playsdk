@@ -76,6 +76,8 @@ public interface Record {
 
     DataSetItem.CRUDStatus getCRUDStatus();
 
+    boolean supportsCRUDStatus();
+
 
 
 
