@@ -344,7 +344,7 @@ public class DataSetItemAttribute {
         DataSetItemAttribute that = (DataSetItemAttribute) o;
 
         if (stringValue != null ? !stringValue.equals(that.stringValue) : that.stringValue != null) return false;
-        if (dataSetItems != null ? !dataSetItems.equals(that.dataSetItems) : that.dataSetItems != null) return false;
+        if (dataSetItems != null ? dataSetItems.size() != that.dataSetItems.size() : that.dataSetItems != null) return false;
         if (attributeType != that.attributeType) return false;
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
         if (listItem != null ? !listItem.equals(that.listItem) : that.listItem != null) return false;
@@ -353,7 +353,6 @@ public class DataSetItemAttribute {
         if (date != null ? !date.equals(that.date) : that.date != null) return false;
         if (dateRange != null ? !dateRange.equals(that.dateRange) : that.dateRange != null) return false;
         return dateTimeRange != null ? dateTimeRange.equals(that.dateTimeRange) : that.dateTimeRange == null;
-
     }
 
     @Override

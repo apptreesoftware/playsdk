@@ -17,6 +17,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static sdk.utils.ClassUtils.Null;
+
 /**
  * Created by alexis on 5/3/16.
  */
@@ -1525,6 +1527,7 @@ public class DataSetItem implements Record {
         for(int i = 0; i < attributeMap.size(); i++) {
             DataSetItemAttribute thisAttribute = this.attributeMap.get(i);
             DataSetItemAttribute thatAttribute = that.attributeMap.get(i);
+            if(Null(thisAttribute) && Null(thatAttribute)) return true;
             if(!thisAttribute.equals(thatAttribute)){
                 return false;
             }

@@ -58,7 +58,7 @@ public class SampleAttachment implements ApptreeAttachment {
 
     public static Collection<ServiceConfigurationAttribute> getRelatedServiceConfigurationAttributes(){
         List<ServiceConfigurationAttribute> attributes = new ArrayList();
-        attributes.add(new ServiceConfigurationAttribute.Builder(0).name("sampleAttachment").asAttachments().canCreate().canUpdate().canSearch().build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(0).name("Sample Attachment").asAttachments().canCreate().canUpdate().canSearch().build());
         return attributes;
     }
 }
