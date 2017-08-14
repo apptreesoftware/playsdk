@@ -7,6 +7,7 @@ import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
+import sdk.exceptions.DestinationInvalidException;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
@@ -35,20 +36,25 @@ public class ObjectConverter extends ConfigurationManager {
      * then copies the value from record object into the annotated field of your "destination" object
      * The link is created by index
      *
-     * @param dataSetItem
+     * @param record
      * @param destination
      * @param <T>
      */
-    public static <T> void copyFromRecord(Record dataSetItem, T destination) {
-        if (destination == null) return;
+    public static <T> ParserContext copyFromRecord(Record record, T destination) {
+        ParserContext parserContext = new ParserContext();
+        if (destination == null) {
+            throw new DestinationInvalidException();
+        }
         mapMethodsFromSource(destination);
+        parserContext.setItemStatus(record.getCRUDStatus());
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
-                copyToField(proxy, dataSetItem, destination);
+                copyToField(proxy, record, destination, parserContext);
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
+        return parserContext;
     }
 
     /**
@@ -78,7 +84,7 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void copyToField(AttributeProxy proxy, Record record, T destination) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException, InvocationTargetException {
+    private static <T> void copyToField(AttributeProxy proxy, Record record, T destination, ParserContext parserContext) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException, InvocationTargetException {
         Attribute attribute = proxy.getAttributeAnnotation();
         if (attribute == null) {
             return;
@@ -94,7 +100,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readDataSetItemData(proxy, attributeMeta, destination, record, definedRelationshipClass, userSetterAndGetter);
+        readDataSetItemData(proxy, attributeMeta, destination, record, definedRelationshipClass, userSetterAndGetter, parserContext);
     }
 
     /**
@@ -148,7 +154,7 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class definedRelationshipClass, boolean useSetterAndGetter) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class definedRelationshipClass, boolean useSetterAndGetter, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -172,13 +178,13 @@ public class ObjectConverter extends ConfigurationManager {
                 writeListItemData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case SingleRelationship:
-                writeSingleRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeSingleRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Relation:
-                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
+                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass, parserContext);
                 break;
             case Attachments:
-                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
+                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass, parserContext);
                 break;
             case Location:
                 routeWriteLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
@@ -398,14 +404,15 @@ public class ObjectConverter extends ConfigurationManager {
     /**
      * @param proxy
      * @param destination
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param <T>
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeSingleRelationshipData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
-        DataSetItem newDataSetItem = dataSetItem.getDataSetItem(index);
+    private static <T> void writeSingleRelationshipData(AttributeProxy proxy, T destination, Record record, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
+        parserContext.setChildItemStatus(index, record.getCRUDStatus());
+        DataSetItem newDataSetItem = record.getDataSetItem(index);
         if (newDataSetItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
@@ -427,15 +434,16 @@ public class ObjectConverter extends ConfigurationManager {
     /**
      * @param proxy
      * @param destination
-     * @param dataSetItem
+     * @param record
      * @param index
      * @param metaClass
      * @param <T>
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeRelationshipData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
-        List<DataSetItem> dataSetItems = dataSetItem.getDataSetItems(index);
+    private static <T> void writeRelationshipData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
+        List<DataSetItem> dataSetItems = record.getDataSetItems(index);
+        parserContext.setChildItemStatus(index, record.getCRUDStatus());
         if (dataSetItems == null) return;
         Class classValue = null;
         try {
@@ -496,8 +504,9 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
-    private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass) throws UnableToWriteException, InvocationTargetException {
-        List<DataSetItemAttachment> attachmentItems = dataSetItem.getAttachmentItemsForIndex(index);
+    private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
+        List<DataSetItemAttachment> attachmentItems = record.getAttachmentItemsForIndex(index);
+        parserContext.setChildItemStatus(index, record.getCRUDStatus());
         if (attachmentItems == null) return;
         try {
             ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();

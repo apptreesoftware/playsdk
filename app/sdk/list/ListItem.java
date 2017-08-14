@@ -532,6 +532,11 @@ public class ListItem implements Record {
         return valueIsSet;
     }
 
+    @Override
+    public DataSetItem.CRUDStatus getCRUDStatus() {
+        throw new RuntimeException("This type of record does not support CRUD status");
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if(attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();
