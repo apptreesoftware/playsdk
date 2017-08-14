@@ -196,7 +196,11 @@ public class TypeManager {
      * @return
      */
     protected static boolean isFieldClassSupportedForType(Class<?> classType, AttributeType type) {
-        if ((type.equals(AttributeType.ListItem) || type.equals(AttributeType.Relation) || type.equals(AttributeType.SingleRelationship)) && !isPrimitiveDataTypeOrWrapper(classType)) {
+        if ((type.equals(AttributeType.ListItem)
+                || type.equals(AttributeType.Relation)
+                || type.equals(AttributeType.SingleRelationship))
+                || type.equals(AttributeType.Attachments)
+                && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }
         List<Class> classList = getSupportedTypeMap().get(type);
