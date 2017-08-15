@@ -31,6 +31,30 @@ public class ObjectConverter extends ConfigurationManager {
     public ObjectConverter() {
     }
 
+
+    public static <T> DataSet getDataSetFromObject(T t, Collection<ServiceConfigurationAttribute> attributes) {
+        DataSetItem dataSetItem = new DataSetItem(attributes);
+        copyToRecord(dataSetItem, t);
+        return new DataSet(dataSetItem);
+    }
+
+
+    /**
+     * @param objects
+     * @param attributes
+     * @param <T>
+     * @return
+     */
+    public static <T> DataSet getDataSetFromCollection(Collection<T> objects, Collection<ServiceConfigurationAttribute> attributes) {
+        DataSet dataSet = new DataSet(attributes);
+        for (T object : objects) {
+            DataSetItem dataSetItem = dataSet.addNewDataSetItem();
+            copyToRecord(dataSetItem, object);
+        }
+        return dataSet;
+    }
+
+
     /**
      * Method accepts an object that implements the `Record` interface and an object's members annotated with Attribute annotation
      * This function iterates the annotated members of the "destination" object

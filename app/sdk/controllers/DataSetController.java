@@ -14,6 +14,7 @@ import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
 import sdk.datasources.AttachmentDataSource_Internal;
 import sdk.datasources.DataSource_Internal;
+import sdk.datasources.TypedDataSource;
 import sdk.utils.*;
 
 import java.util.ArrayList;
@@ -39,13 +40,13 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
-        if ( callbackURL != null ) {
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
+        if (callbackURL != null) {
             generateDataSourceResponse(dataSource, callbackURL, authenticationInfo, parameters);
             return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
         } else {
-            return dataSource.getDataSet(authenticationInfo,parameters)
-                    .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
+            return dataSource.getDataSet(authenticationInfo, parameters)
+                    .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""))
                     .exceptionally(ResponseExceptionHandler::handleException);
         }
     }
@@ -58,8 +59,8 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         BatchParameters parameters = new BatchParameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
-        if ( callbackURL == null ) return CompletableFuture.completedFuture(badRequest("No callback URL provided"));
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
+        if (callbackURL == null) return CompletableFuture.completedFuture(badRequest("No callback URL provided"));
         BatchManager batchManager = new BatchManager(callbackURL, wsClient);
         Response response = dataSource.getPagedDataSet(authenticationInfo, parameters, batchManager);
         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(response)));
@@ -72,24 +73,24 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, true))
                 .thenCompose(dataSetItem -> {
-                    if ( callbackURL != null ) {
+                    if (callbackURL != null) {
                         generateDataSourceSearchResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
+                        return dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
     private void generateDataSourceResponse(DataSource_Internal dataSource, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-                dataSource.getDataSet(authenticationInfo, parameters)
+        dataSource.getDataSet(authenticationInfo, parameters)
                 .whenComplete((dataSet, throwable) -> {
-                    if ( throwable != null ) {
+                    if (throwable != null) {
                         sendDataSetExceptionCallback(throwable, callbackURL);
                     } else {
                         sendDataSetResponse(dataSet, callbackURL);
@@ -98,9 +99,9 @@ public class DataSetController extends DataController {
     }
 
     private void generateDataSourceSearchResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
-             dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters)
+        dataSource.queryDataSet(dataSetItem, authenticationInfo, parameters)
                 .whenComplete((dataSet, throwable) -> {
-                    if ( throwable != null ) {
+                    if (throwable != null) {
                         sendDataSetExceptionCallback(throwable, callbackURL);
                     } else {
                         sendDataSetResponse(dataSet, callbackURL);
@@ -111,7 +112,7 @@ public class DataSetController extends DataController {
     private void generateDataSourceCreateResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
         dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters)
                 .whenComplete(((dataSet, throwable) -> {
-                    if ( throwable != null ) {
+                    if (throwable != null) {
                         sendDataSetExceptionCallback(throwable, callbackURL);
                     } else {
                         sendDataSetResponse(dataSet, callbackURL);
@@ -122,7 +123,7 @@ public class DataSetController extends DataController {
     private void generateDataSourceUpdateResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
         dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters)
                 .whenComplete(((dataSet, throwable) -> {
-                    if ( throwable != null ) {
+                    if (throwable != null) {
                         sendDataSetExceptionCallback(throwable, callbackURL);
                     } else {
                         sendDataSetResponse(dataSet, callbackURL);
@@ -132,7 +133,7 @@ public class DataSetController extends DataController {
 
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         return CompletableFuture
                 .supplyAsync(dataSource::getConfiguration)
@@ -147,16 +148,16 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> {
-                    if ( !StringUtils.isEmpty(callbackURL) ) {
+                    if (!StringUtils.isEmpty(callbackURL)) {
                         generateDataSourceCreateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
+                        return dataSource.createDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
@@ -169,16 +170,16 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> {
-                    if ( !StringUtils.isEmpty(callbackURL) ) {
+                    if (!StringUtils.isEmpty(callbackURL)) {
                         generateDataSourceUpdateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
                         return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
                     } else {
-                        return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""));
+                        return dataSource.updateDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""));
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
@@ -190,20 +191,20 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         Http.MultipartFormData body = request.body().asMultipartFormData();
         Map<String, String[]> bodyMap = body.asFormUrlEncoded();
         String recordsJSONArray = bodyMap.get("records")[0];
         ArrayNode idsArray = (ArrayNode) Json.parse(recordsJSONArray);
         List<String> ids = new ArrayList<>();
-        for ( JsonNode node : idsArray ) {
+        for (JsonNode node : idsArray) {
             ids.add(node.asText());
         }
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
                 .thenCompose(dataSetItem -> dataSource.bulkUpdateDataSetItems(ids, dataSetItem, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -213,11 +214,11 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         return getServiceConfiguration(dataSource, request)
                 .thenCompose(configuration -> dataSource.deleteDataSetItem(dataSetItemID, authenticationInfo, parameters))
-                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
@@ -227,16 +228,16 @@ public class DataSetController extends DataController {
         AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
         Parameters parameters = new Parameters(request.queryString());
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         return dataSource.getDataSetItem(authenticationInfo, primaryKey, parameters)
-                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords()+""))
+                .thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""))
                 .exceptionally(ResponseExceptionHandler::handleException);
     }
 
     public CompletionStage<Result> getAttachment(String attachmentID) {
         AttachmentDataSource_Internal source = AppTree.getAttachmentDataSource_internal();
-        if ( source == null ) {
+        if (source == null) {
             return CompletableFuture.completedFuture(notFound("No attachment source provided"));
         }
         Http.Request request = request();
@@ -247,7 +248,7 @@ public class DataSetController extends DataController {
                     String mimeType = attachmentResponse.contentType != null ? attachmentResponse.contentType : "application/octet-stream";
                     String filename = attachmentResponse.fileName != null ? attachmentResponse.fileName : UUID.randomUUID().toString();
                     return ok(attachmentResponse.inputStream)
-                            .withHeader("Filename", filename )
+                            .withHeader("Filename", filename)
                             .withHeader("Content-Type", mimeType);
                 });
     }
@@ -257,7 +258,7 @@ public class DataSetController extends DataController {
         JsonNode json = request().body().asJson();
         if (json == null) return CompletableFuture.completedFuture(badRequest("No event information was provided"));
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
-        if ( dataSource == null ) return CompletableFuture.completedFuture(notFound());
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
 
         Event event = JsonUtils.fromJson(json, Event.class);
         Http.Request request = request();

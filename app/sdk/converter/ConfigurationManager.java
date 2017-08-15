@@ -43,9 +43,9 @@ public class ConfigurationManager extends TypeManager {
      * @param <T>
      * @return
      */
-    public static <T> Set<ListServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
+    public static <T> Collection<ServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
         Field[] fields = someClass.getDeclaredFields();
-        Set<ListServiceConfigurationAttribute> attributes = new HashSet<>();
+        Set<ServiceConfigurationAttribute> attributes = new HashSet<>();
         for (Field field : fields) {
             Attribute attribute = field.getAnnotation(Attribute.class);
             if (attribute != null) {
@@ -73,8 +73,9 @@ public class ConfigurationManager extends TypeManager {
         }
         ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
         listServiceConfigurationAttribute.setAttributeIndex(index);
-        listServiceConfigurationAttribute.setLabel(name);
+        listServiceConfigurationAttribute.setName(name);
         listServiceConfigurationAttribute.setAttributeType(converterAttributeType.getAttributeType());
+        listServiceConfigurationAttribute.setIsListItemConfiguration(true);
         return listServiceConfigurationAttribute;
     }
 
@@ -177,7 +178,7 @@ public class ConfigurationManager extends TypeManager {
      * @param name
      * @return
      */
-    protected static String inferName(String name) {
+    public static String inferName(String name) {
         if (name.contains("_")) { // snake case
             name = name.replace("_", " ");
         } else { // camel case

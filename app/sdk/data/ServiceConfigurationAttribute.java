@@ -1,9 +1,11 @@
 package sdk.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
+import sdk.utils.ServiceConfigurationAttributeSerializer;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -13,6 +15,7 @@ import java.util.Set;
  */
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonSerialize(using = ServiceConfigurationAttributeSerializer.class)
 public class ServiceConfigurationAttribute {
     String name;
     RelatedServiceConfiguration relatedService;
@@ -25,16 +28,33 @@ public class ServiceConfigurationAttribute {
     public boolean updateRequired;
     public boolean search;
     public boolean searchRequired;
-
+    public boolean listItemConfiguration;
     private int mAttributeIndex;
 
     /**
      * Creates a service configuration attribute
      */
-    public ServiceConfigurationAttribute() {}
+    public ServiceConfigurationAttribute() {
+    }
+
+    /**
+     * @return
+     */
+    public boolean isListItemConfiguration() {
+        return listItemConfiguration;
+    }
+
+    /**
+     *
+     * @param isListItemConfiguration
+     */
+    public void setIsListItemConfiguration(boolean isListItemConfiguration) {
+        listItemConfiguration = isListItemConfiguration;
+    }
 
     /**
      * Creates a service configuration attribute
+     *
      * @param attributeIndex The index of the attribute
      */
     public ServiceConfigurationAttribute(int attributeIndex) {
@@ -43,34 +63,34 @@ public class ServiceConfigurationAttribute {
     }
 
     public void setUserInfoValue(String key, Object value) {
-        if ( value == null ) {
+        if (value == null) {
             return;
         }
-        if ( userInfo == null ) {
-            userInfo = new HashMap<String,Object>();
+        if (userInfo == null) {
+            userInfo = new HashMap<String, Object>();
         }
         userInfo.put(key, value);
     }
 
     public boolean getBoolUserInfoValue(String key) {
-        if ( userInfo == null ) {
+        if (userInfo == null) {
             return false;
         }
-        if ( userInfo.containsKey(key) ) {
-            return (Boolean)userInfo.get(key);
+        if (userInfo.containsKey(key)) {
+            return (Boolean) userInfo.get(key);
         }
         return false;
     }
 
     public Object getUserInfoValue(String key) {
-        if ( userInfo == null ) {
+        if (userInfo == null) {
             return null;
         }
         return userInfo.get(key);
     }
 
     public boolean hasUserInfoKey(String key) {
-        if ( userInfo == null ) {
+        if (userInfo == null) {
             return false;
         }
         return userInfo.containsKey(key);
@@ -78,18 +98,25 @@ public class ServiceConfigurationAttribute {
 
     /**
      * Sets the name of the attribute
+     *
      * @param name
      */
-    public void setName (String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * Gets the name of the attribute
+     *
      * @return
      */
-    public String getName () { return name; }
+    public String getName() {
+        return name;
+    }
 
     /**
      * Get the index of the attribute
+     *
      * @return
      */
     public int getAttributeIndex() {
@@ -98,6 +125,7 @@ public class ServiceConfigurationAttribute {
 
     /**
      * Sets the index of the attributes
+     *
      * @param attributeIndex
      */
     public void setAttributeIndex(int attributeIndex) {
@@ -106,9 +134,12 @@ public class ServiceConfigurationAttribute {
 
     /**
      * Sets the attribute type
+     *
      * @param attributeType
      */
-    public void setAttributeType (AttributeType attributeType) { this.attributeType = attributeType; }
+    public void setAttributeType(AttributeType attributeType) {
+        this.attributeType = attributeType;
+    }
 
     public AttributeType getAttributeType() {
         return attributeType;
@@ -116,6 +147,7 @@ public class ServiceConfigurationAttribute {
 
     /**
      * Sets the related service
+     *
      * @param serviceConfiguration
      */
     public void setRelatedService(RelatedServiceConfiguration serviceConfiguration) {
@@ -149,6 +181,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Creates a service attribute builder
+         *
          * @param attributeIndex The index of the attribute
          */
         public Builder(int attributeIndex) {
@@ -158,6 +191,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the name of the attribute
+         *
          * @param attributeName The attribute name
          * @return The builder with the name
          */
@@ -168,6 +202,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type
+         *
          * @param type The type of the attribute
          * @return The builder with the attribute type
          */
@@ -178,9 +213,10 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as list item
+         *
          * @return The builder with list item type
          */
-        public Builder asListItem(Set<ListServiceConfigurationAttribute> listAttributes) {
+        public Builder asListItem(Set<ServiceConfigurationAttribute> listAttributes) {
             mRelatedListService = new ListServiceConfiguration("");
             mRelatedListService.getAttributes().addAll(listAttributes);
             mAttributeType = AttributeType.ListItem;
@@ -189,6 +225,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as location
+         *
          * @return the builder with location type
          */
         public Builder asLocation() {
@@ -198,6 +235,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as relationship
+         *
          * @return the builder with relationship type
          */
         public Builder asRelationship(RelatedServiceConfiguration relatedService) {
@@ -214,6 +252,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as attachments
+         *
          * @return the builder with attachments type
          */
         public Builder asAttachments() {
@@ -223,6 +262,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as date time
+         *
          * @return the builder with date time type
          */
         public Builder asDateTime() {
@@ -232,6 +272,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as int
+         *
          * @return the builder with int type
          */
         public Builder asInt() {
@@ -242,6 +283,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as double
+         *
          * @return the builder with double type
          */
         public Builder asDouble() {
@@ -251,6 +293,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as date
+         *
          * @return the builder with date type
          */
         public Builder asDate() {
@@ -265,6 +308,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as bool
+         *
          * @return the builder with bool type
          */
         public Builder asBool() {
@@ -274,6 +318,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as color
+         *
          * @return the builder with color type
          */
         public Builder asColor() {
@@ -283,6 +328,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as image
+         *
          * @return the builder with image type
          */
         public Builder asImage() {
@@ -292,6 +338,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as date range
+         *
          * @return the builder with date range type
          */
         public Builder asDateRange() {
@@ -301,6 +348,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Sets the attribute type as date time range
+         *
          * @return the builder with date time range type
          */
         public Builder asDateTimeRange() {
@@ -351,6 +399,7 @@ public class ServiceConfigurationAttribute {
 
         /**
          * Builds a service configuration attribute from the builder parameters
+         *
          * @return service configuration attribute
          */
         public ServiceConfigurationAttribute build() {
