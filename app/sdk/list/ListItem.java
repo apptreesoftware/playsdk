@@ -542,6 +542,11 @@ public class ListItem implements Record {
         return false;
     }
 
+    @Override
+    public boolean isListItem() {
+        return true;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if(attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();

@@ -116,6 +116,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (attribute == null) {
             return;
         }
+        if(record.isListItem() && attribute.excludeFromList()) return;
+
         int index = attribute.index();
         Class definedRelationshipClass = attribute.relationshipClass();
         Class fieldClass = proxy.getType();
@@ -132,19 +134,25 @@ public class ObjectConverter extends ConfigurationManager {
 
     /**
      * @param attributeProxy
-     * @param dataSetItem
+     * @param record
      * @param source
      * @param <T>
      * @throws UnsupportedAttributeException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    private static <T> void copyFromField(AttributeProxy attributeProxy, Record dataSetItem, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
+    private static <T> void copyFromField(AttributeProxy attributeProxy, Record record, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
         Attribute attributeAnnotation = attributeProxy.getAttributeAnnotation();
         PrimaryKey primaryKeyAnnotation = attributeProxy.getPrimaryKeyAnnotation();
         PrimaryValue primaryValueAnnotation = attributeProxy.getValueAnnotation();
+
         boolean primaryKey = false;
+
         boolean value = false;
+
+        boolean excludeFromListItem = attributeAnnotation.excludeFromList();
+        if (record.isListItem() && excludeFromListItem) return;
+
         if (primaryKeyAnnotation != null) {
             primaryKey = true;
         }
@@ -152,7 +160,7 @@ public class ObjectConverter extends ConfigurationManager {
             value = true;
         }
         if (primaryKey && attributeAnnotation == null) {
-            dataSetItem.setPrimaryKey(attributeProxy.getValue(source).toString());
+            record.setPrimaryKey(attributeProxy.getValue(source).toString());
         }
         if (attributeAnnotation == null) {
             return;
@@ -160,14 +168,14 @@ public class ObjectConverter extends ConfigurationManager {
         int index = attributeAnnotation.index();
         Class fieldClass = attributeProxy.getType();
         boolean useGetterAndSetter = attributeAnnotation.useGetterAndSetter();
-        AttributeMeta attributeMeta = dataSetItem.getAttributeMeta(index);
+        AttributeMeta attributeMeta = record.getAttributeMeta(index);
         if (attributeMeta == null) {
             attributeMeta = new AttributeMeta(inferDataType(attributeProxy.getType().getSimpleName()).getAttributeType(), index);
         }
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readObjectData(attributeProxy, attributeMeta, source, dataSetItem, primaryKey, useGetterAndSetter, value);
+        readObjectData(attributeProxy, attributeMeta, source, record, primaryKey, useGetterAndSetter, value);
     }
 
     /**

@@ -43,8 +43,8 @@ public class SampleListItem {
 
 
 
-    public static Set<ListServiceConfigurationAttribute> getListServiceConfigurationAttributes(){
-        Set<ListServiceConfigurationAttribute> attributes = new HashSet<>();
+    public static Set<ServiceConfigurationAttribute> getListServiceConfigurationAttributes(){
+        Set<ServiceConfigurationAttribute> attributes = new HashSet<>();
         attributes.add( new ListServiceConfigurationAttribute.Builder(0).name("woNumber").build());
         attributes.add( new ListServiceConfigurationAttribute.Builder(1).name("testInt").asInt().build());
         attributes.add( new ListServiceConfigurationAttribute.Builder(2).name("testIntObject").asInt().build());

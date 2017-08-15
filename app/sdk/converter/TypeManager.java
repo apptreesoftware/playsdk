@@ -175,8 +175,8 @@ public class TypeManager {
      * @return
      */
     protected static List<AttributeProxy> getMethodAndFieldAnnotationsForClass(Class clazz) {
-        Field[] fields = clazz.getFields();
-        Method[] methods = clazz.getMethods();
+        Field[] fields = clazz.getDeclaredFields();
+        Method[] methods = clazz.getDeclaredMethods();
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         attributeProxies.addAll(Arrays.stream(fields)
                 .filter(field -> field.getAnnotation(Attribute.class) != null)

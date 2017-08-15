@@ -21,6 +21,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * Created by Orozco on 7/19/17.
  */
@@ -549,6 +552,39 @@ public class ConverterTest {
                 "}";
         // TODO: talk to Matt about writing a test for this
     }
+
+
+    @Test
+    public void testExcludeFromListConfiguration() {
+        ServiceConfiguration serviceConfiguration = ObjectConverter.generateConfiguration(ExcludeFromList.class);
+        Assert.assertTrue((serviceConfiguration.getAttributes().size() - 1) == serviceConfiguration.getAttributeWithIndex(4).getRelatedListServiceConfiguration().getAttributes().size());
+    }
+
+
+    @Test
+    public void testExcludeFromListCopyToRecord() {
+        ExcludeFromList excludeFromList = ExcludeFromList.getExcludeFromListObject();
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
+        ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
+        DataSetItem testDataSetItem = ExcludeFromList.getTestDataSetItem();
+        Assert.assertTrue(dataSetItem.equals(testDataSetItem));
+    }
+
+
+    @Test
+    public void testExcludeFromListCopyFromRecord() {
+        ExcludeFromList excludeFromList = new ExcludeFromList();
+        DataSetItem testDataSetItem = ExcludeFromList.getTestDataSetItem();
+        ObjectConverter.copyFromRecord(testDataSetItem, excludeFromList);
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
+        ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
+        Assert.assertTrue(dataSetItem.equals(testDataSetItem));
+    }
+
+
+
+
+
 
 
 }

@@ -558,6 +558,11 @@ public class DataSetItem implements Record {
         return true;
     }
 
+    @Override
+    public boolean isListItem() {
+        return false;
+    }
+
     /**
      * Gets the client key
      *

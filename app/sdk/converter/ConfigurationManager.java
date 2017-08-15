@@ -48,7 +48,7 @@ public class ConfigurationManager extends TypeManager {
         Set<ServiceConfigurationAttribute> attributes = new HashSet<>();
         for (Field field : fields) {
             Attribute attribute = field.getAnnotation(Attribute.class);
-            if (attribute != null) {
+            if (attribute != null && !attribute.excludeFromList()) {
                 attributes.add(getListServiceConfigurationAttributeFromField(field, attribute));
             }
         }
