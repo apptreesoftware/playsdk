@@ -69,7 +69,7 @@ public class ConverterTest {
     }
 
 
-    private SampleLocation getCustomLocation(){
+    private SampleLocation getCustomLocation() {
         SampleLocation location = new SampleLocation();
         location.setLatitude(11.0);
         location.setLongitude(232323.0);
@@ -77,15 +77,12 @@ public class ConverterTest {
     }
 
 
-
-    private Location getSDKLocation(){
+    private Location getSDKLocation() {
         Location location = new Location();
         location.setLatitude(1122.0);
         location.setLongitude(12121.0);
         return location;
     }
-
-
 
 
     public void hydrateSampleObjectProxies(List<AttributeProxy> attributeProxies) {
@@ -104,11 +101,11 @@ public class ConverterTest {
     private DataSetItem getHydratedDataSetItemFromSampleObject(DataSetItem dataSetItem, SampleObject sampleObject) {
         dataSetItem.setString(sampleObject.woNumber, 0);
         dataSetItem.setInt(sampleObject.testInt, 1);
-        if(sampleObject.testIntObject != null) dataSetItem.setInt(sampleObject.testIntObject, 2);
+        if (sampleObject.testIntObject != null) dataSetItem.setInt(sampleObject.testIntObject, 2);
         dataSetItem.setDouble(sampleObject.testFloat, 3);
-        if(sampleObject.testFloatObject != null) dataSetItem.setDouble(sampleObject.testFloatObject, 4);
+        if (sampleObject.testFloatObject != null) dataSetItem.setDouble(sampleObject.testFloatObject, 4);
         dataSetItem.setDouble(sampleObject.testDouble, 5);
-        if(sampleObject.testDoubleObject != null) dataSetItem.setDouble(sampleObject.testDoubleObject, 6);
+        if (sampleObject.testDoubleObject != null) dataSetItem.setDouble(sampleObject.testDoubleObject, 6);
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 7);
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 8);
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 9);
@@ -241,12 +238,15 @@ public class ConverterTest {
             testMap.forEach((key, value) -> {
                 args[0] = key;
                 String output = "";
-                try {output = (String) method.invoke(converter, args);}
-                catch(Exception e) {System.out.println("Test failed.");}
+                try {
+                    output = (String) method.invoke(converter, args);
+                } catch (Exception e) {
+                    System.out.println("Test failed.");
+                }
                 System.out.println(output);
                 assert (output.equals(value));
             });
-        } catch(Exception error) {
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -257,8 +257,8 @@ public class ConverterTest {
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         hydrateSampleObjectProxies(attributeProxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : attributeProxies) {
-            if(proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+        for (AttributeProxy proxy : attributeProxies) {
+            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
         }
         ObjectConverter converter = new ObjectConverter();
         try {
@@ -269,12 +269,12 @@ public class ConverterTest {
             args[1] = object;
             args[2] = false; // Use getter/setter
             Location testFillObj = (Location) method.invoke(converter, args);
-            assert(testFillObj.getLatLngString().equals(object.sdkLocation.getLatLngString()));
-            assert(testFillObj.getAccuracy() == object.sdkLocation.getAccuracy());
-            assert(testFillObj.getBearing() == object.sdkLocation.getBearing());
-            assert(testFillObj.getElevation() == object.sdkLocation.getElevation());
-            assert(testFillObj.getSpeed() == object.sdkLocation.getSpeed());
-        } catch(Exception error) {
+            assert (testFillObj.getLatLngString().equals(object.sdkLocation.getLatLngString()));
+            assert (testFillObj.getAccuracy() == object.sdkLocation.getAccuracy());
+            assert (testFillObj.getBearing() == object.sdkLocation.getBearing());
+            assert (testFillObj.getElevation() == object.sdkLocation.getElevation());
+            assert (testFillObj.getSpeed() == object.sdkLocation.getSpeed());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -285,8 +285,8 @@ public class ConverterTest {
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         hydrateSampleObjectProxies(attributeProxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : attributeProxies) {
-            if(proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+        for (AttributeProxy proxy : attributeProxies) {
+            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
         }
         ObjectConverter converter = new ObjectConverter();
         try {
@@ -297,13 +297,13 @@ public class ConverterTest {
             args[1] = object;
             args[2] = false; // Use getter/setter
             Location testFillObj = (Location) method.invoke(converter, args);
-            assert(testFillObj.getLatitude() == object.customLocation.getLatitude());
-            assert(testFillObj.getLongitude() == object.customLocation.getLongitude());
-            assert(testFillObj.getAccuracy() == object.customLocation.getAccuracy());
-            assert(testFillObj.getBearing() == object.customLocation.getBearing());
-            assert(testFillObj.getElevation() == object.customLocation.getElevation());
-            assert(testFillObj.getSpeed() == object.customLocation.getSpeed());
-        } catch(Exception error) {
+            assert (testFillObj.getLatitude() == object.customLocation.getLatitude());
+            assert (testFillObj.getLongitude() == object.customLocation.getLongitude());
+            assert (testFillObj.getAccuracy() == object.customLocation.getAccuracy());
+            assert (testFillObj.getBearing() == object.customLocation.getBearing());
+            assert (testFillObj.getElevation() == object.customLocation.getElevation());
+            assert (testFillObj.getSpeed() == object.customLocation.getSpeed());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -314,8 +314,8 @@ public class ConverterTest {
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         hydrateSampleObjectProxies(attributeProxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : attributeProxies) {
-            if(proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+        for (AttributeProxy proxy : attributeProxies) {
+            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
         }
         ObjectConverter converter = new ObjectConverter();
         try {
@@ -331,12 +331,12 @@ public class ConverterTest {
             args[6] = true; // value
             method.invoke(converter, args);
             Location testFillObj = ((DataSetItem) args[2]).getLocation((Integer) args[3]);
-            assert(testFillObj.getLatLngString().equals(object.sdkLocation.getLatLngString()));
-            assert(testFillObj.getAccuracy() == object.sdkLocation.getAccuracy());
-            assert(testFillObj.getBearing() == object.sdkLocation.getBearing());
-            assert(testFillObj.getElevation() == object.sdkLocation.getElevation());
-            assert(testFillObj.getSpeed() == object.sdkLocation.getSpeed());
-        } catch(Exception error) {
+            assert (testFillObj.getLatLngString().equals(object.sdkLocation.getLatLngString()));
+            assert (testFillObj.getAccuracy() == object.sdkLocation.getAccuracy());
+            assert (testFillObj.getBearing() == object.sdkLocation.getBearing());
+            assert (testFillObj.getElevation() == object.sdkLocation.getElevation());
+            assert (testFillObj.getSpeed() == object.sdkLocation.getSpeed());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -348,8 +348,8 @@ public class ConverterTest {
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         hydrateSampleObjectProxies(attributeProxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : attributeProxies) {
-            if(proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+        for (AttributeProxy proxy : attributeProxies) {
+            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
         }
         DataSetItem dataSetItem = new DataSetItem(SampleObject.getServiceConfigurationAttributes());
         getHydratedDataSetItemFromSampleObject(dataSetItem, object);
@@ -366,12 +366,12 @@ public class ConverterTest {
             args[3] = argProxy.getAttributeAnnotation().index();
             args[4] = Class.class;
             method.invoke(converter, args);
-            assert(dest.sdkLocation.getLatLngString().equals(src.getLatLngString()));
-            assert(dest.sdkLocation.getAccuracy() == src.getAccuracy());
-            assert(dest.sdkLocation.getSpeed() == src.getSpeed());
-            assert(dest.sdkLocation.getBearing() == src.getBearing());
-            assert(dest.sdkLocation.getElevation() == src.getElevation());
-        } catch(Exception error) {
+            assert (dest.sdkLocation.getLatLngString().equals(src.getLatLngString()));
+            assert (dest.sdkLocation.getAccuracy() == src.getAccuracy());
+            assert (dest.sdkLocation.getSpeed() == src.getSpeed());
+            assert (dest.sdkLocation.getBearing() == src.getBearing());
+            assert (dest.sdkLocation.getElevation() == src.getElevation());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -383,8 +383,8 @@ public class ConverterTest {
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         hydrateSampleObjectProxies(attributeProxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : attributeProxies) {
-            if(proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+        for (AttributeProxy proxy : attributeProxies) {
+            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
         }
         DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
         getHydratedDataSetItemFromSampleObject(dataSetItem, object);
@@ -401,13 +401,13 @@ public class ConverterTest {
             args[3] = argProxy.getAttributeAnnotation().index();
             args[4] = Class.class;
             method.invoke(converter, args);
-            assert(dest.customLocation.getLatitude() == src.getLatitude());
-            assert(dest.customLocation.getLongitude() == src.getLongitude());
-            assert(dest.customLocation.getAccuracy() == src.getAccuracy());
-            assert(dest.customLocation.getSpeed() == src.getSpeed());
-            assert(dest.customLocation.getBearing() == src.getBearing());
-            assert(dest.customLocation.getElevation() == src.getElevation());
-        } catch(Exception error) {
+            assert (dest.customLocation.getLatitude() == src.getLatitude());
+            assert (dest.customLocation.getLongitude() == src.getLongitude());
+            assert (dest.customLocation.getAccuracy() == src.getAccuracy());
+            assert (dest.customLocation.getSpeed() == src.getSpeed());
+            assert (dest.customLocation.getBearing() == src.getBearing());
+            assert (dest.customLocation.getElevation() == src.getElevation());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -419,8 +419,8 @@ public class ConverterTest {
         List<AttributeProxy> proxies = new ArrayList<>();
         hydrateSampleObjectProxies(proxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : proxies) {
-            if(proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
+        for (AttributeProxy proxy : proxies) {
+            if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
             Method method = ObjectConverter.class.getDeclaredMethod("readColorData", AttributeProxy.class, Object.class, Record.class, int.class, boolean.class);
@@ -428,11 +428,11 @@ public class ConverterTest {
             Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), false};
             method.invoke(null, args);
             Color responseColor = dataSetItem.getColor(argProxy.getAttributeAnnotation().index());
-            assert(responseColor.getA() == object.color.getA());
-            assert(responseColor.getB() == object.color.getB());
-            assert(responseColor.getG() == object.color.getG());
-            assert(responseColor.getR() == object.color.getR());
-        } catch(Exception error) {
+            assert (responseColor.getA() == object.color.getA());
+            assert (responseColor.getB() == object.color.getB());
+            assert (responseColor.getG() == object.color.getG());
+            assert (responseColor.getR() == object.color.getR());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -446,8 +446,8 @@ public class ConverterTest {
         hydrateSampleObjectProxies(proxies);
         AttributeProxy argProxy = null;
         object.color = null;
-        for(AttributeProxy proxy : proxies) {
-            if(proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
+        for (AttributeProxy proxy : proxies) {
+            if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
             Method method = ObjectConverter.class.getDeclaredMethod("writeColorData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
@@ -455,11 +455,11 @@ public class ConverterTest {
             Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), Class.class};
             method.invoke(null, args);
             Color responseColor = object.color;
-            assert(responseColor.getA() == object.color.getA());
-            assert(responseColor.getB() == object.color.getB());
-            assert(responseColor.getG() == object.color.getG());
-            assert(responseColor.getR() == object.color.getR());
-        } catch(Exception error) {
+            assert (responseColor.getA() == object.color.getA());
+            assert (responseColor.getB() == object.color.getB());
+            assert (responseColor.getG() == object.color.getG());
+            assert (responseColor.getR() == object.color.getR());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
@@ -472,22 +472,23 @@ public class ConverterTest {
         getHydratedDataSetItemFromSampleObject(dataSetItem, object);
         hydrateSampleObjectProxies(proxies);
         AttributeProxy argProxy = null;
-        for(AttributeProxy proxy : proxies) {
-            if(proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
+        for (AttributeProxy proxy : proxies) {
+            if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
             Method method = ObjectConverter.class.getDeclaredMethod("getColorValueFromObject", AttributeProxy.class, Object.class, boolean.class);
             method.setAccessible(true);
             Object[] args = {argProxy, object, false};
             Color responseColor = (Color) method.invoke(null, args);
-            assert(responseColor.getA() == object.color.getA());
-            assert(responseColor.getB() == object.color.getB());
-            assert(responseColor.getG() == object.color.getG());
-            assert(responseColor.getR() == object.color.getR());
-        } catch(Exception error) {
+            assert (responseColor.getA() == object.color.getA());
+            assert (responseColor.getB() == object.color.getB());
+            assert (responseColor.getG() == object.color.getG());
+            assert (responseColor.getR() == object.color.getR());
+        } catch (Exception error) {
             System.out.println("Test failed with error: " + error.getLocalizedMessage());
         }
     }
+
     @Test
     public void generateAttachmentConfiguration() {
         ServiceConfiguration sampleConf = SampleAttachment.getServiceConfiguration();
@@ -504,19 +505,16 @@ public class ConverterTest {
     }
 
 
-
     @Test
-    public void toDataSetItem(){
+    public void toDataSetItem() {
         SampleObject sampleObject = getSampleObject();
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
         ObjectConverter.copyToRecord(dataSetItem, sampleObject);
     }
 
 
-
-
     @Test
-    public void fromDataSetItem(){
+    public void fromDataSetItem() {
         SampleObject sampleObject = getSampleObject();
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
         ObjectConverter.copyToRecord(dataSetItem, sampleObject);
@@ -525,29 +523,32 @@ public class ConverterTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Test
+    public void compareConfiguration() {
+        String originalConfiguration = "{\n" +
+                "  \"success\": true,\n" +
+                "  \"message\": null,\n" +
+                "  \"showMessageAsAlert\": false,\n" +
+                "  \"async\": false,\n" +
+                "  \"listName\": \"Issue Status\",\n" +
+                "  \"includesLocation\": false,\n" +
+                "  \"authenticationRequired\": false,\n" +
+                "  \"userIDIndex\": -1,\n" +
+                "  \"canCache\": true,\n" +
+                "  \"canSearch\": true,\n" +
+                "  \"attributes\": [\n" +
+                "    {\n" +
+                "      \"attributeIndex\": 0,\n" +
+                "      \"label\": \"Status\",\n" +
+                "      \"attributeType\": \"Text\",\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"serviceFilterParameters\": [\n" +
+                "    \n" +
+                "  ]\n" +
+                "}";
+        // TODO: talk to Matt about writing a test for this
+    }
 
 
 }

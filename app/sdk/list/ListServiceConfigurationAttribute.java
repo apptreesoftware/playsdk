@@ -1,46 +1,19 @@
 package sdk.list;
 
+import sdk.data.ServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 /**
  * Created by alexis on 5/3/16.
  */
-public class ListServiceConfigurationAttribute {
-    private int attributeIndex;
-    private String label;
-    private AttributeType attributeType = AttributeType.String;
-    private ListServiceConfiguration relatedListConfiguration;
-
-
+public class ListServiceConfigurationAttribute extends ServiceConfigurationAttribute {
     public ListServiceConfigurationAttribute() {
     }
-
-    public void setAttributeIndex(int index) { attributeIndex = index; }
-
-    public int getAttributeIndex() { return attributeIndex; }
-
-    public void setLabel(String description) {
-        label = description;
-    }
-
-    public String getLabel() { return label; }
-
-    public void setAttributeType(AttributeType type) {
-        attributeType = type;
-    }
-
-    public AttributeType getAttributeType() { return attributeType; }
-
-    public void setRelatedListConfiguration(ListServiceConfiguration related) {
-        relatedListConfiguration = related;
-    }
-
-    public ListServiceConfiguration getRelatedListConfiguration() { return relatedListConfiguration; }
 
     public static class Builder {
         AttributeType mAttributeType = AttributeType.String;
         String attributeDescription;
         int attributeIndex;
-        private ListServiceConfiguration mRelatedList = null;
+
 
         /**
          * Creates the list attribute builder with the given index
@@ -86,7 +59,6 @@ public class ListServiceConfigurationAttribute {
          * @return The builder with list item type
          */
         public Builder asListItem(ListServiceConfiguration related) {
-            mRelatedList = related;
             mAttributeType = AttributeType.ListItem;
             return this;
         }
@@ -191,12 +163,12 @@ public class ListServiceConfigurationAttribute {
          * @return list configuration attribute
          */
         public ListServiceConfigurationAttribute build() {
-            ListServiceConfigurationAttribute attribute = new ListServiceConfigurationAttribute();
-            attribute.setAttributeIndex(attributeIndex);
-            attribute.setLabel(attributeDescription);
-            attribute.setAttributeType(mAttributeType);
-            attribute.setRelatedListConfiguration(mRelatedList);
-            return attribute;
+            ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
+            listServiceConfigurationAttribute.setAttributeIndex(attributeIndex);
+            listServiceConfigurationAttribute.setName(attributeDescription);
+            listServiceConfigurationAttribute.setAttributeType(mAttributeType);
+            listServiceConfigurationAttribute.setIsListItemConfiguration(true);
+            return listServiceConfigurationAttribute;
         }
     }
 }

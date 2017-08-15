@@ -503,8 +503,8 @@ public class ListItem implements Record {
             return getAttributeMeta(index);
         }
         if (attributeConfiguration == null) return null;
-        ListServiceConfigurationAttribute attribute = null;
-        for(ListServiceConfigurationAttribute attr : attributeConfiguration.getAttributes()) {
+        ServiceConfigurationAttribute attribute = null;
+        for(ServiceConfigurationAttribute attr : attributeConfiguration.getAttributes()) {
             if(attr.getAttributeIndex() == index) attribute = attr;
         }
         if(attribute == null) return null;
