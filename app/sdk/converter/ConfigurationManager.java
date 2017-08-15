@@ -177,7 +177,7 @@ public class ConfigurationManager extends TypeManager {
      * @param name
      * @return
      */
-    protected static String inferName(String name) {
+    public static String inferName(String name) {
         if (name.contains("_")) { // snake case
             name = name.replace("_", " ");
         } else { // camel case

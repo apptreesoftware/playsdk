@@ -8,12 +8,20 @@ import sdk.data.DataSetItem;
  */
 public class RecordActionResponse {
     DataSetItem dataSetItem;
+    Object object;
     String message;
     boolean showAsAlert;
+    boolean hasDataSetItem;
+
+    public boolean isDataSetItem() {
+        return hasDataSetItem;
+    }
 
     public DataSetItem getDataSetItem() {
         return dataSetItem;
     }
+
+    public Object getObject() { return object; }
 
     public String getMessage() {
         return message;
@@ -27,9 +35,18 @@ public class RecordActionResponse {
         private DataSetItem dataSetItem;
         private boolean showAsAlert = false;
         private String message;
+        private boolean hasDataSetItem = false;
+        private Object object;
 
         public Builder withRecord(DataSetItem dataSetItem) {
+            hasDataSetItem = true;
             this.dataSetItem = dataSetItem;
+            return this;
+        }
+
+        public <T> Builder withRecord(T object) {
+            hasDataSetItem = false;
+            this.object = object;
             return this;
         }
 
@@ -49,6 +66,8 @@ public class RecordActionResponse {
             response.dataSetItem = dataSetItem;
             response.message = message;
             response.showAsAlert = showAsAlert;
+            response.hasDataSetItem = hasDataSetItem;
+            response.object = object;
             return response;
         }
     }
