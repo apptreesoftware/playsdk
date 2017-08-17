@@ -100,9 +100,5 @@ public interface DataSource extends DataSourceBase {
     }
 
 
-    default boolean isTypedDataSource() {
-        return false;
-    }
-
 
 }

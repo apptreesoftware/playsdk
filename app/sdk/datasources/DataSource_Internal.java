@@ -43,12 +43,7 @@ public class DataSource_Internal extends BaseSource_Internal {
 
     public CompletableFuture<DataSet> getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
         if (dataSource != null) {
-            if (dataSource.isTypedDataSource()) {
-                TypedDataSource typedDataSource = (TypedDataSource) dataSource;
-                return CompletableFuture.supplyAsync(() -> ObjectConverter.getDataSetFromCollection(typedDataSource.getObjects(authenticationInfo, params), dataSource.getAttributes()));
-            } else {
-                return CompletableFuture.supplyAsync(() -> dataSource.getDataSet(authenticationInfo, params));
-            }
+            return CompletableFuture.supplyAsync(() -> dataSource.getDataSet(authenticationInfo, params));
         } else if (futureDataSource != null) {
             return futureDataSource.getDataSet(authenticationInfo, params);
         } else if (rxDataSource != null) {
@@ -59,12 +54,7 @@ public class DataSource_Internal extends BaseSource_Internal {
 
     public CompletableFuture<DataSet> getDataSetItem(AuthenticationInfo authenticationInfo, String id, Parameters params) {
         if (dataSource != null) {
-            if (dataSource.isTypedDataSource()) {
-                TypedDataSource typedDataSource = (TypedDataSource) dataSource;
-                return CompletableFuture.supplyAsync(() -> ObjectConverter.getDataSetFromObject(typedDataSource.getObject(id, authenticationInfo, params), typedDataSource.getAttributes()));
-            } else {
-                return CompletableFuture.supplyAsync(() -> new DataSet(dataSource.getRecord(id, authenticationInfo, params)));
-            }
+            return CompletableFuture.supplyAsync(() -> new DataSet(dataSource.getRecord(id, authenticationInfo, params)));
         } else if (futureDataSource != null) {
             return futureDataSource
                     .getRecord(id, authenticationInfo, params)
@@ -101,19 +91,7 @@ public class DataSource_Internal extends BaseSource_Internal {
      */
     public CompletableFuture<DataSet> queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         if (dataSource != null) {
-            if (dataSource.isTypedDataSource()) {
-                TypedDataSource typedDataSource = (TypedDataSource) dataSource;
-                try {
-                    Object instance = typedDataSource.getDataSourceType().newInstance();
-                    ObjectConverter.copyFromRecord(queryDataItem, instance);
-                    return CompletableFuture.supplyAsync(() -> ObjectConverter.getDataSetFromCollection(typedDataSource.queryObjects(instance, authenticationInfo, params), typedDataSource.getAttributes()));
-                } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("There was an issue copying data set item to object instance in datasource_internal, queryDataSetItem");
-                }
-            } else {
-                return CompletableFuture.supplyAsync(() -> dataSource.queryDataSet(queryDataItem, authenticationInfo, params));
-            }
+            return CompletableFuture.supplyAsync(() -> dataSource.queryDataSet(queryDataItem, authenticationInfo, params));
         } else if (futureDataSource != null) {
             return futureDataSource.queryDataSet(queryDataItem, authenticationInfo, params);
         } else if (rxDataSource != null) {
@@ -147,19 +125,6 @@ public class DataSource_Internal extends BaseSource_Internal {
      */
     public CompletableFuture<DataSet> updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         if (dataSource != null) {
-            if (dataSource.isTypedDataSource()) {
-                TypedDataSource typedDataSource = (TypedDataSource) dataSource;
-                try {
-                    Object objectInstance = typedDataSource.getDataSourceType().newInstance();
-                    ParserContext context = ObjectConverter.copyFromRecord(dataSetItem, objectInstance);
-                    return CompletableFuture.supplyAsync(() -> typedDataSource.updateObject(objectInstance, authenticationInfo, params, context)).thenApply(DataSet::new);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("There was an issue copying data set item to object instance in datasource_internal, updateDataSetItem");
-                }
-            } else {
-                return CompletableFuture.supplyAsync(() -> dataSource.updateRecord(dataSetItem, authenticationInfo, params)).thenApply(DataSet::new);
-            }
         } else if (futureDataSource != null) {
             return futureDataSource.updateRecord(dataSetItem, authenticationInfo, params).thenApply(DataSet::new);
         } else if (rxDataSource != null) {
