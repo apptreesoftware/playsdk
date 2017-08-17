@@ -3,12 +3,15 @@ package sdk.converter;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
+import sdk.annotations.Relationship;
 import sdk.utils.ClassUtils;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import static sdk.utils.ClassUtils.Null;
 
 /**
  * Created by Orozco on 8/2/17.
@@ -18,43 +21,85 @@ public class AttributeProxy {
     private Method currentMethod;
     public boolean isField;
     public boolean isWrappedClass;
-
+    PrimaryValue primaryValue;
+    PrimaryKey primaryKey;
+    Attribute attribute;
+    Relationship relationship;
 
     public AttributeProxy(Method currentMethod) {
         isField = false;
         this.currentMethod = currentMethod;
         isWrappedClass = checkIfIsWrappedType((Class) currentMethod.getReturnType());
+        hydrateAnnotations(currentMethod);
     }
 
     public AttributeProxy(Field currentField) {
         isField = true;
         this.currentField = currentField;
         isWrappedClass = checkIfIsWrappedType((Class) currentField.getType());
+        hydrateAnnotations(currentField);
     }
 
     public Attribute getAttributeAnnotation() {
-        if (isField) {
-            return currentField.getAnnotation(Attribute.class);
-        } else {
-            return currentMethod.getAnnotation(Attribute.class);
-        }
+        return attribute;
+    }
+
+
+    public Relationship getRelationshipAnnotation() {
+        return relationship;
     }
 
     public PrimaryKey getPrimaryKeyAnnotation() {
-        if (isField) {
-            return currentField.getAnnotation(PrimaryKey.class);
-        } else {
-            return currentMethod.getAnnotation(PrimaryKey.class);
-        }
+        return primaryKey;
     }
 
 
     public PrimaryValue getValueAnnotation() {
-        if (isField) {
-            return currentField.getAnnotation(PrimaryValue.class);
-        } else {
-            return currentMethod.getAnnotation(PrimaryValue.class);
+        return primaryValue;
+    }
+
+
+    public int getIndex() {
+        if (isRelationship()) {
+            return relationship.index();
         }
+        return !Null(attribute) ?
+                attribute.index() :
+                0;
+    }
+
+    public boolean isAttribute() {
+        return !Null(attribute);
+    }
+
+    public boolean isPrimaryKey() {
+        return !Null(primaryKey);
+    }
+
+    public boolean isPrimaryValue() {
+        return !Null(primaryValue);
+    }
+
+    public boolean useSetterAndGetter() {
+        if (isRelationship()) {
+            return relationship.useGetterAndSetter();
+        }
+        return !Null(attribute) && attribute.useGetterAndSetter();
+    }
+
+    public boolean excludeFromList(){
+        if(isRelationship()) {
+            return relationship.excludeFromList();
+        }
+        return !Null(attribute) && attribute.excludeFromList();
+    }
+
+
+    public boolean useLazyLoad(){
+        if(isRelationship()) {
+            return !relationship.eager();
+        }
+        return false;
     }
 
     public <T> Object getValue(T sourceObject) throws IllegalAccessException, InvocationTargetException {
@@ -103,9 +148,21 @@ public class AttributeProxy {
         }
     }
 
+    public boolean isRelationship() {
+        return (relationship != null);
+    }
+
     private boolean checkIfIsWrappedType(Class clazz) {
         return ClassUtils.isParameterizedType(clazz);
     }
 
+
+    private void hydrateAnnotations(AccessibleObject object) {
+        if(Null(object)) return;
+        primaryKey = object.getAnnotation(PrimaryKey.class);
+        primaryValue = object.getAnnotation(PrimaryValue.class);
+        attribute = object.getAnnotation(Attribute.class);
+        relationship = object.getAnnotation(Relationship.class);
+    }
 
 }

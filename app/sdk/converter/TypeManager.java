@@ -1,7 +1,6 @@
 package sdk.converter;
 
-import sdk.annotations.Attribute;
-import sdk.annotations.CustomLocation;
+import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
 import sdk.models.AttributeType;
@@ -93,9 +92,9 @@ public class TypeManager {
      * @return
      */
     protected static ConverterAttributeType inferDataType(Class clazz) {
-        if(CustomLocation.class.isAssignableFrom(clazz))
+        if (CustomLocation.class.isAssignableFrom(clazz))
             return new ConverterAttributeType(AttributeType.Location, true);
-        if(ApptreeAttachment.class.isAssignableFrom(clazz))
+        if (ApptreeAttachment.class.isAssignableFrom(clazz))
             return new ConverterAttributeType(AttributeType.Attachments, true);
         return findTypeOnSimpleName(clazz.getSimpleName());
     }
@@ -179,12 +178,20 @@ public class TypeManager {
         Method[] methods = clazz.getDeclaredMethods();
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         attributeProxies.addAll(Arrays.stream(fields)
-                .filter(field -> field.getAnnotation(Attribute.class) != null)
+                .filter(field ->
+                        (field.getAnnotation(Attribute.class) != null
+                                || field.getAnnotation(PrimaryKey.class) != null
+                                || field.getAnnotation(PrimaryValue.class) != null)
+                                || field.getAnnotation(Relationship.class) != null)
                 .map(field -> new AttributeProxy(field))
                 .collect(Collectors.toList()));
 
         attributeProxies.addAll(Arrays.stream(methods)
-                .filter(method -> method.getAnnotation(Attribute.class) != null)
+                .filter(method ->
+                        (method.getAnnotation(Attribute.class) != null
+                                || method.getAnnotation(PrimaryKey.class) != null
+                                || method.getAnnotation(PrimaryValue.class) != null)
+                                || method.getAnnotation(Relationship.class) != null)
                 .map(field -> new AttributeProxy(field))
                 .collect(Collectors.toList()));
         return attributeProxies;
@@ -290,7 +297,7 @@ public class TypeManager {
         if (tempMethodMap == null) return null;
         Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
         try {
-            if(getterMethod == null) return attributeProxy.getValue(object);
+            if (getterMethod == null) return attributeProxy.getValue(object);
             return getterMethod.invoke(object);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();

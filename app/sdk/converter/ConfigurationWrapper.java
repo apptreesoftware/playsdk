@@ -10,6 +10,7 @@ public class ConfigurationWrapper{
     String varName;
     String dataTypeName;
     Class clazz;
+    boolean isWrappedClass;
 
     public ConfigurationWrapper(String varName, String dataTypeName, Class clazz) {
         this.varName = varName;
@@ -33,6 +34,7 @@ public class ConfigurationWrapper{
         this.varName = attributeProxy.getName();
         this.dataTypeName = attributeProxy.getType().getSimpleName();
         this.clazz = attributeProxy.getType();
+        this.isWrappedClass = attributeProxy.isWrappedClass;
     }
 
 

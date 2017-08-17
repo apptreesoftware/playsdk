@@ -1,10 +1,7 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
-import sdk.annotations.Attribute;
-import sdk.annotations.CustomLocation;
-import sdk.annotations.PrimaryKey;
-import sdk.annotations.PrimaryValue;
+import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
 import sdk.exceptions.DestinationInvalidException;
@@ -112,24 +109,22 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws InvocationTargetException
      */
     private static <T> void copyToField(AttributeProxy proxy, Record record, T destination, ParserContext parserContext) throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException, InvocationTargetException {
-        Attribute attribute = proxy.getAttributeAnnotation();
-        if (attribute == null) {
+        if (!proxy.isAttribute() && !proxy.isRelationship()) {
             return;
         }
-        if(record.isListItem() && attribute.excludeFromList()) return;
+        if (record.isListItem() && proxy.excludeFromList()) return;
 
-        int index = attribute.index();
-        Class definedRelationshipClass = attribute.relationshipClass();
+        int index = proxy.getIndex();
         Class fieldClass = proxy.getType();
         AttributeMeta attributeMeta = record.getAttributeMeta(index);
-        boolean userSetterAndGetter = attribute.useGetterAndSetter();
+        boolean userSetterAndGetter = proxy.useSetterAndGetter();
         if (attributeMeta == null) {
             attributeMeta = inferMetaData(index, fieldClass);
         }
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readDataSetItemData(proxy, attributeMeta, destination, record, definedRelationshipClass, userSetterAndGetter, parserContext);
+        readDataSetItemData(proxy, attributeMeta, destination, record, userSetterAndGetter, parserContext);
     }
 
     /**
@@ -142,32 +137,26 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws InvocationTargetException
      */
     private static <T> void copyFromField(AttributeProxy attributeProxy, Record record, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
-        Attribute attributeAnnotation = attributeProxy.getAttributeAnnotation();
-        PrimaryKey primaryKeyAnnotation = attributeProxy.getPrimaryKeyAnnotation();
-        PrimaryValue primaryValueAnnotation = attributeProxy.getValueAnnotation();
-
         boolean primaryKey = false;
 
         boolean value = false;
 
-        boolean excludeFromListItem = attributeAnnotation.excludeFromList();
-        if (record.isListItem() && excludeFromListItem) return;
+        boolean excludeFromListItem = attributeProxy.excludeFromList();
+        if (record.isListItem() && attributeProxy.excludeFromList()) return;
 
-        if (primaryKeyAnnotation != null) {
+        if (attributeProxy.isPrimaryKey()) {
             primaryKey = true;
         }
-        if (primaryValueAnnotation != null) {
+        if (attributeProxy.isPrimaryValue()) {
             value = true;
         }
-        if (primaryKey && attributeAnnotation == null) {
+        if (primaryKey && !attributeProxy.isAttribute()) {
             record.setPrimaryKey(attributeProxy.getValue(source).toString());
         }
-        if (attributeAnnotation == null) {
-            return;
-        }
-        int index = attributeAnnotation.index();
+
+        int index = attributeProxy.getIndex();
         Class fieldClass = attributeProxy.getType();
-        boolean useGetterAndSetter = attributeAnnotation.useGetterAndSetter();
+        boolean useGetterAndSetter = attributeProxy.useSetterAndGetter();
         AttributeMeta attributeMeta = record.getAttributeMeta(index);
         if (attributeMeta == null) {
             attributeMeta = new AttributeMeta(inferDataType(attributeProxy.getType().getSimpleName()).getAttributeType(), index);
@@ -183,13 +172,12 @@ public class ObjectConverter extends ConfigurationManager {
      * @param attributeMeta
      * @param destination
      * @param dataSetItem
-     * @param definedRelationshipClass
      * @param useSetterAndGetter
      * @param <T>
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, Class definedRelationshipClass, boolean useSetterAndGetter, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void readDataSetItemData(AttributeProxy proxy, AttributeMeta attributeMeta, T destination, Record dataSetItem, boolean useSetterAndGetter, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -216,16 +204,16 @@ public class ObjectConverter extends ConfigurationManager {
                 writeSingleRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Relation:
-                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass, parserContext);
+                writeRelationshipData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Attachments:
-                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass, parserContext);
+                writeAttachmentData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Location:
-                routeWriteLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
+                routeWriteLocationData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Color:
-                writeColorData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), definedRelationshipClass);
+                writeColorData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
@@ -471,18 +459,17 @@ public class ObjectConverter extends ConfigurationManager {
      * @param destination
      * @param record
      * @param index
-     * @param metaClass
      * @param <T>
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeRelationshipData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void writeRelationshipData(AttributeProxy proxy, T destination, Record record, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         List<DataSetItem> dataSetItems = record.getDataSetItems(index);
         parserContext.setChildItemStatus(index, record.getCRUDStatus());
         if (dataSetItems == null) return;
         Class classValue = null;
         try {
-            classValue = Class.forName(metaClass.getName());
+            classValue = Class.forName(proxy.getType().getName());
             ArrayList<Object> tempList = new ArrayList<>();
             for (DataSetItem dataSetItem1 : dataSetItems) {
                 Object object = classValue.newInstance();
@@ -495,14 +482,14 @@ public class ObjectConverter extends ConfigurationManager {
         }
     }
 
-    private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
+    private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index)
             throws UnableToWriteException, InvocationTargetException {
         if (CustomLocation.class.isAssignableFrom(proxy.getType()))
-            writeCustomLocationData(proxy, destination, dataSetItem, index, metaClass);
-        else writeLocationData(proxy, destination, dataSetItem, index, metaClass);
+            writeCustomLocationData(proxy, destination, dataSetItem, index);
+        else writeLocationData(proxy, destination, dataSetItem, index);
     }
 
-    private static <T, C extends CustomLocation> void writeCustomLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
+    private static <T, C extends CustomLocation> void writeCustomLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index)
             throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
@@ -517,7 +504,7 @@ public class ObjectConverter extends ConfigurationManager {
         }
     }
 
-    private static <T> void writeLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, Class metaClass)
+    private static <T> void writeLocationData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index)
             throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
@@ -528,7 +515,7 @@ public class ObjectConverter extends ConfigurationManager {
         }
     }
 
-    private static <T> void writeColorData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass) {
+    private static <T> void writeColorData(AttributeProxy proxy, T destination, Record record, Integer index) {
         Color color = record.getColor(index);
         if (color == null) return;
         try {
@@ -539,7 +526,7 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
-    private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record record, Integer index, Class metaClass, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record record, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         List<DataSetItemAttachment> attachmentItems = record.getAttachmentItemsForIndex(index);
         parserContext.setChildItemStatus(index, record.getCRUDStatus());
         if (attachmentItems == null) return;
@@ -924,6 +911,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (Null(relationship)) relationship = new ArrayList<>();
         for (Object obj : relationship) {
             DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
+            if (attributeProxy.useLazyLoad()) tempItem.useLazyLoad(index);
             copyToRecord(tempItem, obj);
         }
     }

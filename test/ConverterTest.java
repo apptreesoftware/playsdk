@@ -560,40 +560,13 @@ public class ConverterTest {
                 "  ]\n" +
                 "}";
         // TODO: talk to Matt about writing a test for this
-        ListDataSource source = new CacheableList() {
-            @Override
-            public sdk.list.List getList(AuthenticationInfo authenticationInfo, Parameters params) {
-                return null;
-            }
-
-            @Override
-            public boolean isListContentGlobal() {
-                return false;
-            }
-
-            @Override
-            public <T extends ServiceConfigurationAttribute> Collection<T> getListServiceAttributes() {
-                return null;
-            }
-
-            @Override
-            public String getServiceName() {
-                return null;
-            }
-        };
-
-        ListDataSource_Internal internalSource = new ListDataSource_Internal(source);
-        ListServiceConfiguration config = internalSource.getListServiceConfiguration();
-        JsonNode node = JsonUtils.toJson(config);
-        node.equals()
-
     }
 
 
     @Test
     public void testExcludeFromListConfiguration() {
         ServiceConfiguration serviceConfiguration = ObjectConverter.generateConfiguration(ExcludeFromList.class);
-        Assert.assertTrue((serviceConfiguration.getAttributes().size() - 1) == serviceConfiguration.getAttributeWithIndex(4).getRelatedListServiceConfiguration().getAttributes().size());
+        Assert.assertTrue((serviceConfiguration.getAttributes().size() - 1) == serviceConfiguration.getAttributeWithIndex(3).getRelatedListServiceConfiguration().getAttributes().size());
     }
 
 
@@ -615,6 +588,13 @@ public class ConverterTest {
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
+    }
+
+
+    @Test
+    public void testConfigWithRelationshipAnnotation(){
+        ServiceConfiguration sampleConf = ObjectConverter.generateConfiguration(SampleRelationshipObject.class);
+
     }
 
 

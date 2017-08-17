@@ -2,21 +2,15 @@ package sdk.converter;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.util.StringUtils;
-import sdk.annotations.Attribute;
-import sdk.annotations.CustomLocation;
-import sdk.annotations.PrimaryKey;
-import sdk.annotations.PrimaryValue;
+import sdk.annotations.*;
 import sdk.data.*;
-import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 
+import javax.management.relation.Relation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Author: Karis Sponsler
@@ -88,8 +82,12 @@ public class ConfigurationManager extends TypeManager {
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(someClass)) {
             Attribute attribute = proxy.getAttributeAnnotation();
+            Relationship relationship = proxy.getRelationshipAnnotation();
             if (attribute != null) {
-                attributes.add(getServiceConfigurationAttributeFromField(new ConfigurationWrapper(proxy), attribute));
+                attributes.add(getServiceConfigurationAttributeFromMember(new ConfigurationWrapper(proxy), attribute));
+            }
+            if (relationship != null) {
+                attributes.add(getServiceConfigurationAttributeFromMember(new ConfigurationWrapper(proxy), relationship));
             }
         }
         return attributes;
@@ -100,10 +98,9 @@ public class ConfigurationManager extends TypeManager {
      * @param attribute
      * @return
      */
-    protected static ServiceConfigurationAttribute getServiceConfigurationAttributeFromField(ConfigurationWrapper configurationWrapper, Attribute attribute) {
+    protected static ServiceConfigurationAttribute getServiceConfigurationAttributeFromMember(ConfigurationWrapper configurationWrapper, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
-        Class relationShipClass = attribute.relationshipClass();
         if (StringUtils.isEmpty(name)) {
             name = inferName(configurationWrapper.varName);
         }
@@ -144,10 +141,46 @@ public class ConfigurationManager extends TypeManager {
         serviceConfigurationAttribute.search = canSearch;
         serviceConfigurationAttribute.searchRequired = canSearchAndRequired;
         if (requiresRelatedServiceConfiguration(attributeType)) {
-            setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, configurationWrapper.clazz, relationShipClass);
+            setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, configurationWrapper.clazz);
         }
         return serviceConfigurationAttribute;
     }
+
+    protected static ServiceConfigurationAttribute getServiceConfigurationAttributeFromMember(ConfigurationWrapper configurationWrapper, Relationship relationship) {
+        int index = relationship.index();
+        String name = relationship.name();
+        if (StringUtils.isEmpty(name)) {
+            name = inferName(configurationWrapper.varName);
+        }
+
+        AttributeType attributeType = AttributeType.SingleRelationship;
+        if (configurationWrapper.isWrappedClass) { // wrapped class = List<> Set<> Map<>
+            attributeType = AttributeType.Relation;
+        }
+
+        boolean canCreate = relationship.canCreate();
+        boolean canCreateAndRequired = relationship.canCreateAndRequired();
+        boolean canUpdate = relationship.canUpdate();
+        boolean canUpdateAndRequired = relationship.canUpdateAndRequired();
+        boolean canSearch = relationship.canSearch();
+        boolean canSearchAndRequired = relationship.canSearchAndRequired();
+
+
+        ServiceConfigurationAttribute serviceConfigurationAttribute = new ServiceConfigurationAttribute();
+        serviceConfigurationAttribute.setAttributeIndex(index);
+        serviceConfigurationAttribute.setAttributeType(attributeType);
+        serviceConfigurationAttribute.setName(name);
+        serviceConfigurationAttribute.setName(name);
+        serviceConfigurationAttribute.create = canCreate;
+        serviceConfigurationAttribute.createRequired = canCreateAndRequired;
+        serviceConfigurationAttribute.update = canUpdate;
+        serviceConfigurationAttribute.updateRequired = canUpdateAndRequired;
+        serviceConfigurationAttribute.search = canSearch;
+        serviceConfigurationAttribute.searchRequired = canSearchAndRequired;
+        setRelatedServiceConfiguration(attributeType, serviceConfigurationAttribute, name, configurationWrapper.clazz);
+        return serviceConfigurationAttribute;
+    }
+
 
     /**
      * @param attributeType
@@ -162,13 +195,12 @@ public class ConfigurationManager extends TypeManager {
      * @param serviceConfigurationAttribute
      * @param configName
      * @param clazz
-     * @param clazz1
      */
-    protected static void setRelatedServiceConfiguration(AttributeType attributeType, ServiceConfigurationAttribute serviceConfigurationAttribute, String configName, Class<?> clazz, Class<?> clazz1) {
+    protected static void setRelatedServiceConfiguration(AttributeType attributeType, ServiceConfigurationAttribute serviceConfigurationAttribute, String configName, Class<?> clazz) {
         if (attributeType.equals(AttributeType.ListItem)) {
             serviceConfigurationAttribute.setRelatedListServiceConfiguration(generateListConfiguration(clazz, configName));
         } else if (attributeType.equals(AttributeType.Relation)) {
-            serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz1).getAttributes()));
+            serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz).getAttributes()));
         } else {
             serviceConfigurationAttribute.setRelatedService(new RelatedServiceConfiguration(configName, generateConfiguration(clazz).getAttributes()));
         }

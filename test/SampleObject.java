@@ -1,6 +1,7 @@
 import org.joda.time.DateTime;
 import sdk.annotations.Attribute;
 import sdk.annotations.CustomLocation;
+import sdk.annotations.Relationship;
 import sdk.data.RelatedServiceConfiguration;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
@@ -52,7 +53,7 @@ public class SampleObject {
     @Attribute(index = 11, relationshipClass = SampleRelationship.class, dataType = AttributeType.SingleRelationship)
     public SampleRelationship sampleListItemSingleRelationship;
 
-    @Attribute(index = 12, relationshipClass = SampleRelationship.class, dataType = AttributeType.Relation)
+    @Relationship(index = 12)
     public List<SampleRelationship> sampleListItemRelationship;
 
     @Attribute(index = 13)
