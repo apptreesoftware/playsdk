@@ -21,21 +21,21 @@ public abstract class TypedDataSource<T> implements DataSource {
 
     @Override
     public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
-        throw new RuntimeException("Get Data Set is not supported by this data source");
+
     }
 
     @Override
     public DataSetItem getRecord(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
-        throw new RuntimeException("Get Record is not supported by this data source");
+
     }
 
-    abstract public Collection<? extends Object> queryObjects(T object, AuthenticationInfo authenticationInfo, Parameters parameters);
+    abstract public Collection<? extends Object> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters);
 
-    abstract public RecordActionResponse updateObject(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
+    abstract public RecordActionResponse update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
-    abstract public Collection<? extends T> getObjects(AuthenticationInfo authenticationInfo, Parameters parameters);
+    abstract public Collection<? extends T> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 
-    abstract public T getObject(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
+    abstract public T get(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
 
     @Override
     public boolean isTypedDataSource() {

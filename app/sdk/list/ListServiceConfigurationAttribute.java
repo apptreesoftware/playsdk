@@ -5,6 +5,7 @@ import sdk.models.AttributeType;
 /**
  * Created by alexis on 5/3/16.
  */
+@Deprecated
 public class ListServiceConfigurationAttribute extends ServiceConfigurationAttribute {
     public ListServiceConfigurationAttribute() {
     }

@@ -22,7 +22,7 @@ public class ServiceConfigurationAttributeSerializer extends JsonSerializer<Serv
     public void serialize(ServiceConfigurationAttribute value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         boolean isListItem = value.isListItemConfiguration();
-        JsonNode node = Json.newObject();
+        ObjectNode node = Json.newObject();
         if (isListItem) {
             ((ObjectNode) node).put("label", value.getName());
             ((ObjectNode) node).put("attributeIndex", value.getAttributeIndex());

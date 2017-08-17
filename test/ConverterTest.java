@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,16 +10,24 @@ import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.Record;
 import sdk.data.ServiceConfiguration;
+import sdk.data.ServiceConfigurationAttribute;
+import sdk.datasources.ListDataSource;
+import sdk.datasources.ListDataSource_Internal;
+import sdk.datasources.base.CacheableList;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
-import sdk.list.ListItem;
+import sdk.list.*;
 import sdk.models.Color;
 import sdk.models.Location;
+import sdk.utils.AuthenticationInfo;
+import sdk.utils.JsonUtils;
+import sdk.utils.Parameters;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
@@ -551,6 +560,33 @@ public class ConverterTest {
                 "  ]\n" +
                 "}";
         // TODO: talk to Matt about writing a test for this
+        ListDataSource source = new CacheableList() {
+            @Override
+            public sdk.list.List getList(AuthenticationInfo authenticationInfo, Parameters params) {
+                return null;
+            }
+
+            @Override
+            public boolean isListContentGlobal() {
+                return false;
+            }
+
+            @Override
+            public <T extends ServiceConfigurationAttribute> Collection<T> getListServiceAttributes() {
+                return null;
+            }
+
+            @Override
+            public String getServiceName() {
+                return null;
+            }
+        };
+
+        ListDataSource_Internal internalSource = new ListDataSource_Internal(source);
+        ListServiceConfiguration config = internalSource.getListServiceConfiguration();
+        JsonNode node = JsonUtils.toJson(config);
+        node.equals()
+
     }
 
 
