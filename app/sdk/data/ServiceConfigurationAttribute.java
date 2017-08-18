@@ -216,7 +216,7 @@ public class ServiceConfigurationAttribute {
          *
          * @return The builder with list item type
          */
-        public Builder asListItem(Set<ServiceConfigurationAttribute> listAttributes) {
+        public Builder asListItem(Set<? extends ServiceConfigurationAttribute> listAttributes) {
             mRelatedListService = new ListServiceConfiguration("");
             mRelatedListService.getAttributes().addAll(listAttributes);
             mAttributeType = AttributeType.ListItem;

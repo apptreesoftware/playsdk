@@ -629,6 +629,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (useGetterAndSetter) {
             fieldData = (Integer) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Integer) attributeProxy.getValue(object);
+        if(fieldData == null) return;
         record.setInt(fieldData, index);
         if (value) {
             record.setValue(fieldData.toString());
