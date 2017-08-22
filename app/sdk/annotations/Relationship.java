@@ -9,7 +9,6 @@ public @interface Relationship {
     boolean eager() default true;
     int index();
     String name() default "";
-    boolean excludeFromList() default false;
     boolean useGetterAndSetter() default true;
     boolean canCreate() default true;
     boolean canCreateAndRequired() default false;

@@ -89,7 +89,7 @@ public class AttributeProxy {
 
     public boolean excludeFromList(){
         if(isRelationship()) {
-            return relationship.excludeFromList();
+            return true;
         }
         return !Null(attribute) && attribute.excludeFromList();
     }
