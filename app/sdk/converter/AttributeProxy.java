@@ -104,6 +104,9 @@ public class AttributeProxy {
 
     public <T> Object getValue(T sourceObject) throws IllegalAccessException, InvocationTargetException {
         if (isField) {
+            if(!currentField.isAccessible()) {
+                currentField.setAccessible(true);
+            }
             return currentField.get(sourceObject);
         } else {
             return currentMethod.invoke(sourceObject);
