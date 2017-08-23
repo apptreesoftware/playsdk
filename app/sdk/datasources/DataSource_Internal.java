@@ -125,6 +125,7 @@ public class DataSource_Internal extends BaseSource_Internal {
      */
     public CompletableFuture<DataSet> updateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         if (dataSource != null) {
+            return CompletableFuture.supplyAsync(() -> dataSource.updateRecord(dataSetItem, authenticationInfo, params)).thenApply(DataSet::new);
         } else if (futureDataSource != null) {
             return futureDataSource.updateRecord(dataSetItem, authenticationInfo, params).thenApply(DataSet::new);
         } else if (rxDataSource != null) {

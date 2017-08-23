@@ -333,6 +333,7 @@ public class DataSetItem implements Record {
     public AttributeMeta getAttributeMeta(int index) {
         if (configurationMap == null || configurationMap.size() == 0) return null;
         ServiceConfigurationAttribute serviceConfigurationAttribute = configurationMap.get(index);
+        if(serviceConfigurationAttribute == null) return null;
         return new AttributeMeta(serviceConfigurationAttribute.getAttributeType(), serviceConfigurationAttribute.getAttributeIndex());
     }
 

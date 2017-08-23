@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
 import sdk.data.ServiceConfigurationAttribute;
+import sdk.models.AttributeType;
 
 import java.io.IOException;
 
@@ -24,19 +25,21 @@ public class ServiceConfigurationAttributeSerializer extends JsonSerializer<Serv
         boolean isListItem = value.isListItemConfiguration();
         ObjectNode node = Json.newObject();
         if (isListItem) {
-            ((ObjectNode) node).put("label", value.getName());
-            ((ObjectNode) node).put("attributeIndex", value.getAttributeIndex());
-            ((ObjectNode) node).put("attributeType", value.getAttributeType().toString());
+            node.put((isListItem && !value.getAttributeType().equals(AttributeType.ListItem))?"label":"name", value.getName());
+            node.put("attributeIndex", value.getAttributeIndex());
+            node.put("attributeType", value.getAttributeType().toString());
+            node.put("relatedListServiceConfiguration", Json.toJson(value.getRelatedListServiceConfiguration()));
         } else {
-            ((ObjectNode) node).put("name", value.getName());
-            ((ObjectNode) node).put("attributeIndex", value.getAttributeIndex());
-            ((ObjectNode) node).put("attributeType", value.getAttributeType().toString());
-            ((ObjectNode) node).put("create", value.create);
-            ((ObjectNode) node).put("createRequired", value.createRequired);
-            ((ObjectNode) node).put("update", value.update);
-            ((ObjectNode) node).put("updateRequired", value.updateRequired);
-            ((ObjectNode) node).put("search", value.search);
-            ((ObjectNode) node).put("searchRequired", value.searchRequired);
+            node.put("name", value.getName());
+            node.put("relatedService", Json.toJson(value.getRelatedService()));
+            node.put("attributeIndex", value.getAttributeIndex());
+            node.put("attributeType", value.getAttributeType().toString());
+            node.put("create", value.create);
+            node.put("createRequired", value.createRequired);
+            node.put("update", value.update);
+            node.put("updateRequired", value.updateRequired);
+            node.put("search", value.search);
+            node.put("searchRequired", value.searchRequired);
         }
         mapper.writeTree(gen, node);
     }

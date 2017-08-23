@@ -41,7 +41,10 @@ public class ServiceConfigurationAttribute {
      * @return
      */
     public boolean isListItemConfiguration() {
-        return listItemConfiguration;
+        if(listItemConfiguration || attributeType.equals(AttributeType.ListItem)) {
+            return true;
+        }
+        return false;
     }
 
     /**
