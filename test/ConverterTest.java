@@ -1,37 +1,22 @@
-import com.fasterxml.jackson.databind.JsonNode;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import sdk.annotations.Attribute;
-import sdk.annotations.CustomLocation;
-import sdk.annotations.PrimaryKey;
 import sdk.converter.AttributeProxy;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.Record;
 import sdk.data.ServiceConfiguration;
-import sdk.data.ServiceConfigurationAttribute;
-import sdk.datasources.ListDataSource;
-import sdk.datasources.ListDataSource_Internal;
-import sdk.datasources.base.CacheableList;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
-import sdk.list.*;
+import sdk.list.ListItem;
 import sdk.models.Color;
 import sdk.models.Location;
-import sdk.utils.AuthenticationInfo;
-import sdk.utils.JsonUtils;
-import sdk.utils.Parameters;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -206,6 +191,21 @@ public class ConverterTest {
         return listItem;
     }
 
+    private SampleListItem getNewSampleListObject() {
+        SampleListItem object = new SampleListItem();
+        object.woNumber = "1234";
+        object.testDate = new Date();
+        object.testDouble = 1.0;
+        object.testDoubleObject = 1.5;
+        object.testFloat = 2.0f;
+        object.testFloatObject = 2.5f;
+        object.testInt = 3;
+        object.testIntObject = 4;
+        object.testJodaTimeDate = new DateTime();
+        object.testSqlDate = new java.sql.Date(100);
+        return object;
+    }
+
 
     @Test
     public void testConfigGeneration() {
@@ -226,6 +226,14 @@ public class ConverterTest {
         ObjectConverter.copyFromRecord(dataSetItem, sampleObject);
         ObjectConverter.copyToRecord(testDataSetItem, sampleObject);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
+    }
+
+    @Test
+    public void testSetPrimaryKeyAndValue() {
+        ListItem item = new ListItem();
+        SampleListItem object = getNewSampleListObject();
+        ObjectConverter.copyToRecord(item, object);
+        assert(item.id.equals(object.woNumber) && item.value.equals(object.woNumber));
     }
 
     @Test

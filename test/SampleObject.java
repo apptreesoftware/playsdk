@@ -1,7 +1,5 @@
 import org.joda.time.DateTime;
-import sdk.annotations.Attribute;
-import sdk.annotations.CustomLocation;
-import sdk.annotations.Relationship;
+import sdk.annotations.*;
 import sdk.data.RelatedServiceConfiguration;
 import sdk.data.ServiceConfiguration;
 import sdk.data.ServiceConfigurationAttribute;
@@ -17,6 +15,8 @@ import java.util.List;
  * Created by Orozco on 7/19/17.
  */
 public class SampleObject {
+    @PrimaryKey
+    @PrimaryValue
     @Attribute(index = 0, useGetterAndSetter = false)
     public String woNumber;
 

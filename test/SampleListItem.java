@@ -1,5 +1,7 @@
 import org.joda.time.DateTime;
 import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
+import sdk.annotations.PrimaryValue;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.list.ListServiceConfigurationAttribute;
 
@@ -9,6 +11,8 @@ import java.util.*;
  * Created by Orozco on 7/20/17.
  */
 public class SampleListItem {
+    @PrimaryValue
+    @PrimaryKey
     @Attribute(index = 0)
     public String woNumber;
 
@@ -39,10 +43,6 @@ public class SampleListItem {
     @Attribute(index = 9)
     public java.sql.Date testSqlDate;
 
-
-
-
-
     public static Set<ServiceConfigurationAttribute> getListServiceConfigurationAttributes(){
         Set<ServiceConfigurationAttribute> attributes = new HashSet<>();
         attributes.add( new ListServiceConfigurationAttribute.Builder(0).name("woNumber").build());
@@ -58,8 +58,6 @@ public class SampleListItem {
         return attributes;
     }
 
-
-
     public static List<ServiceConfigurationAttribute> getServiceConfigurationAttributes(){
         List<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         attributes.add( new ServiceConfigurationAttribute.Builder(0).name("woNumber").build());
@@ -74,16 +72,4 @@ public class SampleListItem {
         attributes.add( new ServiceConfigurationAttribute.Builder(9).name("testSqlDate").asDateTime().build());
         return attributes;
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }
