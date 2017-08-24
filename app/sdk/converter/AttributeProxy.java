@@ -139,7 +139,7 @@ public class AttributeProxy {
                 try {
                     intValue = Integer.parseInt(value);
                 } catch(Exception e) {
-                    intValue = -1;
+                    intValue = 0;
                 }
                 currentField.set(destination, intValue);
             } else {
