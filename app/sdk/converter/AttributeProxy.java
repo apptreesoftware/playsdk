@@ -135,7 +135,12 @@ public class AttributeProxy {
                 if (!currentField.isAccessible()) {
                     currentField.setAccessible(true);
                 }
-                Integer intValue = Integer.parseInt(value);
+                int intValue = 0;
+                try {
+                    intValue = Integer.parseInt(value);
+                } catch(Exception e) {
+                    intValue = -1;
+                }
                 currentField.set(destination, intValue);
             } else {
                 throw new RuntimeException("Primary Key Must be an Integer or String data type");

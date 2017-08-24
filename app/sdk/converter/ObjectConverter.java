@@ -24,6 +24,8 @@ import static sdk.utils.ClassUtils.Null;
  * Created by Orozco on 7/19/17.
  */
 public class ObjectConverter extends ConfigurationManager {
+    private static ParserContext parserContext;
+
 
     public ObjectConverter() {
     }
@@ -63,25 +65,34 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      */
     public static <T> ParserContext copyFromRecord(Record record, T destination) {
-        ParserContext parserContext = new ParserContext();
+        ParserContext parserContext = getParserContext();
         mapMethodsFromSource(destination);
         if (destination == null) {
             throw new DestinationInvalidException();
         }
+        if (record.supportsCRUDStatus()) {
+            parserContext.setItemStatus(destination, record.getCRUDStatus());
+        }
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
+                copyToField(proxy, record, destination, parserContext);
                 if (proxy.isPrimaryKey()) proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
                 if (proxy.isPrimaryValue()) proxy.setPrimaryKeyOrValue(destination, record.getValue());
-                copyToField(proxy, record, destination, parserContext);
-                if (record.supportsCRUDStatus()) {
-                    parserContext.setItemStatus(destination, record.getCRUDStatus());
-                }
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
         return parserContext;
     }
+
+
+    private static ParserContext getParserContext() {
+        if (parserContext == null) {
+            parserContext = new ParserContext();
+        }
+        return parserContext;
+    }
+
 
     /**
      * @param dataSetItem
