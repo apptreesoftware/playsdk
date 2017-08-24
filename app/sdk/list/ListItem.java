@@ -522,9 +522,19 @@ public class ListItem implements Record {
     }
 
     @Override
+    public String getPrimaryKey() {
+        return id;
+    }
+
+    @Override
     public void setValue(String value) {
         valueIsSet = true;
         this.value = value;
+    }
+
+    @Override
+    public String getValue() {
+        return value;
     }
 
     @Override

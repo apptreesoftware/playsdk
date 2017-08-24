@@ -168,7 +168,7 @@ public class DataSetItem implements Record {
     @Override
     public Color getColor(int index) {
         DataSetItemAttribute attribute = attributeMap.get(index);
-        if(attribute != null) {
+        if (attribute != null) {
             return attribute.getColorValue();
         }
         return null;
@@ -177,7 +177,7 @@ public class DataSetItem implements Record {
     @Override
     public Optional<Color> getOptionalColor(int index) {
         DataSetItemAttribute attribute = attributeMap.get(index);
-        if(attribute != null) {
+        if (attribute != null) {
             return Optional.of(attribute.getColorValue());
         }
         return Optional.empty();
@@ -333,7 +333,7 @@ public class DataSetItem implements Record {
     public AttributeMeta getAttributeMeta(int index) {
         if (configurationMap == null || configurationMap.size() == 0) return null;
         ServiceConfigurationAttribute serviceConfigurationAttribute = configurationMap.get(index);
-        if(serviceConfigurationAttribute == null) return null;
+        if (serviceConfigurationAttribute == null) return null;
         return new AttributeMeta(serviceConfigurationAttribute.getAttributeType(), serviceConfigurationAttribute.getAttributeIndex());
     }
 
@@ -514,6 +514,11 @@ public class DataSetItem implements Record {
     }
 
     @Override
+    public String getValue() {
+        return primaryKey;
+    }
+
+    @Override
     public boolean isValueSet() {
         return true;
     }
@@ -523,6 +528,7 @@ public class DataSetItem implements Record {
      *
      * @return Returns the primary key
      */
+    @Override
     public String getPrimaryKey() {
         return primaryKey;
     }
@@ -1543,11 +1549,11 @@ public class DataSetItem implements Record {
         if (attributeMap.size() != that.attributeMap.size()) return false;
         if (!configurationMap.keySet().equals(that.configurationMap.keySet())) return false;
         if (!attributeMap.keySet().equals(that.attributeMap.keySet())) return false;
-        for(int i = 0; i < attributeMap.size(); i++) {
+        for (int i = 0; i < attributeMap.size(); i++) {
             DataSetItemAttribute thisAttribute = this.attributeMap.get(i);
             DataSetItemAttribute thatAttribute = that.attributeMap.get(i);
-            if(Null(thisAttribute) && Null(thatAttribute)) return true;
-            if(!thisAttribute.equals(thatAttribute)){
+            if (Null(thisAttribute) && Null(thatAttribute)) return true;
+            if (!thisAttribute.equals(thatAttribute)) {
                 return false;
             }
         }

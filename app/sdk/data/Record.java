@@ -92,7 +92,11 @@ public interface Record {
 
     void setPrimaryKey(String primaryKey);
 
+    String getPrimaryKey();
+
     void setValue(String value);
+
+    String getValue();
 
     boolean isValueSet();
 

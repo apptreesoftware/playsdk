@@ -73,8 +73,8 @@ public class ObjectConverter extends ConfigurationManager {
         }
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
-                if(proxy.isPrimaryKey()) record.setPrimaryKey((String) proxy.getValue(destination));
-                if(proxy.isPrimaryValue()) record.setValue((String) proxy.getValue(destination));
+                if (proxy.isPrimaryKey()) proxy.setValue(destination, record.getPrimaryKey());
+                if (proxy.isPrimaryValue()) proxy.setValue(destination, record.getValue());
                 copyToField(proxy, record, destination, parserContext);
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -631,7 +631,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (useGetterAndSetter) {
             fieldData = (Integer) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Integer) attributeProxy.getValue(object);
-        if(fieldData == null) return;
+        if (fieldData == null) return;
         record.setInt(fieldData, index);
         if (value) {
             record.setValue(fieldData.toString());
