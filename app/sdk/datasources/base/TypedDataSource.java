@@ -8,6 +8,7 @@ import sdk.data.DataSetItem;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.RecordActionResponse;
 import sdk.utils.AuthenticationInfo;
+import sdk.utils.Constants;
 import sdk.utils.Parameters;
 
 import java.lang.reflect.ParameterizedType;
@@ -53,6 +54,8 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     public RecordActionResponse updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
         ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
+        parserContext.setUserId(authenticationInfo.getUserID());
+        parserContext.setAppId(authenticationInfo.getCustomAuthenticationParameter(Constants.APP_ID_HEADER));
         return update(object, authenticationInfo, params, parserContext);
     }
 

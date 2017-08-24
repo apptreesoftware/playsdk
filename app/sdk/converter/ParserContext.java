@@ -8,86 +8,72 @@ import java.util.Map;
 import static sdk.utils.ClassUtils.Null;
 
 public class ParserContext {
-    private boolean datasetItemUpdated;
-    private Map<Integer, CRUDStatus> statusMap;
-    private Map<String, String> extraInfo;
+    private Map<String, Object> extraInfo;
+    private Map<Object, CRUDStatus> crudStatusMap;
     private String userId;
-    private CRUDStatus itemStatus;
+    private static final String APP_ID = "APP-ID";
 
-
-
-    public void setChildItemStatus(int index, CRUDStatus status) {
-        getStatusMap().put(index, status);
+    public CRUDStatus getState(Object object) {
+        CRUDStatus status = getCrudStatusMap().get(object);
+        if (status == null) return CRUDStatus.None;
+        return status;
     }
 
-    public void setItemStatus(CRUDStatus status) {
-        this.itemStatus = status;
-        datasetItemUpdated = CRUDStatus.updatedStatus(status);
+    public boolean isCreated(Object object) {
+        CRUDStatus status = getCrudStatusMap().get(object);
+        return (status != null && status.equals(CRUDStatus.Create));
     }
 
-    public void itemWasUpdated() {
-        datasetItemUpdated = true;
+    public boolean isUpdated(Object object) {
+        CRUDStatus status = getCrudStatusMap().get(object);
+        return (status != null && status.equals(CRUDStatus.Update));
     }
 
-    public boolean wasItemUpdated() {
-        return datasetItemUpdated;
+    public boolean isDeleted(Object object) {
+        CRUDStatus status = getCrudStatusMap().get(object);
+        return (status != null && status.equals(CRUDStatus.Delete));
     }
 
-    public CRUDStatus status(int index) {
-        CRUDStatus currentStatus = statusMap.get(index);
-        if (Null(currentStatus)) {
-            return CRUDStatus.None;
+    public <T extends Object> void setItemStatus(Object object, CRUDStatus status) {
+        getCrudStatusMap().put(object, status);
+    }
+
+    public void setAppId(String appId) {
+        getExtraInfo().put(APP_ID, appId);
+    }
+
+    /**
+     * if app id doesnt exist this function will return an empty string
+     * @return
+     */
+    public String getAppId(){
+        String appID = (String) getExtraInfo().get(APP_ID);
+        if (Null(appID)){
+            return "";
         }
-        return currentStatus;
+        return appID;
     }
 
-    public boolean isUpdated(int index) {
-        CRUDStatus currentStatus = statusMap.get(index);
-        if (Null(currentStatus)) {
-            return false;
-        }
-        return currentStatus.equals(CRUDStatus.Update);
-    }
 
-    public boolean isCreated(int index) {
-        CRUDStatus currentStatus = statusMap.get(index);
-        if (Null(currentStatus)) {
-            return false;
-        }
-        return currentStatus.equals(CRUDStatus.Create);
-    }
-
-    public boolean isDeleted(int index) {
-        CRUDStatus currentStatus = statusMap.get(index);
-        if (Null(currentStatus)) {
-            return false;
-        }
-        return currentStatus.equals(CRUDStatus.Delete);
-    }
-
-    public Map<Integer, CRUDStatus> getStatusMap() {
-        if (statusMap == null) {
-            statusMap = new HashMap<>();
-        }
-        return statusMap;
-    }
-
-    public Map<String, String> getExtraInfo() {
+    public Map<String, Object> getExtraInfo() {
         if (extraInfo == null) {
             extraInfo = new HashMap<>();
         }
         return extraInfo;
     }
 
-    public String getUserId() {
-        return userId;
+    public Map<Object, CRUDStatus> getCrudStatusMap() {
+        if (crudStatusMap == null) {
+            crudStatusMap = new HashMap<>();
+        }
+        return crudStatusMap;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public CRUDStatus getItemStatus() {
-        return itemStatus;
+    public String getUserId() {
+        return userId;
     }
 }

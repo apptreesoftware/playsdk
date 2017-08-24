@@ -599,11 +599,6 @@ public class ConverterTest {
     }
 
 
-    @Test
-    public void testConfigWithRelationshipAnnotation(){
-        ServiceConfiguration sampleConf = ObjectConverter.generateConfiguration(SampleRelationshipObject.class);
-
-    }
 
 
 

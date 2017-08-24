@@ -84,16 +84,16 @@ public class AttributeProxy {
         return !Null(attribute) && attribute.useGetterAndSetter();
     }
 
-    public boolean excludeFromList(){
-        if(isRelationship()) {
+    public boolean excludeFromList() {
+        if (isRelationship()) {
             return true;
         }
         return !Null(attribute) && attribute.excludeFromList();
     }
 
 
-    public boolean useLazyLoad(){
-        if(isRelationship()) {
+    public boolean useLazyLoad() {
+        if (isRelationship()) {
             return !relationship.eager();
         }
         return false;
@@ -101,7 +101,7 @@ public class AttributeProxy {
 
     public <T> Object getValue(T sourceObject) throws IllegalAccessException, InvocationTargetException {
         if (isField) {
-            if(!currentField.isAccessible()) {
+            if (!currentField.isAccessible()) {
                 currentField.setAccessible(true);
             }
             return currentField.get(sourceObject);
@@ -113,9 +113,53 @@ public class AttributeProxy {
 
     public <T> void setValue(T destination, Object value) throws InvocationTargetException, IllegalAccessException {
         if (isField) {
+            if (!currentField.isAccessible()) {
+                currentField.setAccessible(true);
+            }
             currentField.set(destination, value);
         } else {
             currentMethod.invoke(destination, value);
+        }
+    }
+
+
+    public <T> void setPrimaryKeyOrValue(T destination, String value) throws IllegalAccessException, InvocationTargetException {
+        if (isField) {
+            Class clazz = currentField.getType();
+            if (String.class == clazz) {
+                if (!currentField.isAccessible()) {
+                    currentField.setAccessible(true);
+                }
+                currentField.set(destination, value);
+            } else if (clazz == Integer.class || clazz == int.class) {
+                if (!currentField.isAccessible()) {
+                    currentField.setAccessible(true);
+                }
+                Integer intValue = Integer.parseInt(value);
+                currentField.set(destination, intValue);
+            } else {
+                throw new RuntimeException("Primary Key Must be an Integer or String data type");
+            }
+        } else {
+            if (currentMethod.getParameters().length < 1 || currentMethod.getParameters().length > 1) {
+                throw new RuntimeException("Setter must have only one parameter");
+            }
+            Class clazz = currentMethod.getParameters()[0].getType();
+
+            if (String.class == clazz) {
+                if (!currentMethod.isAccessible()) {
+                    currentMethod.setAccessible(true);
+                }
+                currentMethod.invoke(destination, value);
+            } else if (clazz == Integer.class || clazz == int.class) {
+                if (!currentMethod.isAccessible()) {
+                    currentMethod.setAccessible(true);
+                }
+                Integer intValue = Integer.parseInt(value);
+                currentMethod.invoke(destination, intValue);
+            } else {
+                throw new RuntimeException("Primary Key Must be an Integer or String data type");
+            }
         }
     }
 
@@ -158,7 +202,7 @@ public class AttributeProxy {
 
 
     private void hydrateAnnotations(AccessibleObject object) {
-        if(Null(object)) return;
+        if (Null(object)) return;
         primaryKey = object.getAnnotation(PrimaryKey.class);
         primaryValue = object.getAnnotation(PrimaryValue.class);
         attribute = object.getAnnotation(Attribute.class);
