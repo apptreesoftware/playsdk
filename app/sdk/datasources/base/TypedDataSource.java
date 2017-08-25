@@ -46,8 +46,10 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public RecordActionResponse createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(dataSetItem, object);
-        return create(object, authenticationInfo, params);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
+        parserContext.setUserId(authenticationInfo.getUserID());
+        parserContext.setAppId(authenticationInfo.getCustomAuthenticationParameter(Constants.APP_ID_HEADER));
+        return create(object, authenticationInfo, params, parserContext);
     }
 
     @Override
@@ -67,7 +69,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
 
     abstract public T get(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
 
-    abstract public RecordActionResponse create(T object, AuthenticationInfo authenticationInfo, Parameters parameters);
+    abstract public RecordActionResponse create(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
     @Override
     public String getServiceDescription() {
