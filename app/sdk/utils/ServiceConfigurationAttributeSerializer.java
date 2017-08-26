@@ -29,6 +29,12 @@ public class ServiceConfigurationAttributeSerializer extends JsonSerializer<Serv
             node.put("attributeIndex", value.getAttributeIndex());
             node.put("attributeType", value.getAttributeType().toString());
             node.put("relatedListServiceConfiguration", Json.toJson(value.getRelatedListServiceConfiguration()));
+            node.put("create", value.create);
+            node.put("createRequired", value.createRequired);
+            node.put("update", value.update);
+            node.put("updateRequired", value.updateRequired);
+            node.put("search", value.search);
+            node.put("searchRequired", value.searchRequired);
         } else {
             node.put("name", value.getName());
             node.put("relatedService", Json.toJson(value.getRelatedService()));

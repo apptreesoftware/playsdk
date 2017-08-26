@@ -557,6 +557,11 @@ public class ListItem implements Record {
         return true;
     }
 
+    @Override
+    public void useLazyLoad(int index) {
+        throw new RuntimeException("This type of record does not support lazy loading.");
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if(attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();

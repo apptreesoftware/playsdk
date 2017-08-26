@@ -279,6 +279,9 @@ public class TypeManager {
         Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
         if (tempMethodMap == null) return;
         Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
+        if(!setterMethod.isAccessible()){
+            setterMethod.setAccessible(true);
+        }
         try {
             setterMethod.invoke(destination, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -298,6 +301,9 @@ public class TypeManager {
         Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
         try {
             if (getterMethod == null) return attributeProxy.getValue(object);
+            if(!getterMethod.isAccessible()){
+                getterMethod.setAccessible(true);
+            }
             return getterMethod.invoke(object);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();

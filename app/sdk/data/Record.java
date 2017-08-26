@@ -106,5 +106,7 @@ public interface Record {
 
     boolean isListItem();
 
+    void useLazyLoad(int index);
+
 
 }

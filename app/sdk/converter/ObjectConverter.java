@@ -925,7 +925,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (Null(relationship)) relationship = new ArrayList<>();
         for (Object obj : relationship) {
             DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-            if (attributeProxy.useLazyLoad()) tempItem.useLazyLoad(index);
+            if (attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
             copyToRecord(tempItem, obj);
         }
     }
