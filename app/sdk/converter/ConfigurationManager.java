@@ -17,6 +17,10 @@ import java.util.*;
  * Date: 8/8/17
  */
 public class ConfigurationManager extends TypeManager {
+
+    static ConfigurationParserContext configurationParserContext;
+
+
     /**
      * @param someClass
      * @param <T>
@@ -79,6 +83,8 @@ public class ConfigurationManager extends TypeManager {
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
+        ConfigurationParserContext configurationParserContext = getConfigurationParserContext();
+        configurationParserContext.setParentClass(someClass); // setting parent class to combat against circular reference
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(someClass)) {
             Attribute attribute = proxy.getAttributeAnnotation();
@@ -87,9 +93,12 @@ public class ConfigurationManager extends TypeManager {
                 attributes.add(getServiceConfigurationAttributeFromMember(new ConfigurationWrapper(proxy), attribute));
             }
             if (relationship != null) {
-                attributes.add(getServiceConfigurationAttributeFromMember(new ConfigurationWrapper(proxy), relationship));
+                if (configurationParserContext.addClass(proxy.getType())) { //if clazz is referenced more than twice stop the circular reference.
+                    attributes.add(getServiceConfigurationAttributeFromMember(new ConfigurationWrapper(proxy), relationship));
+                }
             }
         }
+        configurationParserContext = null;
         return attributes;
     }
 
@@ -237,5 +246,16 @@ public class ConfigurationManager extends TypeManager {
      */
     protected static AttributeMeta inferMetaData(int index, Class clazz) {
         return new AttributeMeta(inferDataType(clazz).getAttributeType(), index);
+    }
+
+
+    /**
+     * @return
+     */
+    private static ConfigurationParserContext getConfigurationParserContext() {
+        if (configurationParserContext == null) {
+            configurationParserContext = new ConfigurationParserContext();
+        }
+        return configurationParserContext;
     }
 }
