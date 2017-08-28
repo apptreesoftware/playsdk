@@ -845,7 +845,9 @@ public class ObjectConverter extends ConfigurationManager {
         } else listItemObject = attributeProxy.getValue(object);
         ListItem listItem = new ListItem();
         copyToRecord(listItem, listItemObject);
-        dataSetItem.setListItem(listItem, index);
+        if (!dataSetItem.isListItem()) {
+            dataSetItem.setListItem(listItem, index);
+        }
     }
 
     /**
@@ -863,6 +865,9 @@ public class ObjectConverter extends ConfigurationManager {
         if (useGetterAndSetter) {
             relationship = useGetterIfExists(attributeProxy, object);
         } else relationship = attributeProxy.getValue(object);
+        if (relationship == null) {
+            return;
+        }
         DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
         copyToRecord(tempItem, relationship);
     }
@@ -922,10 +927,14 @@ public class ObjectConverter extends ConfigurationManager {
         if (useGetterAndSetter) {
             relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
         } else relationship = (List<Object>) attributeProxy.getValue(object);
-        if (Null(relationship)) relationship = new ArrayList<>();
+        if (attributeProxy.useLazyLoad()) {
+            dataSetItem.useLazyLoad(index);
+        }
+        if (Null(relationship)) {
+            return;
+        }
         for (Object obj : relationship) {
             DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-            if (attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
             copyToRecord(tempItem, obj);
         }
     }

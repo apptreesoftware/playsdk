@@ -106,6 +106,9 @@ public class AttributeProxy {
             }
             return currentField.get(sourceObject);
         } else {
+            if(!currentMethod.isAccessible()){
+                currentMethod.setAccessible(true);
+            }
             return currentMethod.invoke(sourceObject);
         }
     }
