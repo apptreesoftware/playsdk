@@ -16,7 +16,7 @@ public interface ListDataSource extends AppTreeSource {
      *
      * @return A list service configuration containing the attributes of a list
      */
-    Collection<ServiceConfigurationAttribute> getListServiceAttributes();
+    <T extends ServiceConfigurationAttribute> Collection<T> getListServiceAttributes();
 
     /**
      *
