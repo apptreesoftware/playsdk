@@ -78,7 +78,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
 
     @Override
     public Collection<ServiceConfigurationAttribute> getAttributes() {
-        return ObjectConverter.generateConfiguration(getDataSourceType()).getAttributes();
+        return ObjectConverter.generateConfigurationAttributes(getDataSourceType());
     }
 
     public Class<T> getDataSourceType() {
