@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.prism.shader.Solid_TextureRGB_AlphaTest_Loader;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Http;
-import sdk.annotations.Attribute;
 import sdk.list.ListItem;
 import sdk.models.*;
 import sdk.utils.DateUtil;
@@ -32,6 +30,9 @@ public class DataSetItem implements Record {
     private Status status = Status.None;
     Collection<ServiceConfigurationAttribute> configurationAttributes;
     Collection<Integer> lazyLoadedRelationships;
+
+
+    @JsonIgnore
     private Map<Integer, AttributeMeta> attributeMetaMap;
 
     @JsonIgnore
@@ -519,6 +520,7 @@ public class DataSetItem implements Record {
     }
 
     @Override
+    @JsonIgnore
     public boolean isValueSet() {
         return true;
     }
@@ -566,6 +568,7 @@ public class DataSetItem implements Record {
     }
 
     @Override
+    @JsonIgnore
     public boolean isListItem() {
         return false;
     }
