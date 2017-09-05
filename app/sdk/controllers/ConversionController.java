@@ -16,6 +16,7 @@ import sdk.datasources.base.DataSource;
 import sdk.utils.JsonUtils;
 import sdk.utils.ResponseExceptionHandler;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,10 @@ public class ConversionController extends Controller {
         Http.Request request = request();
         ConversionDataSource_Internal dataSource_internal = AppTree.lookupConversionHandler(endpointName);
         if (dataSource_internal == null) return notFound();
-        DataSetItem dataSetItem = dataSetItemFromRequest(dataSource_internal.getConfiguration(), request, false).toCompletableFuture().get();
-        Object destination = dataSource_internal.getDestionationType().newInstance();
+        DataSetItem dataSetItem = dataSetItemFromRequest(dataSource_internal.getConfiguration(), request);
+        Object destination = dataSource_internal.getSourceType().newInstance();
         DataSetItem newDataSetItem = dataSource_internal.convert(dataSetItem, destination);
-        return ok(Json.toJson(newDataSetItem));
+        return ok(newDataSetItem.toJSON());
     }
 
     public Result getConversionConfiguration(String endpointName) {
@@ -48,25 +49,12 @@ public class ConversionController extends Controller {
     }
 
 
-    protected CompletionStage<DataSetItem> dataSetItemFromRequest(ServiceConfiguration configuration, Http.Request request, boolean search) {
-        return CompletableFuture.supplyAsync(() -> new DataSet(configuration.getAttributes()))
-                .thenApply(dataSet -> {
-                    if (!search) {
-                        Http.MultipartFormData body = request.body().asMultipartFormData();
-                        Map<String, String[]> bodyMap = body.asFormUrlEncoded();
-                        List<Http.MultipartFormData.FilePart> files = body.getFiles();
-                        String formJSON = bodyMap.get("formJSON")[0];
-                        HashMap<String, Http.MultipartFormData.FilePart> attachmentMap = new HashMap<>();
-                        for (Http.MultipartFormData.FilePart file : files) {
-                            attachmentMap.put(file.getKey(), file);
-                        }
-                        ObjectNode json = (ObjectNode) Json.parse(formJSON);
-                        return dataSetItemForJSON(json, dataSet, search, attachmentMap);
-                    } else {
-                        ObjectNode json = (ObjectNode) request.body().asJson();
-                        return dataSetItemForJSON(json, dataSet, search, new HashMap<>());
-                    }
-                });
+    protected DataSetItem dataSetItemFromRequest(ServiceConfiguration configuration, Http.Request request) {
+        ObjectNode node = (ObjectNode) request.body().asJson();
+        DataSet newDataSet = new DataSet(configuration.getAttributes());
+        ObjectNode sourceItem = (ObjectNode) node.findValue("dataSetItem");
+        return dataSetItemForJSON(sourceItem, newDataSet, false, new HashMap<>());
+
     }
 
     DataSetItem dataSetItemForJSON(ObjectNode json, DataSet dataSet, boolean search, HashMap<String, Http.MultipartFormData.FilePart> attachmentMap) {
