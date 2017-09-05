@@ -1,14 +1,12 @@
-package sdk.datasources;
+package sdk.datasources.base;
 
 import sdk.converter.ObjectConverter;
 import sdk.data.ConversionServiceConfiguration;
 import sdk.data.DataSetItem;
-import sdk.data.ServiceConfiguration;
-import sdk.data.ServiceConfigurationAttribute;
+import sdk.datasources.ConversionDataSourceBase;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Created by Orozco on 9/5/17.

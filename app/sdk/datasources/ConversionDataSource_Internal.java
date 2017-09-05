@@ -1,12 +1,11 @@
 package sdk.datasources;
 
-import org.omg.SendingContext.RunTime;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
+import sdk.datasources.base.ConversionDataSource;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Orozco on 9/5/17.
