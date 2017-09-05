@@ -1,5 +1,6 @@
 package sdk.list;
 
+import sdk.data.ServiceConfigurationAttribute;
 import sdk.utils.Response;
 import sdk.utils.ServiceParameter;
 
@@ -14,10 +15,10 @@ public class ListServiceConfiguration extends Response {
     public boolean canCache;
     public boolean canSearch;
 
-    ArrayList<ListServiceConfigurationAttribute> attributes = new ArrayList();
+    ArrayList<ServiceConfigurationAttribute> attributes = new ArrayList();
     ArrayList<ServiceParameter> serviceFilterParameters = new ArrayList();
 
-    public ArrayList<ListServiceConfigurationAttribute> getAttributes() { return this.attributes; }
+    public ArrayList<ServiceConfigurationAttribute> getAttributes() { return this.attributes; }
 
     public ListServiceConfiguration() {}
 

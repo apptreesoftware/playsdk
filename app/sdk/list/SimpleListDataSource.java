@@ -1,5 +1,6 @@
 package sdk.list;
 
+import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.base.CacheableList;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
@@ -35,8 +36,8 @@ public class SimpleListDataSource implements CacheableList {
     }
 
     @Override
-    public Set<ListServiceConfigurationAttribute> getListServiceAttributes() {
-        return new HashSet<ListServiceConfigurationAttribute>();
+    public Set<ServiceConfigurationAttribute> getListServiceAttributes() {
+        return new HashSet<ServiceConfigurationAttribute>();
     }
 
     @Override
