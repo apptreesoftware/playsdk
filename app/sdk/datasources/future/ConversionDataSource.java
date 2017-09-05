@@ -27,15 +27,6 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
         return getDataTypeType(0).getSimpleName() + "->" + getDataTypeType(1).getSimpleName();
     }
 
-    @Override
-    public ConversionServiceConfiguration getConfiguration() {
-        ConversionServiceConfiguration conversionServiceConfiguration = new ConversionServiceConfiguration();
-        conversionServiceConfiguration.setName(getServiceDescription());
-        conversionServiceConfiguration.attributes = new ArrayList<>(ObjectConverter.generateConfigurationAttributes(getDataTypeType(0)));
-        conversionServiceConfiguration.setDestinationAttributes(ObjectConverter.generateConfigurationAttributes(getDataTypeType(1)));
-        return conversionServiceConfiguration;
-    }
-
     public Class getDataTypeType(int index) {
         if (index > 1 || index < 0) throw new RuntimeException("Index must be zero(0) or one(1)");
         ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();

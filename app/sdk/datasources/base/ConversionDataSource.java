@@ -3,6 +3,7 @@ package sdk.datasources.base;
 import sdk.converter.ObjectConverter;
 import sdk.data.ConversionServiceConfiguration;
 import sdk.data.DataSetItem;
+import sdk.data.ServiceConfiguration;
 import sdk.datasources.ConversionDataSourceBase;
 
 import java.lang.reflect.ParameterizedType;
@@ -25,13 +26,12 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
         return getDataTypeType(0).getSimpleName() + "->" + getDataTypeType(1).getSimpleName();
     }
 
-    @Override
-    public ConversionServiceConfiguration getConfiguration() {
-        ConversionServiceConfiguration conversionServiceConfiguration = new ConversionServiceConfiguration();
-        conversionServiceConfiguration.setName(getServiceDescription());
-        conversionServiceConfiguration.attributes = new ArrayList<>(ObjectConverter.generateConfigurationAttributes(getDataTypeType(0)));
-        conversionServiceConfiguration.setDestinationAttributes(ObjectConverter.generateConfigurationAttributes(getDataTypeType(1)));
-        return conversionServiceConfiguration;
+    public Class getDestionationType() {
+        return getDataTypeType(1);
+    }
+
+    public Class getSourceType() {
+        return getDataTypeType(0);
     }
 
     public Class getDataTypeType(int index) {

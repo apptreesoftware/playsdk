@@ -55,7 +55,7 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
 
     public ServiceConfiguration getConfiguration() {
         if (conversionDataSource != null) {
-            return conversionDataSource.getConfiguration();
+            return conversionDataSource.getConfiguration(conversionDataSource.getSourceType(), conversionDataSource.getDestionationType());
         }
         throw new RuntimeException("Unable to load configuration");
     }
