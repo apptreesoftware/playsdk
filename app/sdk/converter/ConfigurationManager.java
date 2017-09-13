@@ -42,32 +42,30 @@ public class ConfigurationManager extends TypeManager {
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateListConfigurationAttributes(Class<T> someClass) {
-        Field[] fields = someClass.getDeclaredFields();
         Set<ServiceConfigurationAttribute> attributes = new HashSet<>();
-        for (Field field : fields) {
-            Attribute attribute = field.getAnnotation(Attribute.class);
+        for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(someClass)) {
+            Attribute attribute = attributeProxy.getAttributeAnnotation();
             if (attribute != null && !attribute.excludeFromList()) {
-                attributes.add(getListServiceConfigurationAttributeFromField(field, attribute));
+                attributes.add(getListServiceConfigurationAttributeFromField(attributeProxy, attribute));
             }
         }
         return attributes;
     }
 
     /**
-     * @param field
      * @param attribute
      * @return
      */
-    protected static ListServiceConfigurationAttribute getListServiceConfigurationAttributeFromField(Field field, Attribute attribute) {
+    protected static ListServiceConfigurationAttribute getListServiceConfigurationAttributeFromField(AttributeProxy proxy, Attribute attribute) {
         int index = attribute.index();
         String name = attribute.name();
         if (StringUtils.isEmpty(name)) {
-            name = inferName(field.getName());
+            name = inferName(proxy.getName());
         }
         ConverterAttributeType converterAttributeType = null;
         AttributeType attributeType = attribute.dataType();
         if (attributeType.equals(AttributeType.None)) {
-            converterAttributeType = inferDataType(field.getType().getSimpleName());
+            converterAttributeType = inferDataType(proxy.getType().getSimpleName());
         }
         ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
         listServiceConfigurationAttribute.setAttributeIndex(index);
