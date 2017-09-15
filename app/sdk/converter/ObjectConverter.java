@@ -160,12 +160,6 @@ public class ObjectConverter extends ConfigurationManager {
         primaryKey = attributeProxy.isPrimaryKey();
         value = attributeProxy.isPrimaryValue();
         parentValue = attributeProxy.isParentValue();
-        if (attributeProxy.isPrimaryKey()) {
-            primaryKey = true;
-        }
-        if (attributeProxy.isPrimaryValue()) {
-            value = true;
-        }
 
         if (primaryKey && !attributeProxy.isAttribute()) {
             record.setPrimaryKey(attributeProxy.getValue(source).toString());
