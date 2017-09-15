@@ -151,18 +151,16 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void copyFromField(AttributeProxy attributeProxy, Record record, T source) throws UnsupportedAttributeException, IllegalAccessException, InvocationTargetException {
         boolean primaryKey = false;
-
         boolean value = false;
+        boolean parentValue = false;
 
         boolean excludeFromListItem = attributeProxy.excludeFromList();
         if (record.isListItem() && attributeProxy.excludeFromList()) return;
 
-        if (attributeProxy.isPrimaryKey()) {
-            primaryKey = true;
-        }
-        if (attributeProxy.isPrimaryValue()) {
-            value = true;
-        }
+        primaryKey = attributeProxy.isPrimaryKey();
+        value = attributeProxy.isPrimaryValue();
+        parentValue = attributeProxy.isParentValue();
+
         if (primaryKey && !attributeProxy.isAttribute()) {
             record.setPrimaryKey(attributeProxy.getValue(source).toString());
         }
@@ -177,7 +175,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
-        readObjectData(attributeProxy, attributeMeta, source, record, primaryKey, useGetterAndSetter, value);
+        readObjectData(attributeProxy, attributeMeta, source, record, primaryKey, useGetterAndSetter, value, parentValue);
     }
 
     /**
@@ -246,13 +244,13 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    private static <T> void readObjectData(AttributeProxy attributeProxy, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+    private static <T> void readObjectData(AttributeProxy attributeProxy, AttributeMeta attributeMeta, T object, Record dataSetItem, boolean primaryKey, boolean useGetterAndSetter, boolean value, boolean parentValue) throws IllegalAccessException, InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
-                readStringData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
+                readStringData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value, parentValue);
                 break;
             case Int:
-                readIntegerData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
+                readIntegerData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value, parentValue);
                 break;
             case Double:
                 readDoubleData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
@@ -609,11 +607,14 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    private static <T> void readStringData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+    private static <T> void readStringData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value, boolean parent) throws IllegalAccessException, InvocationTargetException {
         Object fieldData = null;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
         record.setString(fieldData != null ? fieldData.toString() : null, index);
+        if (parent) {
+            record.setParentValue(fieldData.toString());
+        }
         if (value) {
             record.setValue(fieldData.toString());
         }
@@ -637,13 +638,16 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    private static <T> void readIntegerData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value) throws IllegalAccessException, InvocationTargetException {
+    private static <T> void readIntegerData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter, boolean value, boolean parent) throws IllegalAccessException, InvocationTargetException {
         Integer fieldData = null;
         if (useGetterAndSetter) {
             fieldData = (Integer) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Integer) attributeProxy.getValue(object);
         if (fieldData == null) return;
         record.setInt(fieldData, index);
+        if (parent) {
+            record.setParentValue(fieldData.toString());
+        }
         if (value) {
             record.setValue(fieldData.toString());
         }
