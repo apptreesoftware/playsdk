@@ -19,7 +19,16 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
         return convert(object);
     }
 
+    public D convertRecord(DataSetItem previousDataSetItem, DataSetItem dataSetItem, S previousObject, S object) {
+        ObjectConverter.copyFromRecord(previousDataSetItem, previousObject);
+        ObjectConverter.copyFromRecord(dataSetItem, object);
+        return convert(previousObject, object);
+    }
+
     abstract public D convert(S sourceRecord);
+    public D convert(S previousSourceRecord, S sourceRecord) {
+        return convert(sourceRecord);
+    }
 
     @Override
     public String getServiceDescription() {
