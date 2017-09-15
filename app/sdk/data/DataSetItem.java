@@ -70,6 +70,11 @@ public class DataSetItem implements Record {
     }
 
     @Override
+    public void setParentValue(String value) {
+        throw new RuntimeException("This type of record does not allow parent values");
+    }
+
+    @Override
     public void setDate(DateTime value, int index) {
         _setDateForAttributeIndex(value, index);
     }
@@ -1482,8 +1487,53 @@ public class DataSetItem implements Record {
                         case ListItem:
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
                                 ListItem listItem = JsonUtils.fromJson(jsonNode, ListItem.class);
+                                List<ServiceConfigurationAttribute> listAttrs = attribute.getRelatedListServiceConfiguration().getAttributes();
+                                for (ServiceConfigurationAttribute attr : listAttrs) {
+                                    JsonNode node1 = jsonNode.get(String.format("attribute%02d", attr.getAttributeIndex() + 1));
+                                    String textValue = node1 != null? node1.asText():"";
+                                    switch (attr.attributeType) {
+                                        case Location:
+                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                                Location location = JsonUtils.fromJson(listItemNode, Location.class);
+                                                listItem.setAttributeForIndex(location, attr.getAttributeIndex());
+                                            });
+                                        case String:
+                                            listItem.setAttributeForIndex(textValue, attr.getAttributeIndex());
+                                            break;
+                                        case Double:
+                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                                Double aDouble = JsonUtils.fromJson(listItemNode, Double.class);
+                                                listItem.setAttributeForIndex(aDouble, attr.getAttributeIndex());
+                                            });
+                                            break;
+                                        case Date:
+                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                                DateTime dateTime = JsonUtils.fromJson(listItemNode, DateTime.class);
+                                                listItem.setAttributeForIndex(dateTime, attr.getAttributeIndex());
+                                            });
+                                            break;
+                                        case Boolean:
+                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                                Boolean aBoolean = JsonUtils.fromJson(listItemNode, Boolean.class);
+                                                listItem.setAttributeForIndex(aBoolean, attr.getAttributeIndex());
+                                            });
+                                            break;
+                                        case DateTime:
+                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                                DateTime dateTime = JsonUtils.fromJson(listItemNode, DateTime.class);
+                                                listItem.setAttributeForIndex(dateTime, attr.getAttributeIndex());
+                                            });
+                                            break;
+                                        case Int:
+                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                                Integer aInteger = JsonUtils.fromJson(listItemNode, Integer.class);
+                                                listItem.setAttributeForIndex(aInteger, attr.getAttributeIndex());
+                                            });
+                                    }
+                                }
                                 _setListItemForAttributeIndex(listItem, i);
                             });
+
                             break;
                         case Color:
                             JsonUtils.parseOptional(node.textValue()).ifPresent(jsonNode -> {
