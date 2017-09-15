@@ -135,7 +135,7 @@ public class ObjectConverter extends ConfigurationManager {
             attributeMeta = inferMetaData(index, fieldClass);
         }
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
-//            throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
+            throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
         readDataSetItemData(proxy, attributeMeta, destination, record, userSetterAndGetter, parserContext);
     }
