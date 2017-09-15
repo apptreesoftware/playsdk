@@ -39,6 +39,10 @@ public class ConversionController extends Controller {
         DataSetItem previousDataSetItem = dataSetItemFromRequest(dataSource_internal.getConfiguration(), request, "previousDataSetItem");
         DataSetItem dataSetItem = dataSetItemFromRequest(dataSource_internal.getConfiguration(), request, "dataSetItem");
 
+        if (dataSetItem == null) {
+            throw new NullPointerException("Required dataSetItem property is null");
+        }
+
         DataSetItem destinationDataSetItem;
         if (previousDataSetItem != null) {
             Object previousSourceObject = dataSource_internal.getSourceType().newInstance();
