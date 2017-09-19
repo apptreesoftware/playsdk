@@ -1,6 +1,10 @@
 package sdk.converter;
 
 import sdk.data.DataSetItem.CRUDStatus;
+import sdk.models.DateRange;
+import sdk.models.DateTimeRange;
+import sdk.models.SDKDateRange;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +16,8 @@ public class ParserContext {
     private Map<Object, CRUDStatus> crudStatusMap;
     private String userId;
     private static final String APP_ID = "APP-ID";
+    private Map<Integer, SDKDateRange> dateTimeRangeIntegerIndexMap;
+    private Map<String, SDKDateRange> dateTimeRangeStringIndexMap;
 
     public CRUDStatus getState(Object object) {
         CRUDStatus status = getCrudStatusMap().get(object);
@@ -44,11 +50,12 @@ public class ParserContext {
 
     /**
      * if app id doesnt exist this function will return an empty string
+     *
      * @return
      */
-    public String getAppId(){
+    public String getAppId() {
         String appID = (String) getExtraInfo().get(APP_ID);
-        if (Null(appID)){
+        if (Null(appID)) {
             return "";
         }
         return appID;
@@ -75,5 +82,76 @@ public class ParserContext {
 
     public String getUserId() {
         return userId;
+    }
+
+
+    public DateRange getDateRangeForField(int index) {
+        return (DateRange) getSDKDateRangeForIndex(index);
+    }
+
+    public DateRange getDateRangeForField(String fieldName) {
+        return (DateRange) getSDKDateRangeForFieldName(fieldName);
+    }
+
+    public DateTimeRange getDateTimeRangeForField(int index) {
+        return (DateTimeRange) getSDKDateRangeForIndex(index);
+    }
+
+    public DateTimeRange getDateTimeRangeForField(String fieldName) {
+        return (DateTimeRange) getSDKDateRangeForFieldName(fieldName);
+    }
+
+
+    private SDKDateRange getSDKDateRangeForIndex(int index) {
+        SDKDateRange dateRange = getDateTimeRangeIntegerIndexMap().get(index);
+        if (dateRange == null) {
+            throw new RuntimeException(String.format("Date Range is empty for index %s", index));
+        }
+        return dateRange;
+    }
+
+
+    private SDKDateRange getSDKDateRangeForFieldName(String fieldName) {
+        SDKDateRange dateRange = getDateTimeRangeStringIndexMap().get(fieldName);
+        if (dateRange == null) {
+            throw new RuntimeException(String.format("Date Range is empty for field %s", fieldName));
+        }
+        return dateRange;
+    }
+
+
+    public void putDateTimeRange(int index, String fieldName, SDKDateRange sdkDateRange) {
+        putDateTimeRange(index, sdkDateRange);
+        putDateTimeRange(fieldName, sdkDateRange);
+    }
+
+    public void putDateTimeRange(int index, SDKDateRange dateTimeRange) {
+        getDateTimeRangeIntegerIndexMap().put(index, dateTimeRange);
+    }
+
+    public void putDateTimeRange(String fieldName, SDKDateRange dateTimeRange) {
+        getDateTimeRangeStringIndexMap().put(fieldName, dateTimeRange);
+    }
+
+    public Map<Integer, SDKDateRange> getDateTimeRangeIntegerIndexMap() {
+        if (dateTimeRangeIntegerIndexMap == null) {
+            dateTimeRangeIntegerIndexMap = new HashMap<>();
+        }
+        return dateTimeRangeIntegerIndexMap;
+    }
+
+    public void setDateTimeRangeIntegerIndexMap(Map<Integer, SDKDateRange> dateTimeRangeIntegerIndexMap) {
+        this.dateTimeRangeIntegerIndexMap = dateTimeRangeIntegerIndexMap;
+    }
+
+    public Map<String, SDKDateRange> getDateTimeRangeStringIndexMap() {
+        if (dateTimeRangeStringIndexMap == null) {
+            dateTimeRangeStringIndexMap = new HashMap<>();
+        }
+        return dateTimeRangeStringIndexMap;
+    }
+
+    public void setDateTimeRangeStringIndexMap(Map<String, SDKDateRange> dateTimeRangeStringIndexMap) {
+        this.dateTimeRangeStringIndexMap = dateTimeRangeStringIndexMap;
     }
 }

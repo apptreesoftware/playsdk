@@ -38,8 +38,8 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public DataSet queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(queryDataItem, object);
-        Collection<? extends Object> objects = query(object, authenticationInfo, params);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(queryDataItem, object);
+        Collection<? extends Object> objects = query(object, authenticationInfo, params, parserContext);
         return ObjectConverter.getDataSetFromCollection(objects, getAttributes());
     }
 
@@ -61,7 +61,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
         return update(object, authenticationInfo, params, parserContext);
     }
 
-    abstract public Collection<T> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters);
+    abstract public Collection<T> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
     abstract public RecordActionResponse update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 

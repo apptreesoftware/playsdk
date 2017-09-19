@@ -2,9 +2,7 @@ package sdk.data;
 
 import org.joda.time.DateTime;
 import sdk.list.ListItem;
-import sdk.models.Color;
-import sdk.models.Image;
-import sdk.models.Location;
+import sdk.models.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -109,5 +107,9 @@ public interface Record {
     void useLazyLoad(int index);
 
     void setParentValue(String value);
+
+    DateTimeRange getDateTimeRange(int attributeIndex);
+
+    DateRange getDateRange(int attributeIndex);
 
 }

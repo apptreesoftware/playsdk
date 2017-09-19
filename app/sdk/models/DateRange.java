@@ -8,61 +8,30 @@ import play.libs.Json;
 /**
  * Created by alexis on 5/3/16.
  */
-public class DateRange {
-    private DateTime from;
-    private DateTime to;
-
-    public DateRange() {}
+public class DateRange extends SDKDateRange {
+    public DateRange() {
+    }
 
     /**
      * Constructs an ATDataRange object
+     *
      * @param date1 The earliest date
      * @param date2 The latest date
      */
     public DateRange(DateTime date1, DateTime date2) {
-        from = date1;
-        to = date2;
+        super.setFrom(date1);
+        super.setTo(date2);
     }
 
-    /**
-     *
-     * @return a DateTime of the earliest date in range
-     */
-    public DateTime getFrom() {
-        return from;
-    }
 
-    /**
-     * Sets the earliest date in range
-     * @param date DateTime
-     */
-    public void setFrom(DateTime date) {
-        from = date;
-    }
-
-    /**
-     *
-     * @return a DateTime of the latest date in range
-     */
-    public DateTime getTo() {
-        return to;
-    }
-
-    /**
-     * Sets the latest date in range
-     * @param date DateTime
-     */
-    public void setTo(DateTime date) {
-        to = date;
-    }
-
+    @Override
     public ObjectNode toJSON() {
         ObjectNode json = Json.newObject();
-        if ( from != null ) {
-            json.put("from", Constants.AppTreeDateFormat.print(from));
+        if (super.getFrom() != null) {
+            json.put("from", Constants.AppTreeDateFormat.print(super.getFrom()));
         }
-        if ( to != null ) {
-            json.put("to", Constants.AppTreeDateFormat.print(to));
+        if (super.getTo() != null) {
+            json.put("to", Constants.AppTreeDateFormat.print(super.getTo()));
         }
         return json;
     }

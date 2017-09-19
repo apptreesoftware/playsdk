@@ -571,6 +571,20 @@ public class ListItem implements Record {
         this.parentID = value;
     }
 
+    @Override
+    public DateTimeRange getDateTimeRange(int attributeIndex) {
+        // we are returning null instead of throwing an exception because this function will be called
+        // anytime a date value is null, which doesn't always mean something has gone wrong
+        // we will null check after calling this function
+        return null;
+    }
+
+    @Override
+    public DateRange getDateRange(int attributeIndex) {
+        //see getDateTimeRange
+        return null;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if (attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();

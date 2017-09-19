@@ -8,9 +8,7 @@ import sdk.exceptions.DestinationInvalidException;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
-import sdk.models.AttributeType;
-import sdk.models.Color;
-import sdk.models.Location;
+import sdk.models.*;
 import sdk.utils.RecordUtils;
 
 import java.lang.reflect.Field;
@@ -203,10 +201,10 @@ public class ObjectConverter extends ConfigurationManager {
                 writeBoolData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Date:
-                writeDateData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDateData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case DateTime:
-                writeDateTimeData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDateTimeData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case ListItem:
                 writeListItemData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
@@ -391,8 +389,14 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeDateData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void writeDateData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         DateTime value = dataSetItem.getDate(index);
+        if (Null(value)) { // if value is null we want to check and see if there is a date time range avail. at that index
+            DateRange dateRange = dataSetItem.getDateRange(index);
+            if (!Null(dateRange)) {
+                parserContext.putDateTimeRange(index, proxy.getName(), dateRange);
+            }
+        }
         try {
             setDateValueFromField(proxy, value, destination);
         } catch (IllegalAccessException e) {
@@ -409,8 +413,14 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeDateTimeData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void writeDateTimeData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         DateTime value = dataSetItem.getDateTime(index);
+        if (Null(value)) { // if value is null we want to check and see if there is a date time range avail. at that index
+            DateTimeRange dateTimeRange = dataSetItem.getDateTimeRange(index);
+            if (!Null(dateTimeRange)) {
+                parserContext.putDateTimeRange(index, proxy.getName(), dateTimeRange);
+            }
+        }
         try {
             setDateValueFromField(proxy, value, destination);
         } catch (IllegalAccessException e) {
@@ -685,6 +695,7 @@ public class ObjectConverter extends ConfigurationManager {
                 fieldData = (Double) useGetterIfExists(attributeProxy, object);
             } else fieldData = (Double) attributeProxy.getValue(object);
         }
+        if (fieldData == null) return;
         record.setDouble(fieldData, index);
         if (value) {
             record.setValue(fieldData.toString());
