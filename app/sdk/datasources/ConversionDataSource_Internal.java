@@ -38,6 +38,13 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
         return item;
     }
 
+    public DataSetItem convert(DataSetItem previousDataSetItem, DataSetItem dataSetItem, S previousSourceObject, S sourceObject) {
+        Object object = conversionDataSource.convertRecord(previousDataSetItem, dataSetItem, previousSourceObject, sourceObject);
+        DataSetItem item = new DataSetItem(getDestinationAttributes());
+        ObjectConverter.copyToRecord(item, object);
+        return item;
+    }
+
     public Collection<ServiceConfigurationAttribute> getDestinationAttributes() {
         if (destinationAttributes == null) {
             destinationAttributes = ObjectConverter.generateConfigurationAttributes(getDataTypeType(1));
