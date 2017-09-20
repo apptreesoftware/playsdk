@@ -73,7 +73,7 @@ public class ApplicationController extends Controller {
         if (attachmentDataSource != null) {
             addEndpoint("attachment", "Attachment", hostURL + "/attachments", "Attachment", records);
         }
-        return ok(objectNode.toString());
+        return ok(objectNode);
     }
 
     private void addEndpoint(String endpoint, String name, String url, String type, ArrayNode records) {

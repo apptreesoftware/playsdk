@@ -29,6 +29,7 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
     }
 
     abstract public Observable<D> convert(S sourceRecord);
+
     public Observable<D> convert(S previousSourceRecord, S sourceRecord) {
         return convert(sourceRecord);
     }
@@ -36,6 +37,14 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
     @Override
     public String getServiceDescription() {
         return getDataTypeType(0).getSimpleName() + "->" + getDataTypeType(1).getSimpleName();
+    }
+
+    public Class getSourceType() {
+        return getDataTypeType(0);
+    }
+
+    public Class getDestinationType() {
+        return getDataTypeType(1);
     }
 
     public Class getDataTypeType(int index) {

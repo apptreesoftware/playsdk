@@ -35,7 +35,7 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
         return getDataTypeType(0).getSimpleName() + "->" + getDataTypeType(1).getSimpleName();
     }
 
-    public Class getDestionationType() {
+    public Class getDestinationType() {
         return getDataTypeType(1);
     }
 

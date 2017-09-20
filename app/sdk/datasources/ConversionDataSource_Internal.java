@@ -34,11 +34,29 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
     }
 
     public Class getDestionationType() {
-        return getDataTypeType(1);
+        if (futureConversionDataSource != null) {
+            return futureConversionDataSource.getDestinationType();
+        }
+        if (rxConversionDataSource != null) {
+            return rxConversionDataSource.getDestinationType();
+        }
+        if (conversionDataSource != null) {
+            return conversionDataSource.getDestinationType();
+        }
+        throw new RuntimeException("No data source available");
     }
 
     public Class getSourceType() {
-        return getDataTypeType(0);
+        if (futureConversionDataSource != null) {
+            return futureConversionDataSource.getSourceType();
+        }
+        if (rxConversionDataSource != null) {
+            return rxConversionDataSource.getSourceType();
+        }
+        if (conversionDataSource != null) {
+            return conversionDataSource.getSourceType();
+        }
+        throw new RuntimeException("No data source available");
     }
 
 
@@ -113,7 +131,13 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
 
     public ServiceConfiguration getConfiguration() {
         if (conversionDataSource != null) {
-            return conversionDataSource.getConfiguration(conversionDataSource.getSourceType(), conversionDataSource.getDestionationType());
+            return conversionDataSource.getConfiguration(conversionDataSource.getSourceType(), conversionDataSource.getDestinationType());
+        }
+        if (rxConversionDataSource != null) {
+            return rxConversionDataSource.getConfiguration(rxConversionDataSource.getSourceType(), rxConversionDataSource.getDestinationType());
+        }
+        if (futureConversionDataSource != null) {
+            return futureConversionDataSource.getConfiguration(futureConversionDataSource.getSourceType(), futureConversionDataSource.getDestinationType());
         }
         throw new RuntimeException("Unable to load configuration");
     }

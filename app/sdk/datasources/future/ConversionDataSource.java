@@ -27,6 +27,7 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
     }
 
     abstract public CompletableFuture<D> convert(S sourceRecord);
+
     public CompletableFuture<D> convert(S previousSourceRecord, S sourceRecord) {
         return convert(sourceRecord);
     }
@@ -35,6 +36,16 @@ public abstract class ConversionDataSource<S, D> implements ConversionDataSource
     public String getServiceDescription() {
         return getDataTypeType(0).getSimpleName() + "->" + getDataTypeType(1).getSimpleName();
     }
+
+
+    public Class getSourceType() {
+        return getDataTypeType(0);
+    }
+
+    public Class getDestinationType(){
+        return getDataTypeType(1);
+    }
+
 
     public Class getDataTypeType(int index) {
         if (index > 1 || index < 0) throw new RuntimeException("Index must be zero(0) or one(1)");
