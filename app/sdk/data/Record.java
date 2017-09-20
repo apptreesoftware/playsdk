@@ -108,6 +108,5 @@ public interface Record {
 
     void useLazyLoad(int index);
 
-    void setParentValue(String value);
 
 }
