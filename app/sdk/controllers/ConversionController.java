@@ -32,10 +32,10 @@ import static play.mvc.Results.ok;
  * Created by Orozco on 9/5/17.
  */
 public class ConversionController extends Controller {
-    public Result getConversion(String endpointName) throws ExecutionException, InterruptedException, IllegalAccessException, InstantiationException {
+    public CompletableFuture<Result> getConversion(String endpointName) throws ExecutionException, InterruptedException, IllegalAccessException, InstantiationException {
         Http.Request request = request();
         ConversionDataSource_Internal dataSource_internal = AppTree.lookupConversionHandler(endpointName);
-        if (dataSource_internal == null) return notFound();
+        if (dataSource_internal == null) return CompletableFuture.supplyAsync(() -> notFound());
         DataSetItem previousDataSetItem = dataSetItemFromRequest(dataSource_internal.getConfiguration(), request, "previousDataSetItem");
         DataSetItem dataSetItem = dataSetItemFromRequest(dataSource_internal.getConfiguration(), request, "dataSetItem");
 
@@ -43,7 +43,7 @@ public class ConversionController extends Controller {
             throw new NullPointerException("Required dataSetItem property is null");
         }
 
-        DataSetItem destinationDataSetItem;
+        CompletableFuture<DataSetItem> destinationDataSetItem;
         if (previousDataSetItem != null) {
             Object previousSourceObject = dataSource_internal.getSourceType().newInstance();
             Object sourceObject = dataSource_internal.getSourceType().newInstance();
@@ -52,7 +52,7 @@ public class ConversionController extends Controller {
             Object sourceObject = dataSource_internal.getSourceType().newInstance();
             destinationDataSetItem = dataSource_internal.convert(dataSetItem, sourceObject);
         }
-        return ok(destinationDataSetItem.toJSON());
+        return destinationDataSetItem.thenApply(data -> ok(data.toJSON()));
     }
 
     public Result getConversionConfiguration(String endpointName) {
@@ -69,7 +69,7 @@ public class ConversionController extends Controller {
         if (sourceItemNode == null || sourceItemNode instanceof NullNode) {
             return null;
         }
-        ObjectNode sourceItem = (ObjectNode)sourceItemNode;
+        ObjectNode sourceItem = (ObjectNode) sourceItemNode;
 
         return dataSetItemForJSON(sourceItem, newDataSet, false, new HashMap<>());
     }

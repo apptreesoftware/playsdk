@@ -1,5 +1,6 @@
 package sdk.datasources;
 
+import rx.Observable;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
@@ -8,18 +9,28 @@ import sdk.datasources.base.ConversionDataSource;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by Orozco on 9/5/17.
  */
 public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
     ConversionDataSource<S, D> conversionDataSource;
+    sdk.datasources.rx.ConversionDataSource<S, D> rxConversionDataSource;
+    sdk.datasources.future.ConversionDataSource<S, D> futureConversionDataSource;
     Collection<ServiceConfigurationAttribute> destinationAttributes;
     Collection<ServiceConfigurationAttribute> sourceAttributes;
 
     public ConversionDataSource_Internal(ConversionDataSourceBase conversionDataSourceBase) {
-        conversionDataSource = (ConversionDataSource<S, D>) conversionDataSourceBase;
+        if (conversionDataSourceBase instanceof sdk.datasources.future.ConversionDataSource) {
+            futureConversionDataSource = (sdk.datasources.future.ConversionDataSource<S, D>) conversionDataSourceBase;
+        }
+        if (conversionDataSourceBase instanceof sdk.datasources.rx.ConversionDataSource) {
+            rxConversionDataSource = (sdk.datasources.rx.ConversionDataSource<S, D>) conversionDataSourceBase;
+        }
+        if (conversionDataSourceBase instanceof sdk.datasources.base.ConversionDataSource) {
+            conversionDataSource = (sdk.datasources.base.ConversionDataSource<S, D>) conversionDataSourceBase;
+        }
     }
 
     public Class getDestionationType() {
@@ -31,18 +42,58 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
     }
 
 
-    public DataSetItem convert(DataSetItem dataSetItem, S sourceObject) {
-        Object object = conversionDataSource.convertRecord(dataSetItem, sourceObject);
-        DataSetItem item = new DataSetItem(getDestinationAttributes());
-        ObjectConverter.copyToRecord(item, object);
-        return item;
+    public CompletableFuture<DataSetItem> convert(DataSetItem dataSetItem, S sourceObject) {
+        if (futureConversionDataSource != null) {
+            CompletableFuture<D> object = futureConversionDataSource.convertRecord(dataSetItem, sourceObject);
+            return object.thenApply(value -> {
+                DataSetItem item = new DataSetItem(getDestinationAttributes());
+                ObjectConverter.copyToRecord(item, object);
+                return item;
+            });
+
+        }
+        if (rxConversionDataSource != null) {
+            Observable<D> object = rxConversionDataSource.convertRecord(dataSetItem, sourceObject);
+            return observableToFuture(object.map(value -> {
+                DataSetItem item = new DataSetItem(getDestinationAttributes());
+                ObjectConverter.copyToRecord(item, object);
+                return item;
+            }));
+
+        }
+        if (conversionDataSource != null) {
+            D object = conversionDataSource.convertRecord(dataSetItem, sourceObject);
+            DataSetItem item = new DataSetItem(getDestinationAttributes());
+            ObjectConverter.copyToRecord(item, object);
+            return CompletableFuture.supplyAsync(() -> item);
+        }
+        throw new RuntimeException("No data source available");
     }
 
-    public DataSetItem convert(DataSetItem previousDataSetItem, DataSetItem dataSetItem, S previousSourceObject, S sourceObject) {
-        Object object = conversionDataSource.convertRecord(previousDataSetItem, dataSetItem, previousSourceObject, sourceObject);
-        DataSetItem item = new DataSetItem(getDestinationAttributes());
-        ObjectConverter.copyToRecord(item, object);
-        return item;
+    public CompletableFuture<DataSetItem> convert(DataSetItem previousDataSetItem, DataSetItem dataSetItem, S previousSourceObject, S sourceObject) {
+        if (futureConversionDataSource != null) {
+            CompletableFuture<D> object = futureConversionDataSource.convertRecord(previousDataSetItem, dataSetItem, previousSourceObject, sourceObject);
+            return object.thenApply(value -> {
+                DataSetItem item = new DataSetItem(getDestinationAttributes());
+                ObjectConverter.copyToRecord(item, object);
+                return item;
+            });
+        }
+        if (rxConversionDataSource != null) {
+            Observable<D> object = rxConversionDataSource.convertRecord(previousDataSetItem, dataSetItem, previousSourceObject, sourceObject);
+            return observableToFuture(object.map(value -> {
+                DataSetItem item = new DataSetItem(getDestinationAttributes());
+                ObjectConverter.copyToRecord(item, object);
+                return item;
+            }));
+        }
+        if (conversionDataSource != null) {
+            D object = conversionDataSource.convertRecord(previousDataSetItem, dataSetItem, previousSourceObject, sourceObject);
+            DataSetItem item = new DataSetItem(getDestinationAttributes());
+            ObjectConverter.copyToRecord(item, object);
+            return CompletableFuture.supplyAsync(() -> item);
+        }
+        throw new RuntimeException("No data source available");
     }
 
     public Collection<ServiceConfigurationAttribute> getDestinationAttributes() {
@@ -72,4 +123,5 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
         ParameterizedType parameterizedType = (ParameterizedType) conversionDataSource.getClass().getGenericSuperclass();
         return (Class) parameterizedType.getActualTypeArguments()[index];
     }
+
 }
