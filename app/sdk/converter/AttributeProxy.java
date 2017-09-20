@@ -1,6 +1,9 @@
 package sdk.converter;
 
-import sdk.annotations.*;
+import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
+import sdk.annotations.PrimaryValue;
+import sdk.annotations.Relationship;
 import sdk.utils.ClassUtils;
 
 import java.lang.reflect.*;
@@ -19,7 +22,6 @@ public class AttributeProxy {
     PrimaryKey primaryKey;
     Attribute attribute;
     Relationship relationship;
-    ParentValue parentValue;
 
     public AttributeProxy(Method currentMethod) {
         isField = false;
@@ -39,9 +41,6 @@ public class AttributeProxy {
         return attribute;
     }
 
-    public ParentValue getParentValueAnnotation() {
-        return parentValue;
-    }
 
     public Relationship getRelationshipAnnotation() {
         return relationship;
@@ -78,10 +77,6 @@ public class AttributeProxy {
         return !Null(primaryValue);
     }
 
-    public boolean isParentValue() {
-        return !Null(parentValue);
-    }
-
     public boolean useSetterAndGetter() {
         if (isRelationship()) {
             return relationship.useGetterAndSetter();
@@ -111,7 +106,7 @@ public class AttributeProxy {
             }
             return currentField.get(sourceObject);
         } else {
-            if (!currentMethod.isAccessible()) {
+            if(!currentMethod.isAccessible()){
                 currentMethod.setAccessible(true);
             }
             return currentMethod.invoke(sourceObject);
@@ -146,7 +141,7 @@ public class AttributeProxy {
                 int intValue = 0;
                 try {
                     intValue = Integer.parseInt(value);
-                } catch (Exception e) {
+                } catch(Exception e) {
                     intValue = 0;
                 }
                 currentField.set(destination, intValue);
@@ -220,7 +215,6 @@ public class AttributeProxy {
         primaryValue = object.getAnnotation(PrimaryValue.class);
         attribute = object.getAnnotation(Attribute.class);
         relationship = object.getAnnotation(Relationship.class);
-        parentValue = object.getAnnotation(ParentValue.class);
     }
 
 }

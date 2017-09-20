@@ -3,9 +3,9 @@ package sdk.list;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -14,10 +14,8 @@ import sdk.models.*;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by alexis on 5/3/16.
@@ -151,9 +149,7 @@ public class ListItem implements Record {
     }
 
     @Deprecated
-    public void setDoubleForAttributeIndex(Double value, int index) {
-        setAttributeForIndex(value, index);
-    }
+    public void setDoubleForAttributeIndex(Double value, int index) { setAttributeForIndex(value, index);}
 
 
     public void setColorForAttributeIndex(Color color, int index) {
@@ -503,15 +499,15 @@ public class ListItem implements Record {
 
     @Override
     public AttributeMeta getAttributeMeta(int index) {
-        if (getAttributeMetaMap().containsKey(index)) {
+        if(getAttributeMetaMap().containsKey(index)) {
             return getAttributeMeta(index);
         }
         if (attributeConfiguration == null) return null;
         ServiceConfigurationAttribute attribute = null;
-        for (ServiceConfigurationAttribute attr : attributeConfiguration.getAttributes()) {
-            if (attr.getAttributeIndex() == index) attribute = attr;
+        for(ServiceConfigurationAttribute attr : attributeConfiguration.getAttributes()) {
+            if(attr.getAttributeIndex() == index) attribute = attr;
         }
-        if (attribute == null) return null;
+        if(attribute == null) return null;
         return new AttributeMeta(attribute.getAttributeType(), attribute.getAttributeIndex());
     }
 
@@ -566,13 +562,8 @@ public class ListItem implements Record {
         throw new RuntimeException("This type of record does not support lazy loading.");
     }
 
-    @Override
-    public void setParentValue(String value) {
-        this.parentID = value;
-    }
-
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
-        if (attributeMetaMap == null) {
+        if(attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();
         }
         return attributeMetaMap;

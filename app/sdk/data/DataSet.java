@@ -89,6 +89,7 @@ public class DataSet extends Response {
     }
 
     public void add(DataSetItem dataSetItem) {
+
         dataSetItem.validateAttributes();
         dataSetItems.add(dataSetItem);
     }
