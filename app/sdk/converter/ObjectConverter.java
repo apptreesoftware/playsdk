@@ -814,7 +814,9 @@ public class ObjectConverter extends ConfigurationManager {
             }
             if (clazz == java.util.Date.class && attributeProxy.getType() == clazz) {
                 if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
-                    return new DateTime(((java.util.Date) useGetterIfExists(attributeProxy, object)).getTime());
+                    Date tempDate = ((java.util.Date) useGetterIfExists(attributeProxy, object));
+                    if (tempDate == null) return null;
+                    return new DateTime(tempDate.getTime());
                 } else return new DateTime((Date) attributeProxy.getValue(object));
             }
             if (clazz == java.sql.Date.class && attributeProxy.getType() == clazz) {
