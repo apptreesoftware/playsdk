@@ -104,18 +104,12 @@ public class ParserContext {
 
     private SDKDateRange getSDKDateRangeForIndex(int index) {
         SDKDateRange dateRange = getDateTimeRangeIntegerIndexMap().get(index);
-        if (dateRange == null) {
-            throw new RuntimeException(String.format("Date Range is empty for index %s", index));
-        }
         return dateRange;
     }
 
 
     private SDKDateRange getSDKDateRangeForFieldName(String fieldName) {
         SDKDateRange dateRange = getDateTimeRangeStringIndexMap().get(fieldName);
-        if (dateRange == null) {
-            throw new RuntimeException(String.format("Date Range is empty for field %s", fieldName));
-        }
         return dateRange;
     }
 
