@@ -1486,6 +1486,7 @@ public class DataSetItem implements Record {
                                                 subDataSetItem.updateFromJSON(childJsonNode, null, search);
                                                 if (filePart != null) {
                                                     ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
+                                                    ((DataSetItemAttachment) subDataSetItem).setMimeType(filePart.getContentType());
                                                 }
                                             } else {
                                                 DataSetItem subDataSetItem = _addNewDataSetItemForAttributeIndex(i);
