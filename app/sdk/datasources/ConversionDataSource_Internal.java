@@ -144,7 +144,17 @@ public class ConversionDataSource_Internal<S, D> extends BaseSource_Internal {
 
     public Class getDataTypeType(int index) {
         if (index > 1 || index < 0) throw new RuntimeException("Index must be zero(0) or one(1)");
-        ParameterizedType parameterizedType = (ParameterizedType) conversionDataSource.getClass().getGenericSuperclass();
+        ParameterizedType parameterizedType = null;
+        if(conversionDataSource != null){
+             parameterizedType = (ParameterizedType) conversionDataSource.getClass().getGenericSuperclass();
+        }
+        if(rxConversionDataSource != null) {
+             parameterizedType = (ParameterizedType) rxConversionDataSource.getClass().getGenericSuperclass();
+        }
+        if(futureConversionDataSource != null) {
+             parameterizedType = (ParameterizedType) futureConversionDataSource.getClass().getGenericSuperclass();
+        }
+        if(parameterizedType == null) throw new RuntimeException("No datasource available");
         return (Class) parameterizedType.getActualTypeArguments()[index];
     }
 
