@@ -598,7 +598,7 @@ public class ObjectConverter extends ConfigurationManager {
         ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment);
         attachmentItem.setMimeType(apptreeAttachment.getMimeType());
         attachmentItem.setTitle(apptreeAttachment.getTitle());
-        attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
+        attachmentItem.setImageAttachmentURL(apptreeAttachment.getAttachmentURL());
     }
 
 
