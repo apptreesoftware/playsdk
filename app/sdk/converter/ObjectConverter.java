@@ -11,6 +11,9 @@ import sdk.list.ListItem;
 import sdk.models.*;
 import sdk.utils.RecordUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -553,9 +556,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (attachmentItems == null) return;
         try {
             ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();
-            ArrayList<ApptreeAttachment> attachmentList = new ArrayList<>();
             if (proxy.isWrappedClass) {
-                RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, attachmentList);
+                Collection<ApptreeAttachment> attachmentList = RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, proxy);
                 useSetterIfExists(proxy, destination, attachmentList);
             } else {
                 RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, singleAttachment);
@@ -593,6 +595,7 @@ public class ObjectConverter extends ConfigurationManager {
 
     public static void copyToAttachment(DataSetItemAttachment attachmentItem, Object object) {
         ApptreeAttachment apptreeAttachment = (ApptreeAttachment) object;
+        ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment);
         attachmentItem.setMimeType(apptreeAttachment.getMimeType());
         attachmentItem.setTitle(apptreeAttachment.getTitle());
         attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
@@ -603,6 +606,8 @@ public class ObjectConverter extends ConfigurationManager {
         object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
+        InputStream byteArrayInputStream = new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
+        object.setInputStream(byteArrayInputStream);
     }
 
     /**
