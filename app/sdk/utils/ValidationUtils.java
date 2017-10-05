@@ -18,7 +18,7 @@ public class ValidationUtils {
 
     public static <T> boolean anyNull(T... t) {
         for (T tempT : t) {
-            if (t == null) return true;
+            if (tempT == null) return true;
         }
         return false;
     }
