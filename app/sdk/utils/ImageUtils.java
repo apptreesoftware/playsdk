@@ -29,6 +29,7 @@ public class ImageUtils {
 
     private File resizeImageToWidthAndHeight(File imageFile, int width, int height) throws IOException {
         File outTempFile = File.createTempFile(UUID.randomUUID().toString(), ".jpg");
+        outTempFile.deleteOnExit();
         Thumbnailator.createThumbnail(imageFile, outTempFile, width, height);
         return outTempFile;
     }
@@ -36,16 +37,6 @@ public class ImageUtils {
 
     public boolean exceedsSize(File file, long size) {
         return (file.length() > size);
-    }
-
-
-    public byte[] getFileContents(File file) {
-        try {
-            return IOUtils.toByteArray(new FileInputStream(file));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("There was an issue reading the contents from your file: " + file.getAbsoluteFile());
-        }
     }
 
     private boolean validFile(File file) {
