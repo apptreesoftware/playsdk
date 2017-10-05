@@ -1,5 +1,6 @@
 package sdk.sample;
 
+import sdk.data.ServiceConfigurationAttribute;
 import sdk.datasources.base.CacheableList;
 import sdk.list.List;
 import sdk.list.ListServiceConfigurationAttribute;
@@ -8,6 +9,7 @@ import sdk.sample.model.Priority;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -17,8 +19,8 @@ import java.util.Set;
  */
 public class PriorityListDataSource implements CacheableList, SearchableList {
 
-    public Set<ListServiceConfigurationAttribute> getListServiceAttributes() {
-        HashSet<ListServiceConfigurationAttribute> attributes = new HashSet<>();
+    public Collection<ServiceConfigurationAttribute> getListServiceAttributes() {
+        HashSet<ServiceConfigurationAttribute> attributes = new HashSet<>();
         attributes.add(new ListServiceConfigurationAttribute.Builder(0).name("Name").build());
         attributes.add(new ListServiceConfigurationAttribute.Builder(1).name("Name").build());
         return attributes;

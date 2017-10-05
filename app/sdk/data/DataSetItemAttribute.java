@@ -335,4 +335,38 @@ public class DataSetItemAttribute {
         }
         return jsonArray;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        DataSetItemAttribute that = (DataSetItemAttribute) o;
+
+        if (stringValue != null ? !stringValue.equals(that.stringValue) : that.stringValue != null) return false;
+        if (dataSetItems != null ? dataSetItems.size() != that.dataSetItems.size() : that.dataSetItems != null) return false;
+        if (attributeType != that.attributeType) return false;
+        if (location != null ? !location.equals(that.location) : that.location != null) return false;
+        if (listItem != null ? !listItem.equals(that.listItem) : that.listItem != null) return false;
+        if (color != null ? !color.equals(that.color) : that.color != null) return false;
+        if (image != null ? !image.equals(that.image) : that.image != null) return false;
+        if (date != null ? !date.equals(that.date) : that.date != null) return false;
+        if (dateRange != null ? !dateRange.equals(that.dateRange) : that.dateRange != null) return false;
+        return dateTimeRange != null ? dateTimeRange.equals(that.dateTimeRange) : that.dateTimeRange == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = stringValue != null ? stringValue.hashCode() : 0;
+        result = 31 * result + (dataSetItems != null ? dataSetItems.hashCode() : 0);
+        result = 31 * result + (attributeType != null ? attributeType.hashCode() : 0);
+        result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + (listItem != null ? listItem.hashCode() : 0);
+        result = 31 * result + (color != null ? color.hashCode() : 0);
+        result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (dateRange != null ? dateRange.hashCode() : 0);
+        result = 31 * result + (dateTimeRange != null ? dateTimeRange.hashCode() : 0);
+        return result;
+    }
 }

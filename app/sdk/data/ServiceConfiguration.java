@@ -15,6 +15,7 @@ public class ServiceConfiguration extends Response {
     private List<String> dependentListEndpoints;
     public List<ServiceParameter> serviceFilterParameters;
     public HashMap<String, Object> contextInfo = new HashMap<>();
+
     /**
      * Creates a service configuration
      */
@@ -26,7 +27,7 @@ public class ServiceConfiguration extends Response {
      */
     public ServiceConfiguration(String name, Collection<ServiceConfigurationAttribute> attributes, List<ServiceParameter> serviceFilterParameters, List<String> dependentListEndpoints) {
         this.name = name;
-        if ( attributes != null ) {
+        if (attributes != null) {
             this.attributes = new ArrayList<>(attributes);
         }
         this.serviceFilterParameters = serviceFilterParameters;
@@ -37,15 +38,25 @@ public class ServiceConfiguration extends Response {
         return AppTree.getPlatformVersion();
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<ServiceConfigurationAttribute> getAttributes() {
         return attributes;
     }
-    public List<String> getDependentLists() { return dependentListEndpoints; }
+
+    public List<String> getDependentLists() {
+        return dependentListEndpoints;
+    }
 
     public ServiceConfigurationAttribute getAttributeWithName(String name) {
-        for (ServiceConfigurationAttribute attribute : this.attributes ) {
-            if ( attribute.name.equals(name) ) {
+        for (ServiceConfigurationAttribute attribute : this.attributes) {
+            if (attribute.name.equals(name)) {
                 return attribute;
             }
         }
@@ -53,8 +64,8 @@ public class ServiceConfiguration extends Response {
     }
 
     public ServiceConfigurationAttribute getAttributeWithIndex(int index) {
-        for (ServiceConfigurationAttribute attribute : this.attributes ) {
-            if ( attribute.getAttributeIndex() == index ) {
+        for (ServiceConfigurationAttribute attribute : this.attributes) {
+            if (attribute.getAttributeIndex() == index) {
                 return attribute;
             }
         }
@@ -71,6 +82,7 @@ public class ServiceConfiguration extends Response {
 
         /**
          * Creates a service configuration builder
+         *
          * @param serviceName The configuration name
          */
         public Builder(String serviceName) {
@@ -79,6 +91,7 @@ public class ServiceConfiguration extends Response {
 
         /**
          * Adds the update attributes to the builder
+         *
          * @param attributes The attributes used to update/view a data set item in this service
          * @return The builder with update attributes
          */
@@ -89,6 +102,7 @@ public class ServiceConfiguration extends Response {
 
         /**
          * The service filter parameters to be sent in the parameters for this service
+         *
          * @param parameters a list of ATServiceParameters
          * @return The builder with service filter parameters
          */
@@ -99,6 +113,7 @@ public class ServiceConfiguration extends Response {
 
         /**
          * The RESTPaths of all lists which are used in this data source
+         *
          * @param dependentLists a list of Strings
          * @return the builder with dependent lists
          */
@@ -114,27 +129,28 @@ public class ServiceConfiguration extends Response {
 
         /**
          * Creates a service configuration with the specified builder parameters
+         *
          * @return
          * @throws InvalidServiceAttributeException
          */
         public ServiceConfiguration build() throws InvalidServiceAttributeException {
             int index;
-            if ( (index = checkIndexUniqueness(attributes)) != -1 ) {
+            if ((index = checkIndexUniqueness(attributes)) != -1) {
                 return (ServiceConfiguration) new ServiceConfiguration(this.name, null, null, null).setFailedWithMessage("Your update attributes contain an index that is not unique: Index " + index);
             }
-            ServiceConfiguration configuration =  new ServiceConfiguration(name,attributes,serviceFilterParameters, dependentLists);
+            ServiceConfiguration configuration = new ServiceConfiguration(name, attributes, serviceFilterParameters, dependentLists);
             configuration.message = this.message;
             configuration.contextInfo = this.contextInfo;
             return configuration;
         }
 
         private int checkIndexUniqueness(Collection<ServiceConfigurationAttribute> attributes) {
-            if ( attributes == null ) {
+            if (attributes == null) {
                 return -1;
             }
             HashSet<Integer> indexes = new HashSet<Integer>();
-            for ( ServiceConfigurationAttribute attribute : attributes ) {
-                if ( indexes.contains(attribute.getAttributeIndex()) ) {
+            for (ServiceConfigurationAttribute attribute : attributes) {
+                if (indexes.contains(attribute.getAttributeIndex())) {
                     return attribute.getAttributeIndex();
                 }
                 indexes.add(attribute.getAttributeIndex());
@@ -149,4 +165,31 @@ public class ServiceConfiguration extends Response {
             super(message);
         }
     }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceConfiguration that = (ServiceConfiguration) o;
+
+        if (!this.name.equals(that.name)) return false;
+        if (this.getAttributes().size() != that.getAttributes().size()) return false;
+        List<ServiceConfigurationAttribute> thatList = new ArrayList<>(that.getAttributes());
+        boolean found;
+        for (int i = 0; i < this.getAttributes().size(); i++) {
+            ServiceConfigurationAttribute thisAttr = this.getAttributes().get(i);
+            found = false;
+            for (ServiceConfigurationAttribute attribute : thatList) {
+                if (thisAttr.equals(attribute)) {
+                    found = true;
+                    thatList.remove(attribute);
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        return true;
+    }
+
+
 }

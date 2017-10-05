@@ -21,7 +21,8 @@ import javax.inject.Inject;
 @With({ValidateRequestAction.class})
 public class ApplicationController extends Controller {
 
-    @Inject Application application;
+    @Inject
+    Application application;
 
     public Result describeEndpoints() {
         ObjectNode objectNode = Json.newObject();
@@ -54,16 +55,22 @@ public class ApplicationController extends Controller {
             addEndpoint(searchEndpoint, searchName, hostURL + "/" + searchEndpoint, "data", records, endpoint, "inspection");
             addEndpoint(inspectEndpoint, inspectName, hostURL + "/" + inspectEndpoint, "data", records, endpoint, "inspection");
         });
+        AppTree.conversionSources.forEach((endpoint, datasource) -> {
+            String name = datasource.getServiceDescription() != null ? datasource.getServiceDescription() : endpoint;
+            String getEndpoint = "conversion/" + endpoint;
+            addEndpoint(getEndpoint, name, hostURL + "/" + getEndpoint, "Conversion", records);
+        });
+
         UserDataSource_Internal userDataSource = AppTree.getUserDataSource_internal();
-        if ( userDataSource != null ) {
+        if (userDataSource != null) {
             addEndpoint("user", "User Info", hostURL + "/user", "user info", records);
         }
         AuthenticationSource authenticationSource = AppTree.getAuthenticationSource();
-        if ( authenticationSource != null ) {
+        if (authenticationSource != null) {
             addEndpoint("auth", "Authentication", hostURL + "/auth", "authentication", records);
         }
         AttachmentDataSource_Internal attachmentDataSource = AppTree.getAttachmentDataSource_internal();
-        if ( attachmentDataSource != null ) {
+        if (attachmentDataSource != null) {
             addEndpoint("attachment", "Attachment", hostURL + "/attachments", "Attachment", records);
         }
         return ok(objectNode.toString());
@@ -79,7 +86,7 @@ public class ApplicationController extends Controller {
         endpointJSON.put("name", name);
         endpointJSON.put("type", type);
         endpointJSON.put("url", url);
-        if ( group != null ) {
+        if (group != null) {
             endpointJSON.put("group", group);
             endpointJSON.put("groupType", groupType);
         }

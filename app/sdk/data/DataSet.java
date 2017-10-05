@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
+import sdk.converter.ObjectConverter;
 import sdk.datasources.RecordActionResponse;
 import sdk.utils.Response;
 
@@ -26,7 +27,7 @@ public class DataSet extends Response {
      */
     public DataSet(Collection<ServiceConfigurationAttribute> configurationAttributes) {
         dataSetItems = new ArrayList<>();
-        if (configurationAttributes!=null) {
+        if (configurationAttributes != null) {
             for (ServiceConfigurationAttribute attribute : configurationAttributes) {
                 attributeConfigurationForIndexMap.put(attribute.getAttributeIndex(), attribute);
             }
@@ -44,13 +45,23 @@ public class DataSet extends Response {
 
     public DataSet(RecordActionResponse response) {
         dataSetItems = new ArrayList<>();
-        DataSetItem item = response.getDataSetItem();
-        if ( item != null ) {
-            assert item.getConfigurationAttributes() != null;
-            for (ServiceConfigurationAttribute attribute : item.getConfigurationAttributes()) {
-                attributeConfigurationForIndexMap.put(attribute.getAttributeIndex(), attribute);
+        if (response.isDataSetItem()) {
+            DataSetItem item = response.getDataSetItem();
+            if (item != null) {
+                assert item.getConfigurationAttributes() != null;
+                for (ServiceConfigurationAttribute attribute : item.getConfigurationAttributes()) {
+                    attributeConfigurationForIndexMap.put(attribute.getAttributeIndex(), attribute);
+                }
+                dataSetItems.add(item);
             }
-            dataSetItems.add(item);
+        } else {
+            Object object = response.getObject();
+            if (object != null) {
+                //TODO: I DONT LIKE THIS
+                DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfiguration(object.getClass()).attributes);
+                ObjectConverter.copyToRecord(dataSetItem, object);
+                dataSetItems.add(dataSetItem);
+            }
         }
         setShowMessageAsAlert(response.isShowAsAlert());
         setMessage(response.getMessage());
@@ -78,7 +89,6 @@ public class DataSet extends Response {
     }
 
     public void add(DataSetItem dataSetItem) {
-
         dataSetItem.validateAttributes();
         dataSetItems.add(dataSetItem);
     }
@@ -88,6 +98,7 @@ public class DataSet extends Response {
 
     /**
      * Converts a data set to a json object
+     *
      * @return A json object of the data set
      * @throws InvalidPrimaryKeyException
      */
@@ -102,7 +113,7 @@ public class DataSet extends Response {
         json.put("numberOfRecords", recordCount);
         json.put("moreRecordsAvailable", moreRecordsAvailable);
         ArrayNode records = json.putArray("records");
-        for ( DataSetItem dataSetItem : dataSetItems) {
+        for (DataSetItem dataSetItem : dataSetItems) {
             records.add(dataSetItem.toJSONWithPrimaryKey());
         }
         return json;
@@ -110,6 +121,7 @@ public class DataSet extends Response {
 
     /**
      * Gets a boolean indicating whether there are more data set items that were not returned in this call
+     *
      * @return A boolean indicating whether there are more data set items available
      */
     public boolean isMoreRecordsAvailable() {
@@ -118,6 +130,7 @@ public class DataSet extends Response {
 
     /**
      * Sets whether there are more data set items than are being returned for this call
+     *
      * @param moreRecordsAvailable
      */
     public void setMoreRecordsAvailable(boolean moreRecordsAvailable) {
@@ -126,10 +139,11 @@ public class DataSet extends Response {
 
     /**
      * Gets the number of total records
+     *
      * @return The count of data set items
      */
     public int getTotalRecords() {
-        if ( totalRecords == 0 && dataSetItems != null ) {
+        if (totalRecords == 0 && dataSetItems != null) {
             totalRecords = dataSetItems.size();
         }
         return totalRecords;
@@ -137,6 +151,7 @@ public class DataSet extends Response {
 
     /**
      * Gets the data set items
+     *
      * @return A list of data set items
      */
     public ArrayList<DataSetItem> getDataSetItems() {
@@ -156,6 +171,7 @@ public class DataSet extends Response {
 
     /**
      * Sets the number of total records
+     *
      * @param totalRecords A count of the number of data set items
      */
     public void setTotalRecords(int totalRecords) {

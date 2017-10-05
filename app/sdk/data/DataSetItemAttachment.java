@@ -15,17 +15,17 @@ import java.util.HashMap;
 
 public class DataSetItemAttachment extends DataSetItem {
 
-    private static int AttachmentAttributeTitle = 1;
-    private static int AttachmentAttributeLink = 2;
-    private static int AttachmentAttributeImage = 3;
-    private static int AttachmentAttributeText = 4;
-    private static int AttachmentAttributeTextEntity = 5;
-    private static int AttachmentAttributeVideo = 6;
-    private static int AttachmentAttributeFile = 7;
-    private static int AttachmentAttributeEditable = 8;
-    private static int AttachmentAttributeDeletable = 9;
-    private static int AttachmentAttributeMimeType = 10;
-    private static int AttachmentAttributeFileName = 11;
+    public static final int AttachmentAttributeTitle = 1;
+    public static final int AttachmentAttributeLink = 2;
+    public static final int AttachmentAttributeImage = 3;
+    public static final int AttachmentAttributeText = 4;
+    public static final int AttachmentAttributeTextEntity = 5;
+    public static final int AttachmentAttributeVideo = 6;
+    public static final int AttachmentAttributeFile = 7;
+    public static final int AttachmentAttributeEditable = 8;
+    public static final int AttachmentAttributeDeletable = 9;
+    public static final int AttachmentAttributeMimeType = 10;
+    public static final int AttachmentAttributeFileName = 11;
 
     Http.MultipartFormData.FilePart attachmentFileItem;
     private static HashMap<Integer, ServiceConfigurationAttribute> configurationAttributeMap = new HashMap<Integer, ServiceConfigurationAttribute>();
@@ -44,7 +44,7 @@ public class DataSetItemAttachment extends DataSetItem {
     }
 
 
-    DataSetItemAttachment() {
+    public DataSetItemAttachment() {
         super(configurationAttributeMap);
     }
 
