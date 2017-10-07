@@ -69,6 +69,9 @@ public class DataSetItemAttachment extends DataSetItem {
 
     public void resizeTo(int width, int height) {
         Http.MultipartFormData.FilePart oldPart = this.getAttachmentFileItem();
+        if (oldPart == null) {
+            throw new RuntimeException("The image you are trying to resize is empty.");
+        }
         File currentFile = (File) this.getAttachmentFileItem().getFile();
         try {
             File tempImageFile = ImageUtils.getInstance().resizeImage(currentFile, width, height);
