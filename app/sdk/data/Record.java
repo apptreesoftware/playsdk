@@ -110,4 +110,10 @@ public interface Record {
 
     void setParentValue(String value);
 
+    void setTimeInterval(long value, int index);
+
+    long getTimeInterval(int index);
+
+    Optional<Long> getOptionalTimeInterval(int index);
+
 }

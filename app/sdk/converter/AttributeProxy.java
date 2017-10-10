@@ -132,6 +132,9 @@ public class AttributeProxy {
 
 
     public <T> void setPrimaryKeyOrValue(T destination, String value) throws IllegalAccessException, InvocationTargetException {
+        //if the primary key or value is null we don't want to set it
+        if (value == null) return;
+
         if (isField) {
             Class clazz = currentField.getType();
             if (String.class == clazz) {

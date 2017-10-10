@@ -226,6 +226,9 @@ public class ObjectConverter extends ConfigurationManager {
             case Color:
                 writeColorData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
+            case TimeInterval:
+                writeTimeIntervalData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), useSetterAndGetter);
                 break;
@@ -279,6 +282,9 @@ public class ObjectConverter extends ConfigurationManager {
             case Location:
                 readLocationData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter, value);
                 break;
+            case TimeInterval:
+                readTimeIntervalData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
+                break;
             case Color:
                 readColorData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
@@ -323,6 +329,24 @@ public class ObjectConverter extends ConfigurationManager {
             e.printStackTrace();
         }
     }
+
+
+    private static <T> void writeTimeIntervalData(AttributeProxy proxy, T destination, Record record, Integer index) throws UnableToWriteException {
+        Optional<Long> value = record.getOptionalTimeInterval(index);
+        Long longValue = 0L;
+        try {
+            if (value.isPresent()) {
+                longValue = value.get();
+            } else {
+                ConverterAttributeType converterAttributeType = inferDataType(proxy.getType().getSimpleName());
+                longValue = (converterAttributeType.isOptional()) ? null : 0L;
+            }
+            useSetterIfExists(proxy, destination, longValue);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new UnableToWriteException(proxy.getType().getName(), index, AttributeType.Int.toString(), e.getMessage());
+        }
+    }
+
 
     /**
      * @param proxy
@@ -625,6 +649,21 @@ public class ObjectConverter extends ConfigurationManager {
             }
         }
     }
+
+
+    private static <T> void readTimeIntervalData(AttributeProxy attributeProxy, T object, Record record, int index, boolean primaryKey, boolean useGetterAndSetter) throws IllegalAccessException, InvocationTargetException {
+        Object fieldData = null;
+        if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
+        else fieldData = attributeProxy.getValue(object);
+        record.setTimeInterval(fieldData != null ? (long) fieldData : 0L, index);
+        if (primaryKey) {
+            record.setPrimaryKey(fieldData.toString());
+            if (!record.isValueSet()) {
+                record.setValue(fieldData.toString());
+            }
+        }
+    }
+
 
     /**
      * @param attributeProxy

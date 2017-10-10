@@ -174,19 +174,13 @@ public class ServiceConfiguration extends Response {
 
         if (!this.name.equals(that.name)) return false;
         if (this.getAttributes().size() != that.getAttributes().size()) return false;
-        List<ServiceConfigurationAttribute> thatList = new ArrayList<>(that.getAttributes());
         boolean found;
         for (int i = 0; i < this.getAttributes().size(); i++) {
             ServiceConfigurationAttribute thisAttr = this.getAttributes().get(i);
-            found = false;
-            for (ServiceConfigurationAttribute attribute : thatList) {
-                if (thisAttr.equals(attribute)) {
-                    found = true;
-                    thatList.remove(attribute);
-                    break;
-                }
+            ServiceConfigurationAttribute thatAttr = that.getAttributes().get(i);
+            if (!thisAttr.equals(thatAttr)) {
+                return false;
             }
-            if (!found) return false;
         }
         return true;
     }

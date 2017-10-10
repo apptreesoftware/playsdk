@@ -1,5 +1,6 @@
 package sdk.data;
 
+import akka.stream.extra.TimedIntervalBetweenOps;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -72,6 +73,25 @@ public class DataSetItem implements Record {
     @Override
     public void setParentValue(String value) {
         throw new RuntimeException("This type of record does not allow parent values");
+    }
+
+    @Override
+    public void setTimeInterval(long value, int index) {
+        _setTimeIntervalForAttributeIndex(value, index);
+    }
+
+    @Override
+    public long getTimeInterval(int index) {
+        return getTimeIntervalAttributeAtIndex(index);
+    }
+
+    @Override
+    public Optional<Long> getOptionalTimeInterval(int index) {
+        DataSetItemAttribute attribute = attributeMap.get(index);
+        if (attribute != null) {
+            return Optional.of(attribute.getLongValue());
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -701,6 +721,7 @@ public class DataSetItem implements Record {
         return Optional.empty();
     }
 
+    @Deprecated
     public long getTimeIntervalAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
@@ -1490,7 +1511,7 @@ public class DataSetItem implements Record {
                                 List<ServiceConfigurationAttribute> listAttrs = attribute.getRelatedListServiceConfiguration().getAttributes();
                                 for (ServiceConfigurationAttribute attr : listAttrs) {
                                     JsonNode node1 = jsonNode.get(String.format("attribute%02d", attr.getAttributeIndex() + 1));
-                                    String textValue = node1 != null? node1.asText():"";
+                                    String textValue = node1 != null ? node1.asText() : "";
                                     switch (attr.attributeType) {
                                         case Location:
                                             JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
