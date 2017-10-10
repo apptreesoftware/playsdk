@@ -40,7 +40,7 @@ public class ParserContext {
         return (status != null && status.equals(CRUDStatus.Delete));
     }
 
-    public <T extends Object> void setItemStatus(Object object, CRUDStatus status) {
+    <T> void setItemStatus(Object object, CRUDStatus status) {
         getCrudStatusMap().put(object, status);
     }
 
@@ -62,14 +62,14 @@ public class ParserContext {
     }
 
 
-    public Map<String, Object> getExtraInfo() {
+    private Map<String, Object> getExtraInfo() {
         if (extraInfo == null) {
             extraInfo = new HashMap<>();
         }
         return extraInfo;
     }
 
-    public Map<Object, CRUDStatus> getCrudStatusMap() {
+    private Map<Object, CRUDStatus> getCrudStatusMap() {
         if (crudStatusMap == null) {
             crudStatusMap = new HashMap<>();
         }
@@ -103,31 +103,29 @@ public class ParserContext {
 
 
     private SDKDateRange getSDKDateRangeForIndex(int index) {
-        SDKDateRange dateRange = getDateTimeRangeIntegerIndexMap().get(index);
-        return dateRange;
+        return getDateTimeRangeIntegerIndexMap().get(index);
     }
 
 
     private SDKDateRange getSDKDateRangeForFieldName(String fieldName) {
-        SDKDateRange dateRange = getDateTimeRangeStringIndexMap().get(fieldName);
-        return dateRange;
+        return getDateTimeRangeStringIndexMap().get(fieldName);
     }
 
 
-    public void putDateTimeRange(int index, String fieldName, SDKDateRange sdkDateRange) {
+    void putDateTimeRange(int index, String fieldName, SDKDateRange sdkDateRange) {
         putDateTimeRange(index, sdkDateRange);
         putDateTimeRange(fieldName, sdkDateRange);
     }
 
-    public void putDateTimeRange(int index, SDKDateRange dateTimeRange) {
+    private void putDateTimeRange(int index, SDKDateRange dateTimeRange) {
         getDateTimeRangeIntegerIndexMap().put(index, dateTimeRange);
     }
 
-    public void putDateTimeRange(String fieldName, SDKDateRange dateTimeRange) {
+    private void putDateTimeRange(String fieldName, SDKDateRange dateTimeRange) {
         getDateTimeRangeStringIndexMap().put(fieldName, dateTimeRange);
     }
 
-    public Map<Integer, SDKDateRange> getDateTimeRangeIntegerIndexMap() {
+    private Map<Integer, SDKDateRange> getDateTimeRangeIntegerIndexMap() {
         if (dateTimeRangeIntegerIndexMap == null) {
             dateTimeRangeIntegerIndexMap = new HashMap<>();
         }
@@ -138,7 +136,7 @@ public class ParserContext {
         this.dateTimeRangeIntegerIndexMap = dateTimeRangeIntegerIndexMap;
     }
 
-    public Map<String, SDKDateRange> getDateTimeRangeStringIndexMap() {
+    private Map<String, SDKDateRange> getDateTimeRangeStringIndexMap() {
         if (dateTimeRangeStringIndexMap == null) {
             dateTimeRangeStringIndexMap = new HashMap<>();
         }
