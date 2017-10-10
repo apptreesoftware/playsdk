@@ -2,6 +2,7 @@ package sdk.data;
 
 import org.apache.commons.io.IOUtils;
 import play.mvc.Http;
+import sdk.utils.ImageUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,9 +54,9 @@ public class DataSetItemAttachment extends DataSetItem {
     }
 
     public byte[] getAttachmentBytes() {
-        if ( attachmentFileItem != null ) {
+        if (attachmentFileItem != null) {
             File file = (File) attachmentFileItem.getFile();
-            if ( file != null ) {
+            if (file != null) {
                 try {
                     return IOUtils.toByteArray(new FileInputStream(file));
                 } catch (IOException e) {
@@ -66,22 +67,41 @@ public class DataSetItemAttachment extends DataSetItem {
         return null;
     }
 
+    public void resizeTo(int width, int height) {
+        Http.MultipartFormData.FilePart oldPart = this.getAttachmentFileItem();
+        if (oldPart == null) {
+            throw new RuntimeException("The image you are trying to resize is empty.");
+        }
+        File currentFile = (File) this.getAttachmentFileItem().getFile();
+        try {
+            File tempImageFile = ImageUtils.getInstance().resizeImage(currentFile, width, height);
+            Http.MultipartFormData.FilePart newFilePart = new Http.MultipartFormData.FilePart(oldPart.getKey(), oldPart.getFilename(), oldPart.getContentType(), tempImageFile);
+            this.setAttachmentFileItem(newFilePart);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(String.format("There was a problem resizing your image %s", e.getMessage()));
+        }
+    }
+
     public void setAttachmentFileItem(Http.MultipartFormData.FilePart attachmentFileItem) {
         this.attachmentFileItem = attachmentFileItem;
     }
 
     /**
      * Sets the attachment URL used when the attachment is an image
+     *
      * @param imageAttachmentURL The url for the attachment stream
      */
     public void setImageAttachmentURL(String imageAttachmentURL) {
         try {
             setStringForAttributeIndex(imageAttachmentURL, AttachmentAttributeImage);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     /**
      * Gets the image attachment URL
+     *
      * @return
      */
     public String getImageAttachmentURL() {
@@ -90,6 +110,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Sets the text when the attachment is a note
+     *
      * @param note The url for the attachment stream
      */
     public void setNoteAttachment(String note) {
@@ -102,6 +123,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Gets the note
+     *
      * @return
      */
     public String getNoteAttachment() {
@@ -110,6 +132,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Sets the link string when the attachment is a link
+     *
      * @param link
      */
     public void setLinkAttachment(String link) {
@@ -122,6 +145,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * gets the link
+     *
      * @return
      */
     public String getLinkAttachment() {
@@ -130,6 +154,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Sets the attachment URL used when the attachment is an video
+     *
      * @param videoURL The url for the attachment stream
      */
     public void setVideoAttachmentURL(String videoURL) {
@@ -142,6 +167,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Gets the video attachment url
+     *
      * @return
      */
     public String getVideoAttachmentURL() {
@@ -150,6 +176,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Sets the attachment URL used when the attachment is a file
+     *
      * @param fileAttachmentURL The url for the attachment stream
      */
     public void setFileAttachmentURL(String fileAttachmentURL) {
@@ -169,6 +196,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Sets the title of the attachment
+     *
      * @param title
      */
     public void setTitle(String title) {
@@ -181,6 +209,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Gets the title
+     *
      * @return
      */
     public String getTitle() {
@@ -189,6 +218,7 @@ public class DataSetItemAttachment extends DataSetItem {
 
     /**
      * Returns the attachment type
+     *
      * @return
      */
 
