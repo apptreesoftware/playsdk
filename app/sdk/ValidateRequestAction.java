@@ -1,15 +1,18 @@
 package sdk;
 
 import org.apache.commons.codec.binary.Base64;
+import play.Configuration;
 import play.Logger;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
+import sdk.utils.Constants;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+import javax.inject.Inject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,7 +24,23 @@ import java.util.concurrent.CompletionStage;
  * Created by matthew on 6/3/16.
  */
 public class ValidateRequestAction extends Action.Simple {
+    @Inject Configuration configuration;
     private static String SDK_API_HEADER = "APPLICATION-API-KEY";
+    private int allowedOffset = -1;
+
+    @Inject
+    public ValidateRequestAction(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    private int getAllowedOffset() {
+        if ( allowedOffset < 0 ) {
+            allowedOffset = configuration.getInt(Constants.AllowedOffsetKey);
+            allowedOffset = allowedOffset > 0 ? allowedOffset : 3;
+        }
+        return allowedOffset;
+    }
+
     @Override
     public CompletionStage<Result> call(Http.Context ctx) {
         if ( AppTree.needsAPIKeyValidation() && !checkAPIKey(ctx.request()) ) {
@@ -43,7 +62,7 @@ public class ValidateRequestAction extends Action.Simple {
             Logger.error("Could not decrypt API key", e);
             return false;
         }
-        return validateHeaderDate(decodedHeader, 1);
+        return validateHeaderDate(decodedHeader, getAllowedOffset());
     }
 
     private static boolean validateHeaderDate(String timestampString, long allowedOffset) {
