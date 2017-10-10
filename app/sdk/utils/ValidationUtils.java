@@ -8,8 +8,19 @@ import java.util.Collections;
  */
 public class ValidationUtils {
 
-    public static<T> Collection<T> safe(Collection<T> collection){
-        return (collection == null)? Collections.EMPTY_LIST:collection;
+    public static <T> Collection<T> safe(Collection<T> collection) {
+        return (collection == null) ? Collections.EMPTY_LIST : collection;
+    }
+
+    public static <T> boolean NullOrEmpty(Collection<T> collection) {
+        return (collection == null || collection.isEmpty());
+    }
+
+    public static <T> boolean anyNull(T... t) {
+        for (T tempT : t) {
+            if (tempT == null) return true;
+        }
+        return false;
     }
 
 

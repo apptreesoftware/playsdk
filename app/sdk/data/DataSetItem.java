@@ -1511,7 +1511,7 @@ public class DataSetItem implements Record {
                                 List<ServiceConfigurationAttribute> listAttrs = attribute.getRelatedListServiceConfiguration().getAttributes();
                                 for (ServiceConfigurationAttribute attr : listAttrs) {
                                     JsonNode node1 = jsonNode.get(String.format("attribute%02d", attr.getAttributeIndex() + 1));
-                                    String textValue = node1 != null ? node1.asText() : "";
+                                    String textValue = node1 != null? node1.asText():null;
                                     switch (attr.attributeType) {
                                         case Location:
                                             JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
