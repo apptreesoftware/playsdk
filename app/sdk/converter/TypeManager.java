@@ -1,5 +1,6 @@
 package sdk.converter;
 
+import org.joda.time.DateTime;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
@@ -76,6 +77,12 @@ public class TypeManager {
             attachmentClasses.add(Attachment.class);
             attachmentClasses.add(ApptreeAttachment.class);
             put(AttributeType.Attachments, attachmentClasses);
+
+            ArrayList<Class> dateRangeClasses = new ArrayList<>();
+            dateRangeClasses.add(Date.class);
+            dateRangeClasses.add(DateTime.class);
+            put(AttributeType.DateTimeRange, dateRangeClasses);
+            put(AttributeType.DateRange, dateRangeClasses);
         }};
     }
 
@@ -279,7 +286,7 @@ public class TypeManager {
         Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
         if (tempMethodMap == null) return;
         Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
-        if(!setterMethod.isAccessible()){
+        if (!setterMethod.isAccessible()) {
             setterMethod.setAccessible(true);
         }
         try {
@@ -301,7 +308,7 @@ public class TypeManager {
         Method getterMethod = tempMethodMap.get(getterMethodName(attributeProxy.getName()));
         try {
             if (getterMethod == null) return attributeProxy.getValue(object);
-            if(!getterMethod.isAccessible()){
+            if (!getterMethod.isAccessible()) {
                 getterMethod.setAccessible(true);
             }
             return getterMethod.invoke(object);
