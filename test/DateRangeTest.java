@@ -110,6 +110,7 @@ public class DateRangeTest {
         TestDateRangeObject testDateRangeObject = new TestDateRangeObject();
         ParserContext context = ObjectConverter.copyFromRecord(dataSetitem, testDateRangeObject);
         Assert.assertTrue(testDateRangeObject != null);
+        Assert.assertTrue(testDateRangeObject.dateTime != null);
     }
 
 
