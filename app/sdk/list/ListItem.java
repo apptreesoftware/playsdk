@@ -571,6 +571,21 @@ public class ListItem implements Record {
         this.parentID = value;
     }
 
+    @Override
+    public void setTimeInterval(long value, int index) {
+        throw new RuntimeException("This type of record does not support time intervals");
+    }
+
+    @Override
+    public long getTimeInterval(int index) {
+        throw new RuntimeException("This type of record does not support time intervals");
+    }
+
+    @Override
+    public Optional<Long> getOptionalTimeInterval(int index) {
+        throw new RuntimeException("This type of record does not support time intervals");
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if (attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();
