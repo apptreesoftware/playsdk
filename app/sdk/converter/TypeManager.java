@@ -83,6 +83,16 @@ public class TypeManager {
             dateRangeClasses.add(DateTime.class);
             put(AttributeType.DateTimeRange, dateRangeClasses);
             put(AttributeType.DateRange, dateRangeClasses);
+
+            ArrayList<Class> timeInterval = new ArrayList<>();
+            timeInterval.add(Long.class);
+            timeInterval.add(long.class);
+            timeInterval.add(Double.class);
+            timeInterval.add(double.class);
+            timeInterval.add(Integer.class);
+            timeInterval.add(int.class);
+            put(AttributeType.TimeInterval, timeInterval);
+
         }};
     }
 
@@ -116,6 +126,10 @@ public class TypeManager {
             case "float":
             case "double":
                 return new ConverterAttributeType(AttributeType.Double, false);
+            case "Long":
+                return new ConverterAttributeType(AttributeType.Int, true);
+            case "long":
+                return new ConverterAttributeType(AttributeType.Int, false);
             case "Integer":
                 return new ConverterAttributeType(AttributeType.Int, true);
             case "int":

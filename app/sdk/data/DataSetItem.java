@@ -84,6 +84,24 @@ public class DataSetItem implements Record {
         return getDateRangeAttributeAtIndex(attributeIndex);
     }
 
+    public void setTimeInterval(long value, int index) {
+        _setTimeIntervalForAttributeIndex(value, index);
+    }
+
+    @Override
+    public long getTimeInterval(int index) {
+        return getTimeIntervalAttributeAtIndex(index);
+    }
+
+    @Override
+    public Optional<Long> getOptionalTimeInterval(int index) {
+        DataSetItemAttribute attribute = attributeMap.get(index);
+        if (attribute != null) {
+            return Optional.of(attribute.getLongValue());
+        }
+        return Optional.empty();
+    }
+
     @Override
     public void setDate(DateTime value, int index) {
         _setDateForAttributeIndex(value, index);
@@ -711,6 +729,7 @@ public class DataSetItem implements Record {
         return Optional.empty();
     }
 
+    @Deprecated
     public long getTimeIntervalAttributeAtIndex(int attributeIndex) {
         DataSetItemAttribute attribute;
         attribute = attributeMap.get(attributeIndex);
@@ -1501,7 +1520,7 @@ public class DataSetItem implements Record {
                                 List<ServiceConfigurationAttribute> listAttrs = attribute.getRelatedListServiceConfiguration().getAttributes();
                                 for (ServiceConfigurationAttribute attr : listAttrs) {
                                     JsonNode node1 = jsonNode.get(String.format("attribute%02d", attr.getAttributeIndex() + 1));
-                                    String textValue = node1 != null? node1.asText():null;
+                                    String textValue = node1 != null ? node1.asText() : null;
                                     switch (attr.attributeType) {
                                         case Location:
                                             JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {

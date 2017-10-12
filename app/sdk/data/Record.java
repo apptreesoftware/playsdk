@@ -112,4 +112,10 @@ public interface Record {
 
     DateRange getDateRange(int attributeIndex);
 
+    void setTimeInterval(long value, int index);
+
+    long getTimeInterval(int index);
+
+    Optional<Long> getOptionalTimeInterval(int index);
+
 }
