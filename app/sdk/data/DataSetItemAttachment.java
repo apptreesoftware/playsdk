@@ -73,6 +73,9 @@ public class DataSetItemAttachment extends DataSetItem {
             throw new RuntimeException("The image you are trying to resize is empty.");
         }
         File currentFile = (File) this.getAttachmentFileItem().getFile();
+        if (currentFile == null) {
+            throw new RuntimeException("The Image file you are trying resize in null or empty");
+        }
         try {
             File tempImageFile = ImageUtils.getInstance().resizeImage(currentFile, width, height);
             Http.MultipartFormData.FilePart newFilePart = new Http.MultipartFormData.FilePart(oldPart.getKey(), oldPart.getFilename(), oldPart.getContentType(), tempImageFile);
@@ -82,6 +85,30 @@ public class DataSetItemAttachment extends DataSetItem {
             throw new RuntimeException(String.format("There was a problem resizing your image %s", e.getMessage()));
         }
     }
+
+
+    public void resizeUntilLessThanDesiredSize(int width, int height, long desiredSize) {
+        this.resizeTo(width, height);
+        if (getFileSize() >= desiredSize) {
+            Double newWidth = width - (width * .25);
+            Double newHeight = height - (height * .25);
+            this.resizeUntilLessThanDesiredSize(newWidth.intValue(), newHeight.intValue(), desiredSize);
+        }
+    }
+
+
+    public long getFileSize() {
+        Http.MultipartFormData.FilePart oldPart = this.getAttachmentFileItem();
+        if (oldPart == null) {
+            throw new RuntimeException("Image is null or empty");
+        }
+        File currentFile = (File) this.getAttachmentFileItem().getFile();
+        if (currentFile == null) {
+            throw new RuntimeException("Image file is null or empty");
+        }
+        return currentFile.length();
+    }
+
 
     public void setAttachmentFileItem(Http.MultipartFormData.FilePart attachmentFileItem) {
         this.attachmentFileItem = attachmentFileItem;
