@@ -67,12 +67,22 @@ public class DataSetItemAttachment extends DataSetItem {
         return null;
     }
 
+
+    /**
+     * resize attachment item file to specified height and width
+     *
+     * @param width
+     * @param height
+     */
     public void resizeTo(int width, int height) {
         Http.MultipartFormData.FilePart oldPart = this.getAttachmentFileItem();
         if (oldPart == null) {
             throw new RuntimeException("The image you are trying to resize is empty.");
         }
         File currentFile = (File) this.getAttachmentFileItem().getFile();
+        if (currentFile == null) {
+            throw new RuntimeException("The image file you are trying to resize is empty or null");
+        }
         try {
             File tempImageFile = ImageUtils.getInstance().resizeImage(currentFile, width, height);
             Http.MultipartFormData.FilePart newFilePart = new Http.MultipartFormData.FilePart(oldPart.getKey(), oldPart.getFilename(), oldPart.getContentType(), tempImageFile);
@@ -82,6 +92,45 @@ public class DataSetItemAttachment extends DataSetItem {
             throw new RuntimeException(String.format("There was a problem resizing your image %s", e.getMessage()));
         }
     }
+
+
+    /**
+     * This function resizes attachment file item until less that desired size.
+     * This is an iterative resize, this function will first try to resize to specified height and width.
+     * If after the resize the file is still larger than the desired size, this will take 25% off the initial height and width
+     * and try to resize again.
+     *
+     * @param width
+     * @param height
+     * @param desiredSize
+     */
+    public void resizeUntilLessThanDesiredSize(int width, int height, long desiredSize) {
+        this.resizeTo(width, height);
+        if (getFileSize() >= desiredSize) {
+            Double newHeight = height - (height * .25); //take off 25%
+            Double newWidth = width - (width * .25); //take off 25%
+            resizeUntilLessThanDesiredSize(newWidth.intValue(), newHeight.intValue(), desiredSize);
+        }
+    }
+
+
+    /**
+     * Returns the file size of the attachment item
+     *
+     * @return
+     */
+    public long getFileSize() {
+        Http.MultipartFormData.FilePart oldPart = this.getAttachmentFileItem();
+        if (oldPart == null) {
+            throw new RuntimeException("The image you are trying to resize is empty.");
+        }
+        File currentFile = (File) this.getAttachmentFileItem().getFile();
+        if (currentFile == null || currentFile.length() == 0) {
+            throw new RuntimeException("The image file you are trying to resize is empty or null");
+        }
+        return currentFile.length();
+    }
+
 
     public void setAttachmentFileItem(Http.MultipartFormData.FilePart attachmentFileItem) {
         this.attachmentFileItem = attachmentFileItem;
