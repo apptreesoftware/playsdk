@@ -1,6 +1,5 @@
 package sdk.converter;
 
-import org.joda.time.DateTime;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
@@ -77,12 +76,6 @@ public class TypeManager {
             attachmentClasses.add(Attachment.class);
             attachmentClasses.add(ApptreeAttachment.class);
             put(AttributeType.Attachments, attachmentClasses);
-
-            ArrayList<Class> dateRangeClasses = new ArrayList<>();
-            dateRangeClasses.add(Date.class);
-            dateRangeClasses.add(DateTime.class);
-            put(AttributeType.DateTimeRange, dateRangeClasses);
-            put(AttributeType.DateRange, dateRangeClasses);
 
             ArrayList<Class> timeInterval = new ArrayList<>();
             timeInterval.add(Long.class);
