@@ -2,6 +2,7 @@ import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,9 +46,10 @@ public class SampleAttachment implements ApptreeAttachment {
     }
 
     @Override
-    public void setFileInputStream(FileInputStream inputStream) {
+    public void setInputStream(InputStream inputStream) {
 
     }
+
 
 
     public static ServiceConfiguration getServiceConfiguration(){

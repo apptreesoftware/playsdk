@@ -1,6 +1,5 @@
 package sdk.data;
 
-import akka.stream.extra.TimedIntervalBetweenOps;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -76,6 +75,15 @@ public class DataSetItem implements Record {
     }
 
     @Override
+    public DateTimeRange getDateTimeRange(int attributeIndex) {
+        return getDateTimeRangeAttributeAtIndex(attributeIndex);
+    }
+
+    @Override
+    public DateRange getDateRange(int attributeIndex) {
+        return getDateRangeAttributeAtIndex(attributeIndex);
+    }
+
     public void setTimeInterval(long value, int index) {
         _setTimeIntervalForAttributeIndex(value, index);
     }
@@ -1497,6 +1505,7 @@ public class DataSetItem implements Record {
                                                 subDataSetItem.updateFromJSON(childJsonNode, null, search);
                                                 if (filePart != null) {
                                                     ((DataSetItemAttachment) subDataSetItem).attachmentFileItem = filePart;
+                                                    ((DataSetItemAttachment) subDataSetItem).setMimeType(filePart.getContentType());
                                                 }
                                             } else {
                                                 DataSetItem subDataSetItem = _addNewDataSetItemForAttributeIndex(i);
@@ -1511,7 +1520,7 @@ public class DataSetItem implements Record {
                                 List<ServiceConfigurationAttribute> listAttrs = attribute.getRelatedListServiceConfiguration().getAttributes();
                                 for (ServiceConfigurationAttribute attr : listAttrs) {
                                     JsonNode node1 = jsonNode.get(String.format("attribute%02d", attr.getAttributeIndex() + 1));
-                                    String textValue = node1 != null? node1.asText():null;
+                                    String textValue = node1 != null ? node1.asText() : null;
                                     switch (attr.attributeType) {
                                         case Location:
                                             JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
