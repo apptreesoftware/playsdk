@@ -8,11 +8,12 @@ import sdk.exceptions.DestinationInvalidException;
 import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
-import sdk.models.AttributeType;
-import sdk.models.Color;
-import sdk.models.Location;
+import sdk.models.*;
 import sdk.utils.RecordUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -203,10 +204,10 @@ public class ObjectConverter extends ConfigurationManager {
                 writeBoolData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case Date:
-                writeDateData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDateData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case DateTime:
-                writeDateTimeData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                writeDateTimeData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case ListItem:
                 writeListItemData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
@@ -415,8 +416,14 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeDateData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void writeDateData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         DateTime value = dataSetItem.getDate(index);
+        if (Null(value)) { // if value is null we want to check and see if there is a date time range avail. at that index
+            DateRange dateRange = dataSetItem.getDateRange(index);
+            if (!Null(dateRange)) {
+                parserContext.putDateTimeRange(index, proxy.getName(), dateRange);
+            }
+        }
         try {
             setDateValueFromField(proxy, value, destination);
         } catch (IllegalAccessException e) {
@@ -433,8 +440,14 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
-    private static <T> void writeDateTimeData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index) throws UnableToWriteException, InvocationTargetException {
+    private static <T> void writeDateTimeData(AttributeProxy proxy, T destination, Record dataSetItem, Integer index, ParserContext parserContext) throws UnableToWriteException, InvocationTargetException {
         DateTime value = dataSetItem.getDateTime(index);
+        if (Null(value)) { // if value is null we want to check and see if there is a date time range avail. at that index
+            DateTimeRange dateTimeRange = dataSetItem.getDateTimeRange(index);
+            if (!Null(dateTimeRange)) {
+                parserContext.putDateTimeRange(index, proxy.getName(), dateTimeRange);
+            }
+        }
         try {
             setDateValueFromField(proxy, value, destination);
         } catch (IllegalAccessException e) {
@@ -567,9 +580,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (attachmentItems == null) return;
         try {
             ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();
-            ArrayList<ApptreeAttachment> attachmentList = new ArrayList<>();
             if (proxy.isWrappedClass) {
-                RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, attachmentList);
+                Collection<ApptreeAttachment> attachmentList = RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, proxy);
                 useSetterIfExists(proxy, destination, attachmentList);
             } else {
                 RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, singleAttachment);
@@ -607,9 +619,10 @@ public class ObjectConverter extends ConfigurationManager {
 
     public static void copyToAttachment(DataSetItemAttachment attachmentItem, Object object) {
         ApptreeAttachment apptreeAttachment = (ApptreeAttachment) object;
+        ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment);
         attachmentItem.setMimeType(apptreeAttachment.getMimeType());
         attachmentItem.setTitle(apptreeAttachment.getTitle());
-        attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
+        attachmentItem.setImageAttachmentURL(apptreeAttachment.getAttachmentURL());
     }
 
 
@@ -617,6 +630,8 @@ public class ObjectConverter extends ConfigurationManager {
         object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
+        InputStream byteArrayInputStream = new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
+        object.setInputStream(byteArrayInputStream);
     }
 
     /**
@@ -724,6 +739,7 @@ public class ObjectConverter extends ConfigurationManager {
                 fieldData = (Double) useGetterIfExists(attributeProxy, object);
             } else fieldData = (Double) attributeProxy.getValue(object);
         }
+        if (fieldData == null) return;
         record.setDouble(fieldData, index);
         if (value) {
             record.setValue(fieldData.toString());

@@ -572,6 +572,19 @@ public class ListItem implements Record {
     }
 
     @Override
+    public DateTimeRange getDateTimeRange(int attributeIndex) {
+        // we are returning null instead of throwing an exception because this function will be called
+        // anytime a date value is null, which doesn't always mean something has gone wrong
+        // we will null check after calling this function
+        return null;
+    }
+
+    @Override
+    public DateRange getDateRange(int attributeIndex) {
+        //see getDateTimeRange
+        return null;
+    }
+
     public void setTimeInterval(long value, int index) {
         throw new RuntimeException("This type of record does not support time intervals");
     }
