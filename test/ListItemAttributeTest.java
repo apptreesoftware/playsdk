@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +7,6 @@ import sdk.annotations.PrimaryKey;
 import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 import sdk.list.ListItem;
-import sdk.utils.JsonUtils;
 
 /**
  * Created by Orozco on 9/15/17.

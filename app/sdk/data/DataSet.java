@@ -58,7 +58,7 @@ public class DataSet extends Response {
             Object object = response.getObject();
             if (object != null) {
                 //TODO: I DONT LIKE THIS
-                DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfiguration(object.getClass()).attributes);
+                DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(object.getClass()));
                 ObjectConverter.copyToRecord(dataSetItem, object);
                 dataSetItems.add(dataSetItem);
             }
