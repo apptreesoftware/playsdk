@@ -1,9 +1,6 @@
 package sdk.converter.attachment;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by Orozco on 8/10/17.
@@ -23,5 +20,5 @@ public interface ApptreeAttachment {
 
 //    Called when a new attachment is uploaded. You must read from this stream to wherever you want to store the attachment.
 //    Be sure to close the stream when you're done.
-     void setInputStream(InputStream inputStream);
+     void setFileInputStream(FileInputStream inputStream);
 }
