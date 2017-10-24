@@ -153,8 +153,20 @@ public class AttributeProxy {
                     intValue = 0;
                 }
                 currentField.set(destination, intValue);
-            } else {
-                throw new RuntimeException("Primary Key Must be an Integer or String data type");
+            } else if (clazz == Long.class || clazz == long.class) {
+                if (!currentField.isAccessible()) {
+                    currentField.setAccessible(true);
+                }
+                long longValue = 0;
+                try {
+                    longValue = Long.parseLong(value);
+                } catch (Exception e) {
+                    longValue = 0;
+                }
+                currentField.set(destination, longValue);
+            }
+            else {
+                throw new RuntimeException("Primary Key Must be an Integer, Long or String data type");
             }
         } else {
             if (currentMethod.getParameters().length < 1 || currentMethod.getParameters().length > 1) {
@@ -173,8 +185,15 @@ public class AttributeProxy {
                 }
                 Integer intValue = Integer.parseInt(value);
                 currentMethod.invoke(destination, intValue);
-            } else {
-                throw new RuntimeException("Primary Key Must be an Integer or String data type");
+            } else if (clazz == Long.class || clazz == long.class) {
+                if (!currentMethod.isAccessible()) {
+                    currentMethod.setAccessible(true);
+                }
+                Long longValue = Long.parseLong(value);
+                currentMethod.invoke(destination, longValue);
+            }
+            else {
+                throw new RuntimeException("Primary Key Must be an Integer, Long or String data type");
             }
         }
     }
