@@ -47,18 +47,6 @@ public class ConverterTest {
         sampleObject.sampleListItem.testJodaTimeDate = new DateTime(100);
         sampleObject.sampleListItem.testSqlDate = new java.sql.Date(100);
         sampleObject.color = new Color(255, 155, 55, 5);
-        sampleObject.sampleAttachment = new ArrayList<>();
-        SampleAttachment sampleAttachment = new SampleAttachment();
-        sampleAttachment.setAttachmentURL("http://testattachment.url");
-        sampleAttachment.setMimeType("test/mimetype");
-        sampleAttachment.setTitle("First Attachment");
-        SampleAttachment sampleAttachment2 = new SampleAttachment();
-        sampleAttachment2.setAttachmentURL("http://testattachment.url");
-        sampleAttachment2.setMimeType("test/mimetype");
-        sampleAttachment2.setTitle("second Attachment");
-        sampleObject.sampleAttachment.add(sampleAttachment);
-        sampleObject.sampleAttachment.add(sampleAttachment2);
-        sampleObject.sampleSingleAttachment = sampleAttachment2;
         sampleObject.customLocation = getCustomLocation();
         sampleObject.sdkLocation = getSDKLocation();
 
