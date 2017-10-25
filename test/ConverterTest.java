@@ -96,6 +96,7 @@ public class ConverterTest {
     }
 
     private DataSetItem getHydratedDataSetItemFromSampleObject(DataSetItem dataSetItem, SampleObject sampleObject) {
+        dataSetItem.setPrimaryKey(sampleObject.woNumber);
         dataSetItem.setString(sampleObject.woNumber, 0);
         dataSetItem.setInt(sampleObject.testInt, 1);
         if (sampleObject.testIntObject != null) dataSetItem.setInt(sampleObject.testIntObject, 2);
@@ -177,7 +178,7 @@ public class ConverterTest {
 
 
     private ListItem getSampleListItem() {
-        ListItem listItem = new ListItem();
+        ListItem listItem = new ListItem("1234");
         listItem.setString("1234", 0);
         listItem.setInt(1, 1);
         listItem.setInt(1, 2);
@@ -233,7 +234,7 @@ public class ConverterTest {
         ListItem item = new ListItem();
         SampleListItem object = getNewSampleListObject();
         ObjectConverter.copyToRecord(item, object);
-        assert(item.id.equals(object.woNumber) && item.value.equals(object.woNumber));
+        assert (item.id.equals(object.woNumber) && item.value.equals(object.woNumber));
     }
 
     @Test
@@ -597,13 +598,6 @@ public class ConverterTest {
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
     }
-
-
-
-
-
-
-
 
 
 }

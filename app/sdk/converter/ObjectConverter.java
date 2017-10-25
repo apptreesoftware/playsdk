@@ -1,6 +1,7 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
+import play.Logger;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
@@ -630,8 +631,10 @@ public class ObjectConverter extends ConfigurationManager {
         object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
-        InputStream byteArrayInputStream = new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
-        object.setInputStream(byteArrayInputStream);
+        if (attachmentItem.getAttachmentBytes() != null) {
+            InputStream byteArrayInputStream = new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
+            object.setInputStream(byteArrayInputStream);
+        }
     }
 
     /**

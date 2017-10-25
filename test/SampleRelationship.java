@@ -43,10 +43,8 @@ public class SampleRelationship {
     public SampleListItem sampleListItem;
 
 
-
-
-
     public void copyToDataSetItem(DataSetItem dataSetItem) {
+        dataSetItem.setPrimaryKey(woNumber);
         dataSetItem.setString(woNumber, 0);
         dataSetItem.setInt(testInt, 1);
         dataSetItem.setInt(testIntObject, 2);
@@ -59,7 +57,6 @@ public class SampleRelationship {
         dataSetItem.setDateTime(testJodaTimeDate, 9);
 //        dataSetItem.setListItem(sampleListItem.toListItem(), 10);
     }
-
 
 
 }
