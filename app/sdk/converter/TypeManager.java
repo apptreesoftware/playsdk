@@ -162,7 +162,10 @@ public class TypeManager {
     protected static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
         String className = sourceObject.getClass().getName();
-        Map<String, Method> methodMap = Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(Collectors.toMap(method -> method.getName().toLowerCase(), method -> method, ((method, method2) -> method)));
+        Map<String, Method> methodMap =
+            Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(
+                Collectors.toMap(method -> method.getName().toLowerCase(), method -> method,
+                                 ((method, method2) -> method)));
         getMethodMap().put(className, methodMap);
     }
 
@@ -195,26 +198,30 @@ public class TypeManager {
      * @return
      */
     protected static List<AttributeProxy> getMethodAndFieldAnnotationsForClass(Class clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        Method[] methods = clazz.getDeclaredMethods();
+        Field[] fields = clazz.getFields();
+        Method[] methods = clazz.getMethods();
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         attributeProxies.addAll(Arrays.stream(fields)
-                .filter(field ->
-                        (field.getAnnotation(Attribute.class) != null
-                                || field.getAnnotation(PrimaryKey.class) != null
-                                || field.getAnnotation(PrimaryValue.class) != null)
-                                || field.getAnnotation(Relationship.class) != null)
-                .map(field -> new AttributeProxy(field))
-                .collect(Collectors.toList()));
+                                      .filter(field ->
+                                                  (field.getAnnotation(Attribute.class) != null
+                                                   || field.getAnnotation(PrimaryKey.class) != null
+                                                   ||
+                                                   field.getAnnotation(PrimaryValue.class) != null)
+                                                  ||
+                                                  field.getAnnotation(Relationship.class) != null)
+                                      .map(field -> new AttributeProxy(field))
+                                      .collect(Collectors.toList()));
 
         attributeProxies.addAll(Arrays.stream(methods)
-                .filter(method ->
-                        (method.getAnnotation(Attribute.class) != null
-                                || method.getAnnotation(PrimaryKey.class) != null
-                                || method.getAnnotation(PrimaryValue.class) != null)
-                                || method.getAnnotation(Relationship.class) != null)
-                .map(field -> new AttributeProxy(field))
-                .collect(Collectors.toList()));
+                                      .filter(method ->
+                                                  (method.getAnnotation(Attribute.class) != null
+                                                   || method.getAnnotation(PrimaryKey.class) != null
+                                                   ||
+                                                   method.getAnnotation(PrimaryValue.class) != null)
+                                                  ||
+                                                  method.getAnnotation(Relationship.class) != null)
+                                      .map(field -> new AttributeProxy(field))
+                                      .collect(Collectors.toList()));
         return attributeProxies;
     }
 
@@ -225,15 +232,16 @@ public class TypeManager {
      */
     protected static boolean isFieldClassSupportedForType(Class<?> classType, AttributeType type) {
         if ((type.equals(AttributeType.ListItem)
-                || type.equals(AttributeType.Relation)
-                || type.equals(AttributeType.SingleRelationship))
-                || type.equals(AttributeType.Attachments)
-                || type.equals(AttributeType.Location)
-                && !isPrimitiveDataTypeOrWrapper(classType)) {
+             || type.equals(AttributeType.Relation)
+             || type.equals(AttributeType.SingleRelationship))
+            || type.equals(AttributeType.Attachments)
+            || type.equals(AttributeType.Location)
+               && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }
         List<Class> classList = getSupportedTypeMap().get(type);
-        return classList != null && (classList.contains(classType) || classList.contains(classType.getSuperclass()));
+        return classList != null &&
+               (classList.contains(classType) || classList.contains(classType.getSuperclass()));
     }
 
     /**
@@ -338,7 +346,7 @@ public class TypeManager {
      */
     protected static String getterMethodName(String name) {
         return new StringBuilder("get")
-                .append(name).toString().toLowerCase();
+            .append(name).toString().toLowerCase();
     }
 
     /**
@@ -348,7 +356,7 @@ public class TypeManager {
     protected static String setterMethodName(AttributeProxy proxy) {
         if (proxy.isField) {
             return new StringBuilder("set")
-                    .append(proxy.getName()).toString().toLowerCase();
+                .append(proxy.getName()).toString().toLowerCase();
         } else {
             return proxy.getName().replace("get", "set");
         }
@@ -362,7 +370,9 @@ public class TypeManager {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    protected static <T> void useSetterIfExists(AttributeProxy attributeProxy, T destination, Object value) throws InvocationTargetException, IllegalAccessException {
+    protected static <T> void useSetterIfExists(AttributeProxy attributeProxy, T destination,
+                                                Object value) throws InvocationTargetException,
+                                                                     IllegalAccessException {
         if (fieldHasSetter(attributeProxy, destination)) {
             useSetter(destination, attributeProxy, value);
         } else {
