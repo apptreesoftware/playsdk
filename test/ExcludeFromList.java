@@ -6,10 +6,10 @@ import sdk.list.ListItem;
 /**
  * Created by Orozco on 8/15/17.
  */
-public class ExcludeFromList {
+public class ExcludeFromList extends SampleConfig {
 
     @Attribute(index = 0)
-    private String name;
+    public String name;
 
     @Attribute(index = 1)
     private String type;
@@ -19,6 +19,7 @@ public class ExcludeFromList {
 
     @Attribute(index = 3, excludeFromList = true)
     private ExcludeFromList excludeFromList;
+
 
 
     public String getName() {
