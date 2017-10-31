@@ -198,8 +198,24 @@ public class TypeManager {
      * @return
      */
     protected static List<AttributeProxy> getMethodAndFieldAnnotationsForClass(Class clazz) {
-        Field[] fields = clazz.getFields();
+        Field[] fields = clazz.getDeclaredFields();
         Method[] methods = clazz.getMethods();
+        Class superClass = clazz.getSuperclass();
+
+        // Add fields and methods from clazz's successive superclasses
+        while (superClass != null) {
+            Field[] superclassFields = superClass.getDeclaredFields();
+            int fieldsLength = fields.length;
+            fields = Arrays.copyOf(fields, fields.length + superclassFields.length);
+            System.arraycopy(superclassFields, 0, fields, fieldsLength, superclassFields.length);
+
+            Method[] superclassMethods = superClass.getMethods();
+            int methodsLength = methods.length;
+            methods = Arrays.copyOf(methods, methods.length + superclassMethods.length);
+            System.arraycopy(superclassMethods, 0, methods, methodsLength, superclassMethods.length);
+
+            superClass = superClass.getSuperclass();
+        }
         List<AttributeProxy> attributeProxies = new ArrayList<>();
         attributeProxies.addAll(Arrays.stream(fields)
                                       .filter(field ->
