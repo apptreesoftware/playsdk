@@ -226,19 +226,6 @@ public class TypeManager {
     }
 
 
-    private static Field[] getFieldTreeForClass(Class clazz) {
-        Field[] fields = clazz.getDeclaredFields();
-        Class superClass = clazz.getSuperclass();
-        while (superClass != null) {
-            Field[] superClassFields = superClass.getFields();
-            fields = Arrays.copyOf(fields, fields.length + superClassFields.length);
-            System.arraycopy(superClassFields, 0, fields, 0, superClassFields.length);
-            superClass = superClass.getSuperclass();
-        }
-        return fields;
-    }
-
-
     /**
      * @param classType
      * @param type
