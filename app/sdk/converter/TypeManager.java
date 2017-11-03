@@ -1,6 +1,7 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
+import play.Logger;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
@@ -215,6 +216,19 @@ public class TypeManager {
                                 || method.getAnnotation(Relationship.class) != null)
                 .map(field -> new AttributeProxy(field))
                 .collect(Collectors.toList()));
+        if(clazz.getSuperclass() != null)
+            attributeProxies.addAll(getMethodAndFieldAnnotationsForClass(clazz.getSuperclass()));
+        Map<Integer, Boolean> findDuplicateIndex = new HashMap<>();
+        boolean primaryKeyIsSet = false;
+        for(AttributeProxy proxy : attributeProxies) {
+            if(findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
+                throw new RuntimeException("field named '" + proxy.getName() + "' shares an index with another field in the same model");
+            }
+            if(proxy.isPrimaryKey()) {
+                if(primaryKeyIsSet) throw new RuntimeException("field named '" + proxy.getName() + "' redefines a primary key");
+                else primaryKeyIsSet = true;
+            }
+        }
         return attributeProxies;
     }
 
