@@ -197,6 +197,66 @@ public class ConverterTest {
 
 
     @Test
+    public void testGenerateConfigAcrossHierarchy() {
+        assert(ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.class).size() == 1);
+        assert(ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.ChildObject.class).size() == 2);
+        assert(ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.GrandChildObject.class).size() == 3);
+    }
+
+
+    @Test
+    public void testSetAttributesUpHierarchy() {
+        SampleInheritanceTree.ChildObject.GrandChildObject obj = new SampleInheritanceTree.ChildObject.GrandChildObject();
+        DataSetItem attrs = new DataSetItem(ObjectConverter.generateConfigurationAttributes(
+            SampleInheritanceTree.GrandChildObject.class));
+        attrs.setStringForAttributeIndex("first", 0);
+        attrs.setStringForAttributeIndex("second", 1);
+        attrs.setStringForAttributeIndex("third", 2);
+        ObjectConverter.copyFromRecord(attrs, obj);
+        assert(attrs.getStringAttributeAtIndex(0).equals(obj.first));
+        assert(attrs.getStringAttributeAtIndex(1).equals(obj.second));
+        assert(attrs.getStringAttributeAtIndex(2).equals(obj.third));
+    }
+
+
+    @Test
+    public void testPrimaryKeyOnParent() {
+        SampleInheritanceTree.ChildObject.GrandChildObject obj = new SampleInheritanceTree.ChildObject.GrandChildObject();
+        obj.first = "first";
+        obj.second = "second";
+        obj.third = "third";
+        DataSetItem attrs = new DataSetItem(ObjectConverter.generateConfigurationAttributes(
+            SampleInheritanceTree.GrandChildObject.class));
+        ObjectConverter.copyToRecord(attrs, obj);
+        assert(attrs.getPrimaryKey().equals(obj.first));
+    }
+
+
+    @Test
+    public void testRedefinePrimaryKey() {
+        try {
+            ObjectConverter.generateConfigurationAttributes(
+                SampleInheritanceTree.GrandChildRedefinesPK.class);
+            assert(false);
+        } catch(RuntimeException e) {
+            assert(e.getMessage().contains("redefines a primary key"));
+        }
+    }
+
+
+    @Test
+    public void testDuplicateIndex() {
+        try {
+            ObjectConverter.generateConfigurationAttributes(
+                SampleInheritanceTree.GrandChildDuplicateIndex.class);
+            assert(false);
+        } catch(RuntimeException e) {
+            assert(e.getMessage().contains("shares an index"));
+        }
+    }
+
+
+    @Test
     public void testConfigGeneration() {
         ServiceConfiguration sampleConf = SampleObject.getServiceConfiguration();
         SampleObject sampleObject = new SampleObject();
