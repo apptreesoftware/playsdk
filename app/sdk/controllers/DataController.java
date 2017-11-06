@@ -84,8 +84,6 @@ public abstract class DataController extends Controller {
         }
         try {
             ObjectNode json = dataSet.toJSON();
-            Logger.debug(String.format("Async response: %s\n%s", callbackURL, json.toString()));
-            Logger.debug(json.toString());
             request.post(json)
                     .whenComplete((wsResponse, throwable) -> {
                         logCallbackInfo(wsResponse, throwable, callbackURL);
