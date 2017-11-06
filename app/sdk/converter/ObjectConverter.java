@@ -179,6 +179,7 @@ public class ObjectConverter extends ConfigurationManager {
 
         if (primaryKey && !attributeProxy.isAttribute()) {
             record.setPrimaryKey(attributeProxy.getValue(source).toString());
+            return;
         }
 
         int index = attributeProxy.getIndex();
