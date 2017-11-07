@@ -216,16 +216,17 @@ public class TypeManager {
                                 || method.getAnnotation(Relationship.class) != null)
                 .map(field -> new AttributeProxy(field))
                 .collect(Collectors.toList()));
-        if(clazz.getSuperclass() != null)
+        if (clazz.getSuperclass() != null)
             attributeProxies.addAll(getMethodAndFieldAnnotationsForClass(clazz.getSuperclass()));
         Map<Integer, Boolean> findDuplicateIndex = new HashMap<>();
         boolean primaryKeyIsSet = false;
-        for(AttributeProxy proxy : attributeProxies) {
-            if(findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
+        for (AttributeProxy proxy : attributeProxies) {
+            if (findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
                 throw new RuntimeException("field named '" + proxy.getName() + "' shares an index with another field in the same model");
             }
-            if(proxy.isPrimaryKey()) {
-                if(primaryKeyIsSet) throw new RuntimeException("field named '" + proxy.getName() + "' redefines a primary key");
+            if (proxy.isPrimaryKey()) {
+                if (primaryKeyIsSet)
+                    throw new RuntimeException("field named '" + proxy.getName() + "' redefines a primary key");
                 else primaryKeyIsSet = true;
             }
         }
@@ -322,6 +323,14 @@ public class TypeManager {
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
+
+
+    protected static <T> Method getSetterForAttributeProxy(AttributeProxy proxy, T destination) {
+        Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
+        if (tempMethodMap == null) return null;
+        Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
+        return setterMethod;
     }
 
     /**

@@ -12,6 +12,7 @@ import sdk.list.ListItem;
 import sdk.models.*;
 import sdk.utils.RecordUtils;
 
+import javax.swing.text.html.Option;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -109,7 +110,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (source == null) return;
         mapMethodsFromSource(source);
         for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(
-            source.getClass())) {
+                source.getClass())) {
             try {
                 copyFromField(attributeProxy, dataSetItem, source);
             } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
@@ -130,10 +131,10 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void copyToField(AttributeProxy proxy, Record record, T destination,
                                         ParserContext parserContext) throws
-                                                                     UnsupportedAttributeException,
-                                                                     IllegalAccessException,
-                                                                     UnableToWriteException,
-                                                                     InvocationTargetException {
+            UnsupportedAttributeException,
+            IllegalAccessException,
+            UnableToWriteException,
+            InvocationTargetException {
         if (!proxy.isAttribute() && !proxy.isRelationship()) {
             return;
         }
@@ -150,7 +151,7 @@ public class ObjectConverter extends ConfigurationManager {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
         readDataSetItemData(proxy, attributeMeta, destination, record, userSetterAndGetter,
-                            parserContext);
+                parserContext);
     }
 
     /**
@@ -164,8 +165,8 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void copyFromField(AttributeProxy attributeProxy, Record record,
                                           T source) throws UnsupportedAttributeException,
-                                                           IllegalAccessException,
-                                                           InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         boolean primaryKey = false;
         boolean value = false;
         boolean parentValue = false;
@@ -188,13 +189,13 @@ public class ObjectConverter extends ConfigurationManager {
         AttributeMeta attributeMeta = record.getAttributeMeta(index);
         if (attributeMeta == null) {
             attributeMeta = new AttributeMeta(
-                inferDataType(attributeProxy.getType().getSimpleName()).getAttributeType(), index);
+                    inferDataType(attributeProxy.getType().getSimpleName()).getAttributeType(), index);
         }
         if (!isFieldClassSupportedForType(fieldClass, attributeMeta.getAttributeType())) {
             throw new UnsupportedAttributeException(fieldClass, attributeMeta.getAttributeType());
         }
         readObjectData(attributeProxy, attributeMeta, source, record, primaryKey,
-                       useGetterAndSetter, value, parentValue);
+                useGetterAndSetter, value, parentValue);
     }
 
     /**
@@ -211,16 +212,16 @@ public class ObjectConverter extends ConfigurationManager {
                                                 T destination, Record dataSetItem,
                                                 boolean useSetterAndGetter,
                                                 ParserContext parserContext) throws
-                                                                             UnableToWriteException,
-                                                                             InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(),
-                                useSetterAndGetter);
+                        useSetterAndGetter);
                 break;
             case Int:
                 writeIntegerData(proxy, destination, dataSetItem,
-                                 attributeMeta.getAttributeIndex());
+                        attributeMeta.getAttributeIndex());
                 break;
             case Double:
                 writeDoubleData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
@@ -230,42 +231,42 @@ public class ObjectConverter extends ConfigurationManager {
                 break;
             case Date:
                 writeDateData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(),
-                              parserContext);
+                        parserContext);
                 break;
             case DateTime:
                 writeDateTimeData(proxy, destination, dataSetItem,
-                                  attributeMeta.getAttributeIndex(), parserContext);
+                        attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case ListItem:
                 writeListItemData(proxy, destination, dataSetItem,
-                                  attributeMeta.getAttributeIndex());
+                        attributeMeta.getAttributeIndex());
                 break;
             case SingleRelationship:
                 writeSingleRelationshipData(proxy, destination, dataSetItem,
-                                            attributeMeta.getAttributeIndex(), parserContext);
+                        attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Relation:
                 writeRelationshipData(proxy, destination, dataSetItem,
-                                      attributeMeta.getAttributeIndex(), parserContext);
+                        attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Attachments:
                 writeAttachmentData(proxy, destination, dataSetItem,
-                                    attributeMeta.getAttributeIndex(), parserContext);
+                        attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case Location:
                 routeWriteLocationData(proxy, destination, dataSetItem,
-                                       attributeMeta.getAttributeIndex());
+                        attributeMeta.getAttributeIndex());
                 break;
             case Color:
                 writeColorData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
                 break;
             case TimeInterval:
                 writeTimeIntervalData(proxy, destination, dataSetItem,
-                                      attributeMeta.getAttributeIndex());
+                        attributeMeta.getAttributeIndex());
                 break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(),
-                                useSetterAndGetter);
+                        useSetterAndGetter);
                 break;
         }
     }
@@ -287,65 +288,65 @@ public class ObjectConverter extends ConfigurationManager {
                                            Record dataSetItem, boolean primaryKey,
                                            boolean useGetterAndSetter, boolean value,
                                            boolean parentValue) throws IllegalAccessException,
-                                                                       InvocationTargetException {
+            InvocationTargetException {
         switch (attributeMeta.getAttributeType()) {
             case String:
                 readStringData(attributeProxy, object, dataSetItem,
-                               attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
-                               value, parentValue);
+                        attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
+                        value, parentValue);
                 break;
             case Int:
                 readIntegerData(attributeProxy, object, dataSetItem,
-                                attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
-                                value, parentValue);
+                        attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
+                        value, parentValue);
                 break;
             case Double:
                 readDoubleData(attributeProxy, object, dataSetItem,
-                               attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
-                               value);
+                        attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
+                        value);
                 break;
             case Boolean:
                 readBoolData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(),
-                             primaryKey, useGetterAndSetter, value);
+                        primaryKey, useGetterAndSetter, value);
                 break;
             case Date:
                 readDateData(attributeProxy, object, dataSetItem, attributeMeta.getAttributeIndex(),
-                             primaryKey, useGetterAndSetter, value);
+                        primaryKey, useGetterAndSetter, value);
                 break;
             case DateTime:
                 readDateTimeData(attributeProxy, object, dataSetItem,
-                                 attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
-                                 value);
+                        attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
+                        value);
                 break;
             case ListItem:
                 readListItemData(attributeProxy, object, dataSetItem,
-                                 attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                        attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             case Relation:
                 readRelationshipData(attributeProxy, object, dataSetItem,
-                                     attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                        attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             case SingleRelationship:
                 readSingleRelationshipData(attributeProxy, object, dataSetItem,
-                                           attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                        attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             case Attachments:
                 readAttachmentData(attributeProxy, object, dataSetItem,
-                                   attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                        attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             case Location:
                 readLocationData(attributeProxy, object, dataSetItem,
-                                 attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
-                                 value);
+                        attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter,
+                        value);
                 break;
             case TimeInterval:
                 readTimeIntervalData(attributeProxy, object, dataSetItem,
-                                     attributeMeta.getAttributeIndex(), primaryKey,
-                                     useGetterAndSetter);
+                        attributeMeta.getAttributeIndex(), primaryKey,
+                        useGetterAndSetter);
                 break;
             case Color:
                 readColorData(attributeProxy, object, dataSetItem,
-                              attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                        attributeMeta.getAttributeIndex(), useGetterAndSetter);
                 break;
             default:
                 break;
@@ -364,20 +365,20 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void writeStringData(AttributeProxy proxy, T destination, Record dataSetItem,
                                             Integer index, boolean useSetterAndGetter) throws
-                                                                                       UnableToWriteException,
-                                                                                       InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         String value = dataSetItem.getString(index);
         try {
             useSetterIfExists(proxy, destination, value);
         } catch (IllegalAccessException e) {
             throw new UnableToWriteException(proxy.getType().getClass().getName(), index,
-                                             AttributeType.String.toString(), e.getMessage());
+                    AttributeType.String.toString(), e.getMessage());
         }
     }
 
     private static <T> void writeIntegerData(AttributeProxy proxy, T destination,
                                              Record dataSetItem, Integer index) throws
-                                                                                UnableToWriteException {
+            UnableToWriteException {
         Optional<Integer> value = dataSetItem.getOptionalInt(index);
         Integer intValue = 0;
         try {
@@ -385,13 +386,13 @@ public class ObjectConverter extends ConfigurationManager {
                 intValue = value.get();
             } else {
                 ConverterAttributeType converterAttributeType =
-                    inferDataType(proxy.getType().getSimpleName());
+                        inferDataType(proxy.getType().getSimpleName());
                 intValue = (converterAttributeType.isOptional()) ? null : 0;
             }
             useSetterIfExists(proxy, destination, intValue);
         } catch (IllegalAccessException e) {
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.Int.toString(), e.getMessage());
+                    AttributeType.Int.toString(), e.getMessage());
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -400,7 +401,7 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void writeTimeIntervalData(AttributeProxy proxy, T destination,
                                                   Record record, Integer index) throws
-                                                                                UnableToWriteException {
+            UnableToWriteException {
         Optional<Long> value = record.getOptionalTimeInterval(index);
         Long longValue = 0L;
         try {
@@ -408,13 +409,13 @@ public class ObjectConverter extends ConfigurationManager {
                 longValue = value.get();
             } else {
                 ConverterAttributeType converterAttributeType =
-                    inferDataType(proxy.getType().getSimpleName());
+                        inferDataType(proxy.getType().getSimpleName());
                 longValue = (converterAttributeType.isOptional()) ? null : 0L;
             }
             useSetterIfExists(proxy, destination, longValue);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.Int.toString(), e.getMessage());
+                    AttributeType.Int.toString(), e.getMessage());
         }
     }
 
@@ -430,7 +431,7 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void writeDoubleData(AttributeProxy proxy, T destination, Record dataSetItem,
                                             Integer index) throws UnableToWriteException,
-                                                                  InvocationTargetException {
+            InvocationTargetException {
         Optional<Double> value = dataSetItem.getOptionalDouble(index);
         boolean isFloatValue = fieldIsFloat(proxy.getType());
         try {
@@ -443,7 +444,7 @@ public class ObjectConverter extends ConfigurationManager {
 
             } else {
                 ConverterAttributeType converterAttributeType =
-                    inferDataType(proxy.getType().getSimpleName());
+                        inferDataType(proxy.getType().getSimpleName());
                 if (converterAttributeType.isOptional()) {
                     proxy.setValue(destination, null);
                 } else {
@@ -454,7 +455,7 @@ public class ObjectConverter extends ConfigurationManager {
             }
         } catch (IllegalAccessException e) {
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.Double.toString(), e.getMessage());
+                    AttributeType.Double.toString(), e.getMessage());
         }
     }
 
@@ -469,20 +470,20 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void writeBoolData(AttributeProxy proxy, T destination, Record dataSetItem,
                                           Integer index) throws UnableToWriteException,
-                                                                InvocationTargetException {
+            InvocationTargetException {
         Optional<Boolean> value = dataSetItem.getOptionalBoolean(index);
         try {
             if (value.isPresent()) {
                 useSetterIfExists(proxy, destination, value.get());
             } else {
                 ConverterAttributeType converterAttributeType =
-                    inferDataType(proxy.getType().getSimpleName());
+                        inferDataType(proxy.getType().getSimpleName());
                 useSetterIfExists(proxy, destination,
-                                  (converterAttributeType.isOptional()) ? null : false);
+                        (converterAttributeType.isOptional()) ? null : false);
             }
         } catch (IllegalAccessException e) {
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.Boolean.toString(), e.getMessage());
+                    AttributeType.Boolean.toString(), e.getMessage());
         }
     }
 
@@ -497,11 +498,11 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void writeDateData(AttributeProxy proxy, T destination, Record dataSetItem,
                                           Integer index, ParserContext parserContext) throws
-                                                                                      UnableToWriteException,
-                                                                                      InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         DateTime value = dataSetItem.getDate(index);
         if (Null(
-            value)) { // if value is null we want to check and see if there is a date time range avail. at that index
+                value)) { // if value is null we want to check and see if there is a date time range avail. at that index
             DateRange dateRange = dataSetItem.getDateRange(index);
             if (!Null(dateRange)) {
                 parserContext.putDateTimeRange(index, proxy.getName(), dateRange);
@@ -511,7 +512,7 @@ public class ObjectConverter extends ConfigurationManager {
             setDateValueFromField(proxy, value, destination);
         } catch (IllegalAccessException e) {
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.Date.toString(), e.getMessage());
+                    AttributeType.Date.toString(), e.getMessage());
         }
     }
 
@@ -527,11 +528,11 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void writeDateTimeData(AttributeProxy proxy, T destination,
                                               Record dataSetItem, Integer index,
                                               ParserContext parserContext) throws
-                                                                           UnableToWriteException,
-                                                                           InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         DateTime value = dataSetItem.getDateTime(index);
         if (Null(
-            value)) { // if value is null we want to check and see if there is a date time range avail. at that index
+                value)) { // if value is null we want to check and see if there is a date time range avail. at that index
             DateTimeRange dateTimeRange = dataSetItem.getDateTimeRange(index);
             if (!Null(dateTimeRange)) {
                 parserContext.putDateTimeRange(index, proxy.getName(), dateTimeRange);
@@ -541,7 +542,7 @@ public class ObjectConverter extends ConfigurationManager {
             setDateValueFromField(proxy, value, destination);
         } catch (IllegalAccessException e) {
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.DateTime.toString(), e.getMessage());
+                    AttributeType.DateTime.toString(), e.getMessage());
         }
     }
 
@@ -556,8 +557,8 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void writeListItemData(AttributeProxy proxy, T destination,
                                               Record dataSetItem, Integer index) throws
-                                                                                 UnableToWriteException,
-                                                                                 InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         ListItem listItem = dataSetItem.getListItem(index);
         if (listItem == null) return;
         Type fieldType = proxy.getType();
@@ -577,8 +578,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void writeSingleRelationshipData(AttributeProxy proxy, T destination,
                                                         Record record, Integer index,
                                                         ParserContext parserContext) throws
-                                                                                     UnableToWriteException,
-                                                                                     InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         parserContext.setItemStatus(destination, record.getCRUDStatus());
         DataSetItem newDataSetItem = record.getDataSetItem(index);
         if (newDataSetItem == null) return;
@@ -590,7 +591,7 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void copyFromRecordRecursive(AttributeProxy proxy, Type fieldType,
                                                     Class classValue, Record record, T destination,
                                                     Integer index)
-        throws InvocationTargetException, UnableToWriteException {
+            throws InvocationTargetException, UnableToWriteException {
         try {
             classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
@@ -598,7 +599,7 @@ public class ObjectConverter extends ConfigurationManager {
             useSetterIfExists(proxy, destination, object);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index,
-                                             AttributeType.ListItem.toString(), ie.getMessage());
+                    AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
 
@@ -614,8 +615,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void writeRelationshipData(AttributeProxy proxy, T destination,
                                                   Record record, Integer index,
                                                   ParserContext parserContext) throws
-                                                                               UnableToWriteException,
-                                                                               InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         List<DataSetItem> dataSetItems = record.getDataSetItems(index);
         parserContext.setItemStatus(destination, record.getCRUDStatus());
         if (dataSetItems == null) return;
@@ -631,13 +632,13 @@ public class ObjectConverter extends ConfigurationManager {
             useSetterIfExists(proxy, destination, tempList);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index,
-                                             AttributeType.ListItem.toString(), ie.getMessage());
+                    AttributeType.ListItem.toString(), ie.getMessage());
         }
     }
 
     private static <T> void routeWriteLocationData(AttributeProxy proxy, T destination,
                                                    Record dataSetItem, Integer index)
-        throws UnableToWriteException, InvocationTargetException {
+            throws UnableToWriteException, InvocationTargetException {
         if (CustomLocation.class.isAssignableFrom(proxy.getType()))
             writeCustomLocationData(proxy, destination, dataSetItem, index);
         else writeLocationData(proxy, destination, dataSetItem, index);
@@ -647,7 +648,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                                               T destination,
                                                                               Record dataSetItem,
                                                                               Integer index)
-        throws UnableToWriteException, InvocationTargetException {
+            throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
         try {
@@ -663,14 +664,14 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void writeLocationData(AttributeProxy proxy, T destination,
                                               Record dataSetItem, Integer index)
-        throws UnableToWriteException, InvocationTargetException {
+            throws UnableToWriteException, InvocationTargetException {
         Location location = dataSetItem.getLocation(index);
         if (location == null) return;
         try {
             useSetterIfExists(proxy, destination, location);
         } catch (Exception error) {
             throw new RuntimeException(
-                "Unable to write Location data for field: " + proxy.getName());
+                    "Unable to write Location data for field: " + proxy.getName());
         }
     }
 
@@ -688,8 +689,8 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void writeAttachmentData(AttributeProxy proxy, T destination, Record record,
                                                 Integer index, ParserContext parserContext) throws
-                                                                                            UnableToWriteException,
-                                                                                            InvocationTargetException {
+            UnableToWriteException,
+            InvocationTargetException {
         List<DataSetItemAttachment> attachmentItems = record.getAttachmentItemsForIndex(index);
         parserContext.setItemStatus(destination, record.getCRUDStatus());
         if (attachmentItems == null) return;
@@ -697,7 +698,7 @@ public class ObjectConverter extends ConfigurationManager {
             ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();
             if (proxy.isWrappedClass) {
                 Collection<ApptreeAttachment> attachmentList =
-                    RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, proxy);
+                        RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, proxy);
                 useSetterIfExists(proxy, destination, attachmentList);
             } else {
                 RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, singleAttachment);
@@ -706,7 +707,7 @@ public class ObjectConverter extends ConfigurationManager {
         } catch (IllegalAccessException ie) {
             ie.printStackTrace();
             throw new UnableToWriteException(proxy.getType().getName(), index,
-                                             AttributeType.ListItem.toString(), ie.getMessage());
+                    AttributeType.ListItem.toString(), ie.getMessage());
         } catch (InstantiationException e) {
             e.printStackTrace();
         }
@@ -722,7 +723,7 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> void setDateValueFromField(AttributeProxy proxy, DateTime datetime,
                                                   T destination) throws IllegalAccessException,
-                                                                        InvocationTargetException {
+            InvocationTargetException {
         if (Null(datetime)) return;
         Class clazz = proxy.getType();
         if (clazz == org.joda.time.DateTime.class) {
@@ -754,7 +755,7 @@ public class ObjectConverter extends ConfigurationManager {
             throw new RuntimeException("Attachment uploaded with no contents");
         }
         InputStream byteArrayInputStream =
-            new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
+                new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
         object.setInputStream(byteArrayInputStream);
     }
 
@@ -774,7 +775,7 @@ public class ObjectConverter extends ConfigurationManager {
                                            int index, boolean primaryKey,
                                            boolean useGetterAndSetter, boolean value,
                                            boolean parent) throws IllegalAccessException,
-                                                                  InvocationTargetException {
+            InvocationTargetException {
         Object fieldData = null;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
@@ -797,8 +798,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readTimeIntervalData(AttributeProxy attributeProxy, T object,
                                                  Record record, int index, boolean primaryKey,
                                                  boolean useGetterAndSetter) throws
-                                                                             IllegalAccessException,
-                                                                             InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         Object fieldData = null;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
@@ -828,7 +829,7 @@ public class ObjectConverter extends ConfigurationManager {
                                             int index, boolean primaryKey,
                                             boolean useGetterAndSetter, boolean value,
                                             boolean parent) throws IllegalAccessException,
-                                                                   InvocationTargetException {
+            InvocationTargetException {
         Integer fieldData = null;
         if (useGetterAndSetter) {
             fieldData = (Integer) useGetterIfExists(attributeProxy, object);
@@ -864,8 +865,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readDoubleData(AttributeProxy attributeProxy, T object, Record record,
                                            int index, boolean primaryKey,
                                            boolean useGetterAndSetter, boolean value) throws
-                                                                                      IllegalAccessException,
-                                                                                      InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         String fieldName = attributeProxy.getDataTypeName();
         Double fieldData = null;
         if (fieldName.contains("Float") || fieldName.contains("float")) {
@@ -907,7 +908,7 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readBoolData(AttributeProxy attributeProxy, T object, Record record,
                                          int index, boolean primaryKey, boolean useGetterAndSetter,
                                          boolean value) throws IllegalAccessException,
-                                                               InvocationTargetException {
+            InvocationTargetException {
         Boolean fieldData = null;
         if (useGetterAndSetter) {
             fieldData = (Boolean) useGetterIfExists(attributeProxy, object);
@@ -940,7 +941,7 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readDateData(AttributeProxy attributeProxy, T object, Record record,
                                          int index, boolean primaryKey, boolean useGetterAndSetter,
                                          boolean value) throws IllegalAccessException,
-                                                               InvocationTargetException {
+            InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDate(dateTime, index);
         if (value) {
@@ -969,8 +970,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readDateTimeData(AttributeProxy attributeProxy, T object, Record record,
                                              int index, boolean primaryKey,
                                              boolean useGetterAndSetter, boolean value) throws
-                                                                                        IllegalAccessException,
-                                                                                        InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDateTime(dateTime, index);
         if (value) {
@@ -987,8 +988,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readLocationData(AttributeProxy proxy, T object, Record record,
                                              int index, boolean primaryKey,
                                              boolean useGetterAndSetter, boolean value) throws
-                                                                                        IllegalAccessException,
-                                                                                        InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         Location location = getLocationValueFromObject(proxy, object, useGetterAndSetter);
         record.setLocation(location, index);
         if (value) {
@@ -1013,8 +1014,8 @@ public class ObjectConverter extends ConfigurationManager {
      */
     private static <T> DateTime getDateValueFromObject(AttributeProxy attributeProxy, T object,
                                                        boolean useGetterAndSetter) throws
-                                                                                   IllegalAccessException,
-                                                                                   InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Date);
         if (supportedClasses == null) {
             return new DateTime();
@@ -1028,13 +1029,13 @@ public class ObjectConverter extends ConfigurationManager {
             if (clazz == java.util.Date.class && attributeProxy.getType() == clazz) {
                 if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
                     return new DateTime(
-                        ((java.util.Date) useGetterIfExists(attributeProxy, object)).getTime());
+                            ((java.util.Date) useGetterIfExists(attributeProxy, object)).getTime());
                 } else return new DateTime((Date) attributeProxy.getValue(object));
             }
             if (clazz == java.sql.Date.class && attributeProxy.getType() == clazz) {
                 if (fieldHasGetter(attributeProxy, object) && useGetterAndSetter) {
                     return new DateTime(
-                        ((java.sql.Date) useGetterIfExists(attributeProxy, object)).getTime());
+                            ((java.sql.Date) useGetterIfExists(attributeProxy, object)).getTime());
                 } else return new DateTime((java.sql.Date) attributeProxy.getValue(object));
             }
         }
@@ -1061,8 +1062,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readListItemData(AttributeProxy attributeProxy, T object,
                                              Record dataSetItem, int index,
                                              boolean useGetterAndSetter) throws
-                                                                         IllegalAccessException,
-                                                                         InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         Object listItemObject = null;
         if (useGetterAndSetter) {
             listItemObject = useGetterIfExists(attributeProxy, object);
@@ -1087,8 +1088,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readSingleRelationshipData(AttributeProxy attributeProxy, T object,
                                                        Record dataSetItem, int index,
                                                        boolean useGetterAndSetter) throws
-                                                                                   IllegalAccessException,
-                                                                                   InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         Object relationship = null;
         if (useGetterAndSetter) {
             relationship = useGetterIfExists(attributeProxy, object);
@@ -1114,8 +1115,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readAttachmentData(AttributeProxy attributeProxy, T object,
                                                Record dataSetItem, int index,
                                                boolean useGetterAndSetter) throws
-                                                                           IllegalAccessException,
-                                                                           InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         Object relationship = null;
         List<Object> relationships = null;
 
@@ -1157,8 +1158,8 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readRelationshipData(AttributeProxy attributeProxy, T object,
                                                  Record dataSetItem, int index,
                                                  boolean useGetterAndSetter) throws
-                                                                             IllegalAccessException,
-                                                                             InvocationTargetException {
+            IllegalAccessException,
+            InvocationTargetException {
         List<Object> relationship = null;
         if (useGetterAndSetter) {
             relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
@@ -1176,8 +1177,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     private static <T, C extends CustomLocation> Location getLocationValueFromObject(
-        AttributeProxy proxy, T object, boolean useGetterAndSetter)
-        throws IllegalAccessException, InvocationTargetException {
+            AttributeProxy proxy, T object, boolean useGetterAndSetter)
+            throws IllegalAccessException, InvocationTargetException {
         List<Class> supportedClasses = getSupportedTypeMap().get(AttributeType.Location);
         if (supportedClasses == null) return new Location();
         if (proxy.getType() == Location.class) {
@@ -1217,7 +1218,7 @@ public class ObjectConverter extends ConfigurationManager {
                     return (Color) useGetterIfExists(proxy, object);
                 Color objColor = (Color) proxy.getValue(object);
                 return new Color(objColor.getR(), objColor.getG(), objColor.getB(),
-                                 objColor.getA());
+                        objColor.getA());
             } catch (Exception error) {
             }
         }
