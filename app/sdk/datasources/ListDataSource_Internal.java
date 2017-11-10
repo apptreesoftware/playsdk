@@ -3,6 +3,7 @@ package sdk.datasources;
 import rx.Observable;
 import sdk.datasources.base.CacheableList;
 import sdk.list.List;
+import sdk.list.ListItem;
 import sdk.list.ListServiceConfiguration;
 import sdk.datasources.base.SearchableList;
 import sdk.list.UserList;
@@ -68,6 +69,24 @@ public class ListDataSource_Internal extends BaseSource_Internal {
             }
         }
         throw new RuntimeException("Data source does not support searching lists");
+    }
+
+    public CompletableFuture<ListItem> getListItem(String id, AuthenticationInfo authenticationInfo, Parameters params) {
+        if (dataSource instanceof SearchableList) {
+            return CompletableFuture.supplyAsync(() -> ((SearchableList)dataSource).fetchItem(id, authenticationInfo, params));
+        } else if ( dataSource instanceof sdk.datasources.future.SearchableList ) {
+            return ((sdk.datasources.future.SearchableList) dataSource).fetchItem(id, authenticationInfo, params);
+        } else if (dataSource instanceof sdk.datasources.rx.SearchableList) {
+            try {
+                Observable<ListItem> observable = ((sdk.datasources.rx.SearchableList) dataSource).fetchItem(id, authenticationInfo, params);
+                return observableToFuture(observable);
+            } catch (Exception e) {
+                CompletableFuture<ListItem> future = new CompletableFuture<>();
+                future.completeExceptionally(e);
+                return future;
+            }
+        }
+        throw new RuntimeException("Data source does not support fetching single list items");
     }
 
     private boolean isSearchSupported() {

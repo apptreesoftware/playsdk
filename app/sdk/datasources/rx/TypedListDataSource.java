@@ -3,8 +3,7 @@ package sdk.datasources.rx;
 import rx.Observable;
 import sdk.converter.ObjectConverter;
 import sdk.data.ServiceConfigurationAttribute;
-import sdk.datasources.rx.CacheableList;
-import sdk.datasources.rx.SearchableList;
+import sdk.exceptions.PrimaryObjectNotFoundException;
 import sdk.list.List;
 import sdk.list.ListItem;
 import sdk.utils.AuthenticationInfo;
@@ -41,6 +40,19 @@ public abstract class TypedListDataSource<T> implements SearchableList, Cacheabl
     }
 
     @Override
+    public Observable<ListItem> fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        Observable<T> item = getItem(id, authenticationInfo, parameters);
+        return item.map(listObject -> {
+            if ( listObject != null ) {
+                ListItem tempItem = new ListItem();
+                ObjectConverter.copyToRecord(tempItem, listObject);
+                return tempItem;
+            }
+            throw new PrimaryObjectNotFoundException();
+        });
+    }
+
+    @Override
     public String getServiceName() {
         return ObjectConverter.inferName(getDataSourceType().getSimpleName());
     }
@@ -49,6 +61,7 @@ public abstract class TypedListDataSource<T> implements SearchableList, Cacheabl
 
     public abstract Observable<Collection<T>> queryAll(String queryText, boolean isBarcodeSearch, Map<String, Object> searchParameters, AuthenticationInfo authenticationInfo, Parameters parameters);
 
+    public abstract Observable<T> getItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
 
     public Class<T> getDataSourceType() {
         if (dataSourceType != null) {
