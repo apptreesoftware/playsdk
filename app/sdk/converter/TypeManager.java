@@ -7,6 +7,7 @@ import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
 import sdk.models.AttributeType;
 import sdk.models.Color;
+import sdk.models.Image;
 import sdk.models.Location;
 
 import java.lang.reflect.Field;
@@ -78,6 +79,10 @@ public class TypeManager {
             attachmentClasses.add(Attachment.class);
             attachmentClasses.add(ApptreeAttachment.class);
             put(AttributeType.Attachments, attachmentClasses);
+
+            ArrayList<Class> imageClasses = new ArrayList<>();
+            imageClasses.add(Image.class);
+            put(AttributeType.Image, imageClasses);
 
             ArrayList<Class> dateRangeClasses = new ArrayList<>();
             dateRangeClasses.add(Date.class);
@@ -151,6 +156,8 @@ public class TypeManager {
                 return new ConverterAttributeType(AttributeType.Color, true);
             case "Attachments":
                 return new ConverterAttributeType(AttributeType.Attachments, true);
+            case "Image":
+                return new ConverterAttributeType(AttributeType.Image, true);
             default:
                 return new ConverterAttributeType(AttributeType.ListItem, true);
         }
@@ -243,6 +250,7 @@ public class TypeManager {
                 || type.equals(AttributeType.SingleRelationship))
                 || type.equals(AttributeType.Attachments)
                 || type.equals(AttributeType.Location)
+                || type.equals(AttributeType.Image)
                 && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }

@@ -263,6 +263,9 @@ public class ObjectConverter extends ConfigurationManager {
                 writeTimeIntervalData(proxy, destination, dataSetItem,
                                       attributeMeta.getAttributeIndex());
                 break;
+            case Image:
+                writeImageData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex());
+                break;
             default:
                 writeStringData(proxy, destination, dataSetItem, attributeMeta.getAttributeIndex(),
                                 useSetterAndGetter);
@@ -346,6 +349,10 @@ public class ObjectConverter extends ConfigurationManager {
             case Color:
                 readColorData(attributeProxy, object, dataSetItem,
                               attributeMeta.getAttributeIndex(), useGetterAndSetter);
+                break;
+            case Image:
+                readImageData(attributeProxy, object, dataSetItem,
+                              attributeMeta.getAttributeIndex(), primaryKey, useGetterAndSetter);
                 break;
             default:
                 break;
@@ -585,6 +592,18 @@ public class ObjectConverter extends ConfigurationManager {
         Type fieldType = proxy.getType();
         Class classValue = null;
         copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index);
+    }
+
+    private static <T> void writeImageData(AttributeProxy proxy, T destination,
+                                           Record record, Integer index) throws UnableToWriteException,
+                                                                         InvocationTargetException {
+        Image value = record.getImage(index);
+        try {
+            if (value != null) useSetterIfExists(proxy, destination, value);
+        } catch (IllegalAccessException e) {
+            throw new UnableToWriteException(proxy.getType().getName(), index,
+                                             AttributeType.Boolean.toString(), e.getMessage());
+        }
     }
 
     private static <T> void copyFromRecordRecursive(AttributeProxy proxy, Type fieldType,
@@ -998,6 +1017,24 @@ public class ObjectConverter extends ConfigurationManager {
             record.setPrimaryKey(location.toString());
             if (!record.isValueSet()) {
                 record.setValue(location.toString());
+            }
+        }
+    }
+
+    private static <T> void readImageData(AttributeProxy proxy, T object, Record record,
+                                          int index, boolean primaryKey,
+                                          boolean useGetterAndSetter) throws
+                                                                                     IllegalAccessException,
+                                                                                     InvocationTargetException {
+        Image foundImage;
+        if(fieldHasGetter(proxy, object) && useGetterAndSetter) {
+            foundImage = (Image) useGetterIfExists(proxy, object);
+        } else foundImage = (Image) proxy.getValue(object);
+        if(foundImage != null) {
+            record.setImage(foundImage, index);
+            if(primaryKey) {
+                record.setPrimaryKey(foundImage.imageURL);
+                if(!record.isValueSet()) record.setValue(foundImage.imageURL);
             }
         }
     }
