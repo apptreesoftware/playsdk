@@ -15,5 +15,7 @@ import java.util.concurrent.CompletableFuture;
 public interface SearchableList extends ListDataSource {
     CompletableFuture<List> queryList(String queryText, boolean barcodeSearch, Map<String, Object> searchParameters, AuthenticationInfo authenticationInfo, Parameters params);
 
-    CompletableFuture<ListItem> fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
+    default CompletableFuture<ListItem> fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new RuntimeException("This source does not support fetching a single item");
+    }
 }

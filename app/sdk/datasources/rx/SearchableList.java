@@ -16,5 +16,7 @@ import java.util.Map;
 public interface SearchableList extends ListDataSource {
     Observable<List> queryList(String queryText, boolean barcodeSearch, Map<String, Object> searchParameters, AuthenticationInfo authenticationInfo, Parameters params);
 
-    Observable<ListItem> fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
+    default Observable<ListItem> fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new RuntimeException("This source does not support fetching a single item");
+    }
 }

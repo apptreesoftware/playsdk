@@ -61,7 +61,9 @@ public abstract class TypedListDataSource<T> implements SearchableList, Cacheabl
 
     public abstract Observable<Collection<T>> queryAll(String queryText, boolean isBarcodeSearch, Map<String, Object> searchParameters, AuthenticationInfo authenticationInfo, Parameters parameters);
 
-    public abstract Observable<T> getItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters);
+    public Observable<T> getItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new RuntimeException("This source does not support fetching a single item");
+    }
 
     public Class<T> getDataSourceType() {
         if (dataSourceType != null) {
