@@ -11,6 +11,7 @@ import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 import sdk.models.Color;
+import sdk.models.Image;
 import sdk.models.Location;
 
 import java.lang.reflect.Field;
@@ -192,7 +193,30 @@ public class ConverterTest {
         object.testIntObject = 4;
         object.testJodaTimeDate = new DateTime();
         object.testSqlDate = new java.sql.Date(100);
+        object.image = new Image();
+        object.image.imageURL = "myurl.com/attachmentImage.jpg";
         return object;
+    }
+
+
+    @Test
+    public void testSetImageToRecord() {
+        SampleListItem object = getNewSampleListObject();
+        Record record = new ListItem();
+        ObjectConverter.copyToRecord(record, object);
+        assert(object.image.imageURL.equals(record.getImage(10).imageURL));
+    }
+
+
+    @Test
+    public void testSetImageToObject() {
+        SampleListItem object = new SampleListItem();
+        Record record = new ListItem(ObjectConverter.generateListConfiguration(SampleListItem.class, "config"));
+        Image image = new Image();
+        image.imageURL = "testUrl.com";
+        record.setImage(image, 10);
+        ObjectConverter.copyFromRecord(record, object);
+        assert(record.getImage(10).imageURL.equals(object.image.imageURL));
     }
 
 

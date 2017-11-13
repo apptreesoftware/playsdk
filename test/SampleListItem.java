@@ -4,6 +4,7 @@ import sdk.annotations.PrimaryKey;
 import sdk.annotations.PrimaryValue;
 import sdk.data.ServiceConfigurationAttribute;
 import sdk.list.ListServiceConfigurationAttribute;
+import sdk.models.Image;
 
 import java.util.*;
 
@@ -43,6 +44,9 @@ public class SampleListItem {
     @Attribute(index = 9)
     public java.sql.Date testSqlDate;
 
+    @Attribute(index = 10)
+    public Image image;
+
     public static Set<ServiceConfigurationAttribute> getListServiceConfigurationAttributes(){
         Set<ServiceConfigurationAttribute> attributes = new HashSet<>();
         attributes.add( new ListServiceConfigurationAttribute.Builder(0).name("woNumber").build());
@@ -55,6 +59,7 @@ public class SampleListItem {
         attributes.add( new ListServiceConfigurationAttribute.Builder(7).name("testDate").asDateTime().build());
         attributes.add( new ListServiceConfigurationAttribute.Builder(8).name("testJodaTimeDate").asDateTime().build());
         attributes.add( new ListServiceConfigurationAttribute.Builder(9).name("testSqlDate").asDateTime().build());
+        attributes.add( new ListServiceConfigurationAttribute.Builder(10).name("image").asImage().build());
         return attributes;
     }
 
@@ -70,6 +75,7 @@ public class SampleListItem {
         attributes.add( new ServiceConfigurationAttribute.Builder(7).name("testDate").asDateTime().build());
         attributes.add( new ServiceConfigurationAttribute.Builder(8).name("testJodaTimeDate").asDateTime().build());
         attributes.add( new ServiceConfigurationAttribute.Builder(9).name("testSqlDate").asDateTime().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(10).name("image").asImage().build());
         return attributes;
     }
 }
