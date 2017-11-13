@@ -62,6 +62,7 @@ GET           /attachments/:attachmentID                                        
 GET           /list/:listName/describe                                                    sdk.controllers.ListController.getListConfiguration(listName: String)
 POST          /list/:listName/search                                                      sdk.controllers.ListController.searchListData(listName: String)
 GET           /list/:listName                                                             sdk.controllers.ListController.getListData(listName: String)
+GET           /list/:listName/:listid                                                     sdk.controllers.ListController.searchForListItem(listName: String, listid: String)
 
 GET           /conversion/:conversionName/describe                                        sdk.controllers.ConversionController.getConversionConfiguration(conversionName: String)
 POST          /conversion/:conversionName                                                 sdk.controllers.ConversionController.getConversion(conversionName: String)
