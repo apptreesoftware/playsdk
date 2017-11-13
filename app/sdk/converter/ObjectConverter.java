@@ -452,7 +452,7 @@ public class ObjectConverter extends ConfigurationManager {
                 ConverterAttributeType converterAttributeType =
                     inferDataType(proxy.getType().getSimpleName());
                 if (converterAttributeType.isOptional()) {
-                    proxy.setValue(destination, null);
+                    useSetterIfExists(proxy, destination, null);
                 } else {
                     if (isFloatValue)
                         useSetterIfExists(proxy, destination, 0.0f);
