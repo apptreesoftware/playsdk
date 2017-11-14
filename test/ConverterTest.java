@@ -162,7 +162,7 @@ public class ConverterTest {
         dataSetItem.setDateTime(new DateTime(100), 7);
         dataSetItem.setDateTime(new DateTime(100), 8);
         dataSetItem.setDateTime(new DateTime(100), 9);
-        dataSetItem.setListItem(getSampleListItem(), 10);
+        dataSetItem.setListItem(getSampleListItem(), 11);
     }
 
 
