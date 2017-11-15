@@ -14,7 +14,7 @@ public class AttributeProxy {
     private Field currentField;
     private Method currentMethod;
     public boolean isField;
-    public boolean isWrappedClass;
+    private boolean isWrappedClass;
     PrimaryValue primaryValue;
     PrimaryKey primaryKey;
     Attribute attribute;
@@ -24,14 +24,14 @@ public class AttributeProxy {
     public AttributeProxy(Method currentMethod) {
         isField = false;
         this.currentMethod = currentMethod;
-        isWrappedClass = checkIfIsWrappedType((Class) currentMethod.getReturnType());
+        setWrappedClass(checkIfIsWrappedType((Class) currentMethod.getReturnType()));
         hydrateAnnotations(currentMethod);
     }
 
     public AttributeProxy(Field currentField) {
         isField = true;
         this.currentField = currentField;
-        isWrappedClass = checkIfIsWrappedType((Class) currentField.getType());
+        setWrappedClass(checkIfIsWrappedType((Class) currentField.getType()));
         hydrateAnnotations(currentField);
     }
 
@@ -63,7 +63,7 @@ public class AttributeProxy {
         }
         return !Null(attribute) ?
                 attribute.index() :
-                0;
+                null;
     }
 
     public boolean isAttribute() {
@@ -201,11 +201,11 @@ public class AttributeProxy {
 
     public Class getType() {
         if (isField) {
-            return (!isWrappedClass) ?
+            return (!isWrappedClass()) ?
                     currentField.getType() :
                     ClassUtils.getParameterizedType((ParameterizedType) currentField.getGenericType());
         } else {
-            return (!isWrappedClass) ?
+            return (!isWrappedClass()) ?
                     currentMethod.getReturnType() :
                     ClassUtils.getParameterizedType((ParameterizedType) currentMethod.getGenericReturnType());
         }
@@ -245,4 +245,11 @@ public class AttributeProxy {
         parentValue = object.getAnnotation(ParentValue.class);
     }
 
+    public boolean isWrappedClass() {
+        return isWrappedClass;
+    }
+
+    public void setWrappedClass(boolean wrappedClass) {
+        isWrappedClass = wrappedClass;
+    }
 }

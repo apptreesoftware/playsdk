@@ -34,7 +34,7 @@ public class ConfigurationWrapper{
         this.varName = attributeProxy.getName();
         this.dataTypeName = attributeProxy.getType().getSimpleName();
         this.clazz = attributeProxy.getType();
-        this.isWrappedClass = attributeProxy.isWrappedClass;
+        this.isWrappedClass = attributeProxy.isWrappedClass();
     }
 
 

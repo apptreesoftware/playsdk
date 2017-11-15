@@ -2,8 +2,10 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
 import sdk.converter.AttributeProxy;
 import sdk.converter.ObjectConverter;
+import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.Record;
 import sdk.data.ServiceConfiguration;
@@ -669,6 +671,45 @@ public class ConverterTest {
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
+    }
+
+
+
+    //THIS test is supposed to make sure that a primary key without an attribute annotation
+    // won't have an index of zero
+    @Test
+    public void testPrimaryKeyWithNoIndex(){
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestObject.class));
+        TestObject testObject = new TestObject();
+        testObject.id = 1;
+        testObject.name = "testing";
+        ObjectConverter.copyToRecord(dataSetItem, testObject);
+
+    }
+
+    public class TestObject{
+        @PrimaryKey
+        private
+        int id;
+
+        @Attribute(index = 0)
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 
 
