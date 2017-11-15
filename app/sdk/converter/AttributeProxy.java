@@ -63,7 +63,7 @@ public class AttributeProxy {
         }
         return !Null(attribute) ?
                 attribute.index() :
-                null;
+                -1;
     }
 
     public boolean isAttribute() {
