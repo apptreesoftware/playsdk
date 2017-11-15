@@ -1,7 +1,6 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
-import play.Logger;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
@@ -13,7 +12,6 @@ import sdk.models.*;
 import sdk.utils.RecordUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -711,7 +709,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (attachmentItems == null) return;
         try {
             ApptreeAttachment singleAttachment = (ApptreeAttachment) proxy.getType().newInstance();
-            if (proxy.isWrappedClass) {
+            if (proxy.isWrappedClass()) {
                 Collection<ApptreeAttachment> attachmentList =
                     RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, proxy);
                 useSetterIfExists(proxy, destination, attachmentList);
@@ -1154,13 +1152,13 @@ public class ObjectConverter extends ConfigurationManager {
         List<Object> relationships = null;
 
         if (useGetterAndSetter) {
-            if (attributeProxy.isWrappedClass) {
+            if (attributeProxy.isWrappedClass()) {
                 relationships = (List<Object>) useGetterIfExists(attributeProxy, object);
             } else {
                 relationship = useGetterIfExists(attributeProxy, object);
             }
         } else {
-            if (attributeProxy.isWrappedClass) {
+            if (attributeProxy.isWrappedClass()) {
                 relationships = (List<Object>) attributeProxy.getValue(object);
             } else {
                 relationship = attributeProxy.getValue(object);
