@@ -1,8 +1,11 @@
 import org.joda.time.DateTime;
 import sdk.annotations.Attribute;
 import sdk.data.DataSetItem;
+import sdk.data.ServiceConfigurationAttribute;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Orozco on 7/25/17.
@@ -58,5 +61,19 @@ public class SampleRelationship {
 //        dataSetItem.setListItem(sampleListItem.toListItem(), 10);
     }
 
-
+    public static List<ServiceConfigurationAttribute> getServiceConfigurationAttributes() {
+        List<ServiceConfigurationAttribute> attributes = new ArrayList<>();
+        attributes.add( new ServiceConfigurationAttribute.Builder(0).name("woNumber").build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(1).name("testInt").asInt().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(2).name("testIntObject").asInt().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(3).name("testFloat").asDouble().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(4).name("testFloatObject").asDouble().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(5).name("testDouble").asDouble().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(6).name("testDoubleObject").asDouble().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(7).name("testDate").asDateTime().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(8).name("testJodaTimeDate").asDateTime().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(9).name("testSqlDate").asDateTime().build());
+        attributes.add( new ServiceConfigurationAttribute.Builder(10).name("sample list item").asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
+        return attributes;
+    }
 }
