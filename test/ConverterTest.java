@@ -100,7 +100,7 @@ public class ConverterTest {
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 9);
         dataSetItem.setListItem(getSampleListItem(), 10);
         DataSetItem singleRelationShip = dataSetItem.addNewDataSetItemForAttributeIndex(11);
-        copyDataToSingleListItem(singleRelationShip);
+        copyDataToSingleRelationship(singleRelationShip);
         List<SampleRelationship> relationshipList = getSampleRelationshipList();
         for (SampleRelationship sampleRelationship : relationshipList) {
             DataSetItem tempDataSetItem = dataSetItem.addNewDataSetItemForAttributeIndex(12);
@@ -153,7 +153,7 @@ public class ConverterTest {
     }
 
 
-    private void copyDataToSingleListItem(DataSetItem dataSetItem) {
+    private void copyDataToSingleRelationship(DataSetItem dataSetItem) {
         dataSetItem.setString("1234", 0);
         dataSetItem.setInt(1, 1);
         dataSetItem.setInt(1, 2);
@@ -180,6 +180,9 @@ public class ConverterTest {
         listItem.setDateTime(new DateTime(100), 7);
         listItem.setDateTime(new DateTime(100), 8);
         listItem.setDateTime(new DateTime(100), 9);
+        Image image = new Image();
+        image.imageURL = "myurl.com/attachmentImage.jpg";
+        listItem.setImage(image, 10);
         return listItem;
     }
 

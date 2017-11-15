@@ -164,20 +164,17 @@ public class ObjectConverter extends ConfigurationManager {
                                           T source) throws UnsupportedAttributeException,
                                                            IllegalAccessException,
                                                            InvocationTargetException {
-        boolean primaryKey = false;
-        boolean value = false;
-        boolean parentValue = false;
 
-        boolean excludeFromListItem = attributeProxy.excludeFromList();
         if (record.isListItem() && attributeProxy.excludeFromList()) return;
 
-        primaryKey = attributeProxy.isPrimaryKey();
-        value = attributeProxy.isPrimaryValue();
-        parentValue = attributeProxy.isParentValue();
+        boolean primaryKey = attributeProxy.isPrimaryKey();
+        boolean value = attributeProxy.isPrimaryValue();
+        boolean parentValue = attributeProxy.isParentValue();
 
-        if (primaryKey && !attributeProxy.isAttribute()) {
+        if(primaryKey) {
             record.setPrimaryKey(attributeProxy.getValue(source).toString());
-            return;
+            if(record.getValue() == null) record.setValue(attributeProxy.getValue(source).toString());
+            if(!attributeProxy.isAttribute()) return;
         }
 
         int index = attributeProxy.getIndex();

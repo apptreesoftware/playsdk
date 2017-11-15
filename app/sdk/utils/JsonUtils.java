@@ -32,6 +32,15 @@ public class JsonUtils {
         return Optional.empty();
     }
 
+    public static Optional<JsonNode> parseOptionalBoolean(String src) {
+        if( src == null ) return Optional.empty();
+        try {
+            src = (src.equals("Y")) ? "true" : "false";
+            return Optional.of(Json.parse(src));
+        } catch(Exception ignored) {}
+        return Optional.empty();
+    }
+
     private static ObjectMapper objectMapper;
 
     public static ObjectMapper getObjectMapper() {

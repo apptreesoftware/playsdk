@@ -145,6 +145,4 @@ public class ListItemAttributeTest {
             this.parentId = parentId;
         }
     }
-
-
 }

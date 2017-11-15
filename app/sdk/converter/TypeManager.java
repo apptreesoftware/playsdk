@@ -228,12 +228,12 @@ public class TypeManager {
         Map<Integer, Boolean> findDuplicateIndex = new HashMap<>();
         boolean primaryKeyIsSet = false;
         for(AttributeProxy proxy : attributeProxies) {
-            if(findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
-                throw new RuntimeException("field named '" + proxy.getName() + "' shares an index with another field in the same model");
-            }
             if(proxy.isPrimaryKey()) {
                 if(primaryKeyIsSet) throw new RuntimeException("field named '" + proxy.getName() + "' redefines a primary key");
                 else primaryKeyIsSet = true;
+            }
+            if(proxy.isAttribute() && findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
+                throw new RuntimeException("field named '" + proxy.getName() + "' shares an index with another field in the same model");
             }
         }
         return attributeProxies;

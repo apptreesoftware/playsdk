@@ -1543,7 +1543,7 @@ public class DataSetItem implements Record {
                                             });
                                             break;
                                         case Boolean:
-                                            JsonUtils.parseOptional(textValue).ifPresent(listItemNode -> {
+                                            JsonUtils.parseOptionalBoolean(textValue).ifPresent(listItemNode -> {
                                                 Boolean aBoolean = JsonUtils.fromJson(listItemNode, Boolean.class);
                                                 listItem.setAttributeForIndex(aBoolean, attr.getAttributeIndex());
                                             });
