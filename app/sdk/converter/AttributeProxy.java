@@ -58,13 +58,13 @@ public class AttributeProxy {
     }
 
 
-    public Integer getIndex() {
+    public int getIndex() {
         if (isRelationship()) {
             return relationship.index();
         }
         return !Null(attribute) ?
                 attribute.index() :
-                null;
+                -1;
     }
 
     public boolean isAttribute() {
