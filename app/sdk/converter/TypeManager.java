@@ -393,4 +393,12 @@ public class TypeManager {
             }
         }
     }
+
+    protected static <T> Method getSetterForAttributeProxy(AttributeProxy proxy, T destination) {
+        Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
+        if (tempMethodMap == null) return null;
+        Method setterMethod = tempMethodMap.get(setterMethodName(proxy).toLowerCase());
+        return setterMethod;
+    }
+
 }

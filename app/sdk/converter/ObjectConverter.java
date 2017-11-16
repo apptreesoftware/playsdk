@@ -172,8 +172,10 @@ public class ObjectConverter extends ConfigurationManager {
         boolean parentValue = attributeProxy.isParentValue();
 
         if(primaryKey) {
-            record.setPrimaryKey(attributeProxy.getValue(source).toString());
-            if(record.getValue() == null) record.setValue(attributeProxy.getValue(source).toString());
+            Object val = useGetterIfExists(attributeProxy, source);
+            if(val == null) throw new RuntimeException("Primary key is null on " + source.getClass().getSimpleName());
+            record.setPrimaryKey(val.toString());
+            if(record.getValue() == null) record.setValue(val.toString());
             if(!attributeProxy.isAttribute()) return;
         }
 

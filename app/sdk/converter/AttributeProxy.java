@@ -4,6 +4,7 @@ import sdk.annotations.*;
 import sdk.utils.ClassUtils;
 
 import java.lang.reflect.*;
+import java.util.Optional;
 
 import static sdk.utils.ClassUtils.Null;
 
@@ -169,9 +170,9 @@ public class AttributeProxy {
                 throw new RuntimeException("Primary Key Must be an Integer, Long or String data type");
             }
         } else {
-            if (currentMethod.getParameters().length < 1 || currentMethod.getParameters().length > 1) {
-                throw new RuntimeException("Setter must have only one parameter");
-            }
+            Method method = TypeManager.getSetterForAttributeProxy(this, destination);
+            if (method == null) return;
+            currentMethod = method;
             Class clazz = currentMethod.getParameters()[0].getType();
 
             if (String.class == clazz) {
@@ -191,8 +192,7 @@ public class AttributeProxy {
                 }
                 Long longValue = Long.parseLong(value);
                 currentMethod.invoke(destination, longValue);
-            }
-            else {
+            } else {
                 throw new RuntimeException("Primary Key Must be an Integer, Long or String data type");
             }
         }

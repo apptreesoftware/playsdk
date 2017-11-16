@@ -213,6 +213,30 @@ public class ConverterTest {
     }
 
 
+    public static class ObjectWithMethodPk {
+        @Attribute(index = 0)
+        public String name = "object with method primary key";
+        private String pk = "primary key";
+        @PrimaryKey
+        public String getPk() {
+            return pk;
+        }
+        public void setPk(String pk) {
+            this.pk = pk;
+        }
+    }
+    @Test
+    public void testConvertObjWithMethodPrimaryKey() {
+        ObjectWithMethodPk obj = new ObjectWithMethodPk();
+        DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ObjectWithMethodPk.class));
+        ObjectConverter.copyToRecord(item, obj);
+        assert(item.getPrimaryKey().equals(obj.getPk()));
+        item.setPrimaryKey("different key");
+        ObjectConverter.copyFromRecord(item, obj);
+        assert(obj.getPk().equals("different key"));
+    }
+
+
     @Test
     public void testSetImageToObject() {
         SampleListItem object = new SampleListItem();
