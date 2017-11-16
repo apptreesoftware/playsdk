@@ -112,8 +112,8 @@ public class SampleObject {
         attributes.add(new ServiceConfigurationAttribute.Builder(8).name("Test Joda Time Date").canCreate().canSearch().canUpdate().asDateTime().build());
         attributes.add(new ServiceConfigurationAttribute.Builder(9).name("Test Sql Date").canCreate().canSearch().canUpdate().asDateTime().build());
         attributes.add(new ServiceConfigurationAttribute.Builder(10).name("Sample List Item").canCreate().canSearch().canUpdate().asListItem(SampleListItem.getListServiceConfigurationAttributes()).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(11).name("Sample List Item Single Relationship").canCreate().canSearch().canUpdate().asSingleRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
-        attributes.add(new ServiceConfigurationAttribute.Builder(12).name("Sample List Item Relationship").canCreate().canSearch().canUpdate().asRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleListItem.getServiceConfigurationAttributes())).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(11).name("Sample List Item Single Relationship").canCreate().canSearch().canUpdate().asSingleRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleRelationship.getServiceConfigurationAttributes())).build());
+        attributes.add(new ServiceConfigurationAttribute.Builder(12).name("Sample List Item Relationship").canCreate().canSearch().canUpdate().asRelationship(new RelatedServiceConfiguration("sampleListItemSingleRelationship", SampleRelationship.getServiceConfigurationAttributes())).build());
         attributes.add(new ServiceConfigurationAttribute.Builder(17).name("Color").asColor().canCreate().canUpdate().canSearch().build());
         attributes.add(new ServiceConfigurationAttribute.Builder(18).name("Sdk Location").asLocation().canUpdate().canCreate().canSearch().build());
         attributes.add(new ServiceConfigurationAttribute.Builder(19).name("Custom Location").asLocation().canUpdate().canCreate().canSearch().build());

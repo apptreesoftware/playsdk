@@ -7,6 +7,7 @@ import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
 import sdk.models.AttributeType;
 import sdk.models.Color;
+import sdk.models.Image;
 import sdk.models.Location;
 
 import java.lang.reflect.Field;
@@ -78,6 +79,10 @@ public class TypeManager {
             attachmentClasses.add(Attachment.class);
             attachmentClasses.add(ApptreeAttachment.class);
             put(AttributeType.Attachments, attachmentClasses);
+
+            ArrayList<Class> imageClasses = new ArrayList<>();
+            imageClasses.add(Image.class);
+            put(AttributeType.Image, imageClasses);
 
             ArrayList<Class> dateRangeClasses = new ArrayList<>();
             dateRangeClasses.add(Date.class);
@@ -151,6 +156,8 @@ public class TypeManager {
                 return new ConverterAttributeType(AttributeType.Color, true);
             case "Attachments":
                 return new ConverterAttributeType(AttributeType.Attachments, true);
+            case "Image":
+                return new ConverterAttributeType(AttributeType.Image, true);
             default:
                 return new ConverterAttributeType(AttributeType.ListItem, true);
         }
@@ -216,18 +223,17 @@ public class TypeManager {
                                 || method.getAnnotation(Relationship.class) != null)
                 .map(field -> new AttributeProxy(field))
                 .collect(Collectors.toList()));
-        if (clazz.getSuperclass() != null)
+        if(clazz.getSuperclass() != null)
             attributeProxies.addAll(getMethodAndFieldAnnotationsForClass(clazz.getSuperclass()));
         Map<Integer, Boolean> findDuplicateIndex = new HashMap<>();
         boolean primaryKeyIsSet = false;
-        for (AttributeProxy proxy : attributeProxies) {
-            if (findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
-                throw new RuntimeException("field named '" + proxy.getName() + "' shares an index with another field in the same model");
-            }
-            if (proxy.isPrimaryKey()) {
-                if (primaryKeyIsSet)
-                    throw new RuntimeException("field named '" + proxy.getName() + "' redefines a primary key");
+        for(AttributeProxy proxy : attributeProxies) {
+            if(proxy.isPrimaryKey()) {
+                if(primaryKeyIsSet) throw new RuntimeException("field named '" + proxy.getName() + "' redefines a primary key");
                 else primaryKeyIsSet = true;
+            }
+            if(proxy.isAttribute() && findDuplicateIndex.putIfAbsent(proxy.getIndex(), true) != null) {
+                throw new RuntimeException("field named '" + proxy.getName() + "' shares an index with another field in the same model");
             }
         }
         return attributeProxies;
@@ -244,6 +250,7 @@ public class TypeManager {
                 || type.equals(AttributeType.SingleRelationship))
                 || type.equals(AttributeType.Attachments)
                 || type.equals(AttributeType.Location)
+                || type.equals(AttributeType.Image)
                 && !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }
@@ -325,14 +332,6 @@ public class TypeManager {
         }
     }
 
-
-    protected static <T> Method getSetterForAttributeProxy(AttributeProxy proxy, T destination) {
-        Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
-        if (tempMethodMap == null) return null;
-        Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
-        return setterMethod;
-    }
-
     /**
      * @param attributeProxy
      * @param object
@@ -394,4 +393,12 @@ public class TypeManager {
             }
         }
     }
+
+    protected static <T> Method getSetterForAttributeProxy(AttributeProxy proxy, T destination) {
+        Map<String, Method> tempMethodMap = getMethodMap().get(destination.getClass().getName());
+        if (tempMethodMap == null) return null;
+        Method setterMethod = tempMethodMap.get(setterMethodName(proxy));
+        return setterMethod;
+    }
+
 }

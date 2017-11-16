@@ -2,8 +2,7 @@ package sdk.datasources.future;
 
 import sdk.converter.ObjectConverter;
 import sdk.data.ServiceConfigurationAttribute;
-import sdk.datasources.future.CacheableList;
-import sdk.datasources.future.SearchableList;
+import sdk.exceptions.PrimaryObjectNotFoundException;
 import sdk.list.List;
 import sdk.list.ListItem;
 import sdk.utils.AuthenticationInfo;
@@ -45,9 +44,26 @@ public abstract class TypedListDataSource<T> implements SearchableList, Cacheabl
         return ObjectConverter.inferName(getDataSourceType().getSimpleName());
     }
 
+    @Override
+    public CompletableFuture<ListItem> fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        CompletableFuture<T> item = getItem(id, authenticationInfo, parameters);
+        return item.thenApply(listObject -> {
+            if ( listObject != null ) {
+                ListItem tempItem = new ListItem();
+                ObjectConverter.copyToRecord(tempItem, listObject);
+                return tempItem;
+            }
+            throw new PrimaryObjectNotFoundException();
+        });
+    }
+
     public abstract CompletableFuture<Collection<T>> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 
     public abstract CompletableFuture<Collection<T>> queryAll(String queryText, boolean isBarcodeSearch, Map<String, Object> searchParameters, AuthenticationInfo authenticationInfo, Parameters parameters);
+
+    public CompletableFuture<T> getItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new RuntimeException("This source does not support fetching a single item");
+    }
 
 
     public Class<T> getDataSourceType() {

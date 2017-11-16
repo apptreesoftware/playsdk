@@ -2,8 +2,10 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
 import sdk.converter.AttributeProxy;
 import sdk.converter.ObjectConverter;
+import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.Record;
 import sdk.data.ServiceConfiguration;
@@ -11,6 +13,7 @@ import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 import sdk.models.Color;
+import sdk.models.Image;
 import sdk.models.Location;
 
 import java.lang.reflect.Field;
@@ -97,7 +100,7 @@ public class ConverterTest {
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 9);
         dataSetItem.setListItem(getSampleListItem(), 10);
         DataSetItem singleRelationShip = dataSetItem.addNewDataSetItemForAttributeIndex(11);
-        copyDataToSingleListItem(singleRelationShip);
+        copyDataToSingleRelationship(singleRelationShip);
         List<SampleRelationship> relationshipList = getSampleRelationshipList();
         for (SampleRelationship sampleRelationship : relationshipList) {
             DataSetItem tempDataSetItem = dataSetItem.addNewDataSetItemForAttributeIndex(12);
@@ -150,7 +153,7 @@ public class ConverterTest {
     }
 
 
-    private void copyDataToSingleListItem(DataSetItem dataSetItem) {
+    private void copyDataToSingleRelationship(DataSetItem dataSetItem) {
         dataSetItem.setString("1234", 0);
         dataSetItem.setInt(1, 1);
         dataSetItem.setInt(1, 2);
@@ -161,7 +164,7 @@ public class ConverterTest {
         dataSetItem.setDateTime(new DateTime(100), 7);
         dataSetItem.setDateTime(new DateTime(100), 8);
         dataSetItem.setDateTime(new DateTime(100), 9);
-        dataSetItem.setListItem(getSampleListItem(), 10);
+        dataSetItem.setListItem(getSampleListItem(), 11);
     }
 
 
@@ -177,6 +180,9 @@ public class ConverterTest {
         listItem.setDateTime(new DateTime(100), 7);
         listItem.setDateTime(new DateTime(100), 8);
         listItem.setDateTime(new DateTime(100), 9);
+        Image image = new Image();
+        image.imageURL = "myurl.com/attachmentImage.jpg";
+        listItem.setImage(image, 10);
         return listItem;
     }
 
@@ -192,7 +198,30 @@ public class ConverterTest {
         object.testIntObject = 4;
         object.testJodaTimeDate = new DateTime();
         object.testSqlDate = new java.sql.Date(100);
+        object.image = new Image();
+        object.image.imageURL = "myurl.com/attachmentImage.jpg";
         return object;
+    }
+
+
+    @Test
+    public void testSetImageToRecord() {
+        SampleListItem object = getNewSampleListObject();
+        Record record = new ListItem();
+        ObjectConverter.copyToRecord(record, object);
+        assert(object.image.imageURL.equals(record.getImage(10).imageURL));
+    }
+
+
+    @Test
+    public void testSetImageToObject() {
+        SampleListItem object = new SampleListItem();
+        Record record = new ListItem(ObjectConverter.generateListConfiguration(SampleListItem.class, "config"));
+        Image image = new Image();
+        image.imageURL = "testUrl.com";
+        record.setImage(image, 10);
+        ObjectConverter.copyFromRecord(record, object);
+        assert(record.getImage(10).imageURL.equals(object.image.imageURL));
     }
 
 
@@ -645,6 +674,45 @@ public class ConverterTest {
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
+    }
+
+
+
+    //THIS test is supposed to make sure that a primary key without an attribute annotation
+    // won't have an index of zero
+    @Test
+    public void testPrimaryKeyWithNoIndex(){
+        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestObject.class));
+        TestObject testObject = new TestObject();
+        testObject.id = 1;
+        testObject.name = "testing";
+        ObjectConverter.copyToRecord(dataSetItem, testObject);
+
+    }
+
+    public class TestObject{
+        @PrimaryKey
+        private
+        int id;
+
+        @Attribute(index = 0)
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 
 

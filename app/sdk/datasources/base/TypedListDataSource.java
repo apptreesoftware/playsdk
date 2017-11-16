@@ -2,17 +2,16 @@ package sdk.datasources.base;
 
 import sdk.converter.ObjectConverter;
 import sdk.data.ServiceConfigurationAttribute;
+import sdk.exceptions.PrimaryObjectNotFoundException;
 import sdk.list.List;
 import sdk.list.ListItem;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Parameters;
-import sdk.utils.ServiceParameter;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import static sdk.utils.ValidationUtils.safe;
 
@@ -42,9 +41,24 @@ public abstract class TypedListDataSource<T> implements SearchableList, Cacheabl
         return ObjectConverter.inferName(getDataSourceType().getSimpleName());
     }
 
+    @Override
+    public ListItem fetchItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        T item = getItem(id, authenticationInfo, parameters);
+        if ( item != null ) {
+            ListItem tempItem = new ListItem();
+            ObjectConverter.copyToRecord(tempItem, item);
+            return tempItem;
+        }
+        throw new PrimaryObjectNotFoundException();
+    }
+
     public abstract Collection<T> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 
     public abstract Collection<T> queryAll(String queryText, boolean isBarcodeSearch, Map<String, Object> searchParameters, AuthenticationInfo authenticationInfo, Parameters parameters);
+
+    public T getItem(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        throw new RuntimeException("This source does not support fetching a single item");
+    }
 
 
     public Class<T> getDataSourceType() {

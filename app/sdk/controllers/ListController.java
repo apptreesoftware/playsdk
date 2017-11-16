@@ -2,6 +2,7 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import org.springframework.cglib.core.CollectionUtils;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -12,8 +13,10 @@ import play.mvc.Result;
 import play.mvc.With;
 import sdk.AppTree;
 import sdk.ValidateRequestAction;
+import sdk.datasources.ListDataSource;
 import sdk.datasources.ListDataSource_Internal;
 import sdk.list.CacheListSQLGenerator;
+import sdk.list.List;
 import sdk.list.ListDataSourceResponse;
 import sdk.list.ListServiceConfiguration;
 import sdk.utils.*;
@@ -129,5 +132,21 @@ public class ListController extends Controller {
 //                    ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(false).setMessage(exception.getMessage()).createListDataSourceResponse();
 //                    return ok(JsonUtils.toJson(response));
 //                });
+    }
+
+    public CompletionStage<Result> searchForListItem(String listName, String listItemID) {
+        Http.Request request = request();
+        ListDataSource_Internal dataSource = AppTree.lookupListHandler(listName).orElseThrow(() -> new RuntimeException("Invalid List Data Source"));
+        AuthenticationInfo info = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+
+        return dataSource.getListItem(listItemID, info, parameters)
+            .thenApply(listItem -> {
+                List list = new List();
+                list.addListItem(listItem);
+                ListDataSourceResponse response = new ListDataSourceResponse.Builder().setSuccess(true).setRecords(list).createListDataSourceResponse();
+                return ok(JsonUtils.toJson(response)).withHeader(Constants.CORE_ITEM_COUNT_HEADER, "1");
+            })
+            .exceptionally(ResponseExceptionHandler::handleException);
     }
 }
