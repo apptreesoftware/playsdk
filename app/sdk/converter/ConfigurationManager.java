@@ -66,11 +66,12 @@ public class ConfigurationManager extends TypeManager {
         AttributeType attributeType = attribute.dataType();
         if (attributeType.equals(AttributeType.None)) {
             converterAttributeType = inferDataType(proxy.getType().getSimpleName());
+            attributeType = converterAttributeType.getAttributeType();
         }
         ListServiceConfigurationAttribute listServiceConfigurationAttribute = new ListServiceConfigurationAttribute();
         listServiceConfigurationAttribute.setAttributeIndex(index);
         listServiceConfigurationAttribute.setName(name);
-        listServiceConfigurationAttribute.setAttributeType(converterAttributeType.getAttributeType());
+        listServiceConfigurationAttribute.setAttributeType(attributeType);
         listServiceConfigurationAttribute.setIsListItemConfiguration(true);
         return listServiceConfigurationAttribute;
     }
