@@ -121,10 +121,10 @@ public class ConfigurationManager extends TypeManager {
             } else {
                 converterAttributeType = inferDataType(configurationWrapper.dataTypeName);
                 if (!converterAttributeType.getAttributeType().equals(AttributeType.Relation)) {
-                    converterAttributeType = new ConverterAttributeType(AttributeType.SingleRelationship, true);
+                    converterAttributeType = new ConverterAttributeType(AttributeType.SingleRelationship, true, false);
                     attributeType = converterAttributeType.getAttributeType();
                 } else {
-                    converterAttributeType = new ConverterAttributeType(AttributeType.Relation, true);
+                    converterAttributeType = new ConverterAttributeType(AttributeType.Relation, true, false);
                     attributeType = converterAttributeType.getAttributeType();
                 }
             }

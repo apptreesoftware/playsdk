@@ -205,6 +205,22 @@ public class ConverterTest {
 
 
     @Test
+    public void testObjectWithPrimitiveTypes() {
+        SamplePrimitivesObject obj = new SamplePrimitivesObject();
+        DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
+        try {
+            ObjectConverter.copyToRecord(item, obj);
+            DataSetItem newItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
+            ObjectConverter.copyFromRecord(item, obj);
+            assert(true);
+        } catch(Exception e) {
+            e.printStackTrace();
+            assert(false);
+        }
+    }
+
+
+    @Test
     public void testSetImageToRecord() {
         SampleListItem object = getNewSampleListObject();
         Record record = new ListItem();

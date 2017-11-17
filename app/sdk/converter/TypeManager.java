@@ -116,50 +116,50 @@ public class TypeManager {
      */
     protected static ConverterAttributeType inferDataType(Class clazz) {
         if (CustomLocation.class.isAssignableFrom(clazz))
-            return new ConverterAttributeType(AttributeType.Location, true);
+            return new ConverterAttributeType(AttributeType.Location, true, false);
         if (ApptreeAttachment.class.isAssignableFrom(clazz))
-            return new ConverterAttributeType(AttributeType.Attachments, true);
+            return new ConverterAttributeType(AttributeType.Attachments, true, false);
         return findTypeOnSimpleName(clazz.getSimpleName());
     }
 
     protected static ConverterAttributeType findTypeOnSimpleName(String name) {
         switch (name) {
             case "String":
-                return new ConverterAttributeType(AttributeType.String, true);
+                return new ConverterAttributeType(AttributeType.String, true, false);
             case "Double":
             case "Float":
-                return new ConverterAttributeType(AttributeType.Double, true);
+                return new ConverterAttributeType(AttributeType.Double, true, false);
             case "float":
             case "double":
-                return new ConverterAttributeType(AttributeType.Double, false);
+                return new ConverterAttributeType(AttributeType.Double, false, true);
             case "Long":
-                return new ConverterAttributeType(AttributeType.Int, true);
+                return new ConverterAttributeType(AttributeType.Int, true, false);
             case "long":
-                return new ConverterAttributeType(AttributeType.Int, false);
+                return new ConverterAttributeType(AttributeType.Int, false, true);
             case "Integer":
-                return new ConverterAttributeType(AttributeType.Int, true);
+                return new ConverterAttributeType(AttributeType.Int, true, false);
             case "int":
-                return new ConverterAttributeType(AttributeType.Int, false);
+                return new ConverterAttributeType(AttributeType.Int, false, true);
             case "Date":
             case "DateTime":
-                return new ConverterAttributeType(AttributeType.DateTime, true);
+                return new ConverterAttributeType(AttributeType.DateTime, true, false);
             case "Boolean":
-                return new ConverterAttributeType(AttributeType.Boolean, true);
+                return new ConverterAttributeType(AttributeType.Boolean, true, false);
             case "boolean":
-                return new ConverterAttributeType(AttributeType.Boolean, false);
+                return new ConverterAttributeType(AttributeType.Boolean, false, true);
             case "ArrayList":
             case "List":
-                return new ConverterAttributeType(AttributeType.Relation, true);
+                return new ConverterAttributeType(AttributeType.Relation, true, false);
             case "Location":
-                return new ConverterAttributeType(AttributeType.Location, true);
+                return new ConverterAttributeType(AttributeType.Location, true, false);
             case "Color":
-                return new ConverterAttributeType(AttributeType.Color, true);
+                return new ConverterAttributeType(AttributeType.Color, true, false);
             case "Attachments":
-                return new ConverterAttributeType(AttributeType.Attachments, true);
+                return new ConverterAttributeType(AttributeType.Attachments, true, false);
             case "Image":
-                return new ConverterAttributeType(AttributeType.Image, true);
+                return new ConverterAttributeType(AttributeType.Image, true, false);
             default:
-                return new ConverterAttributeType(AttributeType.ListItem, true);
+                return new ConverterAttributeType(AttributeType.ListItem, true, false);
         }
     }
 
@@ -276,6 +276,16 @@ public class TypeManager {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    protected static Class primitiveToWrapper(String simpleName) {
+        switch (simpleName) {
+            case "int":
+            case "long": return Integer.class;
+            case "double":
+            case "float": return Double.class;
+            default: return String.class;
         }
     }
 

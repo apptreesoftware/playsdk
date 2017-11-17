@@ -8,10 +8,12 @@ import sdk.models.AttributeType;
 public class ConverterAttributeType {
     private AttributeType attributeType;
     private boolean isOptional;
+    private boolean isPrimitive;
 
-    public ConverterAttributeType(AttributeType attributeType, boolean isOptional) {
+    public ConverterAttributeType(AttributeType attributeType, boolean isOptional, boolean isPrimitive) {
         this.setAttributeType(attributeType);
         this.setOptional(isOptional);
+        this.setIsPrimitive(isPrimitive);
     }
 
 
@@ -29,5 +31,13 @@ public class ConverterAttributeType {
 
     public void setOptional(boolean optional) {
         isOptional = optional;
+    }
+
+    public boolean isPrimitive() {
+        return isPrimitive;
+    }
+
+    public void setIsPrimitive(boolean primitive) {
+        this.isPrimitive = primitive;
     }
 }

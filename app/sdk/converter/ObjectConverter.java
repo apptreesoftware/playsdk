@@ -9,6 +9,7 @@ import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 import sdk.models.*;
+import sdk.utils.ClassUtils;
 import sdk.utils.RecordUtils;
 
 import java.io.ByteArrayInputStream;
@@ -608,7 +609,9 @@ public class ObjectConverter extends ConfigurationManager {
                                                     Integer index)
         throws InvocationTargetException, UnableToWriteException {
         try {
-            classValue = Class.forName(fieldType.getTypeName());
+            if(findTypeOnSimpleName(fieldType.getTypeName()).isPrimitive())
+                classValue = primitiveToWrapper(fieldType.getTypeName());
+            else classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
             copyFromRecord(record, object);
             useSetterIfExists(proxy, destination, object);
