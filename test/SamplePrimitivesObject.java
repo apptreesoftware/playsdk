@@ -1,5 +1,6 @@
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
+import sdk.data.DataSetItem;
 
 /**
  * Author: Karis Sponsler
@@ -18,13 +19,13 @@ public class SamplePrimitivesObject {
     @Attribute(index = 2)
     public int anInt;
 
-    @Attribute(index = 3)
+    @Attribute(index = 4)
     private int privateInt;
 
-    @Attribute(index = 4)
+    @Attribute(index = 5)
     private double privateDouble;
 
-    @Attribute(index = 5)
+    @Attribute(index = 6)
     private float privateFloat;
 
 
@@ -50,5 +51,15 @@ public class SamplePrimitivesObject {
 
     public void setPrivateFloat(float privateFloat) {
         this.privateFloat = privateFloat;
+    }
+
+
+    public static boolean equivalent(DataSetItem item, SamplePrimitivesObject obj) {
+        return (obj.anInt == item.getInt(2) &&
+                Double.compare(obj.aDouble, item.getDouble(0)) < 0.001 &&
+                Double.compare(obj.aFloat, item.getDouble(1)) < 0.001 &&
+                obj.getPrivateInt() == item.getInt(4) &&
+                Double.compare(obj.getPrivateDouble(), item.getDouble(5)) < 0.001 &&
+                Double.compare(obj.getPrivateFloat(), item.getDouble(6)) < 0.001);
     }
 }

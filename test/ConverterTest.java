@@ -4,8 +4,9 @@ import org.junit.Test;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 import sdk.converter.AttributeProxy;
+import sdk.converter.ConfigurationManager;
 import sdk.converter.ObjectConverter;
-import sdk.data.DataSet;
+import sdk.converter.TypeManager;
 import sdk.data.DataSetItem;
 import sdk.data.Record;
 import sdk.data.ServiceConfiguration;
@@ -16,10 +17,8 @@ import sdk.models.Color;
 import sdk.models.Image;
 import sdk.models.Location;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -72,18 +71,18 @@ public class ConverterTest {
         return location;
     }
 
-
-    public void hydrateSampleObjectProxies(List<AttributeProxy> attributeProxies) {
-        Field[] fields = SampleObject.class.getFields();
-        Method[] methods = SampleObject.class.getMethods();
-        attributeProxies.addAll(Arrays.stream(fields)
-                .filter(field -> field.getAnnotation(Attribute.class) != null)
-                .map(field -> new AttributeProxy(field))
-                .collect(Collectors.toList()));
-        attributeProxies.addAll(Arrays.stream(methods)
-                .filter(method -> method.getAnnotation(Attribute.class) != null)
-                .map(field -> new AttributeProxy(field))
-                .collect(Collectors.toList()));
+    @SuppressWarnings("unchecked")
+    public <T extends List<?>> T hydrateSampleObjectProxies() {
+        try {
+            Method method = TypeManager.class.getDeclaredMethod("getMethodAndFieldAnnotationsForClass", Class.class);
+            method.setAccessible(true);
+            Object[] args = {SampleObject.class};
+            ObjectConverter converter = new ObjectConverter();
+            return (T) method.invoke(converter, args);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private DataSetItem getHydratedDataSetItemFromSampleObject(DataSetItem dataSetItem, SampleObject sampleObject) {
@@ -164,7 +163,7 @@ public class ConverterTest {
         dataSetItem.setDateTime(new DateTime(100), 7);
         dataSetItem.setDateTime(new DateTime(100), 8);
         dataSetItem.setDateTime(new DateTime(100), 9);
-        dataSetItem.setListItem(getSampleListItem(), 11);
+        dataSetItem.setListItem(getSampleListItem(), 10);
     }
 
 
@@ -211,8 +210,9 @@ public class ConverterTest {
         try {
             ObjectConverter.copyToRecord(item, obj);
             DataSetItem newItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
-            ObjectConverter.copyFromRecord(item, obj);
-            assert(true);
+            ObjectConverter.copyFromRecord(newItem, obj);
+            assert(obj.equivalent(item, obj));
+            assert(obj.equivalent(newItem, new SamplePrimitivesObject()));
         } catch(Exception e) {
             e.printStackTrace();
             assert(false);
@@ -369,7 +369,7 @@ public class ConverterTest {
         try {
             ObjectConverter converter = new ObjectConverter();
             Class[] argTypes = new Class[]{String.class};
-            Method method = converter.getClass().getDeclaredMethod("inferName", argTypes);
+            Method method = ConfigurationManager.class.getDeclaredMethod("inferName", String.class);
             method.setAccessible(true);
             Object[] args = new Object[1];
 
@@ -385,25 +385,25 @@ public class ConverterTest {
                 assert (output.equals(value));
             });
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
     @Test
     public void testGetLocationValueFromObjectSDK() {
-        SampleObject object = new SampleObject();
-        List<AttributeProxy> attributeProxies = new ArrayList<>();
-        hydrateSampleObjectProxies(attributeProxies);
+        SampleObject object = getSampleObject();
+        List<AttributeProxy> attributeProxies = hydrateSampleObjectProxies();
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : attributeProxies) {
-            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+            if (proxy.getName().equalsIgnoreCase("sdklocation")) argProxy = proxy;
         }
         ObjectConverter converter = new ObjectConverter();
         try {
-            Method method = converter.getClass().getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            Method method = ObjectConverter.class.getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class, boolean.class);
             method.setAccessible(true);
             Object[] args = new Object[3];
-            args[0] = attributeProxies.get(1);
+            args[0] = argProxy;
             args[1] = object;
             args[2] = false; // Use getter/setter
             Location testFillObj = (Location) method.invoke(converter, args);
@@ -413,15 +413,15 @@ public class ConverterTest {
             assert (testFillObj.getElevation() == object.sdkLocation.getElevation());
             assert (testFillObj.getSpeed() == object.sdkLocation.getSpeed());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
     @Test
     public void testGetLocationValueFromObjectCustom() {
-        SampleObject object = new SampleObject();
-        List<AttributeProxy> attributeProxies = new ArrayList<>();
-        hydrateSampleObjectProxies(attributeProxies);
+        SampleObject object = getSampleObject();
+        List<AttributeProxy> attributeProxies = hydrateSampleObjectProxies();
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : attributeProxies) {
             if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
@@ -442,18 +442,18 @@ public class ConverterTest {
             assert (testFillObj.getElevation() == object.customLocation.getElevation());
             assert (testFillObj.getSpeed() == object.customLocation.getSpeed());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
     @Test
     public void testReadLocationData() {
-        SampleObject object = new SampleObject();
-        List<AttributeProxy> attributeProxies = new ArrayList<>();
-        hydrateSampleObjectProxies(attributeProxies);
+        SampleObject object = getSampleObject();
+        List<AttributeProxy> attributeProxies = hydrateSampleObjectProxies();
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : attributeProxies) {
-            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+            if (proxy.getName().equalsIgnoreCase("sdklocation")) argProxy = proxy;
         }
         ObjectConverter converter = new ObjectConverter();
         try {
@@ -475,34 +475,33 @@ public class ConverterTest {
             assert (testFillObj.getElevation() == object.sdkLocation.getElevation());
             assert (testFillObj.getSpeed() == object.sdkLocation.getSpeed());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
     @Test
     public void testWriteLocationDataSDK() {
-        SampleObject object = new SampleObject();
+        SampleObject object = getSampleObject();
         ObjectConverter converter = new ObjectConverter();
-        List<AttributeProxy> attributeProxies = new ArrayList<>();
-        hydrateSampleObjectProxies(attributeProxies);
+        List<AttributeProxy> attributeProxies = hydrateSampleObjectProxies();
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : attributeProxies) {
-            if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
+            if (proxy.getName().equalsIgnoreCase("sdklocation")) argProxy = proxy;
         }
         DataSetItem dataSetItem = new DataSetItem(SampleObject.getServiceConfigurationAttributes());
-        getHydratedDataSetItemFromSampleObject(dataSetItem, object);
+        ObjectConverter.copyToRecord(dataSetItem, object);
         Location src = dataSetItem.getLocation(argProxy.getAttributeAnnotation().index());
         SampleObject dest = new SampleObject();
         dest.customLocation = null;
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("writeLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
+            Method method = ObjectConverter.class.getDeclaredMethod("writeLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class);
             method.setAccessible(true);
-            Object[] args = new Object[5];
+            Object[] args = new Object[4];
             args[0] = argProxy;
             args[1] = dest; // destination
             args[2] = dataSetItem;
             args[3] = argProxy.getAttributeAnnotation().index();
-            args[4] = Class.class;
             method.invoke(converter, args);
             assert (dest.sdkLocation.getLatLngString().equals(src.getLatLngString()));
             assert (dest.sdkLocation.getAccuracy() == src.getAccuracy());
@@ -510,16 +509,16 @@ public class ConverterTest {
             assert (dest.sdkLocation.getBearing() == src.getBearing());
             assert (dest.sdkLocation.getElevation() == src.getElevation());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
     @Test
     public void testWriteCustomLocation() {
-        SampleObject object = new SampleObject();
+        SampleObject object = getSampleObject();
         ObjectConverter converter = new ObjectConverter();
-        List<AttributeProxy> attributeProxies = new ArrayList<>();
-        hydrateSampleObjectProxies(attributeProxies);
+        List<AttributeProxy> attributeProxies = hydrateSampleObjectProxies();
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : attributeProxies) {
             if (proxy.getName().equalsIgnoreCase("customLocation")) argProxy = proxy;
@@ -530,14 +529,13 @@ public class ConverterTest {
         SampleObject dest = new SampleObject();
         dest.customLocation = null;
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("writeCustomLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
+            Method method = ObjectConverter.class.getDeclaredMethod("writeCustomLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class);
             method.setAccessible(true);
-            Object[] args = new Object[5];
+            Object[] args = new Object[4];
             args[0] = argProxy;
             args[1] = dest; // destination
             args[2] = dataSetItem;
             args[3] = argProxy.getAttributeAnnotation().index();
-            args[4] = Class.class;
             method.invoke(converter, args);
             assert (dest.customLocation.getLatitude() == src.getLatitude());
             assert (dest.customLocation.getLongitude() == src.getLongitude());
@@ -546,7 +544,8 @@ public class ConverterTest {
             assert (dest.customLocation.getBearing() == src.getBearing());
             assert (dest.customLocation.getElevation() == src.getElevation());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
@@ -554,8 +553,7 @@ public class ConverterTest {
     public void testReadColorData() {
         SampleObject object = getSampleObject();
         DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
-        List<AttributeProxy> proxies = new ArrayList<>();
-        hydrateSampleObjectProxies(proxies);
+        List<AttributeProxy> proxies = hydrateSampleObjectProxies();
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : proxies) {
             if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
@@ -571,7 +569,8 @@ public class ConverterTest {
             assert (responseColor.getG() == object.color.getG());
             assert (responseColor.getR() == object.color.getR());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
@@ -579,18 +578,17 @@ public class ConverterTest {
     public void testWriteColor() {
         SampleObject object = getSampleObject();
         DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
-        List<AttributeProxy> proxies = new ArrayList<>();
+        List<AttributeProxy> proxies = hydrateSampleObjectProxies();
         getHydratedDataSetItemFromSampleObject(dataSetItem, object);
-        hydrateSampleObjectProxies(proxies);
         AttributeProxy argProxy = null;
         object.color = null;
         for (AttributeProxy proxy : proxies) {
             if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("writeColorData", AttributeProxy.class, Object.class, Record.class, Integer.class, Class.class);
+            Method method = ObjectConverter.class.getDeclaredMethod("writeColorData", AttributeProxy.class, Object.class, Record.class, Integer.class);
             method.setAccessible(true);
-            Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), Class.class};
+            Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index()};
             method.invoke(null, args);
             Color responseColor = object.color;
             assert (responseColor.getA() == object.color.getA());
@@ -598,7 +596,8 @@ public class ConverterTest {
             assert (responseColor.getG() == object.color.getG());
             assert (responseColor.getR() == object.color.getR());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 
@@ -606,9 +605,8 @@ public class ConverterTest {
     public void testGetColorValueFromObject() {
         SampleObject object = getSampleObject();
         DataSetItem dataSetItem = new DataSetItem(object.getServiceConfigurationAttributes());
-        List<AttributeProxy> proxies = new ArrayList<>();
+        List<AttributeProxy> proxies = hydrateSampleObjectProxies();
         getHydratedDataSetItemFromSampleObject(dataSetItem, object);
-        hydrateSampleObjectProxies(proxies);
         AttributeProxy argProxy = null;
         for (AttributeProxy proxy : proxies) {
             if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
@@ -623,7 +621,8 @@ public class ConverterTest {
             assert (responseColor.getG() == object.color.getG());
             assert (responseColor.getR() == object.color.getR());
         } catch (Exception error) {
-            System.out.println("Test failed with error: " + error.getLocalizedMessage());
+            error.printStackTrace();
+            assert(false);
         }
     }
 

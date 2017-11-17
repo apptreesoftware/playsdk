@@ -1,7 +1,6 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
-import play.Logger;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.converter.attachment.Attachment;
@@ -283,8 +282,8 @@ public class TypeManager {
         switch (simpleName) {
             case "int":
             case "long": return Integer.class;
-            case "double":
-            case "float": return Double.class;
+            case "double": return Double.class;
+            case "float": return Float.class;
             default: return String.class;
         }
     }
