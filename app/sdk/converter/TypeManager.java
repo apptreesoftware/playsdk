@@ -115,50 +115,50 @@ public class TypeManager {
      */
     protected static ConverterAttributeType inferDataType(Class clazz) {
         if (CustomLocation.class.isAssignableFrom(clazz))
-            return new ConverterAttributeType(AttributeType.Location, true, false);
+            return new ConverterAttributeType(AttributeType.Location, true);
         if (ApptreeAttachment.class.isAssignableFrom(clazz))
-            return new ConverterAttributeType(AttributeType.Attachments, true, false);
+            return new ConverterAttributeType(AttributeType.Attachments, true);
         return findTypeOnSimpleName(clazz.getSimpleName());
     }
 
     protected static ConverterAttributeType findTypeOnSimpleName(String name) {
         switch (name) {
             case "String":
-                return new ConverterAttributeType(AttributeType.String, true, false);
+                return new ConverterAttributeType(AttributeType.String, true);
             case "Double":
             case "Float":
-                return new ConverterAttributeType(AttributeType.Double, true, false);
+                return new ConverterAttributeType(AttributeType.Double, true);
             case "float":
             case "double":
-                return new ConverterAttributeType(AttributeType.Double, false, true);
+                return new ConverterAttributeType(AttributeType.Double, false);
             case "Long":
-                return new ConverterAttributeType(AttributeType.Int, true, false);
+                return new ConverterAttributeType(AttributeType.Int, true);
             case "long":
-                return new ConverterAttributeType(AttributeType.Int, false, true);
+                return new ConverterAttributeType(AttributeType.Int, false);
             case "Integer":
-                return new ConverterAttributeType(AttributeType.Int, true, false);
+                return new ConverterAttributeType(AttributeType.Int, true);
             case "int":
-                return new ConverterAttributeType(AttributeType.Int, false, true);
+                return new ConverterAttributeType(AttributeType.Int, false);
             case "Date":
             case "DateTime":
-                return new ConverterAttributeType(AttributeType.DateTime, true, false);
+                return new ConverterAttributeType(AttributeType.DateTime, true);
             case "Boolean":
-                return new ConverterAttributeType(AttributeType.Boolean, true, false);
+                return new ConverterAttributeType(AttributeType.Boolean, true);
             case "boolean":
-                return new ConverterAttributeType(AttributeType.Boolean, false, true);
+                return new ConverterAttributeType(AttributeType.Boolean, false);
             case "ArrayList":
             case "List":
-                return new ConverterAttributeType(AttributeType.Relation, true, false);
+                return new ConverterAttributeType(AttributeType.Relation, true);
             case "Location":
-                return new ConverterAttributeType(AttributeType.Location, true, false);
+                return new ConverterAttributeType(AttributeType.Location, true);
             case "Color":
-                return new ConverterAttributeType(AttributeType.Color, true, false);
+                return new ConverterAttributeType(AttributeType.Color, true);
             case "Attachments":
-                return new ConverterAttributeType(AttributeType.Attachments, true, false);
+                return new ConverterAttributeType(AttributeType.Attachments, true);
             case "Image":
-                return new ConverterAttributeType(AttributeType.Image, true, false);
+                return new ConverterAttributeType(AttributeType.Image, true);
             default:
-                return new ConverterAttributeType(AttributeType.ListItem, true, false);
+                return new ConverterAttributeType(AttributeType.ListItem, true);
         }
     }
 

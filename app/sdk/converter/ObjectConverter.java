@@ -609,7 +609,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                     Integer index)
         throws InvocationTargetException, UnableToWriteException {
         try {
-            if(findTypeOnSimpleName(fieldType.getTypeName()).isPrimitive())
+            if(!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
                 classValue = primitiveToWrapper(fieldType.getTypeName());
             else classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
