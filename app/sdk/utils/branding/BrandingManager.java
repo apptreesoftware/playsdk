@@ -7,6 +7,7 @@ import org.apache.commons.net.util.Base64;
 import org.apache.http.client.utils.URIBuilder;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import play.Application;
 import play.api.libs.ws.WSClientConfig;
 import play.api.libs.ws.ahc.AhcConfigBuilder;
 import play.api.libs.ws.ahc.AhcWSClientConfig;
@@ -34,9 +35,12 @@ public class BrandingManager {
     @Inject
     private static Materializer materializer;
 
-    public static CompletionStage<Branding> getBranding(String appId, String version, String os) {
+    public static CompletionStage<Branding> getBranding(String appId, String version) {
+        return getBranding(appId, version, "https://go-monolith-v2-sbx.herokuapp.com");
+    }
+
+    public static CompletionStage<Branding> getBranding(String appId, String version, String routerUrl) {
         WSRequest request;
-        String routerUrl = "https://go-monolith-v2-sbx.herokuapp.com";
         try {
             request = proxylessClient().url(
                 new URIBuilder(routerUrl)
