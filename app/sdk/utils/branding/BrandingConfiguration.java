@@ -1,5 +1,6 @@
 package sdk.utils.branding;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Date: 11/22/17
  */
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BrandingConfiguration {
     @JsonProperty("appID")
     public String appId;
