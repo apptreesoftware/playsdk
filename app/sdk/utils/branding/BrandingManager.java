@@ -17,6 +17,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import scala.concurrent.duration.Duration;
+import sdk.utils.Constants;
 import sdk.utils.JsonUtils;
 
 import javax.inject.Inject;
@@ -36,7 +37,7 @@ public class BrandingManager {
     private static Materializer materializer;
 
     public static CompletionStage<Branding> getBranding(String appId, String version) {
-        return getBranding(appId, version, "https://go-monolith-v2-sbx.herokuapp.com");
+        return getBranding(appId, version, Constants.BRANDING_ROUTER_URL);
     }
 
     public static CompletionStage<Branding> getBranding(String appId, String version, String routerUrl) {
