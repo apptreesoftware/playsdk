@@ -47,7 +47,7 @@ public class BrandingManager {
                 new URIBuilder(routerUrl)
                     .setPath("/client/1/config/brandingConfig")
                     .build()
-                    .toString()).setHeader("X-APPTREE-APPLICATION-ID", appId).setHeader("X-APPTREE-VERSION", version);
+                    .toString()).setHeader(Constants.APP_ID_HEADER, appId).setHeader(Constants.APP_VERSION_HEADER, version);
         } catch (URISyntaxException e) {
             return CompletableFuture.supplyAsync(() -> null);
         }
