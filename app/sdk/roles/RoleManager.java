@@ -3,11 +3,11 @@ package sdk.roles;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import sdk.roles.models.AppRole;
+import sdk.roles.models.RoleRequest;
 import sdk.utils.Constants;
 
 import java.util.ArrayList;
@@ -23,7 +23,8 @@ import static sdk.utils.ValidationUtils.NullOrEmpty;
 public class RoleManager {
     private String programmaticUserToken;
     private WSClient wsClient;
-    private static final String getRolesEndPoint = "http://localhost:9001/public/1/roles";
+    private static final String getRolesEndURL = "http://localhost:9001/public/1/roles";
+    private static final String addRolesURL = "http://localhost:9001/public/1/users/%s/roles/add";
     private static ObjectMapper objectMapper;
 
     private RoleManager() {
@@ -36,6 +37,26 @@ public class RoleManager {
 
     public static RoleManager getInstance(String programmaticUserToken, WSClient client) {
         return new RoleManager(programmaticUserToken, client);
+    }
+
+    public boolean addRolesToUser(String username, String appId, String... roleNames) {
+        if (NullOrEmpty(this.programmaticUserToken) || wsClient == null) {
+            throw new RuntimeException("Role Manager was not initialized correctly.");
+        }
+        WSRequest request = getAddRoleRequest(appId, username);
+        RoleRequest roleRequest = new RoleRequest(roleNames);
+        JsonNode bodyNode = getObjectMapper().valueToTree(roleRequest);
+        try {
+            int status = request.post(bodyNode)
+                                .thenApply(WSResponse::getStatus)
+                                .toCompletableFuture()
+                                .get();
+            if (status != 200) return false;
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public List<AppRole> getRolesForAppID(String appID) throws ExecutionException,
@@ -63,17 +84,32 @@ public class RoleManager {
         if (wsClient == null) {
             throw new RuntimeException("WS Client was not initialized correctly");
         }
-        WSRequest request = wsClient.url(getRolesEndPoint);
+        WSRequest request = wsClient.url(getRolesEndURL);
         if (NullOrEmpty(programmaticUserToken)) {
             throw new RuntimeException("Programmatic user token was not initialized correctly");
         }
         request.setHeader(Constants.APP_ID_HEADER, appID);
-        request.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
-        request.setHeader(Constants.X_APPTREE_TOKEN_ID, this.programmaticUserToken);
-        request.setQueryParameter("appid", appID);
         return request;
     }
 
+
+    public WSRequest getAddRoleRequest(String appId, String username) {
+        WSRequest request = wsClient.url(getAddRolesURL(username));
+        request.setHeader(Constants.APP_ID_HEADER, appId);
+        addHeadersToRequest(request);
+        return request;
+    }
+
+
+    public void addHeadersToRequest(WSRequest request) {
+        request.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
+        request.setHeader(Constants.X_APPTREE_TOKEN_ID, this.programmaticUserToken);
+    }
+
+
+    private String getAddRolesURL(String username) {
+        return String.format(addRolesURL, username);
+    }
 
     private ObjectMapper getObjectMapper() {
         if (objectMapper == null) {

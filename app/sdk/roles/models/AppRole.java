@@ -1,9 +1,11 @@
 package sdk.roles.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sdk.annotations.Attribute;
 import sdk.annotations.PrimaryKey;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppRole {
     @JsonProperty("roleID")
     @PrimaryKey
