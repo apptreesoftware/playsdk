@@ -1,16 +1,25 @@
 package sdk.roles.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import sdk.annotations.Attribute;
+import sdk.annotations.PrimaryKey;
+
 public class AppRole {
-    private int roleId;
+    @JsonProperty("roleID")
+    @PrimaryKey
+    private int roleID;
+    @Attribute(index = 0)
+    @JsonProperty("roleName")
     private String roleName;
+    @JsonProperty("appID")
     private String appID;
 
-    public int getRoleId() {
-        return roleId;
+    public int getRoleID() {
+        return roleID;
     }
 
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
+    public void setRoleID(int roleID) {
+        this.roleID = roleID;
     }
 
     public String getRoleName() {
