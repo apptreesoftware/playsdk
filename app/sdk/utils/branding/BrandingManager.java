@@ -41,57 +41,66 @@ public class BrandingManager {
     }
 
     public static CompletionStage<Branding> getBranding(String appId, String version, String routerUrl) {
-        WSRequest request;
+        Optional<WSRequest> wsRequest = getBrandingRequest(routerUrl, appId, version);
+        if(wsRequest.isPresent()) {
+            return wsRequest.get()
+                            .get()
+                            .thenApply(wsResponse -> {
+                                if (wsResponse.getStatus() != Http.Status.OK)
+                                    return Optional.empty();
+                                JsonNode json = wsResponse.asJson();
+                                return Optional.of(JsonUtils.fromJson(json, Branding.class));
+                            })
+                            .thenCompose(optional -> {
+                                if (optional.isPresent()) {
+                                    Branding branding = (Branding) optional.get();
+                                    hydrateBrandingLogo(routerUrl, appId, branding);
+                                    return CompletableFuture.supplyAsync(() -> branding);
+                                }
+                                return CompletableFuture.supplyAsync(() -> null);
+                            })
+                            .exceptionally(throwable -> null);
+        }
+        return CompletableFuture.supplyAsync(() -> null);
+    }
+
+    private static Optional<WSRequest> getBrandingRequest(String routerUrl, String appId, String version) {
         try {
-            request = proxylessClient().url(
+            return Optional.of(proxylessClient().url(
                 new URIBuilder(routerUrl)
                     .setPath("/client/1/config/brandingConfig")
                     .build()
-                    .toString()).setHeader(Constants.APP_ID_HEADER, appId).setHeader(Constants.APP_VERSION_HEADER, version);
+                    .toString()).setHeader(Constants.APP_ID_HEADER, appId)
+                                                .setHeader(Constants.APP_VERSION_HEADER, version)
+            );
         } catch (URISyntaxException e) {
-            return CompletableFuture.supplyAsync(() -> null);
+            return Optional.empty();
         }
-        return request
-            .get()
-            .thenApply(wsResponse -> {
-                // Use default branding (baseline page styles) if request failed
-                if (wsResponse.getStatus() != Http.Status.OK) {
-                    return null;
-                }
+    }
 
-                JsonNode json = wsResponse.asJson();
-                return Optional.ofNullable(JsonUtils.fromJson(json, Branding.class)).orElse(null);
-            })
-            .thenCompose(branding -> {
-                if (branding == null) {
-                    return CompletableFuture.supplyAsync(() -> null);
-                }
+    private static Optional<WSRequest> getLogoUrlRequest(String routerUrl, String appId, Branding branding) {
+        try {
+            return Optional.of(proxylessClient().url(
+                new URIBuilder(routerUrl).setPath(String.format("/1/cache/branding/logo/%s",
+                                                                branding.configuration.logoName))
+                                         .addParameter("appid", appId)
+                                         .build()
+                                         .toString()
+                )
+            );
+        } catch (URISyntaxException e) {
+            return Optional.empty();
+        }
+    }
 
-                // Get the branding logo data URI
-                WSRequest logoUrlRequest;
-                try {
-                    logoUrlRequest = proxylessClient().url(
-                        new URIBuilder(routerUrl).setPath(
-                            String.format("/1/cache/branding/logo/%s", branding.configuration.logoName)
-                        ).addParameter("appid", appId).build().toString()
-                    );
-                } catch (URISyntaxException e) {
-                    return CompletableFuture.supplyAsync(() -> branding);
-                }
-
-                return logoUrlRequest
-                    .get()
-                    .thenApply(wsResponse -> {
-                        // Use unchanged branding (baseline page styles) if request failed
-                        if (wsResponse.getStatus() == Http.Status.OK) {
-                            String logoData =
-                                Base64.encodeBase64String(wsResponse.asByteArray());
-                            branding.configuration.logoURL = String.format("data:image/png;base64,%s", logoData);
-                        }
-                        return branding;
-                    });
-            })
-            .exceptionally(throwable -> null);
+    private static void hydrateBrandingLogo(String routerUrl, String appId, Branding branding) {
+        Optional<WSRequest> request = getLogoUrlRequest(routerUrl, appId, branding);
+        if(request.isPresent()) {
+            request.get().get().whenComplete((wsResponse, throwable) -> {
+                String logoData = Base64.encodeBase64String(wsResponse.asByteArray());
+                branding.configuration.logoURL = String.format("data:image/png;base64,%s", logoData);
+            });
+        }
     }
 
     public static WSClient proxylessClient() {
