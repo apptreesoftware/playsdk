@@ -7,12 +7,12 @@ import sdk.annotations.PrimaryKey;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppRole {
-    @JsonProperty("roleID")
     @PrimaryKey
-    private int roleID;
-    @Attribute(index = 0)
     @JsonProperty("roleName")
     private String roleName;
+    @JsonProperty("roleID")
+    @Attribute(index = 0)
+    private int roleID;
     @JsonProperty("appID")
     private String appID;
 

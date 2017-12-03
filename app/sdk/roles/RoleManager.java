@@ -25,6 +25,7 @@ public class RoleManager {
     private WSClient wsClient;
     private static final String getRolesEndURL = "http://localhost:9001/public/1/roles";
     private static final String addRolesURL = "http://localhost:9001/public/1/users/%s/roles/add";
+    private static final String removeRolesURL = "http://localhost:9001/public/1/users/%s/roles/remove";
     private static ObjectMapper objectMapper;
 
     private RoleManager() {
@@ -44,6 +45,24 @@ public class RoleManager {
             throw new RuntimeException("Role Manager was not initialized correctly.");
         }
         WSRequest request = getAddRoleRequest(appId, username);
+        RoleRequest roleRequest = new RoleRequest(roleNames);
+        JsonNode bodyNode = getObjectMapper().valueToTree(roleRequest);
+        try {
+            int status = request.post(bodyNode)
+                                .thenApply(WSResponse::getStatus)
+                                .toCompletableFuture()
+                                .get();
+            if (status != 200) return false;
+            return true;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    public boolean removeRoleFromUser(String username, String appId, String ...roleNames) {
+        WSRequest request = getRemoveRoleRequest(appId, username);
         RoleRequest roleRequest = new RoleRequest(roleNames);
         JsonNode bodyNode = getObjectMapper().valueToTree(roleRequest);
         try {
@@ -101,6 +120,15 @@ public class RoleManager {
     }
 
 
+
+    public WSRequest getRemoveRoleRequest(String appId, String username) {
+        WSRequest request = wsClient.url(getRemovesRolesURL(username));
+        request.setHeader(Constants.APP_ID_HEADER, appId);
+        addHeadersToRequest(request);
+        return request;
+    }
+
+
     public void addHeadersToRequest(WSRequest request) {
         request.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         request.setHeader(Constants.X_APPTREE_TOKEN_ID, this.programmaticUserToken);
@@ -109,6 +137,11 @@ public class RoleManager {
 
     private String getAddRolesURL(String username) {
         return String.format(addRolesURL, username);
+    }
+
+
+    private String getRemovesRolesURL(String username) {
+        return String.format(removeRolesURL, username);
     }
 
     private ObjectMapper getObjectMapper() {
