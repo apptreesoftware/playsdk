@@ -3,6 +3,7 @@ package sdk.roles;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import play.Play;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -23,9 +24,9 @@ import static sdk.utils.ValidationUtils.NullOrEmpty;
 public class RoleManager {
     private String programmaticUserToken;
     private WSClient wsClient;
-    private static final String getRolesEndURL = "http://localhost:9001/public/1/roles";
-    private static final String addRolesURL = "http://localhost:9001/public/1/users/%s/roles/add";
-    private static final String removeRolesURL = "http://localhost:9001/public/1/users/%s/roles/remove";
+    private static final String getRolesEndURL = getStringFromConfig("get_role_url");
+    private static final String addRolesURL = getStringFromConfig("add_role_url");
+    private static final String removeRolesURL =getStringFromConfig("remove_role_url");
     private static ObjectMapper objectMapper;
 
     private RoleManager() {
@@ -61,7 +62,7 @@ public class RoleManager {
     }
 
 
-    public boolean removeRoleFromUser(String username, String appId, String ...roleNames) {
+    public boolean removeRoleFromUser(String username, String appId, String... roleNames) {
         WSRequest request = getRemoveRoleRequest(appId, username);
         RoleRequest roleRequest = new RoleRequest(roleNames);
         JsonNode bodyNode = getObjectMapper().valueToTree(roleRequest);
@@ -108,10 +109,17 @@ public class RoleManager {
             throw new RuntimeException("Programmatic user token was not initialized correctly");
         }
         request.setHeader(Constants.APP_ID_HEADER, appID);
+        request.setHeader(Constants.X_APPTREE_TOKEN_ID, programmaticUserToken);
         return request;
     }
 
-
+    /**
+     * builds the add roles rest request using the appId and username
+     *
+     * @param appId
+     * @param username
+     * @return
+     */
     public WSRequest getAddRoleRequest(String appId, String username) {
         WSRequest request = wsClient.url(getAddRolesURL(username));
         request.setHeader(Constants.APP_ID_HEADER, appId);
@@ -120,7 +128,13 @@ public class RoleManager {
     }
 
 
-
+    /**
+     * Builds the remove roles rest request using the appId and username
+     *
+     * @param appId
+     * @param username
+     * @return
+     */
     public WSRequest getRemoveRoleRequest(String appId, String username) {
         WSRequest request = wsClient.url(getRemovesRolesURL(username));
         request.setHeader(Constants.APP_ID_HEADER, appId);
@@ -129,21 +143,43 @@ public class RoleManager {
     }
 
 
+    /**
+     * Adds common headers to the [Roles] requests
+     *
+     * @param request
+     */
     public void addHeadersToRequest(WSRequest request) {
         request.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         request.setHeader(Constants.X_APPTREE_TOKEN_ID, this.programmaticUserToken);
     }
 
 
+    /**
+     * Inserts path variable username into the Add Role rest path
+     *
+     * @param username
+     * @return
+     */
     private String getAddRolesURL(String username) {
         return String.format(addRolesURL, username);
     }
 
 
+    /**
+     * Inserts path variables username into the Remove Role rest path
+     *
+     * @param username
+     * @return
+     */
     private String getRemovesRolesURL(String username) {
         return String.format(removeRolesURL, username);
     }
 
+    /**
+     * Returns a single object mapper per Role Manager
+     *
+     * @return
+     */
     private ObjectMapper getObjectMapper() {
         if (objectMapper == null) {
             objectMapper = new ObjectMapper();
@@ -151,6 +187,13 @@ public class RoleManager {
         return objectMapper;
     }
 
+
+    /**
+     * Takes a [AppRole[] JsonNode] converts to an AppRole[]
+     *
+     * @param node
+     * @return
+     */
     private AppRole[] jsonNodeToAppRoles(JsonNode node) {
         try {
             return getObjectMapper().treeToValue(node, AppRole[].class);
@@ -161,6 +204,12 @@ public class RoleManager {
     }
 
 
+    /**
+     * Converts a [AppRole[] JsonNode] into a Collection<AppRole>
+     *
+     * @param node
+     * @return
+     */
     private Collection<AppRole> jsonNodeToAppRolesCollection(JsonNode node) {
         try {
             AppRole[] roles = getObjectMapper().treeToValue(node, AppRole[].class);
@@ -169,6 +218,16 @@ public class RoleManager {
             e.printStackTrace();
             throw new RuntimeException("There was an error parsing the roles response");
         }
+    }
+
+
+    private static String getStringFromConfig(String varName) {
+        String value = Play.application().configuration().getString(varName);
+        if (NullOrEmpty(value)) {
+            throw new RuntimeException(
+                String.format("Var %s was not set or configured correctly", varName));
+        }
+        return value;
     }
 
 
