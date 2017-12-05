@@ -25,9 +25,9 @@ import static sdk.utils.ValidationUtils.NullOrEmpty;
 public class RoleManager {
     private String programmaticUserToken;
     private WSClient wsClient;
-    private static final String getRolesEndURL = ConfigUtils.getStringFromConfig("get_role_url");
-    private static final String addRolesURL = ConfigUtils.getStringFromConfig("add_role_url");
-    private static final String removeRolesURL = ConfigUtils.getStringFromConfig("remove_role_url");
+    private static final String getRolesEndURL = getCoreUrl("/public/1/roles");
+    private static final String addRolesURL = getCoreUrl("/public/1/users/%s/roles/add");
+    private static final String removeRolesURL = getCoreUrl("/public/1/users/%s/roles/remove");
     private static ObjectMapper objectMapper;
 
     private RoleManager() {
@@ -219,6 +219,15 @@ public class RoleManager {
             e.printStackTrace();
             throw new RuntimeException("There was an error parsing the roles response");
         }
+    }
+
+
+    private static String getCoreUrl(String endPoint) {
+        String value = ConfigUtils.getStringFromConfig("base_core_url");
+        if (NullOrEmpty(value)) {
+            throw new RuntimeException("Base Core url was not set or configured");
+        }
+        return value + endPoint;
     }
 
 

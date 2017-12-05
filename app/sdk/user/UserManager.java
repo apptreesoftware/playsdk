@@ -29,6 +29,7 @@ public class UserManager {
     private String programmaticUserToken;
     private WSClient wsClient;
     private ObjectMapper objectMapper;
+    private static final String queryUserRoute = "/public/1/users/query";
     private static final String QUERY_USER_URL = getQueryUserURL();
 
     private UserManager() {
@@ -153,11 +154,11 @@ public class UserManager {
 
 
     public static String getQueryUserURL() {
-        String value = Play.application().configuration().getString("query_user_url");
+        String value = Play.application().configuration().getString("base_core_url");
         if (NullOrEmpty((value))) {
             throw new RuntimeException("Query user url was not set or configured");
         }
-        return value;
+        return value + queryUserRoute;
     }
 
 
