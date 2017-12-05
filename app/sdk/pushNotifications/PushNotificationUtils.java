@@ -1,7 +1,6 @@
-package sdk.pushNotifications;
+package sdk.pushNotifications;i
 
 import com.fasterxml.jackson.databind.JsonNode;
-import play.Logger;
 import play.Play;
 import play.libs.ws.WSRequest;
 import sdk.AppTreeSource;
