@@ -1,4 +1,4 @@
-package sdk.pushNotifications;i
+package sdk.pushNotifications;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.Play;
