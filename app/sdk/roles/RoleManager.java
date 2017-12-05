@@ -9,6 +9,7 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import sdk.roles.models.AppRole;
 import sdk.roles.models.RoleRequest;
+import sdk.utils.ConfigUtils;
 import sdk.utils.Constants;
 
 import java.util.ArrayList;
@@ -24,9 +25,9 @@ import static sdk.utils.ValidationUtils.NullOrEmpty;
 public class RoleManager {
     private String programmaticUserToken;
     private WSClient wsClient;
-    private static final String getRolesEndURL = getStringFromConfig("get_role_url");
-    private static final String addRolesURL = getStringFromConfig("add_role_url");
-    private static final String removeRolesURL =getStringFromConfig("remove_role_url");
+    private static final String getRolesEndURL = ConfigUtils.getStringFromConfig("get_role_url");
+    private static final String addRolesURL = ConfigUtils.getStringFromConfig("add_role_url");
+    private static final String removeRolesURL = ConfigUtils.getStringFromConfig("remove_role_url");
     private static ObjectMapper objectMapper;
 
     private RoleManager() {
@@ -218,16 +219,6 @@ public class RoleManager {
             e.printStackTrace();
             throw new RuntimeException("There was an error parsing the roles response");
         }
-    }
-
-
-    private static String getStringFromConfig(String varName) {
-        String value = Play.application().configuration().getString(varName);
-        if (NullOrEmpty(value)) {
-            throw new RuntimeException(
-                String.format("Var %s was not set or configured correctly", varName));
-        }
-        return value;
     }
 
 
