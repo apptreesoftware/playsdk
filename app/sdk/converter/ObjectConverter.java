@@ -52,6 +52,13 @@ public class ObjectConverter extends ConfigurationManager {
             DataSetItem dataSetItem = dataSet.addNewDataSetItem();
             copyToRecord(dataSetItem, object);
         }
+
+        if (objects instanceof PagedCollection) {
+            int totalRecords = ((PagedCollection) objects).getTotalAvailableRecords();
+            int pageSize = ((PagedCollection) objects).getPageSize();
+            dataSet.setTotalRecords(totalRecords);
+            dataSet.setMoreRecordsAvailable(totalRecords > pageSize);
+        }
         return dataSet;
     }
 
@@ -171,12 +178,13 @@ public class ObjectConverter extends ConfigurationManager {
         boolean value = attributeProxy.isPrimaryValue();
         boolean parentValue = attributeProxy.isParentValue();
 
-        if(primaryKey) {
+        if (primaryKey) {
             Object val = useGetterIfExists(attributeProxy, source);
-            if(val == null) throw new RuntimeException("Primary key is null on " + source.getClass().getSimpleName());
+            if (val == null) throw new RuntimeException(
+                "Primary key is null on " + source.getClass().getSimpleName());
             record.setPrimaryKey(val.toString());
-            if(record.getValue() == null) record.setValue(val.toString());
-            if(!attributeProxy.isAttribute()) return;
+            if (record.getValue() == null) record.setValue(val.toString());
+            if (!attributeProxy.isAttribute()) return;
         }
 
         int index = attributeProxy.getIndex();
@@ -592,7 +600,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     private static <T> void writeImageData(AttributeProxy proxy, T destination,
-                                           Record record, Integer index) throws UnableToWriteException,
+                                           Record record, Integer index) throws
+                                                                         UnableToWriteException,
                                                                          InvocationTargetException {
         Image value = record.getImage(index);
         try {
@@ -1021,17 +1030,17 @@ public class ObjectConverter extends ConfigurationManager {
     private static <T> void readImageData(AttributeProxy proxy, T object, Record record,
                                           int index, boolean primaryKey,
                                           boolean useGetterAndSetter) throws
-                                                                                     IllegalAccessException,
-                                                                                     InvocationTargetException {
+                                                                      IllegalAccessException,
+                                                                      InvocationTargetException {
         Image foundImage;
-        if(fieldHasGetter(proxy, object) && useGetterAndSetter) {
+        if (fieldHasGetter(proxy, object) && useGetterAndSetter) {
             foundImage = (Image) useGetterIfExists(proxy, object);
         } else foundImage = (Image) proxy.getValue(object);
-        if(foundImage != null) {
+        if (foundImage != null) {
             record.setImage(foundImage, index);
-            if(primaryKey) {
+            if (primaryKey) {
                 record.setPrimaryKey(foundImage.imageURL);
-                if(!record.isValueSet()) record.setValue(foundImage.imageURL);
+                if (!record.isValueSet()) record.setValue(foundImage.imageURL);
             }
         }
     }
