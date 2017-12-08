@@ -17,6 +17,9 @@ public class Constants {
     public static final String CORE_CALLBACK_MESSAGE = "X-CALLBACK-MESSAGE";
     public static final String APPLICATION_API_KEY_HEADER = "APPLICATION-API-KEY";
     public static final String APP_ID_HEADER = "X-APPTREE-APPLICATION-ID";
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String APPLICATION_JSON = "application/json";
+    public static final String X_APPTREE_TOKEN_ID = "X-APPTREE-TOKEN-ID";
 
     public static final String CORE_CALLBACK_TYPE_SUCCESS = "SUCCESS";
     public static final String CORE_CALLBACK_TYPE_WARNING = "WARNING";

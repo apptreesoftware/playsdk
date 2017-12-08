@@ -12,8 +12,12 @@ public class ValidationUtils {
         return (collection == null) ? Collections.EMPTY_LIST : collection;
     }
 
-    public static <T> boolean NullOrEmpty(Collection<T> collection) {
+    public static <T> boolean    NullOrEmpty(Collection<T> collection) {
         return (collection == null || collection.isEmpty());
+    }
+
+    public static boolean NullOrEmpty(String value) {
+        return value == null || value.isEmpty();
     }
 
     public static <T> boolean anyNull(T... t) {
@@ -22,6 +26,8 @@ public class ValidationUtils {
         }
         return false;
     }
+
+
 
 
 }
