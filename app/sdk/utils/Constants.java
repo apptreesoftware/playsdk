@@ -36,5 +36,5 @@ public class Constants {
 
     public static final String AllowedOffsetKey = "apptree.allowedServerOffset";
 
-    public static final String BRANDING_ROUTER_URL = "https://go-monolith-v2-sbx.herokuapp.com";
+    public static final String ROUTER_URL = "https://go-monolith-v2.herokuapp.com";
 }

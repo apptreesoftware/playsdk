@@ -7,7 +7,6 @@ import org.apache.commons.net.util.Base64;
 import org.apache.http.client.utils.URIBuilder;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import play.Application;
 import play.api.libs.ws.WSClientConfig;
 import play.api.libs.ws.ahc.AhcConfigBuilder;
 import play.api.libs.ws.ahc.AhcWSClientConfig;
@@ -37,7 +36,7 @@ public class BrandingManager {
     private static Materializer materializer;
 
     public static CompletionStage<Branding> getBranding(String appId, String version) {
-        return getBranding(appId, version, Constants.BRANDING_ROUTER_URL);
+        return getBranding(appId, version, Constants.ROUTER_URL);
     }
 
     public static CompletionStage<Branding> getBranding(String appId, String version, String routerUrl) {
