@@ -130,6 +130,18 @@ public class DataSetController extends DataController {
                 }));
     }
 
+
+    private void generateDataSourceValidateResponse(DataSource_Internal dataSource, DataSetItem dataSetItem, String callbackURL, AuthenticationInfo authenticationInfo, Parameters parameters) {
+        dataSource.validateDataSetItem(dataSetItem, authenticationInfo, parameters)
+                  .whenComplete(((dataSet, throwable) -> {
+                      if (throwable != null) {
+                          sendDataSetExceptionCallback(throwable, callbackURL);
+                      } else {
+                          sendDataSetResponse(dataSet, callbackURL);
+                      }
+                  }));
+    }
+
     public CompletionStage<Result> getDataConfiguration(String dataSetName) {
         DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
         if (dataSource == null) return CompletableFuture.completedFuture(notFound());
@@ -182,6 +194,30 @@ public class DataSetController extends DataController {
                     }
                 })
                 .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
+    }
+
+
+
+
+    @With({ValidateRequestAction.class})
+    public CompletionStage<Result> validateDataSetItem(String dataSetName) {
+        Http.Request request = request();
+        String callbackURL = request.getHeader(Constants.CORE_CALLBACK_URL);
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo(request.headers());
+        Parameters parameters = new Parameters(request.queryString());
+        DataSource_Internal dataSource = AppTree.lookupDataSetHandler(dataSetName);
+        if (dataSource == null) return CompletableFuture.completedFuture(notFound());
+        return getServiceConfiguration(dataSource, request)
+            .thenCompose(configuration -> dataSetItemFromRequest(configuration, request, false))
+            .thenCompose(dataSetItem -> {
+                if (!StringUtils.isEmpty(callbackURL)) {
+                    generateDataSourceValidateResponse(dataSource, dataSetItem, callbackURL, authenticationInfo, parameters);
+                    return CompletableFuture.completedFuture(ok(JsonUtils.toJson(Response.asyncSuccess())));
+                } else {
+                    return dataSource.validateDataSetItem(dataSetItem, authenticationInfo, parameters).thenApply(dataSet -> ok(dataSet.toJSON()).withHeader(Constants.CORE_ITEM_COUNT_HEADER, dataSet.getTotalRecords() + ""));
+                }
+            })
+            .exceptionally(throwable -> ResponseExceptionHandler.handleException(throwable, callbackURL != null));
     }
 
     @With({ValidateRequestAction.class})

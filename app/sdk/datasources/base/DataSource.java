@@ -67,6 +67,17 @@ public interface DataSource extends DataSourceBase {
     }
 
     /**
+     * @param dataSetItem        The data set item to be validated
+     * @param authenticationInfo a HashMap of any authentication parameters that came from the request headers
+     * @param params             a Hashmap of the URL parameters included in the request
+     * @return The DataSet that contains a single item that represents the validated item.
+     */
+
+    default RecordActionResponse validateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        throw new UnsupportedOperationException("Validation is not supported on this web service");
+    }
+
+    /**
      * @param dataSetItemID      the data set item ID that the event is related to
      * @param event              the ATEvent object
      * @param authenticationInfo a HashMap of any authentication parameters that came from the request
