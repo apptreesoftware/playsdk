@@ -8,9 +8,9 @@ import sdk.utils.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DashBoard extends Response {
+public class Dashboard extends Response {
     @JsonProperty("cards")
-    private List<DashBoardItem> cards;
+    private List<DashboardItem> cards;
 
     private int totalRecords;
 
@@ -35,18 +35,18 @@ public class DashBoard extends Response {
         this.totalRecords = totalRecords;
     }
 
-    public List<DashBoardItem> getCards() {
+    public List<DashboardItem> getCards() {
         if(cards == null) {
             cards = new ArrayList<>();
         }
         return cards;
     }
 
-    public void setCards(List<DashBoardItem> cards) {
+    public void setCards(List<DashboardItem> cards) {
         this.cards = cards;
     }
 
-    public void addCard(DashBoardItem item) {
+    public void addCard(DashboardItem item) {
         getCards().add(item);
     }
 

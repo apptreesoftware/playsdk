@@ -7,7 +7,6 @@ import sdk.datasources.base.AttachmentDataSource;
 import sdk.auth.AuthenticationSource;
 import sdk.datacollection.DataCollectionSource;
 import sdk.datasources.*;
-import sdk.datasources.base.DataSource;
 import sdk.datasources.base.UserDataSource;
 import sdk.utils.Constants;
 
@@ -17,7 +16,7 @@ import java.util.Optional;
 public class AppTree {
     public static HashMap<String, DataSourceBase> dataSources = new HashMap<>();
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();
-    public static HashMap<String, DashBoardSourceBase> dashBoardSources = new HashMap<>();
+    public static HashMap<String, DashboardSourceBase> dashBoardSources = new HashMap<>();
     public static HashMap<String, DataCollectionSource> dataCollectionSources = new HashMap<>();
     public static HashMap<String, InspectionSourceBase> inspectionSources = new HashMap<>();
     public static HashMap<String, ConversionDataSourceBase> conversionSources = new HashMap<>();
@@ -42,7 +41,7 @@ public class AppTree {
         listSources.putIfAbsent(name, dataSource);
     }
 
-    public static void registerDashBoardSourceWithName(String name, DashBoardSourceBase sourceBase) {
+    public static void registerDashboardSourceWithName(String name, DashboardSourceBase sourceBase) {
         dashBoardSources.put(name, sourceBase);
     }
 
@@ -60,12 +59,12 @@ public class AppTree {
     }
 
     @Nullable
-    public static DashBoardSource_Internal lookupDashBoardHandler(String name) {
-        DashBoardSourceBase dashBoardSourceBase = dashBoardSources.get(name);
-        if (dashBoardSourceBase == null) {
+    public static DashboardSource_Internal lookupDashBoardHandler(String name) {
+        DashboardSourceBase dashboardSourceBase = dashBoardSources.get(name);
+        if (dashboardSourceBase == null) {
             return null;
         }
-        return new DashBoardSource_Internal(dashBoardSourceBase);
+        return new DashboardSource_Internal(dashboardSourceBase);
     }
 
     @Nullable

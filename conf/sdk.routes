@@ -28,7 +28,7 @@ PUT           /user                                                             
 
 
 
-GET            /dashboard/:dashBoardName                                                  sdk.controllers.DashBoardController.getDashBoard(dashBoardName)
+GET            /dashboard/:dashBoardName                                                  sdk.controllers.DashboardController.getDashboard(dashBoardName)
 
 GET           /dataset/:dataSetName                                                       sdk.controllers.DataSetController.getDataSet(dataSetName: String)
 GET           /dataset/:dataSetName/describe                                              sdk.controllers.DataSetController.getDataConfiguration(dataSetName: String)

@@ -2,7 +2,7 @@ package sdk.datasources;
 
 import sdk.AppTreeSource;
 
-public interface DashBoardSourceBase extends AppTreeSource {
+public interface DashboardSourceBase extends AppTreeSource {
     /**
      * Return the human readable name you want to provide for this service
      *

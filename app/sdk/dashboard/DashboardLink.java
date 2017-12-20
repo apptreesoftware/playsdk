@@ -2,12 +2,12 @@ package sdk.dashboard;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DashBoardLink {
+public class DashboardLink {
     @JsonProperty("title")
     private String title;
     @JsonProperty("href")
     private String href;
-    public DashBoardLink(String title, String href) {
+    public DashboardLink(String title, String href) {
         this.title = title;
         this.href = href;
     }
