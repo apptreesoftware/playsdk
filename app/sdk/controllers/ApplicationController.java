@@ -61,6 +61,12 @@ public class ApplicationController extends Controller {
             addEndpoint(getEndpoint, name, hostURL + "/" + getEndpoint, "Conversion", records);
         });
 
+        AppTree.dashBoardSources.forEach((endpoint, datasource) -> {
+            String name = datasource.getServiceDescription() != null ? datasource.getServiceDescription() : endpoint;
+            String getEndpoint = "dashboard/" + endpoint;
+            addEndpoint(getEndpoint, name, hostURL + "/" + getEndpoint, "DashBoard", records);
+        });
+
         UserDataSource_Internal userDataSource = AppTree.getUserDataSource_internal();
         if (userDataSource != null) {
             addEndpoint("user", "User Info", hostURL + "/user", "user info", records);

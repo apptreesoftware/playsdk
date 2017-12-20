@@ -17,6 +17,7 @@ import java.util.Optional;
 public class AppTree {
     public static HashMap<String, DataSourceBase> dataSources = new HashMap<>();
     public static HashMap<String, ListDataSource> listSources = new HashMap<>();
+    public static HashMap<String, DashBoardSourceBase> dashBoardSources = new HashMap<>();
     public static HashMap<String, DataCollectionSource> dataCollectionSources = new HashMap<>();
     public static HashMap<String, InspectionSourceBase> inspectionSources = new HashMap<>();
     public static HashMap<String, ConversionDataSourceBase> conversionSources = new HashMap<>();
@@ -41,6 +42,10 @@ public class AppTree {
         listSources.putIfAbsent(name, dataSource);
     }
 
+    public static void registerDashBoardSourceWithName(String name, DashBoardSourceBase sourceBase) {
+        dashBoardSources.put(name, sourceBase);
+    }
+
     public static void registerDataCollectionSourceWithName(String name, DataCollectionSource dataCollectionSource) {
         dataCollectionSources.putIfAbsent(name, dataCollectionSource);
     }
@@ -52,6 +57,15 @@ public class AppTree {
             return null;
         }
         return new DataSource_Internal(dataSourceBase);
+    }
+
+    @Nullable
+    public static DashBoardSource_Internal lookupDashBoardHandler(String name) {
+        DashBoardSourceBase dashBoardSourceBase = dashBoardSources.get(name);
+        if (dashBoardSourceBase == null) {
+            return null;
+        }
+        return new DashBoardSource_Internal(dashBoardSourceBase);
     }
 
     @Nullable
