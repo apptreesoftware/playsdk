@@ -25,7 +25,6 @@ public class DashboardController extends Controller {
     @Inject
     protected WSClient wsClient;
 
-    @With({ValidateRequestAction.class})
     public CompletionStage<Result> getDashboard(String name) {
         Http.Request request = request();
         String callBackURl = request.getHeader(Constants.CORE_CALLBACK_URL);
