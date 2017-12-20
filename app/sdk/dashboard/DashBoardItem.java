@@ -16,6 +16,18 @@ public class DashBoardItem {
     private String body;
     @JsonProperty("links")
     private List<DashBoardLink> links;
+    @JsonProperty("layoutOptions")
+    private LayoutOptions layoutOptions;
+
+
+    public DashBoardItem(String title, String body, String imageUrl, List<DashBoardLink> links, LayoutOptions layoutOptions){
+        this.title = title;
+        this.body = body;
+        this.imageUrl = imageUrl;
+        this.links = links;
+        this.type = "IMAGE";
+        this.layoutOptions = layoutOptions;
+    }
 
     public String getType() {
         return type;
@@ -60,5 +72,13 @@ public class DashBoardItem {
 
     public void setLinks(List<DashBoardLink> links) {
         this.links = links;
+    }
+
+    public LayoutOptions getLayoutOptions() {
+        return layoutOptions;
+    }
+
+    public void setLayoutOptions(LayoutOptions layoutOptions) {
+        this.layoutOptions = layoutOptions;
     }
 }

@@ -7,7 +7,10 @@ public class DashBoardLink {
     private String title;
     @JsonProperty("href")
     private String href;
-
+    public DashBoardLink(String title, String href) {
+        this.title = title;
+        this.href = href;
+    }
     public String getTitle() {
         return title;
     }
