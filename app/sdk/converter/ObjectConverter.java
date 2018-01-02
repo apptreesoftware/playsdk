@@ -778,12 +778,13 @@ public class ObjectConverter extends ConfigurationManager {
         object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
-        if (attachmentItem.getAttachmentBytes() == null) {
-            throw new RuntimeException("Attachment uploaded with no contents");
+        if (attachmentItem.getAttachmentBytes() != null) {
+            InputStream byteArrayInputStream =
+                new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
+            object.setInputStream(byteArrayInputStream);
+        } else if(attachmentItem.getCRUDStatus() == DataSetItem.CRUDStatus.Create) {
+            throw new RuntimeException("Attachment uploaded without any data.");
         }
-        InputStream byteArrayInputStream =
-            new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
-        object.setInputStream(byteArrayInputStream);
     }
 
     /**
