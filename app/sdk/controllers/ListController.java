@@ -19,6 +19,7 @@ import sdk.list.CacheListSQLGenerator;
 import sdk.list.List;
 import sdk.list.ListDataSourceResponse;
 import sdk.list.ListServiceConfiguration;
+import sdk.router.Router;
 import sdk.utils.*;
 
 import java.io.File;
@@ -35,9 +36,12 @@ import static sdk.utils.Constants.CORE_CALLBACK_URL;
  */
 @With({ValidateRequestAction.class})
 public class ListController extends Controller {
+    WSClient wsClient;
 
     @Inject
-    WSClient wsClient;
+    public ListController(Router router) {
+        wsClient = router.getProxylessClient();
+    }
 
     public CompletionStage<Result> getListConfiguration(String listName) {
         return CompletableFuture.supplyAsync(() -> {

@@ -2,6 +2,7 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import play.libs.Json;
 import play.mvc.Http;
@@ -14,6 +15,7 @@ import sdk.data.Event;
 import sdk.data.ServiceConfiguration;
 import sdk.datasources.AttachmentDataSource_Internal;
 import sdk.datasources.DataSource_Internal;
+import sdk.router.Router;
 import sdk.utils.*;
 
 import java.util.ArrayList;
@@ -27,8 +29,9 @@ import java.util.concurrent.CompletionStage;
  * Created by alexis on 5/3/16.
  */
 public class DataSetController extends DataController {
-
-    public DataSetController() {
+    @Inject
+    public DataSetController(Router router) {
+        super(router);
     }
 
     @With({ValidateRequestAction.class})

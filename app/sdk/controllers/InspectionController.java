@@ -2,6 +2,7 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -11,6 +12,7 @@ import sdk.ValidateRequestAction;
 import sdk.data.*;
 import sdk.datasources.InspectionSource_Internal;
 import sdk.inspection.InspectionConfiguration;
+import sdk.router.Router;
 import sdk.utils.*;
 
 import javax.annotation.Nullable;
@@ -27,6 +29,10 @@ import static sdk.utils.Constants.AppTreeDateTimeFormat;
  * Copyright AppTree Software, Inc.
  */
 public class InspectionController extends DataController {
+    @Inject
+    public InspectionController(Router router) {
+        super(router);
+    }
 
     public CompletionStage<Result> getInspectionConfiguration(String dataSetName) {
         InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);

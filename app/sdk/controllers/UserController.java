@@ -1,6 +1,7 @@
 package sdk.controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -10,6 +11,7 @@ import sdk.ValidateRequestAction;
 import sdk.data.*;
 import sdk.data.deprecated.UserInfoResponse;
 import sdk.datasources.UserDataSource_Internal;
+import sdk.router.Router;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.JsonUtils;
 import sdk.utils.Parameters;
@@ -26,6 +28,11 @@ import java.util.concurrent.CompletionStage;
  */
 @With({ValidateRequestAction.class})
 public class UserController extends DataController {
+    @Inject
+    public UserController(Router router) {
+        super(router);
+    }
+
     public CompletionStage<Result> getUserInfo(String userID) {
         UserDataSource_Internal dataSource = AppTree.getUserDataSource_internal();
         if (dataSource == null) {

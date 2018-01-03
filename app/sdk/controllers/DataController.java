@@ -11,6 +11,7 @@ import play.mvc.Http;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
+import sdk.router.Router;
 import sdk.utils.Constants;
 import sdk.utils.ResponseExceptionHandler;
 
@@ -28,9 +29,12 @@ import static sdk.utils.CallbackLogger.logExceptionCallback;
  * Copyright AppTree Software, Inc.
  */
 public abstract class DataController extends Controller {
+    protected WSClient wsClient;
 
     @Inject
-    protected WSClient wsClient;
+    public DataController(Router router) {
+        wsClient = router.getProxylessClient();
+    }
 
     protected CompletionStage<DataSetItem> dataSetItemFromRequest(ServiceConfiguration configuration, Http.Request request, boolean search) {
         return CompletableFuture.supplyAsync(() -> new DataSet(configuration.getAttributes()))
