@@ -75,7 +75,9 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
 
     abstract public RecordActionResponse update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
-    abstract public RecordActionResponse validate(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
+    public RecordActionResponse validate(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext){
+        throw new RuntimeException("Validate is not supported in this data source");
+    }
 
     abstract public Collection<T> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 

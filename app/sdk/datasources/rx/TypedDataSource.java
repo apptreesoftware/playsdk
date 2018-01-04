@@ -72,7 +72,9 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
 
     abstract public Observable<RecordActionResponse> update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
-    abstract public Observable<RecordActionResponse> validate(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
+    public Observable<RecordActionResponse> validate(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext){
+        throw new RuntimeException("Validate is not supported in this data source");
+    }
 
     abstract public Observable<Collection<T>> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 
