@@ -23,14 +23,14 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public DataSet getDataSet(AuthenticationInfo authenticationInfo, Parameters params) {
         Collection<? extends T> objectList = this.getAll(authenticationInfo, params);
-        return ObjectConverter.getDataSetFromCollection(objectList, getAttributes());
+        return ObjectConverter.getDataSetFromCollection(objectList, getAttributes(), params.getPrefetchRelationships());
     }
 
     @Override
     public DataSetItem getRecord(String id, AuthenticationInfo authenticationInfo, Parameters parameters) {
         T object = get(id, authenticationInfo, parameters);
         DataSetItem dataSetItem = new DataSetItem(getAttributes());
-        ObjectConverter.copyToRecord(dataSetItem, object);
+        ObjectConverter.copyToRecord(dataSetItem, object, parameters.getPrefetchRelationships());
         return dataSetItem;
     }
 
@@ -40,7 +40,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
         T object = getNewInstance();
         ParserContext parserContext = ObjectConverter.copyFromRecord(queryDataItem, object);
         Collection<? extends Object> objects = query(object, authenticationInfo, params, parserContext);
-        return ObjectConverter.getDataSetFromCollection(objects, getAttributes());
+        return ObjectConverter.getDataSetFromCollection(objects, getAttributes(), params.getPrefetchRelationships());
     }
 
     @Override

@@ -16,6 +16,7 @@ public class AttributeProxy {
     private Method currentMethod;
     public boolean isField;
     private boolean isWrappedClass;
+    private boolean loadRelationshipData;
     PrimaryValue primaryValue;
     PrimaryKey primaryKey;
     Attribute attribute;
@@ -229,6 +230,15 @@ public class AttributeProxy {
 
     public boolean isRelationship() {
         return (relationship != null);
+    }
+
+    public boolean loadRelationshipData() {
+        if(isRelationship()) return loadRelationshipData;
+        return false;
+    }
+
+    public void setLoadRelationshipData(boolean load) {
+        this.loadRelationshipData = load;
     }
 
     private boolean checkIfIsWrappedType(Class clazz) {
