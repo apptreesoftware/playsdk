@@ -56,9 +56,21 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
         return update(object, authenticationInfo, params, parserContext);
     }
 
+
+    @Override
+    public CompletableFuture<RecordActionResponse> validateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        T object = getNewInstance();
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
+        return validate(object, authenticationInfo, params, parserContext);
+    }
+
     abstract public CompletableFuture<Collection<T>> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters);
 
     abstract public CompletableFuture<RecordActionResponse> update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
+
+    public CompletableFuture<RecordActionResponse> validate(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext){
+        throw new RuntimeException("Validate is not supported in this data source");
+    }
 
     abstract public CompletableFuture<Collection<T>> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 

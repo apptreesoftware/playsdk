@@ -134,6 +134,25 @@ public class DataSource_Internal extends BaseSource_Internal {
         throw new RuntimeException("No data source available");
     }
 
+
+
+    /**
+     * @param dataSetItem        The data set item to be validated
+     * @param authenticationInfo a HashMap of any authentication parameters that came from the request headers
+     * @param params             a Hashmap of the URL parameters included in the request
+     * @return The DataSet that contains a single item that represents the validated item.
+     */
+    public CompletableFuture<DataSet> validateDataSetItem(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        if (dataSource != null) {
+            return CompletableFuture.supplyAsync(() -> dataSource.validateRecord(dataSetItem, authenticationInfo, params)).thenApply(DataSet::new);
+        } else if (futureDataSource != null) {
+            return futureDataSource.validateRecord(dataSetItem, authenticationInfo, params).thenApply(DataSet::new);
+        } else if (rxDataSource != null) {
+            return observableToFuture(rxDataSource.validateRecord(dataSetItem, authenticationInfo, params).map(DataSet::new));
+        }
+        throw new RuntimeException("No data source available");
+    }
+
     /**
      * @param dataSetItemID      the data set item ID that the event is related to
      * @param event              the ATEvent object

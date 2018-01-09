@@ -52,6 +52,16 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
         return create(object, authenticationInfo, params, parserContext);
     }
 
+
+    @Override
+    public RecordActionResponse validateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
+        T object = getNewInstance();
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
+        parserContext.setUserId(authenticationInfo.getUserID());
+        parserContext.setAppId(authenticationInfo.getCustomAuthenticationParameter(Constants.APP_ID_HEADER));
+        return validate(object, authenticationInfo, params, parserContext);
+    }
+
     @Override
     public RecordActionResponse updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
@@ -64,6 +74,10 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     abstract public Collection<T> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
     abstract public RecordActionResponse update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
+
+    public RecordActionResponse validate(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext){
+        throw new RuntimeException("Validate is not supported in this data source");
+    }
 
     abstract public Collection<T> getAll(AuthenticationInfo authenticationInfo, Parameters parameters);
 
