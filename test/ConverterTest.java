@@ -204,6 +204,11 @@ public class ConverterTest {
 
 
     @Test
+    public void testLazyLoad() {
+        
+    }
+
+    @Test
     public void testObjectWithPrimitiveTypes() {
         SamplePrimitivesObject obj = new SamplePrimitivesObject();
         DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
