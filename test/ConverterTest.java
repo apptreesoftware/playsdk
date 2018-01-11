@@ -202,10 +202,33 @@ public class ConverterTest {
         return object;
     }
 
+    private SampleLazyLoadObj getNewLazyObj() {
+        SampleLazyLoadObj obj = new SampleLazyLoadObj();
+        List<SampleLazyLoadObj.LazilyLoadedObj> objList = new ArrayList<>();
+        for(int i = 0; i < 5; ++i) {
+            SampleLazyLoadObj.LazilyLoadedObj childObj = new SampleLazyLoadObj.LazilyLoadedObj();
+            childObj.pk = i;
+            childObj.name = "test" + i;
+            objList.add(childObj);
+        }
+        obj.objList = objList;
+        return obj;
+    }
+
 
     @Test
     public void testLazyLoad() {
+        SampleLazyLoadObj obj = getNewLazyObj();
+        SampleLazyLoadObj finalObj = new SampleLazyLoadObj();
+        DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleLazyLoadObj.class));
+        ObjectConverter.copyToRecord(item, obj);
+        ObjectConverter.copyFromRecord(item, finalObj);
+        assert(finalObj.objList == null);
 
+        List<Integer> loadProps = Arrays.asList(0, 1);
+        ObjectConverter.copyToRecord(item, obj, loadProps);
+        ObjectConverter.copyFromRecord(item, finalObj);
+        assert(finalObj.objList != null);
     }
 
     @Test

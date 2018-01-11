@@ -1183,16 +1183,14 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                    IllegalAccessException,
                                                                                    InvocationTargetException {
         Object relationship;
-        if(attributeProxy.loadRelationshipData() || attributeProxy.getRelationshipAnnotation().eager()) {
-            if (useGetterAndSetter) {
-                relationship = useGetterIfExists(attributeProxy, object);
-            } else relationship = attributeProxy.getValue(object);
-            if (relationship == null) {
-                return;
-            }
-            DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-            copyToRecord(tempItem, relationship);
+        if (useGetterAndSetter) {
+            relationship = useGetterIfExists(attributeProxy, object);
+        } else relationship = attributeProxy.getValue(object);
+        if (relationship == null) {
+            return;
         }
+        DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
+        copyToRecord(tempItem, relationship);
     }
 
 
