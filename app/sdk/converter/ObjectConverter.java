@@ -63,6 +63,31 @@ public class ObjectConverter extends ConfigurationManager {
         return dataSet;
     }
 
+    /**
+     * @param objects
+     * @param attributes
+     * @param <T>
+     * @param relationshipsToLoad
+     * @return
+     */
+    public static <T> DataSet getDataSetFromCollection(Collection<T> objects,
+                                                       Collection<ServiceConfigurationAttribute> attributes,
+                                                       List<Integer> relationshipsToLoad) {
+        DataSet dataSet = new DataSet(attributes);
+        for (T object : objects) {
+            DataSetItem dataSetItem = dataSet.addNewDataSetItem();
+            copyToRecord(dataSetItem, object, relationshipsToLoad);
+        }
+
+        if (objects instanceof PagedCollection) {
+            int totalRecords = ((PagedCollection) objects).getTotalAvailableRecords();
+            int pageSize = ((PagedCollection) objects).getPageSize();
+            dataSet.setTotalRecords(totalRecords);
+            dataSet.setMoreRecordsAvailable(totalRecords > pageSize);
+        }
+        return dataSet;
+    }
+
 
     /**
      * Method accepts an object that implements the `Record` interface and an object's members annotated with Attribute annotation
@@ -107,17 +132,38 @@ public class ObjectConverter extends ConfigurationManager {
 
 
     /**
-     * @param dataSetItem
+     * @param record
      * @param source
      * @param <T>
      */
-    public static <T> void copyToRecord(Record dataSetItem, T source) {
+    public static <T> void copyToRecord(Record record, T source) {
         if (source == null) return;
         mapMethodsFromSource(source);
         for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(
             source.getClass())) {
             try {
-                copyFromField(attributeProxy, dataSetItem, source);
+                copyFromField(attributeProxy, record, source);
+            } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * @param record
+     * @param source
+     * @param <T>
+     * @param loadRelationshipIndexes
+     */
+    public static <T> void copyToRecord(Record record, T source, List<Integer> loadRelationshipIndexes) {
+        if (source == null) return;
+        Set<Integer> relationshipsToLoad = new HashSet<>(loadRelationshipIndexes);
+        mapMethodsFromSource(source);
+        for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(
+            source.getClass())) {
+            try {
+                attributeProxy.setLoadRelationshipData(relationshipsToLoad.contains(attributeProxy.getIndex()));
+                copyFromField(attributeProxy, record, source);
             } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -1136,7 +1182,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                        boolean useGetterAndSetter) throws
                                                                                    IllegalAccessException,
                                                                                    InvocationTargetException {
-        Object relationship = null;
+        Object relationship;
         if (useGetterAndSetter) {
             relationship = useGetterIfExists(attributeProxy, object);
         } else relationship = attributeProxy.getValue(object);
@@ -1206,19 +1252,18 @@ public class ObjectConverter extends ConfigurationManager {
                                                  boolean useGetterAndSetter) throws
                                                                              IllegalAccessException,
                                                                              InvocationTargetException {
-        List<Object> relationship = null;
-        if (useGetterAndSetter) {
-            relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
-        } else relationship = (List<Object>) attributeProxy.getValue(object);
-        if (attributeProxy.useLazyLoad()) {
-            dataSetItem.useLazyLoad(index);
-        }
-        if (Null(relationship)) {
-            return;
-        }
-        for (Object obj : relationship) {
-            DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
-            copyToRecord(tempItem, obj);
+        List<Object> relationship;
+        if(attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
+        if(attributeProxy.loadRelationshipData() || attributeProxy.getRelationshipAnnotation().eager()) {
+            if (useGetterAndSetter) {
+                relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
+            } else relationship = (List<Object>) attributeProxy.getValue(object);
+            if (!Null(relationship)) {
+                for (Object obj : relationship) {
+                    DataSetItem tempItem = dataSetItem.addNewDataSetItem(index);
+                    copyToRecord(tempItem, obj);
+                }
+            }
         }
     }
 
