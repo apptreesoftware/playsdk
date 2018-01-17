@@ -35,6 +35,8 @@ public class ApplicationController extends Controller {
             String name = datasource.getServiceDescription() != null ? datasource.getServiceDescription() : endpoint;
             String url = hostURL + "/dataset/" + endpoint;
             addEndpoint("dataset/" + endpoint, name, url, "data", records);
+            url += "/validate";
+            addEndpoint("dataset/" + endpoint, name, url, "data", records);
         });
         AppTree.dataCollectionSources.forEach((endpoint, dataCollectionSource) -> {
             String name = dataCollectionSource.getServiceName() != null ? dataCollectionSource.getServiceName() : endpoint;
