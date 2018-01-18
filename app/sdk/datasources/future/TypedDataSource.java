@@ -37,7 +37,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public CompletableFuture<DataSet> queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(queryDataItem, object);
+        ObjectConverter.copyFromRecord(queryDataItem, object, false);
         CompletableFuture<Collection<T>> objects = query(object, authenticationInfo, params);
         return objects.thenApply(list -> ObjectConverter.getDataSetFromCollection(list, getAttributes()));
     }
@@ -45,14 +45,14 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public CompletableFuture<RecordActionResponse> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(dataSetItem, object);
+        ObjectConverter.copyFromRecord(dataSetItem, object, false);
         return create(object, authenticationInfo, params);
     }
 
     @Override
     public CompletableFuture<RecordActionResponse> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
         return update(object, authenticationInfo, params, parserContext);
     }
 
@@ -60,7 +60,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public CompletableFuture<RecordActionResponse> validateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
         return validate(object, authenticationInfo, params, parserContext);
     }
 

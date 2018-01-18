@@ -48,7 +48,7 @@ public class DateRangeTest {
         dateRange.setTo(new DateTime());
         dataSetItem.setDateTimeRangeForAttributeIndex(dateRange, 0);
         DateRangeTestClass dateRangeTestClass = new DateRangeTestClass();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, dateRangeTestClass);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, dateRangeTestClass, false);
         Assert.assertTrue((!parserContext.getDateTimeRangeForField(0).isEmpty()));
         Assert.assertTrue((parserContext.getDateTimeRangeForField(0).getFrom() != null));
         Assert.assertTrue((parserContext.getDateTimeRangeForField(0).getTo() != null));
@@ -79,7 +79,7 @@ public class DateRangeTest {
         DataSetItem dataSetitem = new DataSetItem(serviceConfiguration);
         dataSetitem.updateFromJSON(dataSetItemObject, new HashMap<>(), true);
         TestDateRangeObject testDateRangeObject = new TestDateRangeObject();
-        ParserContext context = ObjectConverter.copyFromRecord(dataSetitem, testDateRangeObject);
+        ParserContext context = ObjectConverter.copyFromRecord(dataSetitem, testDateRangeObject, false);
         DateTimeRange dateTime = context.getDateTimeRangeForField("dateTime");
         Assert.assertTrue(dateTime != null);
         Assert.assertTrue(dateTime.getFrom() != null);
@@ -108,7 +108,7 @@ public class DateRangeTest {
         DataSetItem dataSetitem = new DataSetItem(serviceConfiguration);
         dataSetitem.updateFromJSON(dataSetItemObject, new HashMap<>(), false);
         TestDateRangeObject testDateRangeObject = new TestDateRangeObject();
-        ParserContext context = ObjectConverter.copyFromRecord(dataSetitem, testDateRangeObject);
+        ParserContext context = ObjectConverter.copyFromRecord(dataSetitem, testDateRangeObject, false);
         Assert.assertTrue(testDateRangeObject != null);
         Assert.assertTrue(testDateRangeObject.dateTime != null);
     }

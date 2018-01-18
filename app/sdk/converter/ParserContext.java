@@ -18,6 +18,7 @@ public class ParserContext {
     private static final String APP_ID = "APP-ID";
     private Map<Integer, SDKDateRange> dateTimeRangeIntegerIndexMap;
     private Map<String, SDKDateRange> dateTimeRangeStringIndexMap;
+    private boolean isSearchForm;
 
     public CRUDStatus getState(Object object) {
         CRUDStatus status = getCrudStatusMap().get(object);
@@ -145,5 +146,13 @@ public class ParserContext {
 
     public void setDateTimeRangeStringIndexMap(Map<String, SDKDateRange> dateTimeRangeStringIndexMap) {
         this.dateTimeRangeStringIndexMap = dateTimeRangeStringIndexMap;
+    }
+
+    public boolean isSearchForm() {
+        return isSearchForm;
+    }
+
+    public void setSearchForm(boolean searchForm) {
+        isSearchForm = searchForm;
     }
 }
