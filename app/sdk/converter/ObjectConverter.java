@@ -110,11 +110,11 @@ public class ObjectConverter extends ConfigurationManager {
         }
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
-                copyToField(proxy, record, destination, parserContext);
                 if (proxy.isPrimaryKey())
                     proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
                 if (proxy.isPrimaryValue())
                     proxy.setPrimaryKeyOrValue(destination, record.getValue());
+                copyToField(proxy, record, destination, parserContext);
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
             }
