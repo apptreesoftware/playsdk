@@ -124,10 +124,7 @@ public class ObjectConverter extends ConfigurationManager {
 
 
     private static ParserContext getParserContext() {
-        if (parserContext == null) {
-            parserContext = new ParserContext();
-        }
-        return parserContext;
+        return new ParserContext();
     }
 
 
