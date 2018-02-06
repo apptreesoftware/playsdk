@@ -1004,7 +1004,6 @@ public class DataSetItem implements Record {
     private boolean validateGetterAttributeTypeForIndex(AttributeType attributeType, int attributeIndex) throws InvalidAttributeValueException {
         ServiceConfigurationAttribute attributeConfig = configurationMap.get(attributeIndex);
         if (attributeConfig == null) {
-            System.out.println("Warning: This data set is not configured for attribute " + attributeIndex + ". Setting or Getting the value at this index will always produce null");
             return false;
         }
         AttributeType configuredAttributeType = attributeConfig.attributeType;
