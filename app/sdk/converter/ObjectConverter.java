@@ -1,6 +1,7 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
+import play.Logger;
 import sdk.annotations.*;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
@@ -9,7 +10,6 @@ import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 import sdk.models.*;
-import sdk.utils.ClassUtils;
 import sdk.utils.RecordUtils;
 
 import java.io.ByteArrayInputStream;
@@ -847,20 +847,26 @@ public class ObjectConverter extends ConfigurationManager {
                                            boolean useGetterAndSetter, boolean value,
                                            boolean parent) throws IllegalAccessException,
                                                                   InvocationTargetException {
-        Object fieldData = null;
+        Object fieldData;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
-        record.setString(fieldData != null ? fieldData.toString() : null, index);
+        boolean isFieldDataNull = fieldData == null;
+        record.setString((!isFieldDataNull) ? fieldData.toString() : null, index);
         if (parent) {
-            record.setParentValue(fieldData.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "parent");
+            else record.setParentValue(fieldData.toString());
         }
         if (value) {
-            record.setValue(fieldData.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
+            else record.setValue(fieldData.toString());
         }
         if (primaryKey) {
-            record.setPrimaryKey(fieldData.toString());
-            if (!record.isValueSet()) {
-                record.setValue(fieldData.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
+            else {
+                record.setPrimaryKey(fieldData.toString());
+                if (!record.isValueSet()) {
+                    record.setValue(fieldData.toString());
+                }
             }
         }
     }
@@ -871,14 +877,18 @@ public class ObjectConverter extends ConfigurationManager {
                                                  boolean useGetterAndSetter) throws
                                                                              IllegalAccessException,
                                                                              InvocationTargetException {
-        Object fieldData = null;
+        Object fieldData;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
         record.setTimeInterval(fieldData != null ? (long) fieldData : 0L, index);
-        if (primaryKey) {
-            record.setPrimaryKey(fieldData.toString());
-            if (!record.isValueSet()) {
-                record.setValue(fieldData.toString());
+        if(fieldData == null && primaryKey) {
+            nullAttrWarning(attributeProxy.getName(), "primary key");
+        } else {
+            if (primaryKey) {
+                record.setPrimaryKey(fieldData.toString());
+                if (!record.isValueSet()) {
+                    record.setValue(fieldData.toString());
+                }
             }
         }
     }
@@ -901,12 +911,13 @@ public class ObjectConverter extends ConfigurationManager {
                                             boolean useGetterAndSetter, boolean value,
                                             boolean parent) throws IllegalAccessException,
                                                                    InvocationTargetException {
-        Integer fieldData = null;
+        Integer fieldData;
         if (useGetterAndSetter) {
             fieldData = (Integer) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Integer) attributeProxy.getValue(object);
-        if (fieldData == null) return;
-        record.setInt(fieldData, index);
+        boolean isFieldDataNull = fieldData == null;
+        fieldData = (isFieldDataNull) ? 0 : fieldData;
+        if(!isFieldDataNull) record.setInt(fieldData, index);
         if (parent) {
             record.setParentValue(fieldData.toString());
         }
@@ -939,9 +950,9 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                       IllegalAccessException,
                                                                                       InvocationTargetException {
         String fieldName = attributeProxy.getDataTypeName();
-        Double fieldData = null;
+        Double fieldData;
         if (fieldName.contains("Float") || fieldName.contains("float")) {
-            Float floatValue = null;
+            Float floatValue;
             if (useGetterAndSetter) {
                 floatValue = (Float) useGetterIfExists(attributeProxy, object);
             } else floatValue = (Float) attributeProxy.getValue(object);
@@ -951,8 +962,9 @@ public class ObjectConverter extends ConfigurationManager {
                 fieldData = (Double) useGetterIfExists(attributeProxy, object);
             } else fieldData = (Double) attributeProxy.getValue(object);
         }
-        if (fieldData == null) return;
-        record.setDouble(fieldData, index);
+        boolean isFieldDataNull = fieldData == null;
+        fieldData = (fieldData == null) ? 0.0 : fieldData;
+        if(!isFieldDataNull) record.setDouble(fieldData, index);
         if (value) {
             record.setValue(fieldData.toString());
         }
@@ -980,7 +992,7 @@ public class ObjectConverter extends ConfigurationManager {
                                          int index, boolean primaryKey, boolean useGetterAndSetter,
                                          boolean value) throws IllegalAccessException,
                                                                InvocationTargetException {
-        Boolean fieldData = null;
+        Boolean fieldData;
         if (useGetterAndSetter) {
             fieldData = (Boolean) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Boolean) attributeProxy.getValue(object);
@@ -1015,13 +1027,18 @@ public class ObjectConverter extends ConfigurationManager {
                                                                InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDate(dateTime, index);
+        boolean isFieldDataNull = dateTime == null;
         if (value) {
-            record.setValue(dateTime.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
+            else record.setValue(dateTime.toString());
         }
         if (primaryKey) {
-            record.setPrimaryKey(dateTime.toString());
-            if (!record.isValueSet()) {
-                record.setValue(dateTime.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
+            else {
+                record.setPrimaryKey(dateTime.toString());
+                if (!record.isValueSet()) {
+                    record.setValue(dateTime.toString());
+                }
             }
         }
     }
@@ -1045,13 +1062,18 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                         InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDateTime(dateTime, index);
+        boolean isFieldDataNull = dateTime == null;
         if (value) {
-            record.setValue(dateTime.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
+            else record.setValue(dateTime.toString());
         }
         if (primaryKey) {
-            record.setPrimaryKey(dateTime.toString());
-            if (!record.isValueSet()) {
-                record.setValue(dateTime.toString());
+            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
+            else {
+                record.setPrimaryKey(dateTime.toString());
+                if (!record.isValueSet()) {
+                    record.setValue(dateTime.toString());
+                }
             }
         }
     }
@@ -1063,13 +1085,18 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                         InvocationTargetException {
         Location location = getLocationValueFromObject(proxy, object, useGetterAndSetter);
         record.setLocation(location, index);
+        boolean isFieldDataNull = location == null;
         if (value) {
-            record.setValue(location.toString());
+            if(isFieldDataNull) nullAttrWarning(proxy.getName(), "value");
+            else record.setValue(location.toString());
         }
         if (primaryKey) {
-            record.setPrimaryKey(location.toString());
-            if (!record.isValueSet()) {
-                record.setValue(location.toString());
+            if(isFieldDataNull) nullAttrWarning(proxy.getName(), "primary key");
+            else {
+                record.setPrimaryKey(location.toString());
+                if (!record.isValueSet()) {
+                    record.setValue(location.toString());
+                }
             }
         }
     }
@@ -1083,9 +1110,10 @@ public class ObjectConverter extends ConfigurationManager {
         if (fieldHasGetter(proxy, object) && useGetterAndSetter) {
             foundImage = (Image) useGetterIfExists(proxy, object);
         } else foundImage = (Image) proxy.getValue(object);
-        if (foundImage != null) {
-            record.setImage(foundImage, index);
-            if (primaryKey) {
+        record.setImage(foundImage, index);
+        if (primaryKey) {
+            if(foundImage == null) nullAttrWarning(proxy.getName(), "primary key");
+            else {
                 record.setPrimaryKey(foundImage.imageURL);
                 if (!record.isValueSet()) record.setValue(foundImage.imageURL);
             }
@@ -1153,7 +1181,7 @@ public class ObjectConverter extends ConfigurationManager {
                                              boolean useGetterAndSetter) throws
                                                                          IllegalAccessException,
                                                                          InvocationTargetException {
-        Object listItemObject = null;
+        Object listItemObject;
         if (useGetterAndSetter) {
             listItemObject = useGetterIfExists(attributeProxy, object);
         } else listItemObject = attributeProxy.getValue(object);
@@ -1323,5 +1351,9 @@ public class ObjectConverter extends ConfigurationManager {
             return AttributeType.Attachments;
         }
         return AttributeType.None;
+    }
+
+    private static void nullAttrWarning(String objName, String fieldName) {
+        Logger.warn(String.format("Setting %s on %s as null.", fieldName, objName));
     }
 }
