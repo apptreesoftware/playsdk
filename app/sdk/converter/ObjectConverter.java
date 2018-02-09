@@ -847,20 +847,21 @@ public class ObjectConverter extends ConfigurationManager {
                                            boolean useGetterAndSetter, boolean value,
                                            boolean parent) throws IllegalAccessException,
                                                                   InvocationTargetException {
-        Object fieldData = null;
+        Object fieldData;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
-        record.setString(fieldData != null ? fieldData.toString() : null, index);
+        String fieldString = (fieldData != null) ? fieldData.toString() : null;
+        record.setString(fieldString, index);
         if (parent) {
-            record.setParentValue(fieldData.toString());
+            record.setParentValue(fieldString);
         }
         if (value) {
-            record.setValue(fieldData.toString());
+            record.setValue(fieldString);
         }
         if (primaryKey) {
-            record.setPrimaryKey(fieldData.toString());
+            record.setPrimaryKey(fieldString);
             if (!record.isValueSet()) {
-                record.setValue(fieldData.toString());
+                record.setValue(fieldString);
             }
         }
     }
