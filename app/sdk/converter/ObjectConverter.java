@@ -850,18 +850,18 @@ public class ObjectConverter extends ConfigurationManager {
         Object fieldData;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
-        String fieldString = (fieldData != null) ? fieldData.toString() : null;
-        record.setString(fieldString, index);
+        if(fieldData == null) return;
+        record.setString(fieldData.toString(), index);
         if (parent) {
-            record.setParentValue(fieldString);
+            record.setParentValue(fieldData.toString());
         }
         if (value) {
-            record.setValue(fieldString);
+            record.setValue(fieldData.toString());
         }
         if (primaryKey) {
-            record.setPrimaryKey(fieldString);
+            record.setPrimaryKey(fieldData.toString());
             if (!record.isValueSet()) {
-                record.setValue(fieldString);
+                record.setValue(fieldData.toString());
             }
         }
     }
@@ -872,10 +872,11 @@ public class ObjectConverter extends ConfigurationManager {
                                                  boolean useGetterAndSetter) throws
                                                                              IllegalAccessException,
                                                                              InvocationTargetException {
-        Object fieldData = null;
+        Object fieldData;
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
         record.setTimeInterval(fieldData != null ? (long) fieldData : 0L, index);
+        if(fieldData == null) return;
         if (primaryKey) {
             record.setPrimaryKey(fieldData.toString());
             if (!record.isValueSet()) {
@@ -902,7 +903,7 @@ public class ObjectConverter extends ConfigurationManager {
                                             boolean useGetterAndSetter, boolean value,
                                             boolean parent) throws IllegalAccessException,
                                                                    InvocationTargetException {
-        Integer fieldData = null;
+        Integer fieldData;
         if (useGetterAndSetter) {
             fieldData = (Integer) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Integer) attributeProxy.getValue(object);
@@ -940,9 +941,9 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                       IllegalAccessException,
                                                                                       InvocationTargetException {
         String fieldName = attributeProxy.getDataTypeName();
-        Double fieldData = null;
+        Double fieldData;
         if (fieldName.contains("Float") || fieldName.contains("float")) {
-            Float floatValue = null;
+            Float floatValue;
             if (useGetterAndSetter) {
                 floatValue = (Float) useGetterIfExists(attributeProxy, object);
             } else floatValue = (Float) attributeProxy.getValue(object);
@@ -981,7 +982,7 @@ public class ObjectConverter extends ConfigurationManager {
                                          int index, boolean primaryKey, boolean useGetterAndSetter,
                                          boolean value) throws IllegalAccessException,
                                                                InvocationTargetException {
-        Boolean fieldData = null;
+        Boolean fieldData;
         if (useGetterAndSetter) {
             fieldData = (Boolean) useGetterIfExists(attributeProxy, object);
         } else fieldData = (Boolean) attributeProxy.getValue(object);
@@ -1016,6 +1017,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                                InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDate(dateTime, index);
+        if(dateTime == null) return;
         if (value) {
             record.setValue(dateTime.toString());
         }
@@ -1046,6 +1048,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                         InvocationTargetException {
         DateTime dateTime = getDateValueFromObject(attributeProxy, object, useGetterAndSetter);
         record.setDateTime(dateTime, index);
+        if(dateTime == null) return;
         if (value) {
             record.setValue(dateTime.toString());
         }
@@ -1064,6 +1067,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                                                         InvocationTargetException {
         Location location = getLocationValueFromObject(proxy, object, useGetterAndSetter);
         record.setLocation(location, index);
+        if(location == null) return;
         if (value) {
             record.setValue(location.toString());
         }
@@ -1154,7 +1158,7 @@ public class ObjectConverter extends ConfigurationManager {
                                              boolean useGetterAndSetter) throws
                                                                          IllegalAccessException,
                                                                          InvocationTargetException {
-        Object listItemObject = null;
+        Object listItemObject;
         if (useGetterAndSetter) {
             listItemObject = useGetterIfExists(attributeProxy, object);
         } else listItemObject = attributeProxy.getValue(object);
