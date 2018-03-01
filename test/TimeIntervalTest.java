@@ -58,7 +58,7 @@ public class TimeIntervalTest {
         dataSetItem.setTimeInterval(100L, 3);
 
         TimeIntTest timeIntTest = new TimeIntTest();
-        ObjectConverter.copyFromRecord(dataSetItem, timeIntTest);
+        ObjectConverter.copyFromRecord(dataSetItem, timeIntTest, false);
         Assert.assertTrue(dataSetItem.getInt(0) == timeIntTest.id);
         Assert.assertTrue(dataSetItem.getDouble(1) == timeIntTest.value);
         Assert.assertTrue(dataSetItem.getString(2).equals(timeIntTest.name));

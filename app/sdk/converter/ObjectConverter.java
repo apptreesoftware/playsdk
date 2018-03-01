@@ -99,8 +99,10 @@ public class ObjectConverter extends ConfigurationManager {
      * @param destination
      * @param <T>
      */
-    public static <T> ParserContext copyFromRecord(Record record, T destination) {
+    public static <T> ParserContext copyFromRecord(Record record, T destination,
+                                                   boolean isSearchForm) {
         ParserContext parserContext = getParserContext();
+        parserContext.setSearchForm(isSearchForm);
         mapMethodsFromSource(destination);
         if (destination == null) {
             throw new DestinationInvalidException();
@@ -110,11 +112,18 @@ public class ObjectConverter extends ConfigurationManager {
         }
         for (AttributeProxy proxy : getMethodAndFieldAnnotationsForClass(destination.getClass())) {
             try {
+
                 copyToField(proxy, record, destination, parserContext);
-                if (proxy.isPrimaryKey())
-                    proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
-                if (proxy.isPrimaryValue())
-                    proxy.setPrimaryKeyOrValue(destination, record.getValue());
+                //if the dataSetItem is coming from a search form the values in the primary key/value
+                // will always be null.
+                //If NOT coming from a search form we want the given primary key/value values to
+                //always over write what was copied in the object copy because primary key/value shoudl not be editable
+                if (!isSearchForm) {
+                    if (proxy.isPrimaryKey())
+                        proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
+                    if (proxy.isPrimaryValue())
+                        proxy.setPrimaryKeyOrValue(destination, record.getValue());
+                }
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -152,14 +161,16 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      * @param loadRelationshipIndexes
      */
-    public static <T> void copyToRecord(Record record, T source, List<Integer> loadRelationshipIndexes) {
+    public static <T> void copyToRecord(Record record, T source,
+                                        List<Integer> loadRelationshipIndexes) {
         if (source == null) return;
         Set<Integer> relationshipsToLoad = new HashSet<>(loadRelationshipIndexes);
         mapMethodsFromSource(source);
         for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(
             source.getClass())) {
             try {
-                attributeProxy.setLoadRelationshipData(relationshipsToLoad.contains(attributeProxy.getIndex()));
+                attributeProxy.setLoadRelationshipData(
+                    relationshipsToLoad.contains(attributeProxy.getIndex()));
                 copyFromField(attributeProxy, record, source);
             } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -287,7 +298,7 @@ public class ObjectConverter extends ConfigurationManager {
                 break;
             case ListItem:
                 writeListItemData(proxy, destination, dataSetItem,
-                                  attributeMeta.getAttributeIndex());
+                                  attributeMeta.getAttributeIndex(), parserContext);
                 break;
             case SingleRelationship:
                 writeSingleRelationshipData(proxy, destination, dataSetItem,
@@ -611,14 +622,16 @@ public class ObjectConverter extends ConfigurationManager {
      * @throws InvocationTargetException
      */
     private static <T> void writeListItemData(AttributeProxy proxy, T destination,
-                                              Record dataSetItem, Integer index) throws
-                                                                                 UnableToWriteException,
-                                                                                 InvocationTargetException {
+                                              Record dataSetItem, Integer index,
+                                              ParserContext parserContext) throws
+                                                                           UnableToWriteException,
+                                                                           InvocationTargetException {
         ListItem listItem = dataSetItem.getListItem(index);
         if (listItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index);
+        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index,
+                                parserContext.isSearchForm());
     }
 
     /**
@@ -640,7 +653,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (newDataSetItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index);
+        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index,
+                                parserContext.isSearchForm());
     }
 
     private static <T> void writeImageData(AttributeProxy proxy, T destination,
@@ -658,14 +672,14 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void copyFromRecordRecursive(AttributeProxy proxy, Type fieldType,
                                                     Class classValue, Record record, T destination,
-                                                    Integer index)
+                                                    Integer index, boolean isSearchForm)
         throws InvocationTargetException, UnableToWriteException {
         try {
-            if(!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
+            if (!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
                 classValue = primitiveToWrapper(fieldType.getTypeName());
             else classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
-            copyFromRecord(record, object);
+            copyFromRecord(record, object, isSearchForm);
             useSetterIfExists(proxy, destination, object);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index,
@@ -696,7 +710,7 @@ public class ObjectConverter extends ConfigurationManager {
             ArrayList<Object> tempList = new ArrayList<>();
             for (DataSetItem dataSetItem1 : dataSetItems) {
                 Object object = classValue.newInstance();
-                copyFromRecord(dataSetItem1, object);
+                copyFromRecord(dataSetItem1, object, parserContext.isSearchForm());
                 tempList.add(object);
             }
             useSetterIfExists(proxy, destination, tempList);
@@ -825,7 +839,7 @@ public class ObjectConverter extends ConfigurationManager {
             InputStream byteArrayInputStream =
                 new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
             object.setInputStream(byteArrayInputStream);
-        } else if(attachmentItem.getCRUDStatus() == DataSetItem.CRUDStatus.Create) {
+        } else if (attachmentItem.getCRUDStatus() == DataSetItem.CRUDStatus.Create) {
             throw new RuntimeException("Attachment uploaded without any data.");
         }
     }
@@ -1278,8 +1292,9 @@ public class ObjectConverter extends ConfigurationManager {
                                                                              IllegalAccessException,
                                                                              InvocationTargetException {
         List<Object> relationship;
-        if(attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
-        if(attributeProxy.loadRelationshipData() || attributeProxy.getRelationshipAnnotation().eager()) {
+        if (attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
+        if (attributeProxy.loadRelationshipData() ||
+            attributeProxy.getRelationshipAnnotation().eager()) {
             if (useGetterAndSetter) {
                 relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
             } else relationship = (List<Object>) attributeProxy.getValue(object);
