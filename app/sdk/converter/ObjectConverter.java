@@ -972,8 +972,7 @@ public class ObjectConverter extends ConfigurationManager {
             } else floatValue = (Float) attributeProxy.getValue(object);
             if(floatValue == null || floatValue.isNaN()){
                 fieldData = 0.0;
-            }
-            else{
+            } else{
                 fieldData = new Double(floatValue);
             }
         } else {
