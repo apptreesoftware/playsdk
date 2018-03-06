@@ -970,11 +970,7 @@ public class ObjectConverter extends ConfigurationManager {
             if (useGetterAndSetter) {
                 floatValue = (Float) useGetterIfExists(attributeProxy, object);
             } else floatValue = (Float) attributeProxy.getValue(object);
-            if(floatValue == null || floatValue.isNaN()){
-                fieldData = 0.0;
-            } else{
-                fieldData = new Double(floatValue);
-            }
+            fieldData = new Double(floatValue);
         } else {
             if (useGetterAndSetter) {
                 fieldData = (Double) useGetterIfExists(attributeProxy, object);
@@ -993,8 +989,6 @@ public class ObjectConverter extends ConfigurationManager {
             }
         }
     }
-
-
 
     /**
      * @param attributeProxy
