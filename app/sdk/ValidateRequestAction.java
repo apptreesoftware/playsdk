@@ -35,7 +35,7 @@ public class ValidateRequestAction extends Action.Simple {
 
     private int getAllowedOffset() {
         if ( allowedOffset < 0 ) {
-            allowedOffset = configuration.getInt(Constants.AllowedOffsetKey);
+            allowedOffset = configuration.getInt(Constants.AllowedOffsetKey, 0);
             allowedOffset = allowedOffset > 0 ? allowedOffset : 3;
         }
         return allowedOffset;
