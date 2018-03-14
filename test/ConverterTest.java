@@ -222,12 +222,12 @@ public class ConverterTest {
         SampleLazyLoadObj finalObj = new SampleLazyLoadObj();
         DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleLazyLoadObj.class));
         ObjectConverter.copyToRecord(item, obj);
-        ObjectConverter.copyFromRecord(item, finalObj);
+        ObjectConverter.copyFromRecord(item, finalObj, false);
         assert(finalObj.objList == null);
 
         List<Integer> loadProps = Arrays.asList(0, 1);
         ObjectConverter.copyToRecord(item, obj, loadProps);
-        ObjectConverter.copyFromRecord(item, finalObj);
+        ObjectConverter.copyFromRecord(item, finalObj, false);
         assert(finalObj.objList != null);
     }
 
@@ -238,7 +238,7 @@ public class ConverterTest {
         try {
             ObjectConverter.copyToRecord(item, obj);
             DataSetItem newItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
-            ObjectConverter.copyFromRecord(newItem, obj);
+            ObjectConverter.copyFromRecord(newItem, obj, false);
             assert(obj.equivalent(item, obj));
             assert(obj.equivalent(newItem, new SamplePrimitivesObject()));
         } catch(Exception e) {
@@ -276,7 +276,7 @@ public class ConverterTest {
         ObjectConverter.copyToRecord(item, obj);
         assert(item.getPrimaryKey().equals(obj.getPk()));
         item.setPrimaryKey("different key");
-        ObjectConverter.copyFromRecord(item, obj);
+        ObjectConverter.copyFromRecord(item, obj, false);
         assert(obj.getPk().equals("different key"));
     }
 
@@ -288,7 +288,7 @@ public class ConverterTest {
         Image image = new Image();
         image.imageURL = "testUrl.com";
         record.setImage(image, 10);
-        ObjectConverter.copyFromRecord(record, object);
+        ObjectConverter.copyFromRecord(record, object, false);
         assert(record.getImage(10).imageURL.equals(object.image.imageURL));
     }
 
@@ -309,7 +309,7 @@ public class ConverterTest {
         attrs.setStringForAttributeIndex("first", 0);
         attrs.setStringForAttributeIndex("second", 1);
         attrs.setStringForAttributeIndex("third", 2);
-        ObjectConverter.copyFromRecord(attrs, obj);
+        ObjectConverter.copyFromRecord(attrs, obj, false);
         assert(attrs.getStringAttributeAtIndex(0).equals(obj.first));
         assert(attrs.getStringAttributeAtIndex(1).equals(obj.second));
         assert(attrs.getStringAttributeAtIndex(2).equals(obj.third));
@@ -369,7 +369,7 @@ public class ConverterTest {
         DataSetItem dataSetItem = new DataSetItem(sampleConf.getAttributes());
         DataSetItem testDataSetItem = new DataSetItem(sampleConf.getAttributes());
         dataSetItem = getHydratedDataSetItemFromSampleObject(dataSetItem, getSampleObject());
-        ObjectConverter.copyFromRecord(dataSetItem, sampleObject);
+        ObjectConverter.copyFromRecord(dataSetItem, sampleObject, false);
         ObjectConverter.copyToRecord(testDataSetItem, sampleObject);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
     }
@@ -684,7 +684,7 @@ public class ConverterTest {
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
         ObjectConverter.copyToRecord(dataSetItem, sampleObject);
         SampleObject testSampleObject = new SampleObject();
-        ObjectConverter.copyFromRecord(dataSetItem, testSampleObject);
+        ObjectConverter.copyFromRecord(dataSetItem, testSampleObject, false);
     }
 
 
@@ -737,7 +737,7 @@ public class ConverterTest {
     public void testExcludeFromListCopyFromRecord() {
         ExcludeFromList excludeFromList = new ExcludeFromList();
         DataSetItem testDataSetItem = ExcludeFromList.getTestDataSetItem();
-        ObjectConverter.copyFromRecord(testDataSetItem, excludeFromList);
+        ObjectConverter.copyFromRecord(testDataSetItem, excludeFromList, false);
         DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));

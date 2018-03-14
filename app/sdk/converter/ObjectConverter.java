@@ -227,7 +227,7 @@ public class ObjectConverter extends ConfigurationManager {
             Object val = useGetterIfExists(attributeProxy, source);
             if (val == null)
                 throw new RuntimeException(
-                "Primary key is null on " + source.getClass().getSimpleName());
+                    "Primary key is null on " + source.getClass().getSimpleName());
             record.setPrimaryKey(val.toString());
             if (record.getValue() == null) record.setValue(val.toString());
             if (!attributeProxy.isAttribute()) return;
