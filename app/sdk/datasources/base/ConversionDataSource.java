@@ -15,13 +15,13 @@ import java.util.ArrayList;
 public abstract class ConversionDataSource<S, D> implements ConversionDataSourceBase {
 
     public D convertRecord(DataSetItem dataSetItem, S object) {
-        ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ObjectConverter.copyFromRecord(dataSetItem, object);
         return convert(object);
     }
 
     public D convertRecord(DataSetItem previousDataSetItem, DataSetItem dataSetItem, S previousObject, S object) {
-        ObjectConverter.copyFromRecord(previousDataSetItem, previousObject, false);
-        ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ObjectConverter.copyFromRecord(previousDataSetItem, previousObject);
+        ObjectConverter.copyFromRecord(dataSetItem, object);
         return convert(previousObject, object);
     }
 
