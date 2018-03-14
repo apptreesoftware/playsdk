@@ -73,6 +73,7 @@ public abstract class TypedListDataSource<T> implements SearchableList, Cacheabl
 
     private List getListFromCollection(Collection<T> listOfValues) {
         java.util.List<ListItem> items = new ArrayList<>();
+        int i = 0;
         for (T object : safe(listOfValues)) {
             ListItem tempItem = new ListItem();
             ObjectConverter.copyToRecord(tempItem, object);

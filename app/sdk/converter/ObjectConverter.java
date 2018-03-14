@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import static sdk.utils.ClassUtils.Null;
+import static sdk.utils.ClassUtils.getParameterizedType;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -100,7 +101,11 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      */
     public static <T> ParserContext copyFromRecord(Record record, T destination) {
-        ParserContext parserContext = getParserContext();
+        return copyFromRecord(record, destination, new ParserContext());
+    }
+
+
+    public static<T> ParserContext copyFromRecord(Record record, T destination, final ParserContext parserContext) {
         mapMethodsFromSource(destination);
         if (destination == null) {
             throw new DestinationInvalidException();
@@ -119,12 +124,8 @@ public class ObjectConverter extends ConfigurationManager {
                 e.printStackTrace();
             }
         }
+
         return parserContext;
-    }
-
-
-    private static ParserContext getParserContext() {
-        return new ParserContext();
     }
 
 
@@ -224,7 +225,8 @@ public class ObjectConverter extends ConfigurationManager {
 
         if (primaryKey) {
             Object val = useGetterIfExists(attributeProxy, source);
-            if (val == null) throw new RuntimeException(
+            if (val == null)
+                throw new RuntimeException(
                 "Primary key is null on " + source.getClass().getSimpleName());
             record.setPrimaryKey(val.toString());
             if (record.getValue() == null) record.setValue(val.toString());
@@ -618,7 +620,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (listItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index);
+        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index, parserContext);
     }
 
     /**
@@ -640,7 +642,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (newDataSetItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index);
+        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index, parserContext);
     }
 
     private static <T> void writeImageData(AttributeProxy proxy, T destination,
@@ -658,14 +660,15 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void copyFromRecordRecursive(AttributeProxy proxy, Type fieldType,
                                                     Class classValue, Record record, T destination,
-                                                    Integer index)
+                                                    Integer index,
+                                                    ParserContext parserContext)
         throws InvocationTargetException, UnableToWriteException {
         try {
             if(!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
                 classValue = primitiveToWrapper(fieldType.getTypeName());
             else classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
-            copyFromRecord(record, object);
+            copyFromRecord(record, object, parserContext);
             useSetterIfExists(proxy, destination, object);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index,
@@ -696,7 +699,7 @@ public class ObjectConverter extends ConfigurationManager {
             ArrayList<Object> tempList = new ArrayList<>();
             for (DataSetItem dataSetItem1 : dataSetItems) {
                 Object object = classValue.newInstance();
-                copyFromRecord(dataSetItem1, object);
+                copyFromRecord(dataSetItem1, object, parserContext);
                 tempList.add(object);
             }
             useSetterIfExists(proxy, destination, tempList);
