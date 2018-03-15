@@ -18,3 +18,4 @@ libraryDependencies += "commons-net" % "commons-net" % "3.6"
 libraryDependencies += "net.coobird" % "thumbnailator" % "0.4.8"
 libraryDependencies += "org.avaje.ebeanorm" % "avaje-ebeanorm-mocker" % "8.1.1"
 libraryDependencies += "org.mockito" % "mockito-all" % "1.9.5" % "test"
+

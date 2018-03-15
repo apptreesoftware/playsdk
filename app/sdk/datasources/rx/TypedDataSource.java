@@ -42,7 +42,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public Observable<DataSet> queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(queryDataItem, object, true);
+        ObjectConverter.copyFromRecord(queryDataItem, object);
         Observable<Collection<T>> objects = query(object, authenticationInfo, params);
         return objects.map(list -> ObjectConverter.getDataSetFromCollection(list, getAttributes()));
     }
@@ -50,21 +50,21 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public Observable<RecordActionResponse> createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ObjectConverter.copyFromRecord(dataSetItem, object);
         return create(object, authenticationInfo, params);
     }
 
     @Override
     public Observable<RecordActionResponse> updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
         return update(object, authenticationInfo, params, parserContext);
     }
 
     @Override
     public Observable<RecordActionResponse> validateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object);
         return validate(object, authenticationInfo, params, parserContext);
     }
 
