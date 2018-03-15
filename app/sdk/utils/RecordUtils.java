@@ -37,7 +37,8 @@ public class RecordUtils {
         Collection<ApptreeAttachment> newAttachments = new ArrayList<>();
         for (DataSetItemAttachment attachment : attachments) {
             ApptreeAttachment newAttachment = (ApptreeAttachment) proxy.getType().newInstance();
-            ObjectConverter.copyFromAttachment(attachment, newAttachment, proxy);
+            ObjectConverter.copyFromAttachment(attachment, newAttachment);
+            ObjectConverter.copyFromRecord(attachment, newAttachment);
             newAttachments.add(newAttachment);
         }
         return newAttachments;
@@ -48,7 +49,8 @@ public class RecordUtils {
                                                                                                                                                  IllegalAccessException {
         DataSetItemAttachment attachment = attachments.get(0);
         if (attachment == null) return;
-        ObjectConverter.copyFromAttachment(attachment, object, proxy);
+        ObjectConverter.copyFromAttachment(attachment, object);
+        ObjectConverter.copyFromRecord(attachment, object);
     }
 
 

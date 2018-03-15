@@ -824,7 +824,7 @@ public class ObjectConverter extends ConfigurationManager {
 
 
     public static void copyFromAttachment(DataSetItemAttachment attachmentItem,
-                                          ApptreeAttachment object,)  {
+                                          ApptreeAttachment object)  {
         object.setAttachmentURL(getAttachmentUrlFromAttachmentItem(attachmentItem));
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
