@@ -1,7 +1,7 @@
 package sdk.converter;
 
 import org.joda.time.DateTime;
-import sdk.annotations.*;
+import sdk.annotations.CustomLocation;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
 import sdk.exceptions.DestinationInvalidException;
@@ -9,7 +9,6 @@ import sdk.exceptions.UnableToWriteException;
 import sdk.exceptions.UnsupportedAttributeException;
 import sdk.list.ListItem;
 import sdk.models.*;
-import sdk.utils.ClassUtils;
 import sdk.utils.RecordUtils;
 
 import java.io.ByteArrayInputStream;
@@ -20,7 +19,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import static sdk.utils.ClassUtils.Null;
-import static sdk.utils.ClassUtils.getParameterizedType;
+import static sdk.utils.ValidationUtils.NullOrEmpty;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -105,7 +104,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
-    public static<T> ParserContext copyFromRecord(Record record, T destination, final ParserContext parserContext) {
+    public static <T> ParserContext copyFromRecord(Record record, T destination,
+                                                   final ParserContext parserContext) {
         mapMethodsFromSource(destination);
         if (destination == null) {
             throw new DestinationInvalidException();
@@ -153,14 +153,16 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      * @param loadRelationshipIndexes
      */
-    public static <T> void copyToRecord(Record record, T source, List<Integer> loadRelationshipIndexes) {
+    public static <T> void copyToRecord(Record record, T source,
+                                        List<Integer> loadRelationshipIndexes) {
         if (source == null) return;
         Set<Integer> relationshipsToLoad = new HashSet<>(loadRelationshipIndexes);
         mapMethodsFromSource(source);
         for (AttributeProxy attributeProxy : getMethodAndFieldAnnotationsForClass(
             source.getClass())) {
             try {
-                attributeProxy.setLoadRelationshipData(relationshipsToLoad.contains(attributeProxy.getIndex()));
+                attributeProxy.setLoadRelationshipData(
+                    relationshipsToLoad.contains(attributeProxy.getIndex()));
                 copyFromField(attributeProxy, record, source);
             } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -620,7 +622,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (listItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index, parserContext);
+        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index,
+                                parserContext);
     }
 
     /**
@@ -642,7 +645,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (newDataSetItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index, parserContext);
+        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index,
+                                parserContext);
     }
 
     private static <T> void writeImageData(AttributeProxy proxy, T destination,
@@ -664,7 +668,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                     ParserContext parserContext)
         throws InvocationTargetException, UnableToWriteException {
         try {
-            if(!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
+            if (!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
                 classValue = primitiveToWrapper(fieldType.getTypeName());
             else classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
@@ -774,7 +778,7 @@ public class ObjectConverter extends ConfigurationManager {
                     RecordUtils.copyListOfAttachmentsFromRecordForIndex(attachmentItems, proxy);
                 useSetterIfExists(proxy, destination, attachmentList);
             } else {
-                RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, singleAttachment);
+                RecordUtils.copyAttachmentFromRecordForIndex(attachmentItems, singleAttachment, proxy);
                 useSetterIfExists(proxy, destination, singleAttachment);
             }
         } catch (IllegalAccessException ie) {
@@ -820,17 +824,31 @@ public class ObjectConverter extends ConfigurationManager {
 
 
     public static void copyFromAttachment(DataSetItemAttachment attachmentItem,
-                                          ApptreeAttachment object) {
-        object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
+                                          ApptreeAttachment object,)  {
+        object.setAttachmentURL(getAttachmentUrlFromAttachmentItem(attachmentItem));
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
         if (attachmentItem.getAttachmentBytes() != null) {
             InputStream byteArrayInputStream =
                 new ByteArrayInputStream(attachmentItem.getAttachmentBytes());
             object.setInputStream(byteArrayInputStream);
-        } else if(attachmentItem.getCRUDStatus() == DataSetItem.CRUDStatus.Create) {
+        } else if (attachmentItem.getCRUDStatus() == DataSetItem.CRUDStatus.Create) {
             throw new RuntimeException("Attachment uploaded without any data.");
         }
+    }
+
+
+    private static String getAttachmentUrlFromAttachmentItem(DataSetItemAttachment attachment) {
+        if (!NullOrEmpty(attachment.getFileAttachmentURL())) {
+            return attachment.getFileAttachmentURL();
+        }
+        if (!NullOrEmpty(attachment.getImageAttachmentURL())) {
+            return attachment.getImageAttachmentURL();
+        }
+        if (!NullOrEmpty(attachment.getVideoAttachmentURL())) {
+            return attachment.getVideoAttachmentURL();
+        }
+        return "";
     }
 
     /**
@@ -1253,8 +1271,9 @@ public class ObjectConverter extends ConfigurationManager {
                                                                              IllegalAccessException,
                                                                              InvocationTargetException {
         List<Object> relationship;
-        if(attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
-        if(attributeProxy.loadRelationshipData() || attributeProxy.getRelationshipAnnotation().eager()) {
+        if (attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
+        if (attributeProxy.loadRelationshipData() ||
+            attributeProxy.getRelationshipAnnotation().eager()) {
             if (useGetterAndSetter) {
                 relationship = (List<Object>) useGetterIfExists(attributeProxy, object);
             } else relationship = (List<Object>) attributeProxy.getValue(object);

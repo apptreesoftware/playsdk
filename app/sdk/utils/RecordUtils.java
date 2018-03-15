@@ -7,6 +7,7 @@ import sdk.converter.attachment.Attachment;
 import sdk.data.DataSetItemAttachment;
 import sdk.data.Record;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,20 +30,25 @@ public class RecordUtils {
         }
     }
 
-    public static Collection<ApptreeAttachment> copyListOfAttachmentsFromRecordForIndex(List<DataSetItemAttachment> attachments, AttributeProxy proxy) throws IllegalAccessException, InstantiationException {
+    public static Collection<ApptreeAttachment> copyListOfAttachmentsFromRecordForIndex(List<DataSetItemAttachment> attachments, AttributeProxy proxy) throws
+                                                                                                                                                       IllegalAccessException,
+                                                                                                                                                       InstantiationException,
+                                                                                                                                                       InvocationTargetException {
         Collection<ApptreeAttachment> newAttachments = new ArrayList<>();
         for (DataSetItemAttachment attachment : attachments) {
             ApptreeAttachment newAttachment = (ApptreeAttachment) proxy.getType().newInstance();
-            ObjectConverter.copyFromAttachment(attachment, newAttachment);
+            ObjectConverter.copyFromAttachment(attachment, newAttachment, proxy);
             newAttachments.add(newAttachment);
         }
         return newAttachments;
     }
 
-    public static void copyAttachmentFromRecordForIndex(List<DataSetItemAttachment> attachments, ApptreeAttachment object) {
+    public static void copyAttachmentFromRecordForIndex(List<DataSetItemAttachment> attachments, ApptreeAttachment object, AttributeProxy proxy) throws
+                                                                                                                                                 InvocationTargetException,
+                                                                                                                                                 IllegalAccessException {
         DataSetItemAttachment attachment = attachments.get(0);
         if (attachment == null) return;
-        ObjectConverter.copyFromAttachment(attachment, object);
+        ObjectConverter.copyFromAttachment(attachment, object, proxy);
     }
 
 
