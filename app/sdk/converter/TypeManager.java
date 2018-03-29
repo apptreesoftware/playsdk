@@ -381,7 +381,7 @@ public class TypeManager {
             return new StringBuilder("set")
                     .append(proxy.getName()).toString().toLowerCase();
         } else {
-            return proxy.getName().replace("get", "set");
+            return proxy.getName().replace("get", "set").toLowerCase();
         }
     }
 
