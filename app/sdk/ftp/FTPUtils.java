@@ -45,7 +45,7 @@ public class FTPUtils {
         }
     }
 
-    public static boolean downloadFile(FTPRequest request, FileOutputStream outputStream) {
+    public static boolean downloadFile(FTPRequest request, OutputStream outputStream) {
         FTPClient client = null;
         try {
             boolean success;
