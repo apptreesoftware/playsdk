@@ -17,6 +17,7 @@ import sdk.models.Color;
 import sdk.models.Image;
 import sdk.models.Location;
 
+import javax.validation.constraints.AssertTrue;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -74,26 +75,30 @@ public class ConverterTest {
     @SuppressWarnings("unchecked")
     public <T extends List<?>> T hydrateSampleObjectProxies() {
         try {
-            Method method = TypeManager.class.getDeclaredMethod("getMethodAndFieldAnnotationsForClass", Class.class);
+            Method method = TypeManager.class
+                .getDeclaredMethod("getMethodAndFieldAnnotationsForClass", Class.class);
             method.setAccessible(true);
             Object[] args = {SampleObject.class};
             ObjectConverter converter = new ObjectConverter();
             return (T) method.invoke(converter, args);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private DataSetItem getHydratedDataSetItemFromSampleObject(DataSetItem dataSetItem, SampleObject sampleObject) {
+    private DataSetItem getHydratedDataSetItemFromSampleObject(DataSetItem dataSetItem,
+                                                               SampleObject sampleObject) {
         dataSetItem.setPrimaryKey(sampleObject.woNumber);
         dataSetItem.setString(sampleObject.woNumber, 0);
         dataSetItem.setInt(sampleObject.testInt, 1);
         if (sampleObject.testIntObject != null) dataSetItem.setInt(sampleObject.testIntObject, 2);
         dataSetItem.setDouble(sampleObject.testFloat, 3);
-        if (sampleObject.testFloatObject != null) dataSetItem.setDouble(sampleObject.testFloatObject, 4);
+        if (sampleObject.testFloatObject != null)
+            dataSetItem.setDouble(sampleObject.testFloatObject, 4);
         dataSetItem.setDouble(sampleObject.testDouble, 5);
-        if (sampleObject.testDoubleObject != null) dataSetItem.setDouble(sampleObject.testDoubleObject, 6);
+        if (sampleObject.testDoubleObject != null)
+            dataSetItem.setDouble(sampleObject.testDoubleObject, 6);
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 7);
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 8);
         dataSetItem.setDateTime(sampleObject.testJodaTimeDate, 9);
@@ -205,7 +210,7 @@ public class ConverterTest {
     private SampleLazyLoadObj getNewLazyObj() {
         SampleLazyLoadObj obj = new SampleLazyLoadObj();
         List<SampleLazyLoadObj.LazilyLoadedObj> objList = new ArrayList<>();
-        for(int i = 0; i < 5; ++i) {
+        for (int i = 0; i < 5; ++i) {
             SampleLazyLoadObj.LazilyLoadedObj childObj = new SampleLazyLoadObj.LazilyLoadedObj();
             childObj.pk = i;
             childObj.name = "test" + i;
@@ -220,30 +225,33 @@ public class ConverterTest {
     public void testLazyLoad() {
         SampleLazyLoadObj obj = getNewLazyObj();
         SampleLazyLoadObj finalObj = new SampleLazyLoadObj();
-        DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleLazyLoadObj.class));
+        DataSetItem item = new DataSetItem(
+            ObjectConverter.generateConfigurationAttributes(SampleLazyLoadObj.class));
         ObjectConverter.copyToRecord(item, obj);
         ObjectConverter.copyFromRecord(item, finalObj, false);
-        assert(finalObj.objList == null);
+        assert (finalObj.objList == null);
 
         List<Integer> loadProps = Arrays.asList(0, 1);
         ObjectConverter.copyToRecord(item, obj, loadProps);
         ObjectConverter.copyFromRecord(item, finalObj, false);
-        assert(finalObj.objList != null);
+        assert (finalObj.objList != null);
     }
 
     @Test
     public void testObjectWithPrimitiveTypes() {
         SamplePrimitivesObject obj = new SamplePrimitivesObject();
-        DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
+        DataSetItem item = new DataSetItem(
+            ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
         try {
             ObjectConverter.copyToRecord(item, obj);
-            DataSetItem newItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
+            DataSetItem newItem = new DataSetItem(
+                ObjectConverter.generateConfigurationAttributes(SamplePrimitivesObject.class));
             ObjectConverter.copyFromRecord(newItem, obj, false);
-            assert(obj.equivalent(item, obj));
-            assert(obj.equivalent(newItem, new SamplePrimitivesObject()));
-        } catch(Exception e) {
+            assert (obj.equivalent(item, obj));
+            assert (obj.equivalent(newItem, new SamplePrimitivesObject()));
+        } catch (Exception e) {
             e.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -253,7 +261,7 @@ public class ConverterTest {
         SampleListItem object = getNewSampleListObject();
         Record record = new ListItem();
         ObjectConverter.copyToRecord(record, object);
-        assert(object.image.imageURL.equals(record.getImage(10).imageURL));
+        assert (object.image.imageURL.equals(record.getImage(10).imageURL));
     }
 
 
@@ -261,71 +269,84 @@ public class ConverterTest {
         @Attribute(index = 0)
         public String name = "object with method primary key";
         private String pk = "primary key";
+
         @PrimaryKey
         public String getPk() {
             return pk;
         }
+
         public void setPk(String pk) {
             this.pk = pk;
         }
     }
+
     @Test
     public void testConvertObjWithMethodPrimaryKey() {
         ObjectWithMethodPk obj = new ObjectWithMethodPk();
-        DataSetItem item = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ObjectWithMethodPk.class));
+        DataSetItem item = new DataSetItem(
+            ObjectConverter.generateConfigurationAttributes(ObjectWithMethodPk.class));
         ObjectConverter.copyToRecord(item, obj);
-        assert(item.getPrimaryKey().equals(obj.getPk()));
+        assert (item.getPrimaryKey().equals(obj.getPk()));
         item.setPrimaryKey("different key");
         ObjectConverter.copyFromRecord(item, obj, false);
-        assert(obj.getPk().equals("different key"));
+        assert (obj.getPk().equals("different key"));
     }
 
 
     @Test
     public void testSetImageToObject() {
         SampleListItem object = new SampleListItem();
-        Record record = new ListItem(ObjectConverter.generateListConfiguration(SampleListItem.class, "config"));
+        Record record =
+            new ListItem(ObjectConverter.generateListConfiguration(SampleListItem.class, "config"));
         Image image = new Image();
         image.imageURL = "testUrl.com";
         record.setImage(image, 10);
         ObjectConverter.copyFromRecord(record, object, false);
-        assert(record.getImage(10).imageURL.equals(object.image.imageURL));
+        assert (record.getImage(10).imageURL.equals(object.image.imageURL));
     }
 
 
     @Test
     public void testGenerateConfigAcrossHierarchy() {
-        assert(ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.class).size() == 1);
-        assert(ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.ChildObject.class).size() == 2);
-        assert(ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.GrandChildObject.class).size() == 3);
+        assert (
+            ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.class).size() ==
+            1);
+        assert (
+            ObjectConverter.generateConfigurationAttributes(SampleInheritanceTree.ChildObject.class)
+                           .size() == 2);
+        assert (ObjectConverter
+                    .generateConfigurationAttributes(SampleInheritanceTree.GrandChildObject.class)
+                    .size() == 3);
     }
 
 
     @Test
     public void testSetAttributesUpHierarchy() {
-        SampleInheritanceTree.ChildObject.GrandChildObject obj = new SampleInheritanceTree.ChildObject.GrandChildObject();
+        SampleInheritanceTree.ChildObject.GrandChildObject obj =
+            new SampleInheritanceTree.ChildObject.GrandChildObject();
         DataSetItem attrs = new DataSetItem(ObjectConverter.generateConfigurationAttributes(
             SampleInheritanceTree.GrandChildObject.class));
         attrs.setStringForAttributeIndex("first", 0);
         attrs.setStringForAttributeIndex("second", 1);
         attrs.setStringForAttributeIndex("third", 2);
         ObjectConverter.copyFromRecord(attrs, obj, false);
-        assert(attrs.getStringAttributeAtIndex(0).equals(obj.first));
-        assert(attrs.getStringAttributeAtIndex(1).equals(obj.second));
-        assert(attrs.getStringAttributeAtIndex(2).equals(obj.third));
+        assert (attrs.getStringAttributeAtIndex(0).equals(obj.first));
+        assert (attrs.getStringAttributeAtIndex(1).equals(obj.second));
+        assert (attrs.getStringAttributeAtIndex(2).equals(obj.third));
     }
 
 
     @Test
     public void testPrimaryKeyOnParent() {
-        SampleInheritanceTree.ChildObject.GrandChildObject obj = new SampleInheritanceTree.ChildObject.GrandChildObject();
+        SampleInheritanceTree.ChildObject.GrandChildObject obj =
+            new SampleInheritanceTree.ChildObject.GrandChildObject();
         obj.first = "first";
         obj.second = "second";
         obj.third = "third";
         DataSetItem attrs = new DataSetItem(ObjectConverter.generateConfigurationAttributes(
             SampleInheritanceTree.GrandChildObject.class));
         ObjectConverter.copyToRecord(attrs, obj);
-        assert(attrs.getPrimaryKey().equals(obj.first));
+        assert (attrs.getPrimaryKey().equals(obj.first));
     }
 
 
@@ -334,9 +355,9 @@ public class ConverterTest {
         try {
             ObjectConverter.generateConfigurationAttributes(
                 SampleInheritanceTree.GrandChildRedefinesPK.class);
-            assert(false);
-        } catch(RuntimeException e) {
-            assert(e.getMessage().contains("redefines a primary key"));
+            assert (false);
+        } catch (RuntimeException e) {
+            assert (e.getMessage().contains("redefines a primary key"));
         }
     }
 
@@ -346,9 +367,9 @@ public class ConverterTest {
         try {
             ObjectConverter.generateConfigurationAttributes(
                 SampleInheritanceTree.GrandChildDuplicateIndex.class);
-            assert(false);
-        } catch(RuntimeException e) {
-            assert(e.getMessage().contains("shares an index"));
+            assert (false);
+        } catch (RuntimeException e) {
+            assert (e.getMessage().contains("shares an index"));
         }
     }
 
@@ -357,13 +378,15 @@ public class ConverterTest {
     public void testConfigGeneration() {
         ServiceConfiguration sampleConf = SampleObject.getServiceConfiguration();
         SampleObject sampleObject = new SampleObject();
-        ServiceConfiguration generatedConfig = ObjectConverter.generateConfiguration(sampleObject.getClass());
+        ServiceConfiguration generatedConfig =
+            ObjectConverter.generateConfiguration(sampleObject.getClass());
         Assert.assertTrue(generatedConfig.equals(sampleConf));
     }
 
 
     @Test
-    public void testCopyFromDataSetItem() throws UnsupportedAttributeException, IllegalAccessException, UnableToWriteException {
+    public void testCopyFromDataSetItem() throws UnsupportedAttributeException,
+                                                 IllegalAccessException, UnableToWriteException {
         ServiceConfiguration sampleConf = ObjectConverter.generateConfiguration(SampleObject.class);
         SampleObject sampleObject = new SampleObject();
         DataSetItem dataSetItem = new DataSetItem(sampleConf.getAttributes());
@@ -414,7 +437,7 @@ public class ConverterTest {
             });
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -428,7 +451,9 @@ public class ConverterTest {
         }
         ObjectConverter converter = new ObjectConverter();
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            Method method = ObjectConverter.class
+                .getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class,
+                                   boolean.class);
             method.setAccessible(true);
             Object[] args = new Object[3];
             args[0] = argProxy;
@@ -442,7 +467,7 @@ public class ConverterTest {
             assert (testFillObj.getSpeed() == object.sdkLocation.getSpeed());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -456,7 +481,9 @@ public class ConverterTest {
         }
         ObjectConverter converter = new ObjectConverter();
         try {
-            Method method = converter.getClass().getDeclaredMethod("getLocationValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            Method method = converter.getClass().getDeclaredMethod("getLocationValueFromObject",
+                                                                   AttributeProxy.class,
+                                                                   Object.class, boolean.class);
             method.setAccessible(true);
             Object[] args = new Object[3];
             args[0] = argProxy;
@@ -471,7 +498,7 @@ public class ConverterTest {
             assert (testFillObj.getSpeed() == object.customLocation.getSpeed());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -485,7 +512,11 @@ public class ConverterTest {
         }
         ObjectConverter converter = new ObjectConverter();
         try {
-            Method method = converter.getClass().getDeclaredMethod("readLocationData", AttributeProxy.class, Object.class, Record.class, int.class, boolean.class, boolean.class, boolean.class);
+            Method method = converter.getClass()
+                                     .getDeclaredMethod("readLocationData", AttributeProxy.class,
+                                                        Object.class, Record.class, int.class,
+                                                        boolean.class, boolean.class,
+                                                        boolean.class);
             method.setAccessible(true);
             Object[] args = new Object[7];
             args[0] = argProxy;
@@ -504,7 +535,7 @@ public class ConverterTest {
             assert (testFillObj.getSpeed() == object.sdkLocation.getSpeed());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -523,7 +554,9 @@ public class ConverterTest {
         SampleObject dest = new SampleObject();
         dest.customLocation = null;
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("writeLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class);
+            Method method = ObjectConverter.class
+                .getDeclaredMethod("writeLocationData", AttributeProxy.class, Object.class,
+                                   Record.class, Integer.class);
             method.setAccessible(true);
             Object[] args = new Object[4];
             args[0] = argProxy;
@@ -538,7 +571,7 @@ public class ConverterTest {
             assert (dest.sdkLocation.getElevation() == src.getElevation());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -557,7 +590,9 @@ public class ConverterTest {
         SampleObject dest = new SampleObject();
         dest.customLocation = null;
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("writeCustomLocationData", AttributeProxy.class, Object.class, Record.class, Integer.class);
+            Method method = ObjectConverter.class
+                .getDeclaredMethod("writeCustomLocationData", AttributeProxy.class, Object.class,
+                                   Record.class, Integer.class);
             method.setAccessible(true);
             Object[] args = new Object[4];
             args[0] = argProxy;
@@ -573,7 +608,7 @@ public class ConverterTest {
             assert (dest.customLocation.getElevation() == src.getElevation());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -587,9 +622,12 @@ public class ConverterTest {
             if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("readColorData", AttributeProxy.class, Object.class, Record.class, int.class, boolean.class);
+            Method method = ObjectConverter.class
+                .getDeclaredMethod("readColorData", AttributeProxy.class, Object.class,
+                                   Record.class, int.class, boolean.class);
             method.setAccessible(true);
-            Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), false};
+            Object[] args =
+                {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index(), false};
             method.invoke(null, args);
             Color responseColor = dataSetItem.getColor(argProxy.getAttributeAnnotation().index());
             assert (responseColor.getA() == object.color.getA());
@@ -598,7 +636,7 @@ public class ConverterTest {
             assert (responseColor.getR() == object.color.getR());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -614,9 +652,12 @@ public class ConverterTest {
             if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("writeColorData", AttributeProxy.class, Object.class, Record.class, Integer.class);
+            Method method = ObjectConverter.class
+                .getDeclaredMethod("writeColorData", AttributeProxy.class, Object.class,
+                                   Record.class, Integer.class);
             method.setAccessible(true);
-            Object[] args = {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index()};
+            Object[] args =
+                {argProxy, object, dataSetItem, argProxy.getAttributeAnnotation().index()};
             method.invoke(null, args);
             Color responseColor = object.color;
             assert (responseColor.getA() == object.color.getA());
@@ -625,7 +666,7 @@ public class ConverterTest {
             assert (responseColor.getR() == object.color.getR());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
@@ -640,7 +681,9 @@ public class ConverterTest {
             if (proxy.getName().equalsIgnoreCase("color")) argProxy = proxy;
         }
         try {
-            Method method = ObjectConverter.class.getDeclaredMethod("getColorValueFromObject", AttributeProxy.class, Object.class, boolean.class);
+            Method method = ObjectConverter.class
+                .getDeclaredMethod("getColorValueFromObject", AttributeProxy.class, Object.class,
+                                   boolean.class);
             method.setAccessible(true);
             Object[] args = {argProxy, object, false};
             Color responseColor = (Color) method.invoke(null, args);
@@ -650,14 +693,15 @@ public class ConverterTest {
             assert (responseColor.getR() == object.color.getR());
         } catch (Exception error) {
             error.printStackTrace();
-            assert(false);
+            assert (false);
         }
     }
 
     @Test
     public void generateAttachmentConfiguration() {
         ServiceConfiguration sampleConf = SampleAttachment.getServiceConfiguration();
-        ServiceConfiguration generateConfig = ObjectConverter.generateConfiguration(SampleAttachmentWrapper.class);
+        ServiceConfiguration generateConfig =
+            ObjectConverter.generateConfiguration(SampleAttachmentWrapper.class);
         Assert.assertTrue(sampleConf.equals(generateConfig));
     }
 
@@ -665,7 +709,8 @@ public class ConverterTest {
     @Test
     public void testIfConfigurationsAreEqual() {
         ServiceConfiguration sampleConf = SampleObject.getServiceConfiguration();
-        ServiceConfiguration generatedConfg = ObjectConverter.generateConfiguration(SampleObject.class);
+        ServiceConfiguration generatedConfg =
+            ObjectConverter.generateConfiguration(SampleObject.class);
         Assert.assertTrue(sampleConf.equals(generatedConfg));
     }
 
@@ -673,7 +718,8 @@ public class ConverterTest {
     @Test
     public void toDataSetItem() {
         SampleObject sampleObject = getSampleObject();
-        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
+        DataSetItem dataSetItem =
+            new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
         ObjectConverter.copyToRecord(dataSetItem, sampleObject);
     }
 
@@ -681,7 +727,8 @@ public class ConverterTest {
     @Test
     public void fromDataSetItem() {
         SampleObject sampleObject = getSampleObject();
-        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
+        DataSetItem dataSetItem =
+            new DataSetItem(ObjectConverter.generateConfigurationAttributes(SampleObject.class));
         ObjectConverter.copyToRecord(dataSetItem, sampleObject);
         SampleObject testSampleObject = new SampleObject();
         ObjectConverter.copyFromRecord(dataSetItem, testSampleObject, false);
@@ -691,42 +738,47 @@ public class ConverterTest {
     @Test
     public void compareConfiguration() {
         String originalConfiguration = "{\n" +
-                "  \"success\": true,\n" +
-                "  \"message\": null,\n" +
-                "  \"showMessageAsAlert\": false,\n" +
-                "  \"async\": false,\n" +
-                "  \"listName\": \"Issue Status\",\n" +
-                "  \"includesLocation\": false,\n" +
-                "  \"authenticationRequired\": false,\n" +
-                "  \"userIDIndex\": -1,\n" +
-                "  \"canCache\": true,\n" +
-                "  \"canSearch\": true,\n" +
-                "  \"attributes\": [\n" +
-                "    {\n" +
-                "      \"attributeIndex\": 0,\n" +
-                "      \"label\": \"Status\",\n" +
-                "      \"attributeType\": \"Text\",\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"serviceFilterParameters\": [\n" +
-                "    \n" +
-                "  ]\n" +
-                "}";
+                                       "  \"success\": true,\n" +
+                                       "  \"message\": null,\n" +
+                                       "  \"showMessageAsAlert\": false,\n" +
+                                       "  \"async\": false,\n" +
+                                       "  \"listName\": \"Issue Status\",\n" +
+                                       "  \"includesLocation\": false,\n" +
+                                       "  \"authenticationRequired\": false,\n" +
+                                       "  \"userIDIndex\": -1,\n" +
+                                       "  \"canCache\": true,\n" +
+                                       "  \"canSearch\": true,\n" +
+                                       "  \"attributes\": [\n" +
+                                       "    {\n" +
+                                       "      \"attributeIndex\": 0,\n" +
+                                       "      \"label\": \"Status\",\n" +
+                                       "      \"attributeType\": \"Text\",\n" +
+                                       "    }\n" +
+                                       "  ],\n" +
+                                       "  \"serviceFilterParameters\": [\n" +
+                                       "    \n" +
+                                       "  ]\n" +
+                                       "}";
         // TODO: talk to Matt about writing a test for this
     }
 
 
     @Test
     public void testExcludeFromListConfiguration() {
-        ServiceConfiguration serviceConfiguration = ObjectConverter.generateConfiguration(ExcludeFromList.class);
-        Assert.assertTrue((serviceConfiguration.getAttributes().size() - 1) == serviceConfiguration.getAttributeWithIndex(3).getRelatedListServiceConfiguration().getAttributes().size());
+        ServiceConfiguration serviceConfiguration =
+            ObjectConverter.generateConfiguration(ExcludeFromList.class);
+        Assert.assertTrue((serviceConfiguration.getAttributes().size() - 1) ==
+                          serviceConfiguration.getAttributeWithIndex(3)
+                                              .getRelatedListServiceConfiguration().getAttributes()
+                                              .size());
     }
 
 
     @Test
     public void testExcludeFromListCopyToRecord() {
         ExcludeFromList excludeFromList = ExcludeFromList.getExcludeFromListObject();
-        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
+        DataSetItem dataSetItem =
+            new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         DataSetItem testDataSetItem = ExcludeFromList.getTestDataSetItem();
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
@@ -738,18 +790,19 @@ public class ConverterTest {
         ExcludeFromList excludeFromList = new ExcludeFromList();
         DataSetItem testDataSetItem = ExcludeFromList.getTestDataSetItem();
         ObjectConverter.copyFromRecord(testDataSetItem, excludeFromList, false);
-        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
+        DataSetItem dataSetItem =
+            new DataSetItem(ObjectConverter.generateConfigurationAttributes(ExcludeFromList.class));
         ObjectConverter.copyToRecord(dataSetItem, excludeFromList);
         Assert.assertTrue(dataSetItem.equals(testDataSetItem));
     }
 
 
-
     //THIS test is supposed to make sure that a primary key without an attribute annotation
     // won't have an index of zero
     @Test
-    public void testPrimaryKeyWithNoIndex(){
-        DataSetItem dataSetItem = new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestObject.class));
+    public void testPrimaryKeyWithNoIndex() {
+        DataSetItem dataSetItem =
+            new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestObject.class));
         TestObject testObject = new TestObject();
         testObject.id = 1;
         testObject.name = "testing";
@@ -757,13 +810,50 @@ public class ConverterTest {
 
     }
 
-    public class TestObject{
+
+    @Test
+    public void testAnnotatedMethodConversion() {
+        TestObject testObject = new TestObject();
+        testObject.setId(1);
+        testObject.setName("Sam");
+
+        DataSetItem dataSetItem =
+            new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestObject.class));
+        ObjectConverter.copyToRecord(dataSetItem, testObject);
+        Assert.assertTrue(dataSetItem.getString(1).equals("Test Name"));
+        TestObject testObject1 = new TestObject();
+        ObjectConverter.copyFromRecord(dataSetItem, testObject1, false);
+        Assert.assertTrue(testObject.equals(testObject1));
+    }
+
+
+    public class TestObject {
         @PrimaryKey
         private
         int id;
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TestObject that = (TestObject) o;
+            return id == that.id &&
+                   Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(id, name);
+        }
+
         @Attribute(index = 0)
         private String name;
+
+        @Attribute(index = 1)
+        private String billingName() {
+            return "Test Name";
+        }
 
         public String getName() {
             return name;
