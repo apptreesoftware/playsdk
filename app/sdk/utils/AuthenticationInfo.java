@@ -22,7 +22,7 @@ public class AuthenticationInfo {
         this.token = token;
     }
 
-    public String getUserID() {
+    public String   getUserID() {
         return userID;
     }
 
