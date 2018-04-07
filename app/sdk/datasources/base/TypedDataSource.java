@@ -38,7 +38,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public DataSet queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(queryDataItem, object, true);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(queryDataItem, object, true, null);
         Collection<? extends Object> objects = query(object, authenticationInfo, params, parserContext);
         return ObjectConverter.getDataSetFromCollection(objects, getAttributes(), params.getPrefetchRelationships());
     }
@@ -46,7 +46,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public RecordActionResponse createRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false, null);
         parserContext.setUserId(authenticationInfo.getUserID());
         parserContext.setAppId(authenticationInfo.getCustomAuthenticationParameter(Constants.APP_ID_HEADER));
         return create(object, authenticationInfo, params, parserContext);
@@ -56,7 +56,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public RecordActionResponse validateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false, null);
         parserContext.setUserId(authenticationInfo.getUserID());
         parserContext.setAppId(authenticationInfo.getCustomAuthenticationParameter(Constants.APP_ID_HEADER));
         return validate(object, authenticationInfo, params, parserContext);
@@ -65,7 +65,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public RecordActionResponse updateRecord(DataSetItem dataSetItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ParserContext parserContext = ObjectConverter.copyFromRecord(dataSetItem, object, false, null);
         parserContext.setUserId(authenticationInfo.getUserID());
         parserContext.setAppId(authenticationInfo.getCustomAuthenticationParameter(Constants.APP_ID_HEADER));
         return update(object, authenticationInfo, params, parserContext);

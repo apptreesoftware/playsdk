@@ -16,13 +16,13 @@ import java.util.concurrent.CompletableFuture;
 public abstract class ConversionDataSource<S, D> implements ConversionDataSourceBase {
 
     public CompletableFuture<D> convertRecord(DataSetItem dataSetItem, S object) {
-        ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ObjectConverter.copyFromRecord(dataSetItem, object, false, null);
         return convert(object);
     }
 
     public CompletableFuture<D> convertRecord(DataSetItem previousDataSetItem, DataSetItem dataSetItem, S previousObject, S object) {
-        ObjectConverter.copyFromRecord(previousDataSetItem, previousObject, false);
-        ObjectConverter.copyFromRecord(dataSetItem, object, false);
+        ObjectConverter.copyFromRecord(previousDataSetItem, previousObject, false, null);
+        ObjectConverter.copyFromRecord(dataSetItem, object, false, null);
         return convert(previousObject, object);
     }
 

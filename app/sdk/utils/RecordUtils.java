@@ -33,7 +33,7 @@ public class RecordUtils {
         Collection<ApptreeAttachment> newAttachments = new ArrayList<>();
         for (DataSetItemAttachment attachment : attachments) {
             ApptreeAttachment newAttachment = (ApptreeAttachment) proxy.getType().newInstance();
-            ObjectConverter.copyFromRecord(attachment, newAttachment, false);
+            ObjectConverter.copyFromRecord(attachment, newAttachment, false, null);
             ObjectConverter.copyFromAttachment(attachment, newAttachment);
             newAttachments.add(newAttachment);
         }

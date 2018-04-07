@@ -89,6 +89,11 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
+    public static <T> ParserContext copyFromRecord(Record record, T destination, boolean isSearchForm){
+        return copyFromRecord(record, destination, isSearchForm, null);
+    }
+
+
     /**
      * Method accepts an object that implements the `Record` interface and an object's members annotated with Attribute annotation
      * This function iterates the annotated members of the "destination" object
@@ -100,8 +105,10 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      */
     public static <T> ParserContext copyFromRecord(Record record, T destination,
-                                                   boolean isSearchForm) {
-        ParserContext parserContext = getParserContext();
+                                                   boolean isSearchForm, ParserContext parserContext) {
+        if(parserContext == null){
+            parserContext = getParserContext();
+        }
         parserContext.setSearchForm(isSearchForm);
         mapMethodsFromSource(destination);
         if (destination == null) {
@@ -630,8 +637,13 @@ public class ObjectConverter extends ConfigurationManager {
         if (listItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, listItem, destination, index,
-                                parserContext.isSearchForm());
+        copyFromRecordRecursive(proxy,
+                                fieldType,
+                                classValue,
+                                listItem,
+                                destination,
+                                index,
+                                parserContext);
     }
 
     /**
@@ -653,8 +665,13 @@ public class ObjectConverter extends ConfigurationManager {
         if (newDataSetItem == null) return;
         Type fieldType = proxy.getType();
         Class classValue = null;
-        copyFromRecordRecursive(proxy, fieldType, classValue, newDataSetItem, destination, index,
-                                parserContext.isSearchForm());
+        copyFromRecordRecursive(proxy,
+                                fieldType,
+                                classValue,
+                                newDataSetItem,
+                                destination,
+                                index,
+                                parserContext);
     }
 
     private static <T> void writeImageData(AttributeProxy proxy, T destination,
@@ -672,14 +689,17 @@ public class ObjectConverter extends ConfigurationManager {
 
     private static <T> void copyFromRecordRecursive(AttributeProxy proxy, Type fieldType,
                                                     Class classValue, Record record, T destination,
-                                                    Integer index, boolean isSearchForm)
+                                                    Integer index, ParserContext parserContext)
         throws InvocationTargetException, UnableToWriteException {
         try {
             if (!findTypeOnSimpleName(fieldType.getTypeName()).isOptional())
                 classValue = primitiveToWrapper(fieldType.getTypeName());
             else classValue = Class.forName(fieldType.getTypeName());
             Object object = classValue.newInstance();
-            copyFromRecord(record, object, isSearchForm);
+            copyFromRecord(record,
+                           object,
+                           parserContext.isSearchForm(),
+                           parserContext);
             useSetterIfExists(proxy, destination, object);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ie) {
             throw new UnableToWriteException(classValue.getName(), index,
@@ -710,7 +730,7 @@ public class ObjectConverter extends ConfigurationManager {
             ArrayList<Object> tempList = new ArrayList<>();
             for (DataSetItem dataSetItem1 : dataSetItems) {
                 Object object = classValue.newInstance();
-                copyFromRecord(dataSetItem1, object, parserContext.isSearchForm());
+                copyFromRecord(dataSetItem1, object, parserContext.isSearchForm(), parserContext);
                 tempList.add(object);
             }
             useSetterIfExists(proxy, destination, tempList);
