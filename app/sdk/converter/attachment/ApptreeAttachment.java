@@ -1,14 +1,12 @@
 package sdk.converter.attachment;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * Created by Orozco on 8/10/17.
  */
 public interface ApptreeAttachment {
+
     String getMimeType();
 
     void setMimeType(String mimeType);
