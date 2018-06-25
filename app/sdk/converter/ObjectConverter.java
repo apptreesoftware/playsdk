@@ -827,10 +827,18 @@ public class ObjectConverter extends ConfigurationManager {
         ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment);
         attachmentItem.setMimeType(apptreeAttachment.getMimeType());
         attachmentItem.setTitle(apptreeAttachment.getTitle());
+
+        // We are clearing the opposite file url index
+        // based on the one we set because the above line:
+        // `ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment)`
+        // might set a value for one of those indexes and cause the client to think it is an image/file
+        // when it's not.
         if (isImageMimeType(apptreeAttachment.getMimeType())) {
             attachmentItem.setImageAttachmentURL(apptreeAttachment.getAttachmentURL());
+            attachmentItem.setFileAttachmentURL(null);
         } else {
             attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
+            attachmentItem.setImageAttachmentURL(null);
         }
 
     }
@@ -858,7 +866,7 @@ public class ObjectConverter extends ConfigurationManager {
      * This function will default to false if the mimetype is empty or null
      *
      * @param mimeType
-     * @return
+     * @returnx
      */
     private static boolean isImageMimeType(String mimeType) {
         if (NullOrEmpty(mimeType)) return false;
