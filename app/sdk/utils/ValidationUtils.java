@@ -16,6 +16,10 @@ public class ValidationUtils {
         return (collection == null || collection.isEmpty());
     }
 
+    public static boolean NullOrEmpty(String value) {
+        return value == null || value.isEmpty();
+    }
+
     public static <T> boolean anyNull(T... t) {
         for (T tempT : t) {
             if (tempT == null) return true;
