@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import static sdk.utils.ClassUtils.Null;
+import static sdk.utils.ValidationUtils.NullOrEmpty;
 
 /**
  * Created by Orozco on 7/19/17.
@@ -848,7 +849,20 @@ public class ObjectConverter extends ConfigurationManager {
         ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment);
         attachmentItem.setMimeType(apptreeAttachment.getMimeType());
         attachmentItem.setTitle(apptreeAttachment.getTitle());
-        attachmentItem.setImageAttachmentURL(apptreeAttachment.getAttachmentURL());
+
+        // We are clearing the opposite file url index
+        // based on the one we set because the above line:
+        // `ObjectConverter.copyToRecord(attachmentItem, apptreeAttachment)`
+        // might set a value for one of those indexes and cause the client to think it is an image/file
+        // when it's not.
+        if (isImageMimeType(apptreeAttachment.getMimeType())) {
+            attachmentItem.setImageAttachmentURL(apptreeAttachment.getAttachmentURL());
+            attachmentItem.setFileAttachmentURL(null);
+        } else {
+            attachmentItem.setFileAttachmentURL(apptreeAttachment.getAttachmentURL());
+            attachmentItem.setImageAttachmentURL(null);
+        }
+
     }
 
 
@@ -865,6 +879,22 @@ public class ObjectConverter extends ConfigurationManager {
             throw new RuntimeException("Attachment uploaded without any data.");
         }
     }
+
+
+    /**
+     * This function takes a mime type string and determines if it
+     * is an image mime type or not. It checks if the mimeType string contains "image" || "Image"
+     * <p>
+     * This function will default to false if the mimetype is empty or null
+     *
+     * @param mimeType
+     * @returnx
+     */
+    private static boolean isImageMimeType(String mimeType) {
+        if (NullOrEmpty(mimeType)) return false;
+        return mimeType.contains("image") || mimeType.contains("IMAGE");
+    }
+
 
     /**
      * @param attributeProxy
@@ -959,7 +989,7 @@ public class ObjectConverter extends ConfigurationManager {
         fieldData = (isFieldDataNull) ? 0 : fieldData;
         if (!isFieldDataNull) record.setInt(fieldData, index);
         if (parent) {
-            if(record.isListItem()) {
+            if (record.isListItem()) {
                 record.setParentValue(fieldData.toString());
             }
         }
