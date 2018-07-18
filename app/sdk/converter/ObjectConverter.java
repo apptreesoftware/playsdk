@@ -921,6 +921,8 @@ public class ObjectConverter extends ConfigurationManager {
         if (parent) {
             if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "parent");
             else {
+                // Data set items can't have parent values so we want to make sure we are
+                // setting a parent on a list item
                 if (record.isListItem()) {
                     record.setParentValue(fieldData.toString());
                 }
@@ -989,6 +991,8 @@ public class ObjectConverter extends ConfigurationManager {
         fieldData = (isFieldDataNull) ? 0 : fieldData;
         if (!isFieldDataNull) record.setInt(fieldData, index);
         if (parent) {
+            // Data set items can't have parent values so we want to make sure we are
+            // setting a parent on a list item
             if (record.isListItem()) {
                 record.setParentValue(fieldData.toString());
             }
