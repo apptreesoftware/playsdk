@@ -89,7 +89,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
-    public static <T> ParserContext copyFromRecord(Record record, T destination, boolean isSearchForm){
+    public static <T> ParserContext copyFromRecord(Record record, T destination,
+                                                   boolean isSearchForm) {
         return copyFromRecord(record, destination, isSearchForm, null);
     }
 
@@ -105,8 +106,9 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      */
     public static <T> ParserContext copyFromRecord(Record record, T destination,
-                                                   boolean isSearchForm, ParserContext parserContext) {
-        if(parserContext == null){
+                                                   boolean isSearchForm,
+                                                   ParserContext parserContext) {
+        if (parserContext == null) {
             parserContext = getParserContext();
         }
         parserContext.setSearchForm(isSearchForm);
@@ -887,15 +889,19 @@ public class ObjectConverter extends ConfigurationManager {
         boolean isFieldDataNull = fieldData == null;
         record.setString((!isFieldDataNull) ? fieldData.toString() : null, index);
         if (parent) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "parent");
-            else record.setParentValue(fieldData.toString());
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "parent");
+            else {
+                if (record.isListItem()) {
+                    record.setParentValue(fieldData.toString());
+                }
+            }
         }
         if (value) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
             else record.setValue(fieldData.toString());
         }
         if (primaryKey) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
             else {
                 record.setPrimaryKey(fieldData.toString());
                 if (!record.isValueSet()) {
@@ -915,7 +921,7 @@ public class ObjectConverter extends ConfigurationManager {
         if (useGetterAndSetter) fieldData = useGetterIfExists(attributeProxy, object);
         else fieldData = attributeProxy.getValue(object);
         record.setTimeInterval(fieldData != null ? (long) fieldData : 0L, index);
-        if(fieldData == null && primaryKey) {
+        if (fieldData == null && primaryKey) {
             nullAttrWarning(attributeProxy.getName(), "primary key");
         } else {
             if (primaryKey) {
@@ -951,9 +957,11 @@ public class ObjectConverter extends ConfigurationManager {
         } else fieldData = (Integer) attributeProxy.getValue(object);
         boolean isFieldDataNull = fieldData == null;
         fieldData = (isFieldDataNull) ? 0 : fieldData;
-        if(!isFieldDataNull) record.setInt(fieldData, index);
+        if (!isFieldDataNull) record.setInt(fieldData, index);
         if (parent) {
-            record.setParentValue(fieldData.toString());
+            if(record.isListItem()) {
+                record.setParentValue(fieldData.toString());
+            }
         }
         if (value) {
             record.setValue(fieldData.toString());
@@ -990,9 +998,9 @@ public class ObjectConverter extends ConfigurationManager {
             if (useGetterAndSetter) {
                 floatValue = (Float) useGetterIfExists(attributeProxy, object);
             } else floatValue = (Float) attributeProxy.getValue(object);
-            if(floatValue == null || floatValue.isNaN()){
+            if (floatValue == null || floatValue.isNaN()) {
                 fieldData = 0.0;
-            } else{
+            } else {
                 fieldData = new Double(floatValue);
             }
         } else {
@@ -1002,7 +1010,7 @@ public class ObjectConverter extends ConfigurationManager {
         }
         boolean isFieldDataNull = fieldData == null;
         fieldData = (fieldData == null) ? 0.0 : fieldData;
-        if(!isFieldDataNull) record.setDouble(fieldData, index);
+        if (!isFieldDataNull) record.setDouble(fieldData, index);
         if (value) {
             record.setValue(fieldData.toString());
         }
@@ -1067,11 +1075,11 @@ public class ObjectConverter extends ConfigurationManager {
         record.setDate(dateTime, index);
         boolean isFieldDataNull = dateTime == null;
         if (value) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
             else record.setValue(dateTime.toString());
         }
         if (primaryKey) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
             else {
                 record.setPrimaryKey(dateTime.toString());
                 if (!record.isValueSet()) {
@@ -1102,11 +1110,11 @@ public class ObjectConverter extends ConfigurationManager {
         record.setDateTime(dateTime, index);
         boolean isFieldDataNull = dateTime == null;
         if (value) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
             else record.setValue(dateTime.toString());
         }
         if (primaryKey) {
-            if(isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
+            if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "primary key");
             else {
                 record.setPrimaryKey(dateTime.toString());
                 if (!record.isValueSet()) {
@@ -1125,11 +1133,11 @@ public class ObjectConverter extends ConfigurationManager {
         record.setLocation(location, index);
         boolean isFieldDataNull = location == null;
         if (value) {
-            if(isFieldDataNull) nullAttrWarning(proxy.getName(), "value");
+            if (isFieldDataNull) nullAttrWarning(proxy.getName(), "value");
             else record.setValue(location.toString());
         }
         if (primaryKey) {
-            if(isFieldDataNull) nullAttrWarning(proxy.getName(), "primary key");
+            if (isFieldDataNull) nullAttrWarning(proxy.getName(), "primary key");
             else {
                 record.setPrimaryKey(location.toString());
                 if (!record.isValueSet()) {
@@ -1150,7 +1158,7 @@ public class ObjectConverter extends ConfigurationManager {
         } else foundImage = (Image) proxy.getValue(object);
         record.setImage(foundImage, index);
         if (primaryKey) {
-            if(foundImage == null) nullAttrWarning(proxy.getName(), "primary key");
+            if (foundImage == null) nullAttrWarning(proxy.getName(), "primary key");
             else {
                 record.setPrimaryKey(foundImage.imageURL);
                 if (!record.isValueSet()) record.setValue(foundImage.imageURL);
