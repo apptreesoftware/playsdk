@@ -90,7 +90,8 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
 
-    public static <T> ParserContext copyFromRecord(Record record, T destination, boolean isSearchForm){
+    public static <T> ParserContext copyFromRecord(Record record, T destination,
+                                                   boolean isSearchForm) {
         return copyFromRecord(record, destination, isSearchForm, null);
     }
 
@@ -106,8 +107,9 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      */
     public static <T> ParserContext copyFromRecord(Record record, T destination,
-                                                   boolean isSearchForm, ParserContext parserContext) {
-        if(parserContext == null){
+                                                   boolean isSearchForm,
+                                                   ParserContext parserContext) {
+        if (parserContext == null) {
             parserContext = getParserContext();
         }
         parserContext.setSearchForm(isSearchForm);
@@ -918,7 +920,13 @@ public class ObjectConverter extends ConfigurationManager {
         record.setString((!isFieldDataNull) ? fieldData.toString() : null, index);
         if (parent) {
             if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "parent");
-            else record.setParentValue(fieldData.toString());
+            else {
+                // Data set items can't have parent values so we want to make sure we are
+                // setting a parent on a list item
+                if (record.isListItem()) {
+                    record.setParentValue(fieldData.toString());
+                }
+            }
         }
         if (value) {
             if (isFieldDataNull) nullAttrWarning(attributeProxy.getName(), "value");
@@ -983,7 +991,11 @@ public class ObjectConverter extends ConfigurationManager {
         fieldData = (isFieldDataNull) ? 0 : fieldData;
         if (!isFieldDataNull) record.setInt(fieldData, index);
         if (parent) {
-            record.setParentValue(fieldData.toString());
+            // Data set items can't have parent values so we want to make sure we are
+            // setting a parent on a list item
+            if (record.isListItem()) {
+                record.setParentValue(fieldData.toString());
+            }
         }
         if (value) {
             record.setValue(fieldData.toString());
