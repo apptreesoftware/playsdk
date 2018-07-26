@@ -27,6 +27,8 @@ public class DataSetItemAttachment extends DataSetItem {
     public static final int AttachmentAttributeDeletable = 9;
     public static final int AttachmentAttributeMimeType = 10;
     public static final int AttachmentAttributeFileName = 11;
+    public static final int AttachmentAttributeLocalFilePath = 12;
+    public static final int AttachmentAttributeDownloadUrl = 13;
 
     Http.MultipartFormData.FilePart attachmentFileItem;
     private static HashMap<Integer, ServiceConfigurationAttribute> configurationAttributeMap = new HashMap<Integer, ServiceConfigurationAttribute>();
@@ -42,6 +44,8 @@ public class DataSetItemAttachment extends DataSetItem {
         configurationAttributeMap.put(AttachmentAttributeDeletable, new ServiceConfigurationAttribute.Builder(AttachmentAttributeDeletable).asBool().build());
         configurationAttributeMap.put(AttachmentAttributeMimeType, new ServiceConfigurationAttribute.Builder(AttachmentAttributeMimeType).build());
         configurationAttributeMap.put(AttachmentAttributeFileName, new ServiceConfigurationAttribute.Builder(AttachmentAttributeFileName).build());
+        configurationAttributeMap.put(AttachmentAttributeLocalFilePath, new ServiceConfigurationAttribute.Builder(AttachmentAttributeLocalFilePath).build());
+        configurationAttributeMap.put(AttachmentAttributeDownloadUrl, new ServiceConfigurationAttribute.Builder(AttachmentAttributeDownloadUrl).build());
     }
 
 
@@ -200,6 +204,9 @@ public class DataSetItemAttachment extends DataSetItem {
     public String getLinkAttachment() {
         return getStringAttributeAtIndex(AttachmentAttributeLink);
     }
+
+
+    public String getAppTreeStorageLink() { return getString(AttachmentAttributeDownloadUrl);}
 
     /**
      * Sets the attachment URL used when the attachment is an video

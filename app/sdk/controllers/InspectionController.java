@@ -112,7 +112,6 @@ public class InspectionController extends DataController {
     @BodyParser.Of(BodyParser.Json.class)
     @With({ValidateRequestAction.class})
     public CompletionStage<Result> completeInspection(String dataSetName) {
-        System.out.println("The complete call has reached the connector");
         Http.Request request = request();
         InspectionSource_Internal dataSource = AppTree.lookupInspectionHandler(dataSetName);
         if ( dataSource == null ) {
