@@ -1,12 +1,13 @@
 package sdk.data;
 
 import org.joda.time.DateTime;
+import sdk.utils.Response;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InspectionData<T> {
+public class InspectionData<T> extends Response {
     private DateTime startDate;
     private DateTime endDate;
     private InspectionDataSet.CollectionState status;

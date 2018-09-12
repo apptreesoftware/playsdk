@@ -50,6 +50,11 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
         inspectDataSet.setEndDate(response.getEndDate());
         inspectDataSet.setStatus(response.getStatus());
         inspectDataSet.setContext(response.getContext());
+        inspectDataSet.setMessage(response.getMessage());
+        inspectDataSet.setSuccess(response.isSuccess());
+        inspectDataSet.setShowMessageAsAlert(response.isShowMessageAsAlert());
+
+        // copy response details
         return inspectDataSet;
     }
 
