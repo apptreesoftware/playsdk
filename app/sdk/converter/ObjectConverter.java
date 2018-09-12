@@ -2,7 +2,7 @@ package sdk.converter;
 
 import org.joda.time.DateTime;
 import play.Logger;
-import sdk.annotations.*;
+import sdk.annotations.CustomLocation;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
 import sdk.exceptions.DestinationInvalidException;
@@ -145,7 +145,8 @@ public class ObjectConverter extends ConfigurationManager {
      * @param destination
      * @param <T>
      */
-    public static <T> ParserContext copyFromRecord(Record record, T destination,
+    public static <T> ParserContext copyFromRecord(Record record,
+                                                   T destination,
                                                    boolean isSearchForm,
                                                    ParserContext parserContext) {
         if (parserContext == null) {
@@ -166,7 +167,7 @@ public class ObjectConverter extends ConfigurationManager {
                 //if the dataSetItem is coming from a search form the values in the primary key/value
                 // will always be null.
                 //If NOT coming from a search form we want the given primary key/value values to
-                //always over write what was copied in the object copy because primary key/value shoudl not be editable
+                //always over write what was copied in the object copy because primary key/value should not be editable
                 if (!isSearchForm) {
                     if (proxy.isPrimaryKey())
                         proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
@@ -233,19 +234,15 @@ public class ObjectConverter extends ConfigurationManager {
      * @param destination
      * @param <T>
      * @throws UnsupportedAttributeException
-     * @throws IllegalAccessException
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
     private static <T> void copyToField(AttributeProxy proxy, Record record, T destination,
                                         ParserContext parserContext) throws
                                                                      UnsupportedAttributeException,
-                                                                     IllegalAccessException,
                                                                      UnableToWriteException,
                                                                      InvocationTargetException {
-        if (!proxy.isAttribute() && !proxy.isRelationship()) {
-            return;
-        }
+        if (!proxy.isAttribute() && !proxy.isRelationship() && !proxy.isStatus()) return;
         if (record.isListItem() && proxy.excludeFromList()) return;
 
         int index = proxy.getIndex();
@@ -286,7 +283,8 @@ public class ObjectConverter extends ConfigurationManager {
         // setting primary key on data set rather than
         if (primaryKey) {
             Object val = useGetterIfExists(attributeProxy, source);
-            if (val == null) throw new RuntimeException("Primary key is null on " + source.getClass().getSimpleName());
+            if (val == null) throw new RuntimeException(
+                "Primary key is null on " + source.getClass().getSimpleName());
             record.setPrimaryKey(val.toString());
             if (record.getValue() == null) record.setValue(val.toString());
             if (!attributeProxy.isAttribute()) return;
