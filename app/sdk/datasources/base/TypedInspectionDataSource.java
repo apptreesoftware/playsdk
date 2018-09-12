@@ -42,7 +42,7 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
                                                                false,
                                                                null);
         setContextValues(context, authenticationInfo);
-        InspectionData<T> response = start(newInstance, authenticationInfo, parameters);
+        InspectionData<T> response = start(newInstance, authenticationInfo, parameters, context);
         // copy all attributes from collection in response to the back data set in InspectDataSet
         InspectionDataSet inspectDataSet = getInspectionDataSetFromCollection(response.getItems(),
                                                                               getInspectionItemAttributes());
@@ -67,10 +67,13 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
         instance.setEndDate(completedDataSet.getEndDate());
         instance.setContext(completedDataSet.getContext());
         try {
+            ParserContext context = new ParserContext();
             Collection<T> items = ObjectConverter.getCollectionFromDataSet(completedDataSet,
-                                                                           datasourceType);
+                                                                           datasourceType,
+                                                                           context);
             instance.setItems(items);
-            Collection<T> resultCollection = complete(instance, authenticationInfo, parameters);
+            Collection<T> resultCollection =
+                complete(instance, authenticationInfo, parameters, context);
             return getDataSetFromCollection(resultCollection, getInspectionItemAttributes());
         } catch (IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(String.format("Error converting %s item to data set. " +
@@ -81,11 +84,13 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
 
     protected abstract InspectionData<T> start(T item,
                                                AuthenticationInfo authenticationInfo,
-                                               Parameters parameters);
+                                               Parameters parameters,
+                                               ParserContext context);
 
     protected abstract Collection<T> complete(InspectionData<T> data,
                                               AuthenticationInfo authenticationInfo,
-                                              Parameters parameters);
+                                              Parameters parameters,
+                                              ParserContext context);
 
     @Override
     public Collection<ServiceConfigurationAttribute> getInspectionItemAttributes() {

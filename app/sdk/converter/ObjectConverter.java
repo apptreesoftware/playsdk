@@ -65,15 +65,16 @@ public class ObjectConverter extends ConfigurationManager {
     }
 
     public static <T> Collection<T> getCollectionFromDataSet(DataSet dataSet,
-                                                             Class<T> clazz) throws
-                                                                             IllegalAccessException,
-                                                                             InstantiationException {
+                                                             Class<T> clazz,
+                                                             ParserContext context) throws
+                                                                                    IllegalAccessException,
+                                                                                    InstantiationException {
         List<DataSetItem> dataSetItems = dataSet.getDataSetItems();
         Collection<T> result = new ArrayList<>();
         if (NullOrEmpty(dataSetItems)) return Collections.emptyList();
         for (DataSetItem item : dataSetItems) {
             T temp = clazz.newInstance();
-            ObjectConverter.copyFromRecord(item, temp, false);
+            ObjectConverter.copyFromRecord(item, temp, false, context);
             result.add(temp);
         }
         return result;
