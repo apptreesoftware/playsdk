@@ -47,6 +47,45 @@ public class ObjectConverter extends ConfigurationManager {
      * @param <T>
      * @return
      */
+    public static <T> InspectionDataSet getInspectionDataSetFromCollection(Collection<T> objects,
+                                                                           Collection<ServiceConfigurationAttribute> attributes) {
+        InspectionDataSet dataSet = new InspectionDataSet(attributes);
+        for (T object : objects) {
+            DataSetItem dataSetItem = dataSet.addNewDataSetItem();
+            copyToRecord(dataSetItem, object);
+        }
+
+        if (objects instanceof PagedCollection) {
+            int totalRecords = ((PagedCollection) objects).getTotalAvailableRecords();
+            int pageSize = ((PagedCollection) objects).getPageSize();
+            dataSet.setTotalRecords(totalRecords);
+            dataSet.setMoreRecordsAvailable(totalRecords > pageSize);
+        }
+        return dataSet;
+    }
+
+    public static <T> Collection<T> getCollectionFromDataSet(DataSet dataSet,
+                                                             Class<T> clazz) throws
+                                                                             IllegalAccessException,
+                                                                             InstantiationException {
+        List<DataSetItem> dataSetItems = dataSet.getDataSetItems();
+        Collection<T> result = new ArrayList<>();
+        if (NullOrEmpty(dataSetItems)) return Collections.emptyList();
+        for (DataSetItem item : dataSetItems) {
+            T temp = clazz.newInstance();
+            ObjectConverter.copyFromRecord(item, temp, false);
+            result.add(temp);
+        }
+        return result;
+    }
+
+
+    /**
+     * @param objects
+     * @param attributes
+     * @param <T>
+     * @return
+     */
     public static <T> DataSet getDataSetFromCollection(Collection<T> objects,
                                                        Collection<ServiceConfigurationAttribute> attributes) {
         DataSet dataSet = new DataSet(attributes);
