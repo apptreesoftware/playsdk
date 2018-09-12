@@ -281,13 +281,22 @@ public class ObjectConverter extends ConfigurationManager {
         boolean primaryKey = attributeProxy.isPrimaryKey();
         boolean value = attributeProxy.isPrimaryValue();
         boolean parentValue = attributeProxy.isParentValue();
+        boolean status = attributeProxy.isStatus();
 
+        // setting primary key on data set rather than
         if (primaryKey) {
             Object val = useGetterIfExists(attributeProxy, source);
-            if (val == null) throw new RuntimeException(
-                "Primary key is null on " + source.getClass().getSimpleName());
+            if (val == null) throw new RuntimeException("Primary key is null on " + source.getClass().getSimpleName());
             record.setPrimaryKey(val.toString());
             if (record.getValue() == null) record.setValue(val.toString());
+            if (!attributeProxy.isAttribute()) return;
+        }
+
+        // setting status
+        if (status) {
+            Object val = useGetterIfExists(attributeProxy, source);
+            if (val == null) return;
+            record.setStatus(val.toString());
             if (!attributeProxy.isAttribute()) return;
         }
 

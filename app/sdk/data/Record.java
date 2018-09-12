@@ -118,4 +118,6 @@ public interface Record {
 
     Optional<Long> getOptionalTimeInterval(int index);
 
+    void setStatus(String status);
+
 }

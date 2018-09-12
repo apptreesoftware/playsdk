@@ -215,7 +215,8 @@ public class TypeManager {
                                                    ||
                                                    field.getAnnotation(PrimaryValue.class) != null)
                                                   ||
-                                                  field.getAnnotation(Relationship.class) != null)
+                                                  field.getAnnotation(Relationship.class) != null ||
+                                                  field.getAnnotation(Status.class) != null)
                                       .map(field -> new AttributeProxy(field))
                                       .collect(Collectors.toList()));
 
@@ -226,7 +227,9 @@ public class TypeManager {
                                                    ||
                                                    method.getAnnotation(PrimaryValue.class) != null)
                                                   ||
-                                                  method.getAnnotation(Relationship.class) != null)
+                                                  method.getAnnotation(Relationship.class) != null
+                                                  ||
+                                                  method.getAnnotation(Status.class) != null)
                                       .map(field -> new AttributeProxy(field))
                                       .collect(Collectors.toList()));
         if (clazz.getSuperclass() != null)

@@ -63,7 +63,8 @@ public class ListItem implements Record {
         ListItemAttribute attribute = null;
 
         if (index > 79 || index < 0)
-            Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
+            Logger.warn("The index you specified (" + index +
+                        ") is beyond the allowed number of attributes ( 0 - 79 )");
         if (value != null) {
             if (value instanceof String) {
                 attribute = new ListItemAttribute((String) value);
@@ -74,7 +75,8 @@ public class ListItem implements Record {
             } else if (value instanceof Location) {
                 attribute = new ListItemAttribute((Location) value);
             } else if (value instanceof DateTime) {
-                Logger.warn("setAttributeForIndex(Object value, int index) with a value type of DateTime assumes that the date contains a time component. Use setDateAttributeAtIndex(DateTime date, boolean time) to be more explicit.");
+                Logger.warn(
+                    "setAttributeForIndex(Object value, int index) with a value type of DateTime assumes that the date contains a time component. Use setDateAttributeAtIndex(DateTime date, boolean time) to be more explicit.");
                 attribute = new ListItemAttribute((DateTime) value, true);
             } else if (value instanceof DateRange) {
                 attribute = new ListItemAttribute((DateRange) value);
@@ -89,7 +91,8 @@ public class ListItem implements Record {
             } else if (value instanceof Boolean) {
                 attribute = new ListItemAttribute((Boolean) value);
             } else {
-                throw new UnsupportedOperationException("List does not support a value of type " + value.getClass().getCanonicalName());
+                throw new UnsupportedOperationException(
+                    "List does not support a value of type " + value.getClass().getCanonicalName());
             }
         }
         itemAttributes.put(index, attribute);
@@ -105,7 +108,8 @@ public class ListItem implements Record {
      */
     public void setDateAttributeForIndex(DateTime date, boolean time, int index) {
         if (index > 79 || index < 0)
-            Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
+            Logger.warn("The index you specified (" + index +
+                        ") is beyond the allowed number of attributes ( 0 - 79 )");
         ListItemAttribute attribute = null;
         if (date != null) {
             attribute = new ListItemAttribute(date, time);
@@ -238,7 +242,8 @@ public class ListItem implements Record {
     @Override
     public void setDate(DateTime value, int index) {
         if (index > 79 || index < 0)
-            Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
+            Logger.warn("The index you specified (" + index +
+                        ") is beyond the allowed number of attributes ( 0 - 79 )");
         ListItemAttribute attribute = null;
         if (value != null) {
             attribute = new ListItemAttribute(value, false);
@@ -383,7 +388,8 @@ public class ListItem implements Record {
     @Override
     public void setDateTime(DateTime value, int index) {
         if (index > 79 || index < 0)
-            Logger.warn("The index you specified (" + index + ") is beyond the allowed number of attributes ( 0 - 79 )");
+            Logger.warn("The index you specified (" + index +
+                        ") is beyond the allowed number of attributes ( 0 - 79 )");
         ListItemAttribute attribute = null;
         if (value != null) {
             attribute = new ListItemAttribute(value, true);
@@ -599,6 +605,11 @@ public class ListItem implements Record {
         throw new RuntimeException("This type of record does not support time intervals");
     }
 
+    @Override
+    public void setStatus(String status) {
+        return;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if (attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();
@@ -614,7 +625,9 @@ public class ListItem implements Record {
     static class ListItemSerializer extends JsonSerializer<ListItem> {
 
         @Override
-        public void serialize(ListItem value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+        public void serialize(ListItem value, JsonGenerator gen,
+                              SerializerProvider serializers) throws IOException,
+                                                                     JsonProcessingException {
             gen.writeStartObject();
             gen.writeStringField("id", value.id);
             gen.writeStringField("value", value.value);
@@ -650,9 +663,12 @@ public class ListItem implements Record {
         if (Double.compare(listItem.longitude, longitude) != 0) return false;
         if (maxAttributeIndex != listItem.maxAttributeIndex) return false;
         if (id != null ? !id.equals(listItem.id) : listItem.id != null) return false;
-        if (parentID != null ? !parentID.equals(listItem.parentID) : listItem.parentID != null) return false;
+        if (parentID != null ? !parentID.equals(listItem.parentID) : listItem.parentID != null)
+            return false;
         if (value != null ? !value.equals(listItem.value) : listItem.value != null) return false;
-        return attributeConfiguration != null ? attributeConfiguration.equals(listItem.attributeConfiguration) : listItem.attributeConfiguration == null;
+        return attributeConfiguration != null ?
+               attributeConfiguration.equals(listItem.attributeConfiguration) :
+               listItem.attributeConfiguration == null;
     }
 
     @Override
@@ -668,7 +684,8 @@ public class ListItem implements Record {
         temp = Double.doubleToLongBits(longitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + maxAttributeIndex;
-        result = 31 * result + (attributeConfiguration != null ? attributeConfiguration.hashCode() : 0);
+        result =
+            31 * result + (attributeConfiguration != null ? attributeConfiguration.hashCode() : 0);
         return result;
     }
 }

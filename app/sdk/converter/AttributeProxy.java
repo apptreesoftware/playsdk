@@ -22,6 +22,7 @@ public class AttributeProxy {
     Attribute attribute;
     Relationship relationship;
     ParentValue parentValue;
+    Status status;
 
     public AttributeProxy(Method currentMethod) {
         isField = false;
@@ -64,8 +65,8 @@ public class AttributeProxy {
             return relationship.index();
         }
         return !Null(attribute) ?
-                attribute.index() :
-                -1;
+               attribute.index() :
+               -1;
     }
 
     public boolean isAttribute() {
@@ -106,7 +107,8 @@ public class AttributeProxy {
         return false;
     }
 
-    public <T> Object getValue(T sourceObject) throws IllegalAccessException, InvocationTargetException {
+    public <T> Object getValue(T sourceObject) throws IllegalAccessException,
+                                                      InvocationTargetException {
         if (isField) {
             if (!currentField.isAccessible()) {
                 currentField.setAccessible(true);
@@ -121,7 +123,8 @@ public class AttributeProxy {
     }
 
 
-    public <T> void setValue(T destination, Object value) throws InvocationTargetException, IllegalAccessException {
+    public <T> void setValue(T destination, Object value) throws InvocationTargetException,
+                                                                 IllegalAccessException {
         if (isField) {
             if (!currentField.isAccessible()) {
                 currentField.setAccessible(true);
@@ -133,7 +136,8 @@ public class AttributeProxy {
     }
 
 
-    public <T> void setPrimaryKeyOrValue(T destination, String value) throws IllegalAccessException, InvocationTargetException {
+    public <T> void setPrimaryKeyOrValue(T destination, String value) throws IllegalAccessException,
+                                                                             InvocationTargetException {
         //if the primary key or value is null we don't want to set it
         if (value == null) return;
 
@@ -166,9 +170,9 @@ public class AttributeProxy {
                     longValue = 0;
                 }
                 currentField.set(destination, longValue);
-            }
-            else {
-                throw new RuntimeException("Primary Key Must be an Integer, Long or String data type");
+            } else {
+                throw new RuntimeException(
+                    "Primary Key Must be an Integer, Long or String data type");
             }
         } else {
             Method method = TypeManager.getSetterForAttributeProxy(this, destination);
@@ -194,7 +198,8 @@ public class AttributeProxy {
                 Long longValue = Long.parseLong(value);
                 currentMethod.invoke(destination, longValue);
             } else {
-                throw new RuntimeException("Primary Key Must be an Integer, Long or String data type");
+                throw new RuntimeException(
+                    "Primary Key Must be an Integer, Long or String data type");
             }
         }
     }
@@ -203,12 +208,14 @@ public class AttributeProxy {
     public Class getType() {
         if (isField) {
             return (!isWrappedClass()) ?
-                    currentField.getType() :
-                    ClassUtils.getParameterizedType((ParameterizedType) currentField.getGenericType());
+                   currentField.getType() :
+                   ClassUtils
+                       .getParameterizedType((ParameterizedType) currentField.getGenericType());
         } else {
             return (!isWrappedClass()) ?
-                    currentMethod.getReturnType() :
-                    ClassUtils.getParameterizedType((ParameterizedType) currentMethod.getGenericReturnType());
+                   currentMethod.getReturnType() :
+                   ClassUtils.getParameterizedType(
+                       (ParameterizedType) currentMethod.getGenericReturnType());
         }
     }
 
@@ -232,8 +239,12 @@ public class AttributeProxy {
         return (relationship != null);
     }
 
+    public boolean isStatus() {
+        return (status != null);
+    }
+
     public boolean loadRelationshipData() {
-        if(isRelationship()) return loadRelationshipData;
+        if (isRelationship()) return loadRelationshipData;
         return false;
     }
 
@@ -253,6 +264,7 @@ public class AttributeProxy {
         attribute = object.getAnnotation(Attribute.class);
         relationship = object.getAnnotation(Relationship.class);
         parentValue = object.getAnnotation(ParentValue.class);
+        status = object.getAnnotation(Status.class);
     }
 
     public boolean isWrappedClass() {
