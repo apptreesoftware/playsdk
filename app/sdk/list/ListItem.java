@@ -610,6 +610,11 @@ public class ListItem implements Record {
         return;
     }
 
+    @Override
+    public DataSetItem.Status getStatus() {
+        return null;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if (attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();

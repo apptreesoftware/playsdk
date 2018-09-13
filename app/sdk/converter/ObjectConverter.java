@@ -174,6 +174,9 @@ public class ObjectConverter extends ConfigurationManager {
                         proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
                     if (proxy.isPrimaryValue())
                         proxy.setPrimaryKeyOrValue(destination, record.getValue());
+                    if (proxy.isStatus())
+                        proxy.setPrimaryKeyOrValue(destination, record.getStatus().toString());
+
                 }
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();

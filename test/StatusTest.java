@@ -15,12 +15,19 @@ public class StatusTest {
     public void verifyStatusConversion() {
         TestModel model = new TestModel();
         model.name = "COMPLETE";
-        model.status = "New";
+        model.status = "COMPLETE";
 
         DataSetItem dataSetItem =
             new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestModel.class));
         ObjectConverter.copyToRecord(dataSetItem, model);
         System.out.println(dataSetItem.getStatus());
+        if (!dataSetItem.getStatus().toString().equalsIgnoreCase(model.status)) {
+            Assert.fail();
+        }
+
+        TestModel modelTwo = new TestModel();
+        ObjectConverter.copyFromRecord(dataSetItem, modelTwo, false, null);
+        System.out.println(modelTwo.status);
     }
 
 

@@ -120,4 +120,6 @@ public interface Record {
 
     void setStatus(String status);
 
+    DataSetItem.Status getStatus();
+
 }
