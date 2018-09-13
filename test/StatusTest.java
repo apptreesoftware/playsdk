@@ -27,7 +27,9 @@ public class StatusTest {
 
         TestModel modelTwo = new TestModel();
         ObjectConverter.copyFromRecord(dataSetItem, modelTwo, false, null);
-        System.out.println(modelTwo.status);
+        if (!dataSetItem.getStatus().toString().equalsIgnoreCase(modelTwo.status)) {
+            Assert.fail();
+        }
     }
 
 
