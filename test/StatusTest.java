@@ -1,7 +1,12 @@
+import org.junit.Assert;
 import org.junit.Test;
 import sdk.annotations.Status;
 import sdk.converter.ObjectConverter;
+import sdk.converter.TypeManager;
 import sdk.data.DataSetItem;
+
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class StatusTest {
 
@@ -18,6 +23,15 @@ public class StatusTest {
         System.out.println(dataSetItem.getStatus());
     }
 
+
+    @Test
+    public void mapMethodTest() {
+        TypeManager.getMethodMap();
+        Map<String, Method> methodMap = ObjectConverter.getAllMethodsFromClass(TestModel.class);
+        if (methodMap.get("status") == null) {
+            Assert.fail();
+        }
+    }
 
     class TestModel {
         @Status
