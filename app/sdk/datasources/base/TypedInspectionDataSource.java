@@ -1,23 +1,21 @@
 package sdk.datasources.base;
 
-import sdk.converter.ConfigurationManager;
 import sdk.converter.ObjectConverter;
 import sdk.converter.ParserContext;
 import sdk.data.*;
+import sdk.datasources.DataSourceUtils;
 import sdk.utils.AuthenticationInfo;
-import sdk.utils.Constants;
 import sdk.utils.Parameters;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 
+import static sdk.converter.ConfigurationManager.inferName;
 import static sdk.converter.ObjectConverter.getDataSetFromCollection;
 import static sdk.converter.ObjectConverter.getInspectionDataSetFromCollection;
 
 public abstract class TypedInspectionDataSource<T> implements InspectionSource {
-    private final Class<T> datasourceType = getDataSourceType();
-    private final String serviceName =
-        ConfigurationManager.inferName(datasourceType.getSimpleName());
+    private final Class<T> datasourceType = DataSourceUtils.getDataSourceType(getClass());
+    private final String serviceName = inferName(datasourceType.getSimpleName());
 
 
     /**
@@ -36,7 +34,7 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
     public InspectionDataSet startInspection(DataSetItem inspectionSearchDataSetItem,
                                              AuthenticationInfo authenticationInfo,
                                              Parameters parameters) {
-        T newInstance = getNewInstance();
+        T newInstance = DataSourceUtils.getNewInstance(datasourceType);
         ParserContext context = ObjectConverter.copyFromRecord(inspectionSearchDataSetItem,
                                                                newInstance,
                                                                false,
@@ -107,25 +105,6 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
         return serviceName;
     }
 
-
-    private Class<T> getDataSourceType() {
-        ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
-        return (Class<T>) parameterizedType.getActualTypeArguments()[0];
-    }
-
-    public T getNewInstance() {
-        try {
-            return getDataSourceType().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private String getAppId(AuthenticationInfo info) {
-        return info.getCustomAuthenticationParameter(Constants.APP_ID_HEADER);
-    }
-
     /**
      * Sets username and appid on parser context
      *
@@ -133,7 +112,7 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
      * @param info
      */
     private void setContextValues(ParserContext context, AuthenticationInfo info) {
-        context.setAppId(getAppId(info));
+        context.setAppId(DataSourceUtils.getAppId(info));
         context.setUserId(info.getUserID());
     }
 }

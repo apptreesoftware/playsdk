@@ -36,14 +36,14 @@ public class StatusTest {
     public void mapMethodTest() {
         TypeManager.getMethodMap();
         Map<String, Method> methodMap = ObjectConverter.getAllMethodsFromClass(TestModel.class);
-        if (methodMap.get("getstatus") == null) {
+        if (methodMap.get("getfirstname") == null) {
             Assert.fail();
         } else {
             System.out.println("Success");
         }
     }
 
-    class TestModel {
+    class TestModel extends TestParent {
         @Status
         private String status;
 
@@ -63,6 +63,18 @@ public class StatusTest {
 
         public void setName(String name) {
             this.name = name;
+        }
+    }
+
+    class TestParent {
+        private String firstName;
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
         }
     }
 }
