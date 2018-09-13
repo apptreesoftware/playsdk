@@ -14,6 +14,17 @@ public class InspectionData<T> extends Response {
     private Map<String, String> context = new HashMap<>();
     private Collection<T> items;
 
+
+    public static <T> InspectionData<T> withItems(Collection<T> collection) {
+        return new InspectionData<>(collection);
+    }
+
+    public InspectionData() {}
+
+    public InspectionData(Collection<T> collection) {
+        this.items = collection;
+    }
+
     public DateTime getStartDate() {
         return startDate;
     }
