@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import static sdk.converter.ConfigurationManager.inferName;
+import static sdk.converter.ObjectConverter.getDataSetFromCollection;
 import static sdk.converter.ObjectConverter.getInspectionDataSetFromCollection;
 
 public abstract class TypedInspectionDataSource<T> implements InspectionSource {
@@ -19,7 +20,8 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
 
     @Override
     public CompletableFuture<InspectionDataSet> startInspection(
-        DataSetItem inspectionSearchDataSetItem, AuthenticationInfo authenticationInfo,
+        DataSetItem inspectionSearchDataSetItem,
+        AuthenticationInfo authenticationInfo,
         Parameters parameters) {
         T newInstance = DataSourceUtils.getNewInstance(datasourceType);
         ParserContext context = ObjectConverter.copyFromRecord(inspectionSearchDataSetItem,
@@ -27,10 +29,12 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
                                                                false,
                                                                null);
         setContextValues(context, authenticationInfo);
-        CompletableFuture<InspectionData<T>> response =
-            start(newInstance, authenticationInfo, parameters, context);
-        // copy all attributes from collection in response to the back data set in InspectDataSet
+        CompletableFuture<InspectionData<T>> response = start(newInstance,
+                                                              authenticationInfo,
+                                                              parameters,
+                                                              context);
 
+        // copy all attributes from collection in response to the back data set in InspectDataSet
         CompletableFuture<InspectionDataSet> inspectDataSet = response.thenApply(
             future -> getInspectionDataSetFromCollection(future.getItems(),
                                                          getInspectionItemAttributes()));
@@ -50,7 +54,27 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
     public CompletableFuture<DataSet> completeInspection(InspectionDataSet completedDataSet,
                                                          AuthenticationInfo authenticationInfo,
                                                          Parameters parameters) {
-        return null;
+        InspectionData<T> instance = new InspectionData<>();
+        instance.setStartDate(completedDataSet.getStartDate());
+        instance.setEndDate(completedDataSet.getEndDate());
+        instance.setContext(completedDataSet.getContext());
+        try {
+            ParserContext context = new ParserContext();
+            Collection<T> items = ObjectConverter.getCollectionFromDataSet(completedDataSet,
+                                                                           datasourceType,
+                                                                           context);
+            instance.setItems(items);
+            CompletableFuture<Collection<T>> resultCollection = complete(instance,
+                                                                         authenticationInfo,
+                                                                         parameters,
+                                                                         context);
+            return resultCollection
+                .thenApply(col -> getDataSetFromCollection(col, getInspectionItemAttributes()));
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(String.format("Error converting %s item to data set. " +
+                                                     "Underlying error: %s",
+                                                     getServiceName(), e.getMessage()));
+        }
     }
 
 
