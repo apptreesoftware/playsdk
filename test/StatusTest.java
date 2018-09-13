@@ -14,20 +14,19 @@ public class StatusTest {
     @Test
     public void verifyStatusConversion() {
         TestModel model = new TestModel();
-        model.name = "COMPLETE";
-        model.status = "COMPLETE";
+        model.setName("COMPLETE");
+        model.setStatus("COMPLETE");
 
         DataSetItem dataSetItem =
             new DataSetItem(ObjectConverter.generateConfigurationAttributes(TestModel.class));
         ObjectConverter.copyToRecord(dataSetItem, model);
-        System.out.println(dataSetItem.getStatus());
-        if (!dataSetItem.getStatus().toString().equalsIgnoreCase(model.status)) {
+        if (!dataSetItem.getStatus().toString().equalsIgnoreCase(model.getStatus())) {
             Assert.fail();
         }
 
         TestModel modelTwo = new TestModel();
         ObjectConverter.copyFromRecord(dataSetItem, modelTwo, false, null);
-        if (!dataSetItem.getStatus().toString().equalsIgnoreCase(modelTwo.status)) {
+        if (!dataSetItem.getStatus().toString().equalsIgnoreCase(modelTwo.getStatus())) {
             Assert.fail();
         }
     }
@@ -37,8 +36,10 @@ public class StatusTest {
     public void mapMethodTest() {
         TypeManager.getMethodMap();
         Map<String, Method> methodMap = ObjectConverter.getAllMethodsFromClass(TestModel.class);
-        if (methodMap.get("status") == null) {
+        if (methodMap.get("getstatus") == null) {
             Assert.fail();
+        } else {
+            System.out.println("Success");
         }
     }
 
@@ -47,5 +48,21 @@ public class StatusTest {
         private String status;
 
         private String name;
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

@@ -169,10 +169,7 @@ public class TypeManager {
     public static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
         String className = sourceObject.getClass().getName();
-        Map<String, Method> methodMap =
-            Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(
-                Collectors.toMap(method -> method.getName().toLowerCase(), method -> method,
-                                 ((method, method2) -> method)));
+        Map<String, Method> methodMap = getAllMethodsFromClass(sourceObject.getClass());
         getMethodMap().put(className, methodMap);
     }
 
@@ -189,7 +186,8 @@ public class TypeManager {
         Class currentClass = clazz;
         Map<String, Method> methodMap = new HashMap<>();
         do {
-            for (Method method : currentClass.getMethods()) {
+            Method[] tempMethods = currentClass.getDeclaredMethods();
+            for (Method method : currentClass.getDeclaredMethods()) {
                 methodMap.put(method.getName().toLowerCase(), method);
             }
             currentClass = superClass;
