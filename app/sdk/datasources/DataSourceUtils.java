@@ -1,5 +1,7 @@
 package sdk.datasources;
 
+import sdk.data.InspectionData;
+import sdk.data.InspectionDataSet;
 import sdk.utils.AuthenticationInfo;
 import sdk.utils.Constants;
 
@@ -47,5 +49,16 @@ public class DataSourceUtils {
      */
     public static String getAppId(AuthenticationInfo info) {
         return info.getCustomAuthenticationParameter(Constants.APP_ID_HEADER);
+    }
+
+
+    public static void convertInspectData(InspectionDataSet dataSet, InspectionData data) {
+        dataSet.setStartDate(data.getStartDate());
+        dataSet.setEndDate(data.getEndDate());
+        dataSet.setStatus(data.getStatus());
+        dataSet.setContext(data.getContext());
+        dataSet.setMessage(data.getMessage());
+        dataSet.setSuccess(data.isSuccess());
+        dataSet.setShowMessageAsAlert(data.isShowMessageAsAlert());
     }
 }

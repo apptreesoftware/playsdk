@@ -1,5 +1,6 @@
-package sdk.datasources.future;
+package sdk.datasources.rx;
 
+import rx.Observable;
 import sdk.converter.ObjectConverter;
 import sdk.converter.ParserContext;
 import sdk.data.*;
@@ -19,35 +20,35 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
     private final String serviceName = inferName(datasourceType.getSimpleName());
 
     @Override
-    public CompletableFuture<InspectionDataSet> startInspection(
-        DataSetItem inspectionSearchDataSetItem,
-        AuthenticationInfo authenticationInfo,
-        Parameters parameters) {
+    public Observable<InspectionDataSet> startInspection(DataSetItem inspectionSearchDataSetItem,
+                                                         AuthenticationInfo authenticationInfo,
+                                                         Parameters parameters) {
         T newInstance = DataSourceUtils.getNewInstance(datasourceType);
         ParserContext context = ObjectConverter.copyFromRecord(inspectionSearchDataSetItem,
                                                                newInstance,
                                                                false,
                                                                null);
         setContextValues(context, authenticationInfo);
-        CompletableFuture<InspectionData<T>> response = start(newInstance,
-                                                              authenticationInfo,
-                                                              parameters,
-                                                              context);
+        Observable<InspectionData<T>> response = start(newInstance,
+                                                       authenticationInfo,
+                                                       parameters,
+                                                       context);
 
         // copy all attributes from collection in response to the back data set in InspectDataSet
-        CompletableFuture<InspectionDataSet> inspectDataSet = response.thenApply(
+        Observable<InspectionDataSet> inspectDataSet = response.map(
             future -> getInspectionDataSetFromCollection(future.getItems(),
                                                          getInspectionItemAttributes()));
-        return inspectDataSet.thenCombine(response, (dataSet, resp) -> {
+
+        return Observable.zip(inspectDataSet, response, (dataSet, resp) -> {
             DataSourceUtils.convertInspectData(dataSet, resp);
             return dataSet;
         });
     }
 
     @Override
-    public CompletableFuture<DataSet> completeInspection(InspectionDataSet completedDataSet,
-                                                         AuthenticationInfo authenticationInfo,
-                                                         Parameters parameters) {
+    public Observable<DataSet> completeInspection(InspectionDataSet completedDataSet,
+                                                  AuthenticationInfo authenticationInfo,
+                                                  Parameters parameters) {
         InspectionData<T> instance = new InspectionData<>();
         instance.setStartDate(completedDataSet.getStartDate());
         instance.setEndDate(completedDataSet.getEndDate());
@@ -58,12 +59,12 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
                                                                            datasourceType,
                                                                            context);
             instance.setItems(items);
-            CompletableFuture<Collection<T>> resultCollection = complete(instance,
-                                                                         authenticationInfo,
-                                                                         parameters,
-                                                                         context);
+            Observable<Collection<T>> resultCollection = complete(instance,
+                                                                  authenticationInfo,
+                                                                  parameters,
+                                                                  context);
             return resultCollection
-                .thenApply(col -> getDataSetFromCollection(col, getInspectionItemAttributes()));
+                .map(col -> getDataSetFromCollection(col, getInspectionItemAttributes()));
         } catch (IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(String.format("Error converting %s item to data set. " +
                                                      "Underlying error: %s",
@@ -72,16 +73,15 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
     }
 
 
-    protected abstract CompletableFuture<InspectionData<T>> start(T item,
-                                                                  AuthenticationInfo authenticationInfo,
-                                                                  Parameters parameters,
-                                                                  ParserContext context);
+    protected abstract Observable<InspectionData<T>> start(T item,
+                                                           AuthenticationInfo authenticationInfo,
+                                                           Parameters parameters,
+                                                           ParserContext context);
 
-    protected abstract CompletableFuture<Collection<T>> complete(InspectionData<T> data,
-                                                                 AuthenticationInfo authenticationInfo,
-                                                                 Parameters parameters,
-                                                                 ParserContext context);
-
+    protected abstract Observable<Collection<T>> complete(InspectionData<T> data,
+                                                          AuthenticationInfo authenticationInfo,
+                                                          Parameters parameters,
+                                                          ParserContext context);
 
     @Override
     public Collection<ServiceConfigurationAttribute> getInspectionItemAttributes() {
@@ -92,7 +92,6 @@ public abstract class TypedInspectionDataSource<T> implements InspectionSource {
     public Collection<ServiceConfigurationAttribute> getInspectionSearchAttributes() {
         return getInspectionItemAttributes();
     }
-
 
     @Override
     public String getServiceName() {
