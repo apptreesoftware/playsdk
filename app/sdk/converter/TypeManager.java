@@ -166,15 +166,34 @@ public class TypeManager {
      * @param sourceObject
      * @param <T>
      */
-    protected static <T> void mapMethodsFromSource(T sourceObject) {
+    public static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
-        String className = sourceObject.getClass().getName();
-        Map<String, Method> methodMap =
-            Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(
-                Collectors.toMap(method -> method.getName().toLowerCase(), method -> method,
-                                 ((method, method2) -> method)));
+        Class clazz = sourceObject.getClass();
+        String className = clazz.getName();
+        Map<String, Method> methodMap = getAllMethodsFromClass(clazz);
         getMethodMap().put(className, methodMap);
     }
+
+
+    /**
+     * Map all methods of the given class and parent classes by their lowercased name;
+     *
+     * @param clazz
+     * @return
+     */
+    public static Map<String, Method> getAllMethodsFromClass(Class clazz) {
+        Class superClass = clazz.getSuperclass();
+        Class currentClass = clazz;
+        Map<String, Method> methodMap = new HashMap<>();
+        do {
+            for (Method method : currentClass.getMethods()) {
+                TypeManager.methodMap.put(method.getName().toLowerCase(), methodMap);
+            }
+            currentClass = superClass;
+        } while ((superClass = currentClass.getSuperclass()) != null);
+        return methodMap;
+    }
+
 
     /**
      * @return
@@ -305,6 +324,7 @@ public class TypeManager {
                 return String.class;
         }
     }
+
 
     /**
      * @param clazz
