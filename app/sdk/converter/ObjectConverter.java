@@ -285,6 +285,7 @@ public class ObjectConverter extends ConfigurationManager {
         boolean status = attributeProxy.isStatus();
 
         // setting primary key on data set rather than
+        // setting the value of the data set item attribute
         if (primaryKey) {
             Object val = useGetterIfExists(attributeProxy, source);
             if (val == null) throw new RuntimeException(
