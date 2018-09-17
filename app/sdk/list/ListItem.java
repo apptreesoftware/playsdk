@@ -607,6 +607,16 @@ public class ListItem implements Record {
         throw new RuntimeException("This type of record does not support time intervals");
     }
 
+    @Override
+    public void setStatus(String status) {
+        return;
+    }
+
+    @Override
+    public DataSetItem.Status getStatus() {
+        return null;
+    }
+
     public Map<Integer, AttributeMeta> getAttributeMetaMap() {
         if (attributeMetaMap == null) {
             attributeMetaMap = new HashMap<>();

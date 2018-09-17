@@ -166,15 +166,35 @@ public class TypeManager {
      * @param sourceObject
      * @param <T>
      */
-    protected static <T> void mapMethodsFromSource(T sourceObject) {
+    public static <T> void mapMethodsFromSource(T sourceObject) {
         if (sourceObject == null) return;
         String className = sourceObject.getClass().getName();
-        Map<String, Method> methodMap =
-            Arrays.stream(sourceObject.getClass().getDeclaredMethods()).distinct().collect(
-                Collectors.toMap(method -> method.getName().toLowerCase(), method -> method,
-                                 ((method, method2) -> method)));
+        Map<String, Method> methodMap = getAllMethodsFromClass(sourceObject.getClass());
         getMethodMap().put(className, methodMap);
     }
+
+
+    /**
+     * Map all methods of the given class and parent classes by their lowercased name;
+     *
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> Map<String, Method> getAllMethodsFromClass(Class<T> clazz) {
+        Class superClass = clazz.getSuperclass();
+        Class currentClass = clazz;
+        Map<String, Method> methodMap = new HashMap<>();
+        do {
+            Method[] tempMethods = currentClass.getDeclaredMethods();
+            for (Method method : currentClass.getDeclaredMethods()) {
+                methodMap.put(method.getName().toLowerCase(), method);
+            }
+            currentClass = superClass;
+        } while ((superClass = currentClass.getSuperclass()) != null);
+        return methodMap;
+    }
+
 
     /**
      * @return
@@ -215,7 +235,8 @@ public class TypeManager {
                                                    ||
                                                    field.getAnnotation(PrimaryValue.class) != null)
                                                   ||
-                                                  field.getAnnotation(Relationship.class) != null)
+                                                  field.getAnnotation(Relationship.class) != null ||
+                                                  field.getAnnotation(Status.class) != null)
                                       .map(field -> new AttributeProxy(field))
                                       .collect(Collectors.toList()));
 
@@ -226,7 +247,9 @@ public class TypeManager {
                                                    ||
                                                    method.getAnnotation(PrimaryValue.class) != null)
                                                   ||
-                                                  method.getAnnotation(Relationship.class) != null)
+                                                  method.getAnnotation(Relationship.class) != null
+                                                  ||
+                                                  method.getAnnotation(Status.class) != null)
                                       .map(field -> new AttributeProxy(field))
                                       .collect(Collectors.toList()));
         if (clazz.getSuperclass() != null)
@@ -303,6 +326,7 @@ public class TypeManager {
         }
     }
 
+
     /**
      * @param clazz
      * @return
@@ -331,7 +355,7 @@ public class TypeManager {
      * @return
      */
     protected static <T> boolean fieldHasSetter(AttributeProxy proxy, T object) {
-        Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
+        Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName().toLowerCase());
         if (tempMap == null) return false;
         return (tempMap.containsKey(setterMethodName(proxy)));
     }

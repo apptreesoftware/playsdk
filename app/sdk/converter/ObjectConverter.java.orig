@@ -590,8 +590,8 @@ public class ObjectConverter extends ConfigurationManager {
                 !isPrimitiveDataTypeOrWrapper(classType)) {
             return true;
         }
-        List<Class> classList = getSupportedTypeMap().get(type);
-        return classList != null && classList.contains(classType);
+        List<Class> assetClass = getSupportedTypeMap().get(type);
+        return assetClass != null && assetClass.contains(classType);
     }
 
     /**
