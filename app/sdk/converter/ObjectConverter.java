@@ -50,6 +50,7 @@ public class ObjectConverter extends ConfigurationManager {
     public static <T> InspectionDataSet getInspectionDataSetFromCollection(Collection<T> objects,
                                                                            Collection<ServiceConfigurationAttribute> attributes) {
         InspectionDataSet dataSet = new InspectionDataSet(attributes);
+        if (NullOrEmpty(objects)) return dataSet;
         for (T object : objects) {
             DataSetItem dataSetItem = dataSet.addNewDataSetItem();
             copyToRecord(dataSetItem, object);
