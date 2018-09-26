@@ -93,7 +93,7 @@ public class DataSetItem implements Record {
         // throws an exception if not valid
         validateLazyLoadedIndex(attributeIndex);
         validateLazyLoadedPath(path, attributeIndex);
-        useLazyLoad(attributeIndex);
+        getLazyLoadedRelationships().add(attributeIndex);
         getLazyLoadedRelationshipLookup().put(attributeIndex, path);
     }
 
