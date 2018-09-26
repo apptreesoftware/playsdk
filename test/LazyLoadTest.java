@@ -1,8 +1,10 @@
 import org.junit.Assert;
 import sdk.annotations.Attribute;
 import sdk.annotations.Relationship;
+import sdk.converter.ObjectConverter;
 import sdk.data.DataSetItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static sdk.converter.ConfigurationManager.generateConfigurationAttributes;
@@ -61,6 +63,18 @@ public class LazyLoadTest {
         }
     }
 
+    @org.junit.Test
+    public void testPath() {
+        Test test = new Test();
+        test.age = 1;
+        test.name = "AppTree";
+        test.id = 9000 + 1;
+        test.friends = new ArrayList<>();
+        DataSetItem dataSetItem = new DataSetItem(generateConfigurationAttributes(Test.class));
+        ObjectConverter.copyToRecord(dataSetItem, test);
+        Assert.assertEquals("/load/me", dataSetItem.getPathForIndex(3));
+    }
+
 
     class Test {
         @Attribute(index = 0)
@@ -69,7 +83,7 @@ public class LazyLoadTest {
         private String name;
         @Attribute(index = 2)
         private double age;
-        @Relationship(index = 3)
+        @Relationship(index = 3, eager = false, path = "/load/me")
         private List<Test> friends;
     }
 }

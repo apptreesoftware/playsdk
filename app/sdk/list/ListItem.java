@@ -575,6 +575,11 @@ public class ListItem implements Record {
     }
 
     @Override
+    public void useLazyLoad(int index, String path) {
+        throw new RuntimeException("This type of record does not support lazy loading.");
+    }
+
+    @Override
     public void setParentValue(String value) {
         this.parentID = value;
     }

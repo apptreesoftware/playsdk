@@ -64,6 +64,11 @@ public class DataSetItem implements Record {
         return configurationMap.get(index);
     }
 
+
+    public String getPathForIndex(int index) {
+        return getLazyLoadedRelationshipLookup().get(index);
+    }
+
     /**
      * This method adds an index to the lazyLoadedRelationships collection
      * The lazy loaded relationship collection tells the clients that this relationship has data
@@ -88,7 +93,8 @@ public class DataSetItem implements Record {
         // throws an exception if not valid
         validateLazyLoadedIndex(attributeIndex);
         validateLazyLoadedPath(path, attributeIndex);
-
+        useLazyLoad(attributeIndex);
+        getLazyLoadedRelationshipLookup().put(attributeIndex, path);
     }
 
 
@@ -118,6 +124,7 @@ public class DataSetItem implements Record {
 
     /**
      * This method validates the lazy loaded path
+     *
      * @param path
      * @param index
      */
