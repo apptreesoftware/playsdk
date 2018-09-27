@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import java.util.Optional;
 
 import static sdk.utils.ClassUtils.Null;
+import static sdk.utils.ValidationUtils.NullOrEmpty;
 
 /**
  * Created by Orozco on 8/2/17.
@@ -105,6 +106,15 @@ public class AttributeProxy {
             return !relationship.eager();
         }
         return false;
+    }
+
+
+    public boolean hasRelationshipPath() {
+        return isRelationship() && !NullOrEmpty(getPath());
+    }
+
+    public String getPath() {
+        return relationship.path();
     }
 
     public <T> Object getValue(T sourceObject) throws IllegalAccessException,

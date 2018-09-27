@@ -1410,7 +1410,13 @@ public class ObjectConverter extends ConfigurationManager {
                                                                              IllegalAccessException,
                                                                              InvocationTargetException {
         List<Object> relationship;
-        if (attributeProxy.useLazyLoad()) dataSetItem.useLazyLoad(index);
+        if (attributeProxy.useLazyLoad()) {
+            if (attributeProxy.hasRelationshipPath()) {
+                dataSetItem.useLazyLoad(index, attributeProxy.getPath());
+            } else {
+                dataSetItem.useLazyLoad(index);
+            }
+        }
         if (attributeProxy.loadRelationshipData() ||
             attributeProxy.getRelationshipAnnotation().eager()) {
             if (useGetterAndSetter) {

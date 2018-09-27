@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.mvc.Http;
+import sdk.converter.attachment.Attachment;
 import sdk.list.ListItem;
 import sdk.models.*;
 import sdk.utils.DateUtil;
@@ -16,21 +17,25 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static java.lang.String.format;
+import static sdk.models.AttributeType.Attachments;
+import static sdk.models.AttributeType.Relation;
 import static sdk.utils.ClassUtils.Null;
+import static sdk.utils.ValidationUtils.NullOrEmpty;
 
 /**
  * Created by alexis on 5/3/16.
  */
 public class DataSetItem implements Record {
-    private HashMap<Integer, DataSetItemAttribute> attributeMap =
-        new HashMap<Integer, DataSetItemAttribute>();
+    private HashMap<Integer, DataSetItemAttribute> attributeMap = new HashMap<>();
     String primaryKey;
     private String clientKey;
     private int maxAttributeIndex = -1;
     private CRUDStatus crudStatus = CRUDStatus.Read;
     private Status status = Status.None;
     Collection<ServiceConfigurationAttribute> configurationAttributes;
-    Collection<Integer> lazyLoadedRelationships;
+    private Collection<Integer> lazyLoadedRelationships;
+    private Map<Integer, String> lazyLoadedRelationshipLookup;
 
 
     @JsonIgnore
@@ -59,17 +64,75 @@ public class DataSetItem implements Record {
         return configurationMap.get(index);
     }
 
+
+    public String getPathForIndex(int index) {
+        return getLazyLoadedRelationshipLookup().get(index);
+    }
+
+    /**
+     * This method adds an index to the lazyLoadedRelationships collection
+     * The lazy loaded relationship collection tells the clients that this relationship has data
+     * that you may be able to load
+     *
+     * @param attributeIndex
+     */
     public void useLazyLoad(int attributeIndex) {
+        // throws an exception if not valid
+        validateLazyLoadedIndex(attributeIndex);
+        getLazyLoadedRelationships().add(attributeIndex);
+    }
+
+    /**
+     * This method adds an index and path to a lazy load map that will tell the client you have a relationship
+     * that at a certain index that can be found at this path
+     *
+     * @param attributeIndex
+     * @param path
+     */
+    public void useLazyLoad(int attributeIndex, String path) {
+        // throws an exception if not valid
+        validateLazyLoadedIndex(attributeIndex);
+        validateLazyLoadedPath(path, attributeIndex);
+        getLazyLoadedRelationships().add(attributeIndex);
+        getLazyLoadedRelationshipLookup().put(attributeIndex, path);
+    }
+
+
+    /**
+     * This method takes an attribute index and confirms that it exists and is either a mutli
+     * relationship or attachments
+     * <p>
+     * This method will throw a RuntimeException if the given index is not valid
+     *
+     * @param attributeIndex
+     */
+    private void validateLazyLoadedIndex(int attributeIndex) {
         ServiceConfigurationAttribute attribute = getAttributeWithIndex(attributeIndex);
-        if (attribute == null || (!attribute.attributeType.equals(AttributeType.Relation) &&
-                                  !attribute.attributeType.equals(AttributeType.Attachments))) {
+
+        if (attribute == null) {
+            throw new RuntimeException(format("Attempting to lazy load an index" +
+                                              " that does not exists. Index: %s", attributeIndex));
+        }
+
+        AttributeType type = attribute.attributeType;
+        if (!type.equals(Relation) && !type.equals(Attachments)) {
+            throw new RuntimeException("Attempting to lazy load a relationship that is not a " +
+                                       "multi relationship or Attachments");
+        }
+    }
+
+
+    /**
+     * This method validates the lazy loaded path
+     *
+     * @param path
+     * @param index
+     */
+    private void validateLazyLoadedPath(String path, int index) {
+        if (NullOrEmpty(path)) {
             throw new RuntimeException(
-                "Attempting to use lazy loading on an attribute that isn't a relationship");
+                format("Lazy loaded path cannot be empty. Index: %s", index));
         }
-        if (lazyLoadedRelationships == null) {
-            lazyLoadedRelationships = new ArrayList<>();
-        }
-        lazyLoadedRelationships.add(attributeIndex);
     }
 
     @Override
@@ -394,6 +457,29 @@ public class DataSetItem implements Record {
 
     public void setAttributeMetaMap(Map<Integer, AttributeMeta> attributeMetaMap) {
         this.attributeMetaMap = attributeMetaMap;
+    }
+
+    public Collection<Integer> getLazyLoadedRelationships() {
+        if (lazyLoadedRelationships == null) {
+            lazyLoadedRelationships = new ArrayList<>();
+        }
+        return lazyLoadedRelationships;
+    }
+
+    public void setLazyLoadedRelationships(Collection<Integer> lazyLoadedRelationships) {
+        this.lazyLoadedRelationships = lazyLoadedRelationships;
+    }
+
+    public Map<Integer, String> getLazyLoadedRelationshipLookup() {
+        if (lazyLoadedRelationshipLookup == null) {
+            lazyLoadedRelationshipLookup = new HashMap<>();
+        }
+        return lazyLoadedRelationshipLookup;
+    }
+
+    public void setLazyLoadedRelationshipLookup(
+        Map<Integer, String> lazyLoadedRelationshipLookup) {
+        this.lazyLoadedRelationshipLookup = lazyLoadedRelationshipLookup;
     }
 
     public enum Type {
@@ -1397,7 +1483,8 @@ public class DataSetItem implements Record {
         json.put("recordType", getItemType().stringValue);
         json.put("status", status.stringValue);
         json.put("lazyLoadedRelationships",
-                 lazyLoadedRelationships != null ? JsonUtils.toJson(lazyLoadedRelationships) :
+                 getLazyLoadedRelationships() != null ? JsonUtils.toJson(
+                     getLazyLoadedRelationships()) :
                  null);
 
         ArrayNode attributes = json.putArray("attributes");
@@ -1590,9 +1677,9 @@ public class DataSetItem implements Record {
                                  List<ServiceConfigurationAttribute> listAttrs =
                                      attribute.getRelatedListServiceConfiguration().getAttributes();
                                  for (ServiceConfigurationAttribute attr : listAttrs) {
-                                     JsonNode node1 = jsonNode.get(String.format("attribute%02d",
-                                                                                 attr.getAttributeIndex() +
-                                                                                 1));
+                                     JsonNode node1 = jsonNode.get(format("attribute%02d",
+                                                                          attr.getAttributeIndex() +
+                                                                          1));
                                      String textValue = node1 != null ? node1.asText() : null;
                                      switch (attr.attributeType) {
                                          case Location:
@@ -1759,7 +1846,8 @@ public class DataSetItem implements Record {
         result = 31 * result +
                  (configurationAttributes != null ? configurationAttributes.hashCode() : 0);
         result = 31 * result +
-                 (lazyLoadedRelationships != null ? lazyLoadedRelationships.hashCode() : 0);
+                 (getLazyLoadedRelationships() != null ? getLazyLoadedRelationships().hashCode() :
+                  0);
         result = 31 * result + (attributeMetaMap != null ? attributeMetaMap.hashCode() : 0);
         result = 31 * result + (configurationMap != null ? configurationMap.hashCode() : 0);
         return result;

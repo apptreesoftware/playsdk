@@ -106,6 +106,8 @@ public interface Record {
 
     void useLazyLoad(int index);
 
+    void useLazyLoad(int index, String path);
+
     void setParentValue(String value);
 
     DateTimeRange getDateTimeRange(int attributeIndex);
