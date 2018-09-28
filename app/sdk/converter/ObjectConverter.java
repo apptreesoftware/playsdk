@@ -2,7 +2,7 @@ package sdk.converter;
 
 import org.joda.time.DateTime;
 import play.Logger;
-import sdk.annotations.*;
+import sdk.annotations.CustomLocation;
 import sdk.converter.attachment.ApptreeAttachment;
 import sdk.data.*;
 import sdk.exceptions.DestinationInvalidException;
@@ -38,6 +38,47 @@ public class ObjectConverter extends ConfigurationManager {
         DataSetItem dataSetItem = new DataSetItem(attributes);
         copyToRecord(dataSetItem, t);
         return new DataSet(dataSetItem);
+    }
+
+
+    /**
+     * @param objects
+     * @param attributes
+     * @param <T>
+     * @return
+     */
+    public static <T> InspectionDataSet getInspectionDataSetFromCollection(Collection<T> objects,
+                                                                           Collection<ServiceConfigurationAttribute> attributes) {
+        InspectionDataSet dataSet = new InspectionDataSet(attributes);
+        if (NullOrEmpty(objects)) return dataSet;
+        for (T object : objects) {
+            DataSetItem dataSetItem = dataSet.addNewDataSetItem();
+            copyToRecord(dataSetItem, object);
+        }
+
+        if (objects instanceof PagedCollection) {
+            int totalRecords = ((PagedCollection) objects).getTotalAvailableRecords();
+            int pageSize = ((PagedCollection) objects).getPageSize();
+            dataSet.setTotalRecords(totalRecords);
+            dataSet.setMoreRecordsAvailable(totalRecords > pageSize);
+        }
+        return dataSet;
+    }
+
+    public static <T> Collection<T> getCollectionFromDataSet(DataSet dataSet,
+                                                             Class<T> clazz,
+                                                             ParserContext context) throws
+                                                                                    IllegalAccessException,
+                                                                                    InstantiationException {
+        List<DataSetItem> dataSetItems = dataSet.getDataSetItems();
+        Collection<T> result = new ArrayList<>();
+        if (NullOrEmpty(dataSetItems)) return Collections.emptyList();
+        for (DataSetItem item : dataSetItems) {
+            T temp = clazz.newInstance();
+            ObjectConverter.copyFromRecord(item, temp, false, context);
+            result.add(temp);
+        }
+        return result;
     }
 
 
@@ -106,7 +147,8 @@ public class ObjectConverter extends ConfigurationManager {
      * @param destination
      * @param <T>
      */
-    public static <T> ParserContext copyFromRecord(Record record, T destination,
+    public static <T> ParserContext copyFromRecord(Record record,
+                                                   T destination,
                                                    boolean isSearchForm,
                                                    ParserContext parserContext) {
         if (parserContext == null) {
@@ -127,12 +169,15 @@ public class ObjectConverter extends ConfigurationManager {
                 //if the dataSetItem is coming from a search form the values in the primary key/value
                 // will always be null.
                 //If NOT coming from a search form we want the given primary key/value values to
-                //always over write what was copied in the object copy because primary key/value shoudl not be editable
+                //always over write what was copied in the object copy because primary key/value should not be editable
                 if (!isSearchForm) {
                     if (proxy.isPrimaryKey())
                         proxy.setPrimaryKeyOrValue(destination, record.getPrimaryKey());
                     if (proxy.isPrimaryValue())
                         proxy.setPrimaryKeyOrValue(destination, record.getValue());
+                    if (proxy.isStatus())
+                        proxy.setPrimaryKeyOrValue(destination, record.getStatus().toString());
+
                 }
             } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -194,19 +239,15 @@ public class ObjectConverter extends ConfigurationManager {
      * @param destination
      * @param <T>
      * @throws UnsupportedAttributeException
-     * @throws IllegalAccessException
      * @throws UnableToWriteException
      * @throws InvocationTargetException
      */
     private static <T> void copyToField(AttributeProxy proxy, Record record, T destination,
                                         ParserContext parserContext) throws
                                                                      UnsupportedAttributeException,
-                                                                     IllegalAccessException,
                                                                      UnableToWriteException,
                                                                      InvocationTargetException {
-        if (!proxy.isAttribute() && !proxy.isRelationship()) {
-            return;
-        }
+        if (!proxy.isAttribute() && !proxy.isRelationship() && !proxy.isStatus()) return;
         if (record.isListItem() && proxy.excludeFromList()) return;
 
         int index = proxy.getIndex();
@@ -242,13 +283,24 @@ public class ObjectConverter extends ConfigurationManager {
         boolean primaryKey = attributeProxy.isPrimaryKey();
         boolean value = attributeProxy.isPrimaryValue();
         boolean parentValue = attributeProxy.isParentValue();
+        boolean status = attributeProxy.isStatus();
 
+        // setting primary key on data set rather than
+        // setting the value of the data set item attribute
         if (primaryKey) {
             Object val = useGetterIfExists(attributeProxy, source);
             if (val == null) throw new RuntimeException(
                 "Primary key is null on " + source.getClass().getSimpleName());
             record.setPrimaryKey(val.toString());
             if (record.getValue() == null) record.setValue(val.toString());
+            if (!attributeProxy.isAttribute()) return;
+        }
+
+        // setting status
+        if (status) {
+            Object val = useGetterIfExists(attributeProxy, source);
+            if (val == null) return;
+            record.setStatus(val.toString());
             if (!attributeProxy.isAttribute()) return;
         }
 
