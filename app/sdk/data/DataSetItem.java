@@ -1547,13 +1547,18 @@ public class DataSetItem implements Record {
                          case Attachments:
                          case Relation:
                          case SingleRelationship:
-                             ArrayNode childArray = (ArrayNode) node;
+                             ArrayNode childArray = null;
+                            if (node instanceof ObjectNode) {
+                                childArray = (ArrayNode)node.path("subItems");
+                            } else if (node instanceof ArrayNode) {
+                                childArray = (ArrayNode)node;
+                            }
                              RelatedServiceConfiguration childService = attribute.relatedService;
                              if (childArray != null) {
-                                 IntStream.range(0, childArray.size())
-                                          .forEach(childIndex -> {
-                                              ObjectNode childJsonNode =
-                                                  (ObjectNode) childArray.get(childIndex);
+                                 final ArrayNode finalChildArray = childArray;
+                                IntStream.range(0, childArray.size())
+                                        .forEach(childIndex -> {
+                                            ObjectNode childJsonNode = (ObjectNode) finalChildArray.get(childIndex);
                                               String recordType =
                                                   childJsonNode.path("recordType").asText();
                                               String subClientKey =
