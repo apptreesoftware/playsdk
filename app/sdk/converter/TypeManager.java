@@ -355,7 +355,7 @@ public class TypeManager {
      * @return
      */
     protected static <T> boolean fieldHasSetter(AttributeProxy proxy, T object) {
-        Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName().toLowerCase());
+        Map<String, Method> tempMap = getMethodMap().get(object.getClass().getName());
         if (tempMap == null) return false;
         return (tempMap.containsKey(setterMethodName(proxy)));
     }
