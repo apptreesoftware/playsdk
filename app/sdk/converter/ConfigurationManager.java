@@ -19,7 +19,7 @@ public class ConfigurationManager extends TypeManager {
 
     static ConfigurationParserContext configurationParserContext;
 
-    // NOTE: I chose not to use a `ConcurrentHashMap` because the read and write and slower
+    // NOTE: I chose not to use a `ConcurrentHashMap` because the read and write are slower
     // and it isn't too big of a deal if we miss and cache entry
     //
     //
