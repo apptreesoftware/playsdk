@@ -23,11 +23,10 @@ public class ConfigurationManager extends TypeManager {
     // and it isn't too big of a deal if we miss and cache entry
     //
     //
-    // we are going to put our already inferred names in here so
+    // we are going to put our already inferred names and configurations here
     // we don't have to compute them more than once
     // this Map can live as long as the application
-    // each application has a finite and relatively small number of possible "inferred names"
-    // and the being computed very often
+    // each application has a finite and relatively small number of possible configs and names
     static final Map<String, String> inferredNameMap = new HashMap<>();
     // List configuration attribute cache by class and name
     static final Map<UniqueClassConfig, ListServiceConfiguration> listServiceConfig = new HashMap<>();
