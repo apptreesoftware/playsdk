@@ -26,6 +26,9 @@ public class ConfigurationManager extends TypeManager {
     // and the being computed very often
     static final Map<String, String> inferredNameMap = new HashMap<>();
 
+    static final Map<UniqueClassConfig, ListServiceConfiguration> listServiceConfig = new HashMap<>();
+
+    static final Map<Class, Collection<ServiceConfigurationAttribute>> attributeMap = new HashMap<>();
 
     /**
      * @param someClass
@@ -37,8 +40,15 @@ public class ConfigurationManager extends TypeManager {
     }
 
     public static <T> ListServiceConfiguration generateListConfiguration(Class<T> someClass, String configName) {
+        UniqueClassConfig config = new UniqueClassConfig(someClass, configName);
+        if(listServiceConfig.containsKey(config)){
+            return listServiceConfig.get(config);
+        }
         ListServiceConfiguration listServiceConfiguration = new ListServiceConfiguration(configName);
         listServiceConfiguration.getAttributes().addAll(generateListConfigurationAttributes(someClass));
+
+        // put generated config in map
+        listServiceConfig.put(config, listServiceConfiguration);
         return listServiceConfiguration;
     }
 
@@ -66,7 +76,7 @@ public class ConfigurationManager extends TypeManager {
         int index = attribute.index();
         String name = attribute.name();
         if (StringUtils.isEmpty(name)) {
-            name = proxy.inferredName;
+            name = inferName(proxy.getName());
         }
         ConverterAttributeType converterAttributeType = null;
         AttributeType attributeType = attribute.dataType();
@@ -88,6 +98,9 @@ public class ConfigurationManager extends TypeManager {
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
+        if(attributeMap.containsKey(someClass)){
+            return attributeMap.get(someClass);
+        }
         ConfigurationParserContext configurationParserContext = getConfigurationParserContext();
         configurationParserContext.setParentClass(someClass); // setting parent class to combat against circular reference
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
@@ -104,6 +117,9 @@ public class ConfigurationManager extends TypeManager {
             }
         }
         configurationParserContext = null;
+
+        // we want to remember these
+        attributeMap.put(someClass, attributes);
         return attributes;
     }
 
@@ -233,7 +249,7 @@ public class ConfigurationManager extends TypeManager {
             name = name.replace("_", " ");
         } else { // camel case
             StringBuilder builder = new StringBuilder();
-            if (name.matches("^(set|get).*$")) name = name.substring(3); // remove set or get from front
+            if (name.startsWith("set") || name.startsWith("get")) name = name.substring(3); // remove set or get from front
             builder.append(name.charAt(0));
             for (int i = 1; i < name.length(); i++) {
                 char c = name.charAt(i);
