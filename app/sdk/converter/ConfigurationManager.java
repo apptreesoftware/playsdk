@@ -8,9 +8,8 @@ import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 
-import javax.management.relation.Relation;
-import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author: Karis Sponsler
@@ -19,6 +18,13 @@ import java.util.*;
 public class ConfigurationManager extends TypeManager {
 
     static ConfigurationParserContext configurationParserContext;
+
+    // we are going to put our already inferred names in here so
+    // we don't have to compute them more than once
+    // this Map can live as long as the application
+    // each application has a finite and relatively small number of possible "inferred names"
+    // and the being computed very often
+    static final Map<String, String> inferredNameMap = new HashMap<>();
 
 
     /**
@@ -60,7 +66,7 @@ public class ConfigurationManager extends TypeManager {
         int index = attribute.index();
         String name = attribute.name();
         if (StringUtils.isEmpty(name)) {
-            name = inferName(proxy.getName());
+            name = proxy.inferredName;
         }
         ConverterAttributeType converterAttributeType = null;
         AttributeType attributeType = attribute.dataType();
@@ -219,6 +225,10 @@ public class ConfigurationManager extends TypeManager {
      * @return
      */
     public static String inferName(String name) {
+        // if we've inferred this name before, return.
+        if(inferredNameMap.containsKey(name)){
+            return inferredNameMap.get(name);
+        }
         if (name.contains("_")) { // snake case
             name = name.replace("_", " ");
         } else { // camel case
@@ -235,7 +245,10 @@ public class ConfigurationManager extends TypeManager {
             }
             name = builder.toString();
         }
-        return WordUtils.capitalize(name);
+        String inferredName =  WordUtils.capitalize(name);
+        // we want to remember this name
+        inferredNameMap.put(name, inferredName);
+        return inferredName;
     }
 
     /**

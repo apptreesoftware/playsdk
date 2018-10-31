@@ -17,6 +17,7 @@ public class AttributeProxy {
     public boolean isField;
     private boolean isWrappedClass;
     private boolean loadRelationshipData;
+    public String inferredName;
     PrimaryValue primaryValue;
     PrimaryKey primaryKey;
     Attribute attribute;
@@ -29,6 +30,7 @@ public class AttributeProxy {
         this.currentMethod = currentMethod;
         setWrappedClass(checkIfIsWrappedType((Class) currentMethod.getReturnType()));
         hydrateAnnotations(currentMethod);
+        inferredName = ConfigurationManager.inferName(getName());
     }
 
     public AttributeProxy(Field currentField) {
@@ -36,6 +38,7 @@ public class AttributeProxy {
         this.currentField = currentField;
         setWrappedClass(checkIfIsWrappedType((Class) currentField.getType()));
         hydrateAnnotations(currentField);
+        inferredName = ConfigurationManager.inferName(getName());
     }
 
     public Attribute getAttributeAnnotation() {
