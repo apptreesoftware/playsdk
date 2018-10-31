@@ -8,9 +8,8 @@ import sdk.list.ListServiceConfiguration;
 import sdk.list.ListServiceConfigurationAttribute;
 import sdk.models.AttributeType;
 
-import javax.management.relation.Relation;
-import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author: Karis Sponsler
@@ -20,6 +19,19 @@ public class ConfigurationManager extends TypeManager {
 
     static ConfigurationParserContext configurationParserContext;
 
+    // NOTE: I chose not to use a `ConcurrentHashMap` because the read and write are slower
+    // and it isn't too big of a deal if we miss and cache entry
+    //
+    //
+    // we are going to put our already inferred names and configurations here
+    // we don't have to compute them more than once
+    // this Map can live as long as the application
+    // each application has a finite and relatively small number of possible configs and names
+    static final Map<String, String> inferredNameMap = new HashMap<>();
+    // List configuration attribute cache by class and name
+    static final Map<UniqueClassConfig, ListServiceConfiguration> listServiceConfig = new HashMap<>();
+    // data set configuration cache
+    static final Map<Class, Collection<ServiceConfigurationAttribute>> attributeMap = new HashMap<>();
 
     /**
      * @param someClass
@@ -31,8 +43,15 @@ public class ConfigurationManager extends TypeManager {
     }
 
     public static <T> ListServiceConfiguration generateListConfiguration(Class<T> someClass, String configName) {
+        UniqueClassConfig config = new UniqueClassConfig(someClass, configName);
+        if(listServiceConfig.containsKey(config)){
+            return listServiceConfig.get(config);
+        }
         ListServiceConfiguration listServiceConfiguration = new ListServiceConfiguration(configName);
         listServiceConfiguration.getAttributes().addAll(generateListConfigurationAttributes(someClass));
+
+        // put generated config in map
+        listServiceConfig.put(config, listServiceConfiguration);
         return listServiceConfiguration;
     }
 
@@ -82,6 +101,9 @@ public class ConfigurationManager extends TypeManager {
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
+        if(attributeMap.containsKey(someClass)){
+            return attributeMap.get(someClass);
+        }
         ConfigurationParserContext configurationParserContext = getConfigurationParserContext();
         configurationParserContext.setParentClass(someClass); // setting parent class to combat against circular reference
         Collection<ServiceConfigurationAttribute> attributes = new ArrayList<>();
@@ -98,6 +120,9 @@ public class ConfigurationManager extends TypeManager {
             }
         }
         configurationParserContext = null;
+
+        // we want to remember these
+        attributeMap.put(someClass, attributes);
         return attributes;
     }
 
@@ -219,11 +244,15 @@ public class ConfigurationManager extends TypeManager {
      * @return
      */
     public static String inferName(String name) {
+        // if we've inferred this name before, return.
+        if(inferredNameMap.containsKey(name)){
+            return inferredNameMap.get(name);
+        }
         if (name.contains("_")) { // snake case
             name = name.replace("_", " ");
         } else { // camel case
             StringBuilder builder = new StringBuilder();
-            if (name.matches("^(set|get).*$")) name = name.substring(3); // remove set or get from front
+            if (name.startsWith("set") || name.startsWith("get")) name = name.substring(3); // remove set or get from front
             builder.append(name.charAt(0));
             for (int i = 1; i < name.length(); i++) {
                 char c = name.charAt(i);
@@ -235,7 +264,10 @@ public class ConfigurationManager extends TypeManager {
             }
             name = builder.toString();
         }
-        return WordUtils.capitalize(name);
+        String inferredName =  WordUtils.capitalize(name);
+        // we want to remember this name
+        inferredNameMap.put(name, inferredName);
+        return inferredName;
     }
 
     /**
