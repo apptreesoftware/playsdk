@@ -84,6 +84,7 @@ public abstract class DataController extends Controller {
         }
         try {
             ObjectNode json = dataSet.toJSON();
+            System.out.println(json);
             request.post(json)
                     .whenComplete((wsResponse, throwable) -> {
                         logCallbackInfo(wsResponse, throwable, callbackURL);

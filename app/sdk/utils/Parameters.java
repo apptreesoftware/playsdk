@@ -12,21 +12,24 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static sdk.utils.ValidationUtils.NullOrEmpty;
+
 /**
  * Created by alexis on 5/3/16.
  */
 public class Parameters {
-    private HashMap<String,String> parameters = new HashMap<>();
+    private HashMap<String, String> parameters = new HashMap<>();
+    private List<Integer> prefetchRelationships;
 
     public JsonNode toJSON() {
         ObjectNode json = Json.newObject();
-        for (Map.Entry<String, String> entry : parameters.entrySet() ) {
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            if ( key != null && value != null ) {
-                if ( value.equalsIgnoreCase("true") ) {
+            if (key != null && value != null) {
+                if (value.equalsIgnoreCase("true")) {
                     json.put(key, true);
-                } else if ( value.equalsIgnoreCase("false") ) {
+                } else if (value.equalsIgnoreCase("false")) {
                     json.put(key, false);
                 } else {
                     json.put(key, value);
@@ -37,7 +40,7 @@ public class Parameters {
     }
 
     public Parameters(Map<String, String[]> parameters) {
-        parameters.forEach((k,v) -> {
+        parameters.forEach((k, v) -> {
             this.parameters.putIfAbsent(k, v[0]);
         });
     }
@@ -46,12 +49,11 @@ public class Parameters {
         return parameters;
     }
 
-    public void addEntriesFromHashMap(HashMap<String,String> map) {
+    public void addEntriesFromHashMap(HashMap<String, String> map) {
         this.parameters.putAll(map);
     }
 
     /**
-     *
      * @param key the key of the URL parameter to be fetched
      * @return the String value for that key
      */
@@ -60,7 +62,6 @@ public class Parameters {
     }
 
     /**
-     *
      * @param key the key of the URL parameter to be fetched
      * @return the ATDateRange for that key
      */
@@ -69,12 +70,13 @@ public class Parameters {
         DateRange dateRange = null;
         List<String> dateList;
 
-        if ( parameters.get(key) != null ) {
+        if (parameters.get(key) != null) {
             try {
                 dateRangeString = java.net.URLDecoder.decode(parameters.get(key), "UTF-8");
                 dateList = Arrays.asList(dateRangeString.split(","));
                 if (dateList.size() == 2) {
-                    dateRange = new DateRange(DateTime.parse(dateList.get(0)), DateTime.parse(dateList.get(1)));
+                    dateRange = new DateRange(DateTime.parse(dateList.get(0)),
+                                              DateTime.parse(dateList.get(1)));
                 }
             } catch (UnsupportedEncodingException e) {
                 dateRange = null;
@@ -84,7 +86,6 @@ public class Parameters {
     }
 
     /**
-     *
      * @param key the key of the URL parameter to be fetched
      * @return the int value of that key
      */
@@ -92,7 +93,7 @@ public class Parameters {
         String intString;
         int intValue = 0;
 
-        if ( parameters.get(key) != null ) {
+        if (parameters.get(key) != null) {
             intString = parameters.get(key);
             try {
                 intValue = Integer.parseInt(intString);
@@ -103,7 +104,7 @@ public class Parameters {
 
     public Boolean getBooleanForKey(String key) {
         boolean value;
-        if ( parameters.get(key) != null ) {
+        if (parameters.get(key) != null) {
             String boolString = parameters.get(key);
             return Boolean.valueOf(boolString);
         }
@@ -111,7 +112,6 @@ public class Parameters {
     }
 
     /**
-     *
      * @param key the key of the URL parameter to be fetched
      * @return the Date value for that key
      */
@@ -119,7 +119,7 @@ public class Parameters {
         String dateString;
         DateTime dateTime = null;
 
-        if ( parameters.get(key) != null ) {
+        if (parameters.get(key) != null) {
             dateString = parameters.get(key);
             dateTime = DateTime.parse(dateString, Constants.AppTreeDateTimeFormat);
         }
@@ -128,7 +128,6 @@ public class Parameters {
     }
 
     /**
-     *
      * @param key the key of the URL parameter to be fetched
      * @return the ATLocation value for that key
      */
@@ -137,7 +136,7 @@ public class Parameters {
         Location location = null;
         List<String> locationList;
 
-        if ( parameters.get(key) != null ) {
+        if (parameters.get(key) != null) {
             try {
                 locationString = java.net.URLDecoder.decode(parameters.get(key), "UTF-8");
                 locationList = Arrays.asList(locationString.split(","));
@@ -159,14 +158,13 @@ public class Parameters {
     }
 
     /**
-     *
      * @return The page size sent in the URL parameters
      * @throws NumberFormatException
      */
     public int getPageSize() throws NumberFormatException {
         int pageSize = 0;
 
-        if ( parameters.get("pageSize") != null ) {
+        if (parameters.get("pageSize") != null) {
             pageSize = Integer.parseInt(parameters.get("pageSize"));
         }
 
@@ -174,14 +172,13 @@ public class Parameters {
     }
 
     /**
-     *
      * @return The offset sent in the URL parameters
      * @throws NumberFormatException
      */
     public int getOffset() throws NumberFormatException {
         int offset = 0;
 
-        if ( parameters.get("offset") != null ) {
+        if (parameters.get("offset") != null) {
             offset = Integer.parseInt(parameters.get("offset"));
         }
 
@@ -189,10 +186,15 @@ public class Parameters {
     }
 
     public List<Integer> getPrefetchRelationships() {
-        List<Integer> prefetchRelationships = new ArrayList<>();
-        String relationshipString = parameters.get("relationships");
-        if ( !StringUtils.isEmpty(relationshipString) ) {
-            prefetchRelationships = Arrays.stream(relationshipString.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
+        if (NullOrEmpty(prefetchRelationships)) {
+            String relationshipString = parameters.get("relationships");
+            if (!StringUtils.isEmpty(relationshipString)) {
+                prefetchRelationships =
+                    Arrays.stream(relationshipString.split(",")).map(String::trim)
+                          .map(Integer::parseInt).collect(Collectors.toList());
+            } else {
+                prefetchRelationships = new ArrayList<>();
+            }
         }
         return prefetchRelationships;
     }

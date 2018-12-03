@@ -20,7 +20,7 @@ public class ConfigurationManager extends TypeManager {
     static ConfigurationParserContext configurationParserContext;
 
     // NOTE: I chose not to use a `ConcurrentHashMap` because the read and write are slower
-    // and it isn't too big of a deal if we miss and cache entry
+    // and it isn't too big of a deal if we miss a cache entry
     //
     //
     // we are going to put our already inferred names and configurations here
