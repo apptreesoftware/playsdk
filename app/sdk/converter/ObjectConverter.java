@@ -247,6 +247,7 @@ public class ObjectConverter extends ConfigurationManager {
                                                                      UnsupportedAttributeException,
                                                                      UnableToWriteException,
                                                                      InvocationTargetException {
+        if (proxy.ignoreRead()) return;
         if (!proxy.isAttribute() && !proxy.isRelationship() && !proxy.isStatus()) return;
         if (record.isListItem() && proxy.excludeFromList()) return;
 
@@ -277,7 +278,7 @@ public class ObjectConverter extends ConfigurationManager {
                                           T source) throws UnsupportedAttributeException,
                                                            IllegalAccessException,
                                                            InvocationTargetException {
-
+        if (attributeProxy.ignoreWrite()) return;
         if (record.isListItem() && attributeProxy.excludeFromList()) return;
 
         boolean primaryKey = attributeProxy.isPrimaryKey();
