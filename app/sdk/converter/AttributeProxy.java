@@ -73,6 +73,16 @@ public class AttributeProxy {
         return !Null(attribute);
     }
 
+    public boolean ignoreWrite() {
+        return (isAttribute() && attribute.ignoreWrite()) ||
+               (isRelationship() && relationship.ignoreWrite());
+    }
+
+    public boolean ignoreRead() {
+        return (isAttribute() && attribute.ignoreRead()) ||
+               (isRelationship() && relationship.ignoreRead());
+    }
+
     public boolean isPrimaryKey() {
         return !Null(primaryKey);
     }
