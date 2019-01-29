@@ -96,11 +96,24 @@ public class ConfigurationManager extends TypeManager {
     }
 
     /**
+     * This method gets ServiceConfigurationAttributes from a class
      * @param someClass
      * @param <T>
      * @return
      */
     public static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributes(Class<T> someClass) {
+        return new ArrayList<>(generateConfigurationAttributesOrHitCache(someClass));
+    }
+
+
+    /**
+     * This method first checks the configuration cache for the class key and returns the attributes.
+     * If it does not have the key it will generate the attributes, cache then return them
+     * @param someClass
+     * @param <T>
+     * @return
+     */
+    private static <T> Collection<ServiceConfigurationAttribute> generateConfigurationAttributesOrHitCache(Class<T> someClass) {
         if(attributeMap.containsKey(someClass)){
             return attributeMap.get(someClass);
         }
@@ -125,6 +138,9 @@ public class ConfigurationManager extends TypeManager {
         attributeMap.put(someClass, attributes);
         return attributes;
     }
+
+
+
 
     /**
      * @param configurationWrapper
