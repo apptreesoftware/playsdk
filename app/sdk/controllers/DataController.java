@@ -60,8 +60,6 @@ public abstract class DataController extends Controller {
                             }
 
                         });
-                        Logger.debug("File Count " + newFile.size());
-
                         newFile.forEach((f) -> Logger.debug(f.getFile().toString()));
                         String formJSON = bodyMap.get("formJSON")[0];
                         HashMap<String, Http.MultipartFormData.FilePart> attachmentMap = new HashMap<>();
