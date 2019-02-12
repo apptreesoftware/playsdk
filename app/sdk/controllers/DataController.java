@@ -2,21 +2,25 @@ package sdk.controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import play.Logger;
+import play.api.mvc.MultipartFormData;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Controller;
 import play.mvc.Http;
+import scala.Option;
 import sdk.data.DataSet;
 import sdk.data.DataSetItem;
 import sdk.data.ServiceConfiguration;
 import sdk.utils.Constants;
 import sdk.utils.ResponseExceptionHandler;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -39,9 +43,27 @@ public abstract class DataController extends Controller {
                         Http.MultipartFormData body = request.body().asMultipartFormData();
                         Map<String, String[]> bodyMap = body.asFormUrlEncoded();
                         List<Http.MultipartFormData.FilePart> files = body.getFiles();
+                        List<Http.MultipartFormData.FilePart> newFile = new ArrayList<>();
+                        files.forEach(p -> {
+                            File file = (File)p.getFile();
+                            try {
+                                File attachmentFile = File.createTempFile(UUID.randomUUID().toString(), null);
+                                FileUtils.copyFile(file, attachmentFile);
+                                Http.MultipartFormData.FilePart<File> filePart = new Http.MultipartFormData.FilePart<File>(p.getKey(),
+                                                                                                                 p.getFilename(),
+                                                                                                                 p.getContentType(),
+                                                                                                                 attachmentFile);
+                                newFile.add(filePart);
+
+                            } catch (IOException e) {
+                                Logger.error("Could not create file part for attachment");
+                            }
+
+                        });
+                        newFile.forEach((f) -> Logger.debug(f.getFile().toString()));
                         String formJSON = bodyMap.get("formJSON")[0];
                         HashMap<String, Http.MultipartFormData.FilePart> attachmentMap = new HashMap<>();
-                        for (Http.MultipartFormData.FilePart file : files) {
+                        for (Http.MultipartFormData.FilePart file : newFile) {
                             attachmentMap.put(file.getKey(), file);
                         }
                         ObjectNode json = (ObjectNode) Json.parse(formJSON);
