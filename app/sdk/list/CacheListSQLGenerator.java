@@ -65,7 +65,6 @@ public class CacheListSQLGenerator {
             statement.executeUpdate(createTableSQL);
             statement.close();
             createIndexes(connection);
-            System.gc();
             parseListResponse(list, connection);
             outputPath = getTemporaryDirectoryPath() + File.separator + fileName + ".zip";
             sqlFileInputStream = new FileInputStream(listFile);
@@ -167,7 +166,6 @@ public class CacheListSQLGenerator {
             if ( count % 5000 == 0 ) {
                 statement.executeBatch();
                 connection.commit();
-                System.gc();
             }
         }
         statement.executeBatch();
