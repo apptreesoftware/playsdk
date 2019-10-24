@@ -25,7 +25,7 @@ public class Constants {
 
     public static final String CORE_ITEM_COUNT_HEADER = "X-ITEM-COUNT";
 
-    public static final String defaultCoreURL = "https://services1.apptreesoftware.com";
+    public static final String defaultCoreURL = "https://router.apptree.cloud";
 
     public static final String PLATFORM_VERSION = "5.6";
 
