@@ -7,6 +7,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import rx.exceptions.OnErrorThrowable;
 import sdk.exceptions.AuthorizationException;
+import sdk.exceptions.NeedsRetryException;
 import sdk.exceptions.PrimaryObjectNotFoundException;
 
 import static sdk.utils.Constants.CORE_CALLBACK_TYPE_ERROR;
@@ -36,6 +37,8 @@ public class ResponseExceptionHandler {
             return Controller.notFound();
         } else if ( throwable instanceof AuthorizationException) {
             return Controller.unauthorized();
+        } else if (throwable instanceof NeedsRetryException) {
+            return Controller.status(503);
         }
         return Controller.status(SDK_ERROR_STATUS_CODE,JsonUtils.toJson(Response.fromException(throwable, async)));
     }
