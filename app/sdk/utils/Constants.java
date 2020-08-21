@@ -21,6 +21,7 @@ public class Constants {
     public static final String CORE_CALLBACK_TYPE_SUCCESS = "SUCCESS";
     public static final String CORE_CALLBACK_TYPE_WARNING = "WARNING";
     public static final String CORE_CALLBACK_TYPE_ERROR = "ERROR";
+    public static final String CORE_CALLBACK_TYPE_ERROR_RETRY = "ERROR_RETRY";
     public static final String CORE_CALLBACK_TYPE_AUTH_FAILURE = "AUTHORIZATION_FAILURE";
 
     public static final String CORE_ITEM_COUNT_HEADER = "X-ITEM-COUNT";

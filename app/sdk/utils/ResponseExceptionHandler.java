@@ -61,6 +61,9 @@ public class ResponseExceptionHandler {
         } else if ( throwable instanceof AuthorizationException ) {
             coreCallbackType = Constants.CORE_CALLBACK_TYPE_AUTH_FAILURE;
             message = "Authorization Failed";
+        } else if (throwable instanceof NeedsRetryException) {
+          coreCallbackType = Constants.CORE_CALLBACK_TYPE_ERROR_RETRY;
+          message = "Needs Retry";
         } else {
             message = Response.fromException(throwable, true).getMessage();
         }
