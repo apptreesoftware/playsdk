@@ -6,6 +6,4 @@ import sdk.annotations.Attribute;
 public class SampleAttachmentWrapper {
     @Attribute(index = 0)
     public SampleAttachment sampleAttachment;
-
-
 }

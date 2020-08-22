@@ -42,8 +42,8 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
     @Override
     public Observable<DataSet> queryDataSet(DataSetItem queryDataItem, AuthenticationInfo authenticationInfo, Parameters params) {
         T object = getNewInstance();
-        ObjectConverter.copyFromRecord(queryDataItem, object, true, null);
-        Observable<Collection<T>> objects = query(object, authenticationInfo, params);
+        ParserContext context = ObjectConverter.copyFromRecord(queryDataItem, object, true, null);
+        Observable<Collection<T>> objects = query(object, authenticationInfo, params, context);
         return objects.map(list -> ObjectConverter.getDataSetFromCollection(list, getAttributes()));
     }
 
@@ -68,7 +68,7 @@ public abstract class TypedDataSource<T extends Object> implements DataSource {
         return validate(object, authenticationInfo, params, parserContext);
     }
 
-    abstract public Observable<Collection<T>> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters);
+    abstract public Observable<Collection<T>> query(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
     abstract public Observable<RecordActionResponse> update(T object, AuthenticationInfo authenticationInfo, Parameters parameters, ParserContext parserContext);
 
