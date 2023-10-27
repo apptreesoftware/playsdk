@@ -179,7 +179,8 @@ public class ObjectConverter extends ConfigurationManager {
                         proxy.setPrimaryKeyOrValue(destination, record.getStatus().toString());
 
                 }
-            } catch (UnsupportedAttributeException | IllegalAccessException | UnableToWriteException | InvocationTargetException e) {
+            } catch (UnsupportedAttributeException | IllegalAccessException |
+                     UnableToWriteException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
@@ -204,7 +205,8 @@ public class ObjectConverter extends ConfigurationManager {
             source.getClass())) {
             try {
                 copyFromField(attributeProxy, record, source);
-            } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
+            } catch (UnsupportedAttributeException | IllegalAccessException |
+                     InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
@@ -227,7 +229,8 @@ public class ObjectConverter extends ConfigurationManager {
                 attributeProxy.setLoadRelationshipData(
                     relationshipsToLoad.contains(attributeProxy.getIndex()));
                 copyFromField(attributeProxy, record, source);
-            } catch (UnsupportedAttributeException | IllegalAccessException | InvocationTargetException e) {
+            } catch (UnsupportedAttributeException | IllegalAccessException |
+                     InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
@@ -921,7 +924,11 @@ public class ObjectConverter extends ConfigurationManager {
 
     public static void copyFromAttachment(DataSetItemAttachment attachmentItem,
                                           ApptreeAttachment object) {
-        object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
+        if (isImageMimeType(attachmentItem.getMimeType())) {
+            object.setAttachmentURL(attachmentItem.getImageAttachmentURL());
+        } else {
+            object.setAttachmentURL(attachmentItem.getFileAttachmentURL());
+        }
         object.setMimeType(attachmentItem.getMimeType());
         object.setTitle(attachmentItem.getTitle());
         if (attachmentItem.getAttachmentBytes() != null) {
